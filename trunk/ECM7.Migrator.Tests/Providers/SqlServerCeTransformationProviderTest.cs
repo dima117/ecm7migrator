@@ -12,11 +12,11 @@
 using System;
 using System.Configuration;
 using System.Data.SqlServerCe;
-using Migrator.Providers.SqlServer;
+using ECM7.Migrator.Providers.SqlServer;
 using NUnit.Framework;
 using System.IO;
 
-namespace Migrator.Tests.Providers
+namespace ECM7.Migrator.Tests.Providers
 {
     [TestFixture, Category("SqlServerCe")]
     public class SqlServerCeTransformationProviderTest : TransformationProviderConstraintBase

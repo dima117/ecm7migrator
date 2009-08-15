@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Migrator.Framework;
-using ForeignKeyConstraint=Migrator.Framework.ForeignKeyConstraint;
+using ECM7.Migrator.Framework;
+using ForeignKeyConstraint=ECM7.Migrator.Framework.ForeignKeyConstraint;
 #if DOTNET2
 using SqliteConnection=System.Data.SQLite.SQLiteConnection;
 #else
 using Mono.Data.Sqlite;
 #endif
 
-namespace Migrator.Providers.SQLite
+namespace ECM7.Migrator.Providers.SQLite
 {
     /// <summary>
     /// Summary description for SQLiteTransformationProvider.
@@ -25,7 +25,7 @@ namespace Migrator.Providers.SQLite
         }
 
         public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
-                                          string[] refColumns, ForeignKeyConstraint constraint)
+                                          string[] refColumns, Framework.ForeignKeyConstraint constraint)
         {
             // NOOP Because SQLite doesn't support foreign keys
         }

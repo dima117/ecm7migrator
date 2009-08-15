@@ -14,10 +14,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Migrator.Framework;
-using Migrator.Framework.Loggers;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Framework.Loggers;
 
-namespace Migrator
+namespace ECM7.Migrator
 {
     /// <summary>
     /// Migrations mediator.

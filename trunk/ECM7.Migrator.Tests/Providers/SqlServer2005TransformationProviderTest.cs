@@ -11,10 +11,10 @@
 
 using System;
 using System.Configuration;
-using Migrator.Providers.SqlServer;
+using ECM7.Migrator.Providers.SqlServer;
 using NUnit.Framework;
 
-namespace Migrator.Tests.Providers
+namespace ECM7.Migrator.Tests.Providers
 {
     [TestFixture, Category("SqlServer2005")]
     public class SqlServer2005TransformationProviderTest : TransformationProviderConstraintBase

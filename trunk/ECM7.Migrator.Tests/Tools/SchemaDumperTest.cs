@@ -10,10 +10,10 @@
 #endregion
 using System;
 using System.Configuration;
+using ECM7.Migrator.Tools;
 using NUnit.Framework;
-using Migrator.Tools;
 
-namespace Migrator.Tests.Tools
+namespace ECM7.Migrator.Tests.Tools
 {
 	[TestFixture, Category("MySql")]
 	public class SchemaDumperTest

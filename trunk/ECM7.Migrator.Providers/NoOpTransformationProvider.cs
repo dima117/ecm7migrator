@@ -1,10 +1,10 @@
-using System;
 using System.Data;
-using Migrator.Framework;
-using ForeignKeyConstraint=Migrator.Framework.ForeignKeyConstraint;
+using ECM7.Migrator.Framework;
 using System.Collections.Generic;
+using ECM7.Migrator.Framework.SchemaBuilder;
+using ForeignKeyConstraint=ECM7.Migrator.Framework.ForeignKeyConstraint;
 
-namespace Migrator.Providers
+namespace ECM7.Migrator.Providers
 {
     /// <summary>
     /// No Op (Null Object Pattern) implementation of the ITransformationProvider
@@ -329,7 +329,7 @@ namespace Migrator.Providers
             return null;
         }
 
-        public void ExecuteSchemaBuilder(Migrator.Framework.SchemaBuilder.SchemaBuilder schemaBuilder)
+        public void ExecuteSchemaBuilder(SchemaBuilder schemaBuilder)
         {
             // No Op
         }

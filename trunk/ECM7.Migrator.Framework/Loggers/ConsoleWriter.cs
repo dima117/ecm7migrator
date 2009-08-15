@@ -11,7 +11,7 @@
 
 using System;
 
-namespace Migrator.Framework.Loggers
+namespace ECM7.Migrator.Framework.Loggers
 {
 	public class ConsoleWriter : ILogWriter
 	{

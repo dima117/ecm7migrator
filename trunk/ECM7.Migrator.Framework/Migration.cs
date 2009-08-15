@@ -11,7 +11,7 @@
 
 #endregion
 
-namespace Migrator.Framework
+namespace ECM7.Migrator.Framework
 {
     /// <summary>
     /// A migration is a group of transformation applied to the database schema

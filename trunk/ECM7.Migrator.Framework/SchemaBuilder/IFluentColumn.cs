@@ -11,7 +11,7 @@
 
 #endregion
 
-namespace Migrator.Framework.SchemaBuilder
+namespace ECM7.Migrator.Framework.SchemaBuilder
 {
 	public interface IFluentColumn : IColumn
 	{

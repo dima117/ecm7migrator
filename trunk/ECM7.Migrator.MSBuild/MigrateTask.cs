@@ -12,13 +12,13 @@
 using System;
 using System.IO;
 using System.Reflection;
+using ECM7.Migrator.Compile;
+using ECM7.Migrator.Framework.Loggers;
+using ECM7.Migrator.MSBuild.Logger;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
-using Migrator.Compile;
-using Migrator.Framework.Loggers;
-using Migrator.MSBuild.Logger;
 
-namespace Migrator.MSBuild
+namespace ECM7.Migrator.MSBuild
 {
 	/// <summary>
 	/// Runs migrations on a database

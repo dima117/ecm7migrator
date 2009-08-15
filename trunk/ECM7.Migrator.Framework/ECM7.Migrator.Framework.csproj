@@ -6,13 +6,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{5270F048-E580-486C-B14C-E5B9F6E539D4}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Migrator.Framework</RootNamespace>
-    <AssemblyName>Migrator.Framework</AssemblyName>
+    <RootNamespace>ECM7.Migrator.Framework</RootNamespace>
+    <AssemblyName>ECM7.Migrator.Framework</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,6 +34,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>

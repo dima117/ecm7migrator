@@ -12,11 +12,11 @@
 using System;
 using System.Configuration;
 using System.Data;
-using Migrator.Framework;
-using Migrator.Providers.Mysql;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers.Mysql;
 using NUnit.Framework;
 
-namespace Migrator.Tests.Providers
+namespace ECM7.Migrator.Tests.Providers
 {
     [TestFixture, Category("MySql")]
     public class MySqlTransformationProviderTest : TransformationProviderConstraintBase

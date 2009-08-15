@@ -11,10 +11,10 @@
 
 using System;
 using System.Collections.Generic;
+using ECM7.Migrator.Framework;
 using NAnt.Core;
-using Migrator.Framework;
 
-namespace Migrator.NAnt.Loggers
+namespace ECM7.Migrator.NAnt.Loggers
 {
 	/// <summary>
 	/// NAnt task logger for the migration mediator

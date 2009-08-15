@@ -11,7 +11,7 @@
 
 using System;
 
-namespace Migrator.Framework
+namespace ECM7.Migrator.Framework
 {
 	/// <summary>
 	/// Base class for migration errors.

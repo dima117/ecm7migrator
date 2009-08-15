@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 using Oracle.DataAccess.Client;
+using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
-namespace Migrator.Providers.Oracle
+namespace ECM7.Migrator.Providers.Oracle
 {
     public class OracleTransformationProvider : TransformationProvider
     {
@@ -17,7 +18,7 @@ namespace Migrator.Providers.Oracle
         }
 
         public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
-                                          string[] refColumns, Migrator.Framework.ForeignKeyConstraint constraint)
+                                          string[] refColumns, ForeignKeyConstraint constraint)
         {
             if (ConstraintExists(primaryTable, name))
             {

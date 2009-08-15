@@ -1,7 +1,7 @@
-using Migrator.Providers;
+using ECM7.Migrator.Providers;
 using NUnit.Framework;
 
-namespace Migrator.Tests.Providers
+namespace ECM7.Migrator.Tests.Providers
 {
     [TestFixture]
     public class GenericProviderTests

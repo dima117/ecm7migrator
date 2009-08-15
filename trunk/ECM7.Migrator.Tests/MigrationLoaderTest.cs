@@ -1,10 +1,10 @@
 using System.Reflection;
-using Migrator.Framework;
-using Migrator.Framework.Loggers;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Framework.Loggers;
 using NUnit.Framework;
 using NUnit.Mocks;
 
-namespace Migrator.Tests
+namespace ECM7.Migrator.Tests
 {
 	[TestFixture]
 	public class MigrationLoaderTest

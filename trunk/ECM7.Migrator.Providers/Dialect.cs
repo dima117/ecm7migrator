@@ -2,9 +2,9 @@
 using System;
 using System.Data;
 using System.Collections.Generic;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator.Providers
+namespace ECM7.Migrator.Providers
 {
     /// <summary>
     /// Defines the implementations specific details for a particular database.

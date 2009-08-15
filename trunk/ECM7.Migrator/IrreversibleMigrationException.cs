@@ -11,7 +11,7 @@
 
 using System;
 
-namespace Migrator
+namespace ECM7.Migrator
 {
 	/// <summary>
 	/// Exception thrown in a migration <c>Down()</c> method

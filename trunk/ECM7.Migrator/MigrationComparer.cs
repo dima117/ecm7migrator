@@ -11,9 +11,9 @@
 
 using System;
 using System.Collections.Generic;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator
+namespace ECM7.Migrator
 {
 	/// <summary>
 	/// Comparer of Migration by their version attribute.

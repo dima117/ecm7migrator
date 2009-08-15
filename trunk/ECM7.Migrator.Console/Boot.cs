@@ -11,7 +11,7 @@
 
 using System;
 
-namespace Migrator.MigratorConsole
+namespace ECM7.Migrator.MigratorConsole
 {
 	/// <summary>
 	/// Console application boostrap class.

@@ -12,13 +12,13 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Migrator.Compile;
-using Migrator.Framework.Loggers;
+using ECM7.Migrator.Compile;
+using ECM7.Migrator.Framework.Loggers;
+using ECM7.Migrator.NAnt.Loggers;
 using NAnt.Core;
 using NAnt.Core.Attributes;
-using Migrator.NAnt.Loggers;
 
-namespace Migrator.NAnt
+namespace ECM7.Migrator.NAnt
 {
 	/// <summary>
 	/// Runs migrations on a database

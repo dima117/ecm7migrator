@@ -14,12 +14,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Migrator.Framework;
-using Migrator.Framework.SchemaBuilder;
-using ForeignKeyConstraint = Migrator.Framework.ForeignKeyConstraint;
-using Migrator.Framework.Loggers;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Framework.Loggers;
+using ECM7.Migrator.Framework.SchemaBuilder;
+using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
-namespace Migrator.Providers
+namespace ECM7.Migrator.Providers
 {
 	/// <summary>
 	/// Base class for every transformation providers.
@@ -827,10 +827,9 @@ namespace Migrator.Providers
 			return Array.ConvertAll<string, string>(values,
 					  delegate(string val)
 					  {
-						  if (null == val)
-							  return "null";
-						  else
-							  return String.Format("'{0}'", val.Replace("'", "''"));
+					  	return null == val
+					  	       	? "null"
+					  	       	: String.Format("'{0}'", val.Replace("'", "''"));
 					  });
 		}
 

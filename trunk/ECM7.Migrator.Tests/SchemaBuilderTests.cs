@@ -1,10 +1,10 @@
 using System.Data;
-using Migrator.Framework;
-using Migrator.Framework.SchemaBuilder;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Framework.SchemaBuilder;
 using NUnit.Framework;
-using ForeignKeyConstraint = Migrator.Framework.ForeignKeyConstraint;
+using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
-namespace Migrator.Tests
+namespace ECM7.Migrator.Tests
 {
 	[TestFixture]
 	public class SchemaBuilderTests
@@ -19,26 +19,26 @@ namespace Migrator.Tests
 		}
 
 		[Test]
-		public void Can_AddTable()
+		public void CanAddTable()
 		{
 			_schemaBuilder.AddTable("MyUserTable");
 			//Assert.AreEqual("MyUserTable", _schemaBuilder.Expressions.ElementAt(0));
 		}
 
 		[Test]
-		public void Can_AddColumn()
+		public void CanAddColumn()
 		{
-			string columnName = "MyUserId";
+			const string COLUMN_NAME = "MyUserId";
 
 			_schemaBuilder
-				.AddColumn(columnName);
+				.AddColumn(COLUMN_NAME);
 
 			//Assert.IsTrue(_schemaBuilder.Columns.Count == 1);
 			//Assert.AreEqual(columnName, _schemaBuilder.Columns[0].Name);
 		}
 
 		[Test]
-		public void Can_chain_AddColumn_OfType()
+		public void CanChainAddColumnOfType()
 		{
 			_schemaBuilder
 				.AddColumn("SomeColumn")
@@ -48,7 +48,7 @@ namespace Migrator.Tests
 		}
 
 		[Test]
-		public void Can_chain_AddColumn_WithProperty()
+		public void CanChainAddColumnWithProperty()
 		{
 			_schemaBuilder
 				.AddColumn("MyColumn")
@@ -59,7 +59,7 @@ namespace Migrator.Tests
 		}
 
 		[Test]
-		public void Can_chain_AddColumn_WithSize()
+		public void CanChainAddColumnWithSize()
 		{
 			_schemaBuilder
 				.AddColumn("column")
@@ -69,7 +69,7 @@ namespace Migrator.Tests
 		}
 
 		[Test]
-		public void Can_chain_AddColumn_WithDefaultValue()
+		public void CanChainAddColumnWithDefaultValue()
 		{
 			_schemaBuilder
 				.AddColumn("something")
@@ -80,7 +80,7 @@ namespace Migrator.Tests
 		}
 
 		[Test]
-		public void Can_chain_AddTable_WithForeignKey()
+		public void CanChainAddTableWithForeignKey()
 		{
 			_schemaBuilder
 				.AddColumn("MyColumnThatIsForeignKey")

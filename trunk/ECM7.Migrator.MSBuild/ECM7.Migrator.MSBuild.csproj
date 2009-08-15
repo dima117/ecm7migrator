@@ -6,13 +6,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A145FFA9-5FE6-4636-93B8-0C110D132BF3}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Migrator.MSBuild</RootNamespace>
-    <AssemblyName>Migrator.MSBuild</AssemblyName>
+    <RootNamespace>ECM7.Migrator.MSBuild</RootNamespace>
+    <AssemblyName>ECM7.Migrator.MSBuild</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,6 +36,9 @@
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities" />
     <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>

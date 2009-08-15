@@ -9,10 +9,10 @@
 //under the License.
 #endregion
 using System.Reflection;
+using ECM7.Migrator.Providers;
 using NUnit.Framework;
-using Migrator.Providers;
 
-namespace Migrator.Tests
+namespace ECM7.Migrator.Tests
 {
 	/// <summary>
 	/// Extend this classe to test your migrations

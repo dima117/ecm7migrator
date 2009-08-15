@@ -11,10 +11,10 @@
 
 using System;
 using System.Configuration;
-using Migrator.Providers.SQLite;
+using ECM7.Migrator.Providers.SQLite;
 using NUnit.Framework;
 
-namespace Migrator.Tests.Providers
+namespace ECM7.Migrator.Tests.Providers
 {
      [TestFixture, Category("SQLite")]
      public class SQLiteTransformationProviderTest : TransformationProviderBase

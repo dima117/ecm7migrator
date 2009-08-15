@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator.Providers
+namespace ECM7.Migrator.Providers
 {
     /// <summary>
     /// This class maps a DbType to names.

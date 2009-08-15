@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Migrator.Framework.Loggers;
+using ECM7.Migrator.Framework.Loggers;
 using NUnit.Framework;
 
-namespace Migrator.Tests.Tools
+namespace ECM7.Migrator.Tests.Tools
 {
     [TestFixture]
     public class SqlFileLoggerTest

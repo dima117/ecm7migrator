@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator.Providers
+namespace ECM7.Migrator.Providers
 {
     /// <summary>
     /// This is basically a just a helper base class
