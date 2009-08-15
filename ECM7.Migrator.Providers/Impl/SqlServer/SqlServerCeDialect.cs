@@ -1,7 +1,7 @@
 using System;
 using System.Data;
 
-namespace Migrator.Providers.SqlServer
+namespace ECM7.Migrator.Providers.SqlServer
 {
     public class SqlServerCeDialect : SqlServerDialect
     {

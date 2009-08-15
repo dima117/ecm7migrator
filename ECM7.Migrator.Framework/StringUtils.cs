@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Migrator.Framework
+namespace ECM7.Migrator.Framework
 {
     public class StringUtils
     {

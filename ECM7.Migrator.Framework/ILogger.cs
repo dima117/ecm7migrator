@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Migrator.Framework
+namespace ECM7.Migrator.Framework
 {
 	public interface ILogger
 	{

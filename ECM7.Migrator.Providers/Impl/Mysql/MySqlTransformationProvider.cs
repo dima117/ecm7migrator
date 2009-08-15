@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 using MySql.Data.MySqlClient;
 
-namespace Migrator.Providers.Mysql
+namespace ECM7.Migrator.Providers.Mysql
 {
     /// <summary>
     /// Summary description for MySqlTransformationProvider.

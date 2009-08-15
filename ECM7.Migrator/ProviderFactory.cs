@@ -14,10 +14,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Migrator.Framework;
-using Migrator.Providers;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers;
 
-namespace Migrator
+namespace ECM7.Migrator
 {
     /// <summary>
     /// Handles loading Provider implementations
@@ -62,7 +62,7 @@ namespace Migrator
 
         public static void LoadDialects()
         {
-            Type dialectType = providerAssembly.GetType("Migrator.Providers.Dialect");
+            Type dialectType = providerAssembly.GetType("ECM7.Migrator.Providers.Dialect");
             foreach (Type t in providerAssembly.GetTypes())
             {
                 if (t.IsSubclassOf(dialectType))

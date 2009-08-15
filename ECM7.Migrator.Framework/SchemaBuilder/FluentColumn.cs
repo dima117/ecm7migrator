@@ -13,7 +13,7 @@
 
 using System.Data;
 
-namespace Migrator.Framework.SchemaBuilder
+namespace ECM7.Migrator.Framework.SchemaBuilder
 {
 	public class FluentColumn : IFluentColumn
 	{

@@ -13,14 +13,14 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using ILogger=Migrator.Framework.ILogger;
+using ILogger=ECM7.Migrator.Framework.ILogger;
 
-namespace Migrator.MSBuild.Logger
+namespace ECM7.Migrator.MSBuild.Logger
 {
     /// <summary>
     /// MSBuild task logger for the migration mediator
     /// </summary>
-    public class TaskLogger : ILogger
+    public class TaskLogger : Framework.ILogger
     {
         private readonly Task _task;
 

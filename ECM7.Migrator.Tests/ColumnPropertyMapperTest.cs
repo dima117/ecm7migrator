@@ -1,11 +1,11 @@
 using System.Data;
-using Migrator.Framework;
-using Migrator.Providers;
-using Migrator.Providers.Oracle;
-using Migrator.Providers.SqlServer;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers;
+using ECM7.Migrator.Providers.Oracle;
+using ECM7.Migrator.Providers.SqlServer;
 using NUnit.Framework;
 
-namespace Migrator.Tests
+namespace ECM7.Migrator.Tests
 {
     [TestFixture]
     public class ColumnPropertyMapperTest

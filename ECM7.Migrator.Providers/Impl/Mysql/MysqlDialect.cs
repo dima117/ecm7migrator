@@ -1,9 +1,9 @@
 
 using System;
 using System.Data;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator.Providers.Mysql
+namespace ECM7.Migrator.Providers.Mysql
 {
 	public class MysqlDialect : Dialect
 	{

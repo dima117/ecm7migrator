@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator
+namespace ECM7.Migrator
 {
     /// <summary>
     /// Description of MigrateAnywhere.

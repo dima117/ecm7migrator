@@ -14,7 +14,7 @@
 using System.Data;
 using System;
 
-namespace Migrator.Framework
+namespace ECM7.Migrator.Framework
 {
 	/// <summary>
 	/// Represents a table column.

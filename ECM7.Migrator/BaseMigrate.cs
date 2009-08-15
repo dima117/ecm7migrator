@@ -1,7 +1,7 @@
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 using System.Collections.Generic;
 
-namespace Migrator
+namespace ECM7.Migrator
 {
     public abstract class BaseMigrate
     {

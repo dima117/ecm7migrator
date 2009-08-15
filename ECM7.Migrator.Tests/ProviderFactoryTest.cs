@@ -1,9 +1,9 @@
 using System;
 using System.Configuration;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 using NUnit.Framework;
 
-namespace Migrator.Tests
+namespace ECM7.Migrator.Tests
 {
     [TestFixture]
     public class ProviderFactoryTest

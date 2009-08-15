@@ -11,11 +11,11 @@
 
 using System;
 using System.Reflection;
-using Migrator.Framework;
-using Migrator.Tools;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Tools;
 using System.Collections.Generic;
 
-namespace Migrator.MigratorConsole
+namespace ECM7.Migrator.MigratorConsole
 {
 	/// <summary>
 	/// Commande line utility to run the migrations

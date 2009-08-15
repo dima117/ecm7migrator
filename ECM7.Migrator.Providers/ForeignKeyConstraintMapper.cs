@@ -1,6 +1,6 @@
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator.Providers
+namespace ECM7.Migrator.Providers
 {
 	public class ForeignKeyConstraintMapper
 	{

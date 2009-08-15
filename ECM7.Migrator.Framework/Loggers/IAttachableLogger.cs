@@ -9,7 +9,7 @@
 //under the License.
 #endregion
 
-namespace Migrator.Framework.Loggers
+namespace ECM7.Migrator.Framework.Loggers
 {
 	/// <summary>
 	/// ILogger interface. 

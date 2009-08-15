@@ -13,7 +13,7 @@
 
 using System;
 
-namespace Migrator.Framework
+namespace ECM7.Migrator.Framework
 {
     /// <summary>
     /// Describe a migration

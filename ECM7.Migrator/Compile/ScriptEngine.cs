@@ -3,9 +3,9 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator.Compile
+namespace ECM7.Migrator.Compile
 {
     public class ScriptEngine
     {

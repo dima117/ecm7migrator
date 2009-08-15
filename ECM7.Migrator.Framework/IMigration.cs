@@ -1,4 +1,4 @@
-namespace Migrator.Framework
+namespace ECM7.Migrator.Framework
 {
     public interface IMigration
     {

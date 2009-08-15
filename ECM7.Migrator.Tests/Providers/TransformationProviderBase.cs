@@ -1,9 +1,9 @@
 using System;
 using System.Data;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 using NUnit.Framework;
 
-namespace Migrator.Tests.Providers
+namespace ECM7.Migrator.Tests.Providers
 {
 	/// <summary>
 	/// Base class for Provider tests for all non-constraint oriented tests.

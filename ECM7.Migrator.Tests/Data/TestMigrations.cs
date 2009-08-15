@@ -1,6 +1,6 @@
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator.Tests.Data
+namespace ECM7.Migrator.Tests.Data
 {
     [Migration(1)]
     public class FirstTestMigration : Migration

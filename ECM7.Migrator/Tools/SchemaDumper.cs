@@ -10,9 +10,9 @@
 #endregion
 
 using System.IO;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator.Tools
+namespace ECM7.Migrator.Tools
 {
 	public class SchemaDumper
 	{

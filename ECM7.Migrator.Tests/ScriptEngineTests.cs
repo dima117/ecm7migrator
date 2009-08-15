@@ -1,9 +1,9 @@
 using System.IO;
 using System.Reflection;
-using Migrator.Compile;
+using ECM7.Migrator.Compile;
 using NUnit.Framework;
 
-namespace Migrator.Tests
+namespace ECM7.Migrator.Tests
 {
     [TestFixture]
     public class ScriptEngineTests

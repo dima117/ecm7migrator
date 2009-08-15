@@ -15,9 +15,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator.Providers.SqlServer
+namespace ECM7.Migrator.Providers.SqlServer
 {
     /// <summary>
     /// Migration transformations provider for Microsoft SQL Server.

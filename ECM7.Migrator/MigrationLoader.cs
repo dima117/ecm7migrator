@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Migrator.Framework;
+using ECM7.Migrator.Framework;
 
-namespace Migrator
+namespace ECM7.Migrator
 {
     /// <summary>
     /// Handles inspecting code to find all of the Migrations in assemblies and reading

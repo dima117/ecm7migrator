@@ -1,7 +1,7 @@
 using System.Data;
 using System.Collections.Generic;
 
-namespace Migrator.Framework
+namespace ECM7.Migrator.Framework
 {
 	/// <summary>
 	/// The main interface to use in Migrations to make changes on a database schema.

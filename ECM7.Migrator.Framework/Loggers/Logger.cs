@@ -12,7 +12,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Migrator.Framework.Loggers
+namespace ECM7.Migrator.Framework.Loggers
 {
 	/// <summary>
 	/// Text logger for the migration mediator
