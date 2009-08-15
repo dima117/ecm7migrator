@@ -60,7 +60,7 @@ namespace ECM7.Migrator.Tests
 			else
 				providerMock.ExpectNoCall("Rollback");
 
-			_migrationLoader = new MigrationLoader((ITransformationProvider)providerMock.MockInstance, Assembly.GetExecutingAssembly(), true);
+			_migrationLoader = new MigrationLoader((ITransformationProvider)providerMock.MockInstance, true, Assembly.GetExecutingAssembly());
 			_migrationLoader.MigrationsTypes.Add(typeof(MigratorTest.FirstMigration));
 			_migrationLoader.MigrationsTypes.Add(typeof(MigratorTest.SecondMigration));
 			_migrationLoader.MigrationsTypes.Add(typeof(MigratorTest.ThirdMigration));

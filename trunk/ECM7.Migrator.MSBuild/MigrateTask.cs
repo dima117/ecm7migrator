@@ -158,7 +158,7 @@ namespace ECM7.Migrator.MSBuild
 
         private void Execute(Assembly asm)
 	    {
-            Migrator mig = new Migrator(Provider, ConnectionString, asm, Trace, new TaskLogger(this));
+			Migrator mig = new Migrator(Provider, ConnectionString, Trace, new TaskLogger(this), asm);
             mig.DryRun = DryRun;
             if (ScriptChanges)
             {

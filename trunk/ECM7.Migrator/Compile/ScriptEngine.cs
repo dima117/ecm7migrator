@@ -9,10 +9,10 @@ namespace ECM7.Migrator.Compile
 {
     public class ScriptEngine
     {
-        public readonly string[] extraReferencedAssemblies;
+        public readonly string[] ExtraReferencedAssemblies;
 
-        private readonly CodeDomProvider _provider;
-        private string _codeType = "csharp";
+        private readonly CodeDomProvider provider;
+        private readonly string codeType = "csharp";
 
         public ScriptEngine() : this(null, null)
         {
@@ -26,18 +26,18 @@ namespace ECM7.Migrator.Compile
         public ScriptEngine(string codeType, string[] extraReferencedAssemblies)
         {
             if (!String.IsNullOrEmpty(codeType))
-                _codeType = codeType;
-            this.extraReferencedAssemblies = extraReferencedAssemblies;
+                this.codeType = codeType;
+            this.ExtraReferencedAssemblies = extraReferencedAssemblies;
 
             // There is currently no way to generically create a CodeDomProvider and have it work with .NET 3.5
-            _provider = CodeDomProvider.CreateProvider(_codeType);
+            provider = CodeDomProvider.CreateProvider(this.codeType);
         }
 
         public Assembly Compile(string directory)
         {
             string[] files = GetFilesRecursive(directory);
             Console.Out.WriteLine("Compiling:");
-            Array.ForEach(files, delegate(String file) { Console.Out.WriteLine(file); });
+            Array.ForEach(files, file => Console.Out.WriteLine(file));
 
             return Compile(files);
         }
@@ -56,7 +56,7 @@ namespace ECM7.Migrator.Compile
         private FileInfo[] GetFilesRecursive(DirectoryInfo d)
         {
             List<FileInfo> files = new List<FileInfo>();
-            files.AddRange(d.GetFiles(String.Format("*.{0}", _provider.FileExtension)));
+            files.AddRange(d.GetFiles(String.Format("*.{0}", provider.FileExtension)));
             DirectoryInfo[] subDirs = d.GetDirectories();
             if (subDirs.Length > 0)
             {
@@ -73,7 +73,7 @@ namespace ECM7.Migrator.Compile
         {
             CompilerParameters parms = SetupCompilerParams();
 
-            CompilerResults compileResult = _provider.CompileAssemblyFromFile(parms, files);
+            CompilerResults compileResult = provider.CompileAssemblyFromFile(parms, files);
             if (compileResult.Errors.Count != 0)
             {
                 foreach (CompilerError err in compileResult.Errors)
@@ -100,9 +100,9 @@ namespace ECM7.Migrator.Compile
             parms.ReferencedAssemblies.Add("System.dll");
             parms.ReferencedAssemblies.Add("System.Data.dll");
             parms.ReferencedAssemblies.Add(FrameworkAssemblyPath());
-            if (null != extraReferencedAssemblies && extraReferencedAssemblies.Length > 0)
+            if (null != ExtraReferencedAssemblies && ExtraReferencedAssemblies.Length > 0)
             {
-                Array.ForEach(extraReferencedAssemblies,
+                Array.ForEach(ExtraReferencedAssemblies,
                               delegate(String assemb) { parms.ReferencedAssemblies.Add(assemb); });
             }
             return parms;

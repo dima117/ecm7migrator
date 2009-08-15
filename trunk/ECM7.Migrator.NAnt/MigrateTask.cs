@@ -37,99 +37,58 @@ namespace ECM7.Migrator.NAnt
 	[TaskName("migrate")]
 	public class MigrateTask : Task
 	{
-		private long _to = -1; // To last revision
-		private string _provider;
-		private string _connectionString;
-		private FileInfo _migrationsAssembly;
-		private bool _trace;
-		private bool _dryrun;
-        private string _scriptFile;
+		private long to = -1; // To last revision
 
-        private string _directory;
-        private string _language;
+		[TaskAttribute("provider", Required = true)]
+		public string Provider { set; get; }
 
-		[TaskAttribute("provider", Required=true)]
-		public string Provider
-		{
-			set { _provider = value; }
-			get { return _provider; }
-		}
-		
-		[TaskAttribute("connectionstring", Required=true)]
-		public string ConnectionString
-		{
-			set { _connectionString = value; }
-			get { return _connectionString; }
-		}
-		
+		[TaskAttribute("connectionstring", Required = true)]
+		public string ConnectionString { set; get; }
+
 		[TaskAttribute("migrations")]
-		public FileInfo MigrationsAssembly
-		{
-			set { _migrationsAssembly = value; }
-			get { return _migrationsAssembly; }
-		}
+		public FileInfo MigrationsAssembly { set; get; }
 
-        /// <summary>
-        /// The paths to the directory that contains your migrations. 
-        /// This will generally just be a single item.
-        /// </summary>
-        [TaskAttribute("directory")]
-        public string Directory
-        {
-            set { _directory = value; }
-            get { return _directory; }
-        }
+		/// <summary>
+		/// The paths to the directory that contains your migrations. 
+		/// This will generally just be a single item.
+		/// </summary>
+		[TaskAttribute("directory")]
+		public string Directory { set; get; }
 
-        [TaskAttribute("language")]
-        public string Language
-        {
-            set { _language = value; }
-            get { return _language; }
-        }
+		[TaskAttribute("language")]
+		public string Language { set; get; }
 
-		
+
 		[TaskAttribute("to")]
 		public long To
 		{
-			set { _to = value; }
-			get { return _to; }
-		}
-		
-		[TaskAttribute("trace")]
-		public bool Trace
-		{
-			set { _trace = value; }
-			get { return _trace; }
-		}
-		
-		[TaskAttribute("dryrun")]
-		public bool DryRun
-		{
-			set { _dryrun = value; }
-			get { return _dryrun; }
+			set { to = value; }
+			get { return to; }
 		}
 
-        /// <summary>
+		[TaskAttribute("trace")]
+		public bool Trace { set; get; }
+
+		[TaskAttribute("dryrun")]
+		public bool DryRun { set; get; }
+
+		/// <summary>
         /// Gets value indicating whether to script the changes made to the database 
         /// to the file indicated by <see cref="ScriptFile"/>.
         /// </summary>
         /// <value><c>true</c> if the changes should be scripted to a file; otherwise, <c>false</c>.</value>
         public bool ScriptChanges
         {
-            get { return !String.IsNullOrEmpty(_scriptFile); }
+            get { return !String.IsNullOrEmpty(ScriptFile); }
         }
 
-        /// <summary>
-        /// Gets or sets the script file that will contain the Sql statements 
-        /// that are executed as part of the migrations.
-        /// </summary>
-        [TaskAttribute("scriptFile")]
-        public string ScriptFile
-        {
-            get { return _scriptFile; }
-            set { _scriptFile = value; }
-        }
-		
+		/// <summary>
+		/// Gets or sets the script file that will contain the Sql statements 
+		/// that are executed as part of the migrations.
+		/// </summary>
+		[TaskAttribute("scriptFile")]
+		public string ScriptFile { get; set; }
+
 		protected override void ExecuteTask()
 		{
             if (! String.IsNullOrEmpty(Directory))
@@ -147,7 +106,7 @@ namespace ECM7.Migrator.NAnt
 
         private void Execute(Assembly asm)
         {
-            Migrator mig = new Migrator(Provider, ConnectionString, asm, Trace, new TaskLogger(this));
+			Migrator mig = new Migrator(Provider, ConnectionString, Trace, new TaskLogger(this), asm);
             mig.DryRun = DryRun;
             if (ScriptChanges)
             {
@@ -168,10 +127,10 @@ namespace ECM7.Migrator.NAnt
             if (mig.DryRun)
                 mig.Logger.Log("********** Dry run! Not actually applying changes. **********");
 
-            if (_to == -1)
+            if (to == -1)
                 mig.MigrateToLastVersion();
             else
-                mig.MigrateTo(_to);
+                mig.MigrateTo(to);
         }
 	}
 }

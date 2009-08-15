@@ -97,14 +97,16 @@ namespace ECM7.Migrator.Providers.Oracle
                 IDataReader reader =
                     ExecuteQuery(
                         string.Format(
-                            "select column_name, data_type, data_length, data_precision, data_scale FROM USER_TAB_COLUMNS WHERE lower(table_name) = '{0}'",
+                            "select column_name, data_type, data_length, data_precision, data_scale, nullable FROM USER_TAB_COLUMNS WHERE lower(table_name) = '{0}'",
                             table.ToLower())))
             {
                 while (reader.Read())
                 {
-                    string colName = reader[0].ToString();
+					string colName = reader["column_name"].ToString();
                     DbType colType = DbType.String;
-                    string dataType = reader[1].ToString().ToLower();
+					string dataType = reader["data_type"].ToString().ToLower();
+					bool nullable = reader["nullable"].ToString() == "Y"; // todo: проверить, везде ли работает буква "Y"
+                    
                     if (dataType.Equals("number"))
                     {
                         int precision = Convert.ToInt32(reader[3]);
@@ -122,7 +124,12 @@ namespace ECM7.Migrator.Providers.Oracle
                     {
                         colType = DbType.DateTime;
                     }
-                    columns.Add(new Column(colName, colType));
+
+					ColumnProperty properties = nullable 
+						? ColumnProperty.Null
+						: ColumnProperty.NotNull;
+                    
+                    columns.Add(new Column(colName, colType, properties));
                 }
             }
 

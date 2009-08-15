@@ -163,7 +163,7 @@ namespace ECM7.Migrator.Tests
 			else
 				providerMock.ExpectNoCall("Rollback");
 
-            _migrator = new Migrator((ITransformationProvider)providerMock.MockInstance, Assembly.GetExecutingAssembly(), false);
+			_migrator = new Migrator((ITransformationProvider)providerMock.MockInstance, false, Assembly.GetExecutingAssembly());
 			
 			// Enlève toutes les migrations trouvée automatiquement
 			_migrator.MigrationsTypes.Clear();
