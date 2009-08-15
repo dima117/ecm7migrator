@@ -23,15 +23,15 @@ namespace ECM7.Migrator.MigratorConsole
 	/// </remarks>
 	public class MigratorConsole
 	{
-		private string _provider;
-		private string _connectionString;
-		private string _migrationsAssembly;
-		private bool _list = false;
-		private bool _trace = false;
-		private bool _dryrun = false;
-		private string _dumpTo;
-		private long _migrateTo = -1;
-		private string[] args;
+		private string provider;
+		private string connectionString;
+		private string migrationsAssembly;
+		private bool list;
+		private bool trace;
+		private bool dryrun;
+		private string dumpTo;
+		private long migrateTo = -1;
+		private readonly string[] args;
 		
 		/// <summary>
 		/// Builds a new console
@@ -51,9 +51,9 @@ namespace ECM7.Migrator.MigratorConsole
 		{
 			try
 			{
-				if (_list)
+				if (list)
 					List();
-				else if (_dumpTo != null)
+				else if (dumpTo != null)
 					Dump();
 				else
 					Migrate();
@@ -84,10 +84,10 @@ namespace ECM7.Migrator.MigratorConsole
             if (mig.DryRun)
                 mig.Logger.Log("********** Dry run! Not actually applying changes. **********");
 
-			if (_migrateTo == -1)
+			if (migrateTo == -1)
 				mig.MigrateToLastVersion();
 			else
-				mig.MigrateTo(_migrateTo);
+				mig.MigrateTo(migrateTo);
 		}
 		
 		/// <summary>
@@ -116,9 +116,9 @@ namespace ECM7.Migrator.MigratorConsole
 		{
 			CheckArguments();
 			
-			SchemaDumper dumper = new SchemaDumper(_provider, _connectionString);
+			SchemaDumper dumper = new SchemaDumper(provider, connectionString);
 			
-			dumper.DumpTo(_dumpTo);
+			dumper.DumpTo(dumpTo);
 		}
 		
 		/// <summary>
@@ -126,41 +126,41 @@ namespace ECM7.Migrator.MigratorConsole
 		/// </summary>
 		public void PrintUsage()
 		{
-			int tab = 17;
+			const int TAB = 17;
 			Version ver = Assembly.GetExecutingAssembly().GetName().Version;
 			
 			Console.WriteLine("Database migrator - v{0}.{1}.{2}", ver.Major, ver.Minor, ver.Revision);
 			Console.WriteLine();
 			Console.WriteLine("usage:\nMigrator.Console.exe provider connectionString migrationsAssembly [options]");
 			Console.WriteLine();
-			Console.WriteLine("\t{0} {1}", "provider".PadRight(tab), "The database provider (SqlServer, MySql, Postgre)");
-			Console.WriteLine("\t{0} {1}", "connectionString".PadRight(tab), "Connection string to the database");
-			Console.WriteLine("\t{0} {1}", "migrationAssembly".PadRight(tab), "Path to the assembly containing the migrations");
+			Console.WriteLine("\t{0} {1}", "provider".PadRight(TAB), "The database provider (SqlServer, MySql, Postgre)");
+			Console.WriteLine("\t{0} {1}", "connectionString".PadRight(TAB), "Connection string to the database");
+			Console.WriteLine("\t{0} {1}", "migrationAssembly".PadRight(TAB), "Path to the assembly containing the migrations");
 			Console.WriteLine("Options:");
-			Console.WriteLine("\t-{0}{1}", "version NO".PadRight(tab), "To specific version to migrate the database to");
-			Console.WriteLine("\t-{0}{1}", "list".PadRight(tab), "List migrations");
-			Console.WriteLine("\t-{0}{1}", "trace".PadRight(tab), "Show debug informations");
-			Console.WriteLine("\t-{0}{1}", "dump FILE".PadRight(tab), "Dump the database schema as migration code");
-			Console.WriteLine("\t-{0}{1}", "dryrun".PadRight(tab), "Simulation mode (don't actually apply/remove any migrations)");
+			Console.WriteLine("\t-{0}{1}", "version NO".PadRight(TAB), "To specific version to migrate the database to");
+			Console.WriteLine("\t-{0}{1}", "list".PadRight(TAB), "List migrations");
+			Console.WriteLine("\t-{0}{1}", "trace".PadRight(TAB), "Show debug informations");
+			Console.WriteLine("\t-{0}{1}", "dump FILE".PadRight(TAB), "Dump the database schema as migration code");
+			Console.WriteLine("\t-{0}{1}", "dryrun".PadRight(TAB), "Simulation mode (don't actually apply/remove any migrations)");
 			Console.WriteLine();
 		}
 		
 		#region Private helper methods
 		private void CheckArguments()
 		{
-			if (_connectionString == null)
+			if (connectionString == null)
 				throw new ArgumentException("Connection string missing", "connectionString");
-			if (_migrationsAssembly == null)
+			if (migrationsAssembly == null)
 				throw new ArgumentException("Migrations assembly missing", "migrationsAssembly");
 		}
 				
 		private Migrator GetMigrator()
 		{
-			Assembly asm = Assembly.LoadFrom(_migrationsAssembly);
-			
-			Migrator migrator = new Migrator(_provider, _connectionString, asm, _trace);
-			migrator.args = args;
-		    migrator.DryRun = _dryrun;
+			Assembly asm = Assembly.LoadFrom(migrationsAssembly);
+
+			Migrator migrator = new Migrator(provider, connectionString, trace, asm);
+			migrator.Args = args;
+		    migrator.DryRun = dryrun;
 			return migrator;
 		}
 				
@@ -170,31 +170,31 @@ namespace ECM7.Migrator.MigratorConsole
 			{
 				if (argv[i].Equals("-list"))
 				{
-					_list = true;
+					list = true;
 				}
 				else if (argv[i].Equals("-trace"))
 				{
-					_trace = true;
+					trace = true;
 				}
 				else if (argv[i].Equals("-dryrun"))
 				{
-					_dryrun = true;
+					dryrun = true;
 				}
 				else if (argv[i].Equals("-version"))
 				{
-					_migrateTo = long.Parse(argv[i+1]);
+					migrateTo = long.Parse(argv[i+1]);
 					i++;
 				}
 				else if (argv[i].Equals("-dump"))
 				{
-					_dumpTo = argv[i+1];
+					dumpTo = argv[i+1];
 					i++;
 				}
 				else
 				{
-					if (i == 0) _provider = argv[i];
-					if (i == 1) _connectionString = argv[i];
-					if (i == 2) _migrationsAssembly = argv[i];
+					if (i == 0) provider = argv[i];
+					if (i == 1) connectionString = argv[i];
+					if (i == 2) migrationsAssembly = argv[i];
 				}
 			}
 		}

@@ -26,7 +26,7 @@ namespace ECM7.Migrator.Providers
         /// <summary>
         /// Sql if This column is Indexed
         /// </summary>
-        protected bool indexed = false;
+        protected bool indexed;
 
         /// <summary>
         /// Sql if this column has a default value

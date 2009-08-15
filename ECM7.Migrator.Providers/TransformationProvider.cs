@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Framework.Loggers;
 using ECM7.Migrator.Framework.SchemaBuilder;
@@ -210,13 +211,10 @@ namespace ECM7.Migrator.Providers
 
 		public List<string> GetPrimaryKeys(IEnumerable<Column> columns)
 		{
-			List<string> pks = new List<string>();
-			foreach (Column col in columns)
-			{
-				if (col.IsPrimaryKey)
-					pks.Add(col.Name);
-			}
-			return pks;
+			return columns
+				.Where(column => column.IsPrimaryKey)
+				.Select(column => column.Name)
+				.ToList();
 		}
 
 		public virtual void RemoveTable(string name)
