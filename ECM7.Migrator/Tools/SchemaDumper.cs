@@ -16,11 +16,11 @@ namespace ECM7.Migrator.Tools
 {
 	public class SchemaDumper
 	{
-	    private readonly ITransformationProvider _provider;
+	    private readonly ITransformationProvider provider;
 		
-		public SchemaDumper(string provider, string connectionString)
+		public SchemaDumper(string dialectTypeName, string connectionString)
 		{
-			_provider = ProviderFactory.Create(provider, connectionString);
+			this.provider = ProviderFactory.Create(dialectTypeName, connectionString);
 		}
 		
 		public string Dump()
@@ -34,10 +34,10 @@ namespace ECM7.Migrator.Tools
 			writer.WriteLine("\tpublic override void Up()");
 			writer.WriteLine("\t{");
 			
-			foreach (string table in _provider.GetTables())
+			foreach (string table in provider.GetTables())
 			{
 				writer.WriteLine("\t\tDatabase.AddTable(\"{0}\",", table);
-				foreach (Column column in _provider.GetColumns(table))
+				foreach (Column column in provider.GetColumns(table))
 				{
 					writer.WriteLine("\t\t\tnew Column(\"{0}\", typeof({1})),", column.Name, column.ColumnType.DataType);
 				}
@@ -48,7 +48,7 @@ namespace ECM7.Migrator.Tools
 			writer.WriteLine("\tpublic override void Down()");
 			writer.WriteLine("\t{");
 			
-			foreach (string table in _provider.GetTables())
+			foreach (string table in provider.GetTables())
 			{
 				writer.WriteLine("\t\tDatabase.RemoveTable(\"{0}\");", table);
 			}

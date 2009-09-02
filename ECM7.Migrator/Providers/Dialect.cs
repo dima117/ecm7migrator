@@ -1,4 +1,3 @@
-
 using System;
 using System.Data;
 using System.Collections.Generic;
@@ -7,7 +6,7 @@ using ECM7.Migrator.Framework;
 namespace ECM7.Migrator.Providers
 {
     /// <summary>
-    /// Defines the implementations specific details for a particular database.
+    /// Определяет реализацию деталей, специфических для конкретной СУБД.
     /// </summary>
     public abstract class Dialect 
     {
@@ -73,13 +72,7 @@ namespace ECM7.Migrator.Providers
 		/// <returns>The database type name used by ddl.</returns>
 		protected virtual string GetTypeName(DbType type)
 		{
-			string result = typeNames.Get(type);
-			if (result == null)
-			{
-				throw new Exception(string.Format("No default type mapping for DbType {0}", type));
-			}
-
-			return result;
+			return typeNames.Get(type);
 		}
 
 		/// <summary>
@@ -87,10 +80,9 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		/// <param name="type">The DbType</param>
 		/// <returns>The database type name used by ddl.</returns>
-		/// <param name="length"></param>
 		protected virtual string GetTypeName(ColumnType type)
 		{
-			return GetTypeName(type.DataType, type.Length, type.Precision, type.Scale);
+			return typeNames.Get(type);
 		}
 
 		/// <summary>
@@ -99,15 +91,10 @@ namespace ECM7.Migrator.Providers
 		/// <param name="type">The DbType</param>
 		/// <returns>The database type name used by ddl.</returns>
 		/// <param name="length"></param>
-		/// <param name="precision"></param>
 		/// <param name="scale"></param>
-		protected virtual string GetTypeName(DbType type, int length, int precision, int scale)
+		protected virtual string GetTypeName(DbType type, int? length, int? scale)
 		{
-			string resultWithLength = typeNames.Get(type, length, precision, scale);
-			if (resultWithLength != null)
-				return resultWithLength;
-
-			return GetTypeName(type);
+			return typeNames.Get(type, length, scale);
 		}
 
 		#endregion        

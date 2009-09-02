@@ -40,13 +40,13 @@ namespace ECM7.Migrator
 		{
 		}
 
-		public Migrator(string provider, string connectionString, bool trace, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(provider, connectionString), trace, assemblies)
+		public Migrator(string dialectTypeName, string connectionString, bool trace, params Assembly[] assemblies)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString), trace, assemblies)
 		{
 		}
 
-		public Migrator(string provider, string connectionString, bool trace, ILogger logger, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(provider, connectionString), trace, logger, assemblies)
+		public Migrator(string dialectTypeName, string connectionString, bool trace, ILogger logger, params Assembly[] assemblies)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString), trace, logger, assemblies)
 		{
 		}
 

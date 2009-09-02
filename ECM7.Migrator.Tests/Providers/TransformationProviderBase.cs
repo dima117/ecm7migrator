@@ -10,36 +10,36 @@ namespace ECM7.Migrator.Tests.Providers
 	/// </summary>
 	public class TransformationProviderBase
 	{
-		protected ITransformationProvider _provider;
+		protected ITransformationProvider provider;
 
 		[TearDown]
 		public virtual void TearDown()
 		{
 			DropTestTables();
 
-			_provider.Rollback();
+			provider.Rollback();
 		}
 
 		protected void DropTestTables()
 		{
 			// Because MySql doesn't support schema transaction
 			// we got to remove the tables manually... sad...
-			_provider.RemoveTable("TestTwo");
-			_provider.RemoveTable("Test");
-			_provider.RemoveTable("SchemaInfo");
+			provider.RemoveTable("TestTwo");
+			provider.RemoveTable("Test");
+			provider.RemoveTable("SchemaInfo");
 		}
 
 		public void AddDefaultTable()
 		{
-			_provider.AddTable("TestTwo",
-			new Column("Id", DbType.Int32, ColumnProperty.PrimaryKeyWithIdentity),
+			provider.AddTable("TestTwo",
+			new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
 			new Column("TestId", DbType.Int32, ColumnProperty.ForeignKey)
 			);
 		}
 
 		public void AddTable()
 		{
-			_provider.AddTable("Test",
+			provider.AddTable("Test",
 			new Column("Id", DbType.Int32, ColumnProperty.NotNull),
 			new Column("Title", DbType.String, 100, ColumnProperty.Null),
 			new Column("name", DbType.String, 50, ColumnProperty.Null),
@@ -51,8 +51,8 @@ namespace ECM7.Migrator.Tests.Providers
 
 		public void AddTableWithPrimaryKey()
 		{
-			_provider.AddTable("Test",
-			new Column("Id", DbType.Int32, ColumnProperty.PrimaryKeyWithIdentity),
+			provider.AddTable("Test",
+			new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
 			new Column("Title", DbType.String, 100, ColumnProperty.Null),
 			new Column("name", DbType.String, 50, ColumnProperty.NotNull),
 			new Column("blobVal", DbType.Binary),
@@ -64,48 +64,48 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public void TableExistsWorks()
 		{
-			Assert.IsFalse(_provider.TableExists("gadadadadseeqwe"));
-			Assert.IsTrue(_provider.TableExists("TestTwo"));
+			Assert.IsFalse(provider.TableExists("gadadadadseeqwe"));
+			Assert.IsTrue(provider.TableExists("TestTwo"));
 		}
 
 		[Test]
 		public void ColumnExistsWorks()
 		{
-			Assert.IsFalse(_provider.ColumnExists("gadadadadseeqwe", "eqweqeq"));
-			Assert.IsFalse(_provider.ColumnExists("TestTwo", "eqweqeq"));
-			Assert.IsTrue(_provider.ColumnExists("TestTwo", "Id"));
+			Assert.IsFalse(provider.ColumnExists("gadadadadseeqwe", "eqweqeq"));
+			Assert.IsFalse(provider.ColumnExists("TestTwo", "eqweqeq"));
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "Id"));
 		}
 
 		[Test]
 		public void CanExecuteBadSqlForNonCurrentProvider()
 		{
-			_provider["foo"].ExecuteNonQuery("select foo from bar 123");
+			provider["foo"].ExecuteNonQuery("select foo from bar 123");
 		}
 
 		[Test]
 		public void TableCanBeAdded()
 		{
 			AddTable();
-			Assert.IsTrue(_provider.TableExists("Test"));
+			Assert.IsTrue(provider.TableExists("Test"));
 		}
 
 		[Test]
 		public void GetTablesWorks()
 		{
-			foreach (string name in _provider.GetTables())
+			foreach (string name in provider.GetTables())
 			{
-				_provider.Logger.Log("Table: {0}", name);
+				provider.Logger.Log("Table: {0}", name);
 			}
-			Assert.AreEqual(1, _provider.GetTables().Length);
+			Assert.AreEqual(1, provider.GetTables().Length);
 			AddTable();
-			Assert.AreEqual(2, _provider.GetTables().Length);
+			Assert.AreEqual(2, provider.GetTables().Length);
 		}
 
 		[Test]
 		public void GetColumnsReturnsProperCount()
 		{
 			AddTable();
-			Column[] cols = _provider.GetColumns("Test");
+			Column[] cols = provider.GetColumns("Test");
 			Assert.IsNotNull(cols);
 			Assert.AreEqual(6, cols.Length);
 		}
@@ -114,7 +114,7 @@ namespace ECM7.Migrator.Tests.Providers
 		public void GetColumnsContainsProperNullInformation()
 		{
 			AddTableWithPrimaryKey();
-			Column[] cols = _provider.GetColumns("Test");
+			Column[] cols = provider.GetColumns("Test");
 			Assert.IsNotNull(cols);
 			foreach (Column column in cols)
 			{
@@ -129,26 +129,26 @@ namespace ECM7.Migrator.Tests.Providers
 		public void CanAddTableWithPrimaryKey()
 		{
 			AddTableWithPrimaryKey();
-			Assert.IsTrue(_provider.TableExists("Test"));
+			Assert.IsTrue(provider.TableExists("Test"));
 		}
 
 		[Test]
 		public void RemoveTable()
 		{
 			AddTable();
-			_provider.RemoveTable("Test");
-			Assert.IsFalse(_provider.TableExists("Test"));
+			provider.RemoveTable("Test");
+			Assert.IsFalse(provider.TableExists("Test"));
 		}
 
 		[Test]
 		public virtual void RenameTableThatExists()
 		{
 			AddTable();
-			_provider.RenameTable("Test", "Test_Rename");
+			provider.RenameTable("Test", "Test_Rename");
 
-			Assert.IsTrue(_provider.TableExists("Test_Rename"));
-			Assert.IsFalse(_provider.TableExists("Test"));
-			_provider.RemoveTable("Test_Rename");
+			Assert.IsTrue(provider.TableExists("Test_Rename"));
+			Assert.IsFalse(provider.TableExists("Test"));
+			provider.RemoveTable("Test_Rename");
 		}
 
 		[Test]
@@ -158,7 +158,7 @@ namespace ECM7.Migrator.Tests.Providers
 				() =>
 				{
 					AddTable();
-					_provider.RenameTable("Test", "TestTwo");
+					provider.RenameTable("Test", "TestTwo");
 				});
 		}
 
@@ -166,10 +166,10 @@ namespace ECM7.Migrator.Tests.Providers
 		public void RenameColumnThatExists()
 		{
 			AddTable();
-			_provider.RenameColumn("Test", "name", "name_rename");
+			provider.RenameColumn("Test", "name", "name_rename");
 
-			Assert.IsTrue(_provider.ColumnExists("Test", "name_rename"));
-			Assert.IsFalse(_provider.ColumnExists("Test", "name"));
+			Assert.IsTrue(provider.ColumnExists("Test", "name_rename"));
+			Assert.IsFalse(provider.ColumnExists("Test", "name"));
 		}
 
 		[Test]
@@ -179,68 +179,68 @@ namespace ECM7.Migrator.Tests.Providers
 			() =>
 			{
 				AddTable();
-				_provider.RenameColumn("Test", "Title", "name");
+				provider.RenameColumn("Test", "Title", "name");
 			});
 		}
 
 		[Test]
 		public void RemoveUnexistingTable()
 		{
-			_provider.RemoveTable("abc");
+			provider.RemoveTable("abc");
 		}
 
 		[Test]
 		public void AddColumn()
 		{
-			_provider.AddColumn("TestTwo", "Test", DbType.String, 50);
-			Assert.IsTrue(_provider.ColumnExists("TestTwo", "Test"));
+			provider.AddColumn("TestTwo", "Test", DbType.String, 50);
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "Test"));
 		}
 
 		[Test]
 		public virtual void ChangeColumn()
 		{
-			_provider.ChangeColumn("TestTwo", new Column("TestId", DbType.String, 50, ColumnProperty.Null));
-			Assert.IsTrue(_provider.ColumnExists("TestTwo", "TestId"));
-			_provider.Insert("TestTwo", new string[] { "TestId" }, new string[] { "Not an Int val." });
+			provider.ChangeColumn("TestTwo", new Column("TestId", DbType.String, 50, ColumnProperty.Null));
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestId"));
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "Not an Int val." });
 		}
 
 		[Test]
 		public void AddDecimalColumn()
 		{
-			_provider.AddColumn("TestTwo", "TestDecimal", DbType.Decimal, 38);
-			Assert.IsTrue(_provider.ColumnExists("TestTwo", "TestDecimal"));
+			provider.AddColumn("TestTwo", "TestDecimal", DbType.Decimal, 38);
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestDecimal"));
 		}
 
 		[Test]
 		public void AddColumnWithDefault()
 		{
-			_provider.AddColumn("TestTwo", "TestWithDefault", DbType.Int32, 50, 0, 10);
-			Assert.IsTrue(_provider.ColumnExists("TestTwo", "TestWithDefault"));
+			provider.AddColumn("TestTwo", "TestWithDefault", DbType.Int32, 50, 0, 10);
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestWithDefault"));
 		}
 
 		[Test]
 		public void AddColumnWithDefaultButNoSize()
 		{
-			_provider.AddColumn("TestTwo", "TestWithDefault", DbType.Int32, 10);
-			Assert.IsTrue(_provider.ColumnExists("TestTwo", "TestWithDefault"));
+			provider.AddColumn("TestTwo", "TestWithDefault", DbType.Int32, 10);
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestWithDefault"));
 
 
-			_provider.AddColumn("TestTwo", "TestWithDefaultString", DbType.String, "'foo'");
-			Assert.IsTrue(_provider.ColumnExists("TestTwo", "TestWithDefaultString"));
+			provider.AddColumn("TestTwo", "TestWithDefaultString", DbType.String, "'foo'");
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestWithDefaultString"));
 		}
 
 		[Test]
 		public void AddBooleanColumnWithDefault()
 		{
-			_provider.AddColumn("TestTwo", "TestBoolean", DbType.Boolean, 0, 0, false);
-			Assert.IsTrue(_provider.ColumnExists("TestTwo", "TestBoolean"));
+			provider.AddColumn("TestTwo", "TestBoolean", DbType.Boolean, 0, 0, false);
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestBoolean"));
 		}
 
 		[Test]
 		public void CanGetNullableFromProvider()
 		{
-			_provider.AddColumn("TestTwo", "NullableColumn", DbType.String, 30, ColumnProperty.Null);
-			Column[] columns = _provider.GetColumns("TestTwo");
+			provider.AddColumn("TestTwo", "NullableColumn", DbType.String, 30, ColumnProperty.Null);
+			Column[] columns = provider.GetColumns("TestTwo");
 			foreach (Column column in columns)
 			{
 				if (column.Name == "NullableColumn")
@@ -254,23 +254,23 @@ namespace ECM7.Migrator.Tests.Providers
 		public void RemoveColumn()
 		{
 			AddColumn();
-			_provider.RemoveColumn("TestTwo", "Test");
-			Assert.IsFalse(_provider.ColumnExists("TestTwo", "Test"));
+			provider.RemoveColumn("TestTwo", "Test");
+			Assert.IsFalse(provider.ColumnExists("TestTwo", "Test"));
 		}
 
 		[Test]
 		public void RemoveColumnWithDefault()
 		{
 			AddColumnWithDefault();
-			_provider.RemoveColumn("TestTwo", "TestWithDefault");
-			Assert.IsFalse(_provider.ColumnExists("TestTwo", "TestWithDefault"));
+			provider.RemoveColumn("TestTwo", "TestWithDefault");
+			Assert.IsFalse(provider.ColumnExists("TestTwo", "TestWithDefault"));
 		}
 
 		[Test]
 		public void RemoveUnexistingColumn()
 		{
-			_provider.RemoveColumn("TestTwo", "abc");
-			_provider.RemoveColumn("abc", "abc");
+			provider.RemoveColumn("TestTwo", "abc");
+			provider.RemoveColumn("abc", "abc");
 		}
 
 		/// <summary>
@@ -281,45 +281,45 @@ namespace ECM7.Migrator.Tests.Providers
 		public void RemoveBoolColumn()
 		{
 			AddTable();
-			_provider.AddColumn("Test", "Inactif", DbType.Boolean);
-			Assert.IsTrue(_provider.ColumnExists("Test", "Inactif"));
+			provider.AddColumn("Test", "Inactif", DbType.Boolean);
+			Assert.IsTrue(provider.ColumnExists("Test", "Inactif"));
 
-			_provider.RemoveColumn("Test", "Inactif");
-			Assert.IsFalse(_provider.ColumnExists("Test", "Inactif"));
+			provider.RemoveColumn("Test", "Inactif");
+			Assert.IsFalse(provider.ColumnExists("Test", "Inactif"));
 		}
 
 		[Test]
 		public void HasColumn()
 		{
 			AddColumn();
-			Assert.IsTrue(_provider.ColumnExists("TestTwo", "Test"));
-			Assert.IsFalse(_provider.ColumnExists("TestTwo", "TestPasLa"));
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "Test"));
+			Assert.IsFalse(provider.ColumnExists("TestTwo", "TestPasLa"));
 		}
 
 		[Test]
 		public void HasTable()
 		{
-			Assert.IsTrue(_provider.TableExists("TestTwo"));
+			Assert.IsTrue(provider.TableExists("TestTwo"));
 		}
 
 		[Test]
 		public void AppliedMigrations()
 		{
-			Assert.IsFalse(_provider.TableExists("SchemaInfo"));
+			Assert.IsFalse(provider.TableExists("SchemaInfo"));
 
 			// Check that a "get" call works on the first run.
-			Assert.AreEqual(0, _provider.AppliedMigrations.Count);
-			Assert.IsTrue(_provider.TableExists("SchemaInfo"), "No SchemaInfo table created");
+			Assert.AreEqual(0, provider.AppliedMigrations.Count);
+			Assert.IsTrue(provider.TableExists("SchemaInfo"), "No SchemaInfo table created");
 
 			// Check that a "set" called after the first run works.
-			_provider.MigrationApplied(1);
-			Assert.AreEqual(1, _provider.AppliedMigrations[0]);
+			provider.MigrationApplied(1);
+			Assert.AreEqual(1, provider.AppliedMigrations[0]);
 
-			_provider.RemoveTable("SchemaInfo");
+			provider.RemoveTable("SchemaInfo");
 			// Check that a "set" call works on the first run.
-			_provider.MigrationApplied(1);
-			Assert.AreEqual(1, _provider.AppliedMigrations[0]);
-			Assert.IsTrue(_provider.TableExists("SchemaInfo"), "No SchemaInfo table created");
+			provider.MigrationApplied(1);
+			Assert.AreEqual(1, provider.AppliedMigrations[0]);
+			Assert.IsTrue(provider.TableExists("SchemaInfo"), "No SchemaInfo table created");
 		}
 
 		/// <summary>
@@ -329,22 +329,22 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public void CommitTwice()
 		{
-			_provider.Commit();
-			Assert.AreEqual(0, _provider.AppliedMigrations.Count);
-			_provider.Commit();
+			provider.Commit();
+			Assert.AreEqual(0, provider.AppliedMigrations.Count);
+			provider.Commit();
 		}
 
 		[Test]
 		public virtual void InsertData()
 		{
-			_provider.Insert("TestTwo", new string[] { "TestId" }, new string[] { "1" });
-			_provider.Insert("TestTwo", new string[] { "TestId" }, new string[] { "2" });
-			using (IDataReader reader = _provider.Select("TestId", "TestTwo"))
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
+			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
 				int[] vals = GetVals(reader);
 
-				Assert.IsTrue(Array.Exists(vals, delegate(int val) { return val == 1; }));
-				Assert.IsTrue(Array.Exists(vals, delegate(int val) { return val == 2; }));
+				Assert.IsTrue(Array.Exists(vals, val => val == 1));
+				Assert.IsTrue(Array.Exists(vals, val => val == 2));
 			}
 		}
 
@@ -352,14 +352,14 @@ namespace ECM7.Migrator.Tests.Providers
 		public void CanInsertNullData()
 		{
 			AddTable();
-			_provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "foo" });
-			_provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "2", null });
-			using (IDataReader reader = _provider.Select("Title", "Test"))
+			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "foo" });
+			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "2", null });
+			using (IDataReader reader = provider.Select("Title", "Test"))
 			{
 				string[] vals = GetStringVals(reader);
 
-				Assert.IsTrue(Array.Exists(vals, delegate(string val) { return val == "foo"; }));
-				Assert.IsTrue(Array.Exists(vals, delegate(string val) { return val == null; }));
+				Assert.IsTrue(Array.Exists(vals, val => val == "foo"));
+				Assert.IsTrue(Array.Exists(vals, val => val == null));
 			}
 		}
 
@@ -367,8 +367,8 @@ namespace ECM7.Migrator.Tests.Providers
 		public void CanInsertDataWithSingleQuotes()
 		{
 			AddTable();
-			_provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "Muad'Dib" });
-			using (IDataReader reader = _provider.Select("Title", "Test"))
+			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "Muad'Dib" });
+			using (IDataReader reader = provider.Select("Title", "Test"))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual("Muad'Dib", reader.GetString(0));
@@ -380,9 +380,9 @@ namespace ECM7.Migrator.Tests.Providers
 		public void DeleteData()
 		{
 			InsertData();
-			_provider.Delete("TestTwo", "TestId", "1");
+			provider.Delete("TestTwo", "TestId", "1");
 
-			using (IDataReader reader = _provider.Select("TestId", "TestTwo"))
+			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual(2, Convert.ToInt32(reader[0]));
@@ -394,9 +394,9 @@ namespace ECM7.Migrator.Tests.Providers
 		public void DeleteDataWithArrays()
 		{
 			InsertData();
-			_provider.Delete("TestTwo", new string[] { "TestId" }, new string[] { "1" });
+			provider.Delete("TestTwo", new string[] { "TestId" }, new string[] { "1" });
 
-			using (IDataReader reader = _provider.Select("TestId", "TestTwo"))
+			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual(2, Convert.ToInt32(reader[0]));
@@ -407,18 +407,18 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public virtual void UpdateData()
 		{
-			_provider.Insert("TestTwo", new string[] { "TestId" }, new string[] { "1" });
-			_provider.Insert("TestTwo", new string[] { "TestId" }, new string[] { "2" });
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
 
-			_provider.Update("TestTwo", new string[] { "TestId" }, new string[] { "3" });
+			provider.Update("TestTwo", new string[] { "TestId" }, new string[] { "3" });
 
-			using (IDataReader reader = _provider.Select("TestId", "TestTwo"))
+			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
 				int[] vals = GetVals(reader);
 
-				Assert.IsTrue(Array.Exists(vals, delegate(int val) { return val == 3; }));
-				Assert.IsFalse(Array.Exists(vals, delegate(int val) { return val == 1; }));
-				Assert.IsFalse(Array.Exists(vals, delegate(int val) { return val == 2; }));
+				Assert.IsTrue(Array.Exists(vals, val => val == 3));
+				Assert.IsFalse(Array.Exists(vals, val => val == 1));
+				Assert.IsFalse(Array.Exists(vals, val => val == 2));
 			}
 		}
 
@@ -426,12 +426,12 @@ namespace ECM7.Migrator.Tests.Providers
 		public virtual void CanUpdateWithNullData()
 		{
 			AddTable();
-			_provider.Insert("Test", new string[] { "Title" }, new string[] { "foo" });
-			_provider.Insert("Test", new string[] { "Title" }, new string[] { null });
+			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "foo" });
+			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "2", null });
 
-			_provider.Update("Test", new string[] { "Title" }, new string[] { null });
+			provider.Update("Test", new string[] { "Title" }, new string[] { null });
 
-			using (IDataReader reader = _provider.Select("Title", "Test"))
+			using (IDataReader reader = provider.Select("Title", "Test"))
 			{
 				string[] vals = GetStringVals(reader);
 
@@ -443,18 +443,18 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public void UpdateDataWithWhere()
 		{
-			_provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
-			_provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
 
-			_provider.Update("TestTwo", new string[] { "TestId" }, new string[] { "3" }, "TestId='1'");
+			provider.Update("TestTwo", new string[] { "TestId" }, new string[] { "3" }, "TestId='1'");
 
-			using (IDataReader reader = _provider.Select("TestId", "TestTwo"))
+			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
 				int[] vals = GetVals(reader);
 
-				Assert.IsTrue(Array.Exists(vals, delegate(int val) { return val == 3; }));
-				Assert.IsTrue(Array.Exists(vals, delegate(int val) { return val == 2; }));
-				Assert.IsFalse(Array.Exists(vals, delegate(int val) { return val == 1; }));
+				Assert.IsTrue(Array.Exists(vals, val => val == 3));
+				Assert.IsTrue(Array.Exists(vals, val => val == 2));
+				Assert.IsFalse(Array.Exists(vals, val => val == 1));
 			}
 		}
 

@@ -16,8 +16,8 @@ namespace ECM7.Migrator.Tests.Providers
 			string constr = ConfigurationManager.AppSettings["OracleConnectionString"];
 			if (constr == null)
 				throw new ArgumentNullException("OracleConnectionString", "No config file");
-			_provider = new OracleTransformationProvider(new OracleDialect(), constr);
-			_provider.BeginTransaction();
+			provider = new OracleTransformationProvider(new OracleDialect(), constr);
+			provider.BeginTransaction();
 
 			AddDefaultTable();
 		}
@@ -25,17 +25,17 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public override void ChangeColumn()
 		{
-			_provider.ChangeColumn("TestTwo", new Column("TestId", DbType.String, 50, ColumnProperty.Null));
-			Assert.IsTrue(_provider.ColumnExists("TestTwo", "TestId"));
-			_provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "0", "Not an Int val." });
+			provider.ChangeColumn("TestTwo", new Column("TestId", DbType.String, 50, ColumnProperty.Null));
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestId"));
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "0", "Not an Int val." });
 		}
 
 		[Test]
 		public override void InsertData()
 		{
-			_provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
-			_provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
-			using (IDataReader reader = _provider.Select("TestId", "TestTwo"))
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
+			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
 				int[] vals = GetVals(reader);
 
@@ -47,12 +47,12 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public override void UpdateData()
 		{
-			_provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
-			_provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
+			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
 
-			_provider.Update("TestTwo", new string[] { "TestId" }, new string[] { "3" });
+			provider.Update("TestTwo", new string[] { "TestId" }, new string[] { "3" });
 
-			using (IDataReader reader = _provider.Select("TestId", "TestTwo"))
+			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
 				int[] vals = GetVals(reader);
 
@@ -66,12 +66,12 @@ namespace ECM7.Migrator.Tests.Providers
 		public override void CanUpdateWithNullData()
 		{
 			AddTable();
-			_provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "foo" });
-			_provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "2", null });
+			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "foo" });
+			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "2", null });
 
-			_provider.Update("Test", new string[] { "Title" }, new string[] { null });
+			provider.Update("Test", new string[] { "Title" }, new string[] { null });
 
-			using (IDataReader reader = _provider.Select("Title", "Test"))
+			using (IDataReader reader = provider.Select("Title", "Test"))
 			{
 				string[] vals = GetStringVals(reader);
 

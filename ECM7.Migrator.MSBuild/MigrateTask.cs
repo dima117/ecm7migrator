@@ -47,83 +47,47 @@ namespace ECM7.Migrator.MSBuild
     /// </example>
 	public class Migrate : Task
 	{
-		private long _to = -1; // To last revision
-		private string _provider;
-		private string _connectionString;
-		private ITaskItem[] _migrationsAssembly;
-		private bool _trace;
-		private bool _dryrun;
-	    private string _scriptFile;
-
-        private string _directory;
-        private string _language;
+		private long to = -1; // To last revision
+		private string scriptFile;
 
 		[Required]
-		public string Provider
-		{
-			set { _provider = value; }
-			get { return _provider; }
-		}
+		public string Provider { set; get; }
 
-        [Required]
-		public string ConnectionString
-		{
-			set { _connectionString = value; }
-			get { return _connectionString; }
-		}
+		[Required]
+		public string ConnectionString { set; get; }
 
-        /// <summary>
-        /// The paths to the assemblies that contain your migrations. 
-        /// This will generally just be a single item.
-        /// </summary>
-        public ITaskItem[] Migrations
-		{
-			set { _migrationsAssembly = value; }
-			get { return _migrationsAssembly; }
-		}
+		/// <summary>
+		/// The paths to the assemblies that contain your migrations. 
+		/// This will generally just be a single item.
+		/// </summary>
+		public ITaskItem[] Migrations { set; get; }
 
-        /// <summary>
-        /// The paths to the directory that contains your migrations. 
-        /// This will generally just be a single item.
-        /// </summary>
-        public string Directory
-        {
-            set { _directory = value; }
-            get { return _directory; }
-        }
+		/// <summary>
+		/// The paths to the directory that contains your migrations. 
+		/// This will generally just be a single item.
+		/// </summary>
+		public string Directory { set; get; }
 
-        public string Language
-        {
-            set { _language = value; }
-            get { return _language; }
-        }
+		public string Language { set; get; }
 
 		public long To
 		{
-			set { _to = value; }
-			get { return _to; }
+			set { to = value; }
+			get { return to; }
 		}
 
-		public bool Trace
-		{
-			set { _trace = value; }
-			get { return _trace; }
-		}
+		public bool Trace { set; get; }
 
-		public bool DryRun
-		{
-			set { _dryrun = value; }
-			get { return _dryrun; }
-		}
+		public bool DryRun { set; get; }
 
-        /// <summary>
+		/// <summary>
         /// Gets value indicating whether to script the changes made to the database 
         /// to the file indicated by <see cref="ScriptFile"/>.
         /// </summary>
         /// <value><c>true</c> if the changes should be scripted to a file; otherwise, <c>false</c>.</value>
 	    public bool ScriptChanges
 	    {
-            get { return !String.IsNullOrEmpty(_scriptFile); }
+            get { return !String.IsNullOrEmpty(scriptFile); }
 	    }
 
 	    /// <summary>
@@ -132,8 +96,8 @@ namespace ECM7.Migrator.MSBuild
         /// </summary>
 	    public string ScriptFile
 	    {
-	        get { return _scriptFile; }
-	        set { _scriptFile = value; }
+	        get { return scriptFile; }
+	        set { scriptFile = value; }
 	    }
 
 		public override bool Execute()
@@ -179,10 +143,10 @@ namespace ECM7.Migrator.MSBuild
             if (mig.DryRun)
                 mig.Logger.Log("********** Dry run! Not actually applying changes. **********");
 
-	        if (_to == -1)
+	        if (to == -1)
 	            mig.MigrateToLastVersion();
 	        else
-	            mig.MigrateTo(_to);
+	            mig.MigrateTo(to);
 	    }
 	}
 }

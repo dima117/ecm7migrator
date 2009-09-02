@@ -26,8 +26,8 @@ namespace ECM7.Migrator.Tests.Providers
             if (constr == null)
                 throw new ArgumentNullException("SqlServer2005ConnectionString", "No config file");
 
-            _provider = new SqlServerTransformationProvider(new SqlServer2005Dialect(), constr);
-            _provider.BeginTransaction();
+            provider = new SqlServerTransformationProvider(new SqlServer2005Dialect(), constr);
+            provider.BeginTransaction();
 
             AddDefaultTable();
         }

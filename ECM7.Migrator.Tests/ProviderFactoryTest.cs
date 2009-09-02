@@ -1,79 +1,69 @@
-using System;
 using System.Configuration;
 using ECM7.Migrator.Framework;
 using NUnit.Framework;
 
 namespace ECM7.Migrator.Tests
 {
-    [TestFixture]
-    public class ProviderFactoryTest
-    {
+	[TestFixture]
+	public class ProviderFactoryTest
+	{
+		private const string SQL_SERVER_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers";
+		private const string SQL_SERVER_2005_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServer2005Dialect, ECM7.Migrator.Providers";
+		private const string SQL_SERVER_CE_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServerCeDialect, ECM7.Migrator.Providers";
+		private const string SQLITE_DIALECT = "ECM7.Migrator.Providers.SQLite.SQLiteDialect, ECM7.Migrator.Providers";
+		private const string MYSQL_DIALECT = "ECM7.Migrator.Providers.Mysql.MysqlDialect, ECM7.Migrator.Providers";
+		private const string ORACLE_DIALECT = "ECM7.Migrator.Providers.Oracle.OracleDialect, ECM7.Migrator.Providers";
 
-        [Test]
-        public void CanGetDialectsForProvider()
-        {
-            string[] providers = new string[] { "SqlServer", "Mysql", "SQLite", "SqlServer2005", "SqlServerCe", "Oracle" };
-            Array.ForEach(providers,
-                          delegate(string provider) { Assert.IsNotNull(ProviderFactory.DialectForProvider(provider)); });
-            Assert.IsNull(ProviderFactory.DialectForProvider(null));
-            Assert.IsNull(ProviderFactory.DialectForProvider(""));
-            Assert.IsNull(ProviderFactory.DialectForProvider("foofoofoo"));
-        }
-
-        [Test, Category("SqlServer")]
-        public void CanLoad_SqlServerProvider()
-        {
-            ITransformationProvider provider = ProviderFactory.Create("SqlServer",
-                                                                      ConfigurationManager.AppSettings[
-                                                                          "SqlServerConnectionString"]);
-            Assert.IsNotNull(provider);
-        }
+		// todo: добавить тест на некорректные диалекты	
+		// todo: разнести диалекты по отдельным проектам
+		[Test, Category("SqlServer")]
+		public void CanLoadSqlServerProvider()
+		{
+			ITransformationProvider provider = ProviderFactory.Create(
+				SQL_SERVER_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"]);
+			Assert.IsNotNull(provider);
+		}
 
 
-        [Test, Category("SqlServerCe")]
-        public void CanLoad_SqlServerCeProvider()
-        {
-            ITransformationProvider provider = ProviderFactory.Create("SqlServerCe",
-                                                                      ConfigurationManager.AppSettings[
-                                                                          "SqlServerCeConnectionString"]);
-            Assert.IsNotNull(provider);
-        }
+		[Test, Category("SqlServerCe")]
+		public void CanLoadSqlServerCeProvider()
+		{
+			ITransformationProvider provider = ProviderFactory.Create(
+				SQL_SERVER_CE_DIALECT, ConfigurationManager.AppSettings["SqlServerCeConnectionString"]);
+			Assert.IsNotNull(provider);
+		}
 
 
-        [Test, Category("SqlServer2005")]
-        public void CanLoad_SqlServer2005Provider()
-        {
-            ITransformationProvider provider = ProviderFactory.Create("SqlServer2005",
-                                                                      ConfigurationManager.AppSettings[
-                                                                          "SqlServer2005ConnectionString"]);
-            Assert.IsNotNull(provider);
-        }
+		[Test, Category("SqlServer2005")]
+		public void CanLoadSqlServer2005Provider()
+		{
+			ITransformationProvider provider = ProviderFactory.Create(
+				SQL_SERVER_2005_DIALECT, ConfigurationManager.AppSettings["SqlServer2005ConnectionString"]);
+			Assert.IsNotNull(provider);
+		}
 
-        [Test, Category("MySql")]
-        public void CanLoad_MySqlProvider()
-        {
-            ITransformationProvider provider = ProviderFactory.Create("MySql",
-                                                                      ConfigurationManager.AppSettings[
-                                                                          "MySqlConnectionString"]);
-            Assert.IsNotNull(provider);
-        }
+		[Test, Category("MySql")]
+		public void CanLoadMySqlProvider()
+		{
+			ITransformationProvider provider = ProviderFactory.Create(
+				MYSQL_DIALECT, ConfigurationManager.AppSettings["MySqlConnectionString"]);
+			Assert.IsNotNull(provider);
+		}
 
-        [Test, Category("SQLite")]
-        public void CanLoad_SQLiteProvider()
-        {
-            ITransformationProvider provider = ProviderFactory.Create("SQLite",
-                                                                      ConfigurationManager.AppSettings[
-                                                                          "SQLiteConnectionString"]);
-            Assert.IsNotNull(provider);
-        }
+		[Test, Category("SQLite")]
+		public void CanLoadSqLiteProvider()
+		{
+			ITransformationProvider provider = ProviderFactory.Create(
+				SQLITE_DIALECT, ConfigurationManager.AppSettings["SQLiteConnectionString"]);
+			Assert.IsNotNull(provider);
+		}
 
-        [Test, Category("Oracle")]
-        public void CanLoad_OracleProvider()
-        {
-            ITransformationProvider provider = ProviderFactory.Create("Oracle",
-                                                                      ConfigurationManager.AppSettings[
-                                                                          "OracleConnectionString"]);
-            Assert.IsNotNull(provider);
-        }
-    }
+		[Test, Category("Oracle")]
+		public void CanLoadOracleProvider()
+		{
+			ITransformationProvider provider = ProviderFactory.Create(
+				ORACLE_DIALECT, ConfigurationManager.AppSettings["OracleConnectionString"]);
+			Assert.IsNotNull(provider);
+		}
+	}
 }

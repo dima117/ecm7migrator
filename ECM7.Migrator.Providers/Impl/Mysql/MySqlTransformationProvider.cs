@@ -14,17 +14,17 @@ namespace ECM7.Migrator.Providers.Mysql
         public MySqlTransformationProvider(Dialect dialect, string connectionString)
             : base(dialect, connectionString)
         {
-            _connection = new MySqlConnection(_connectionString);
-            _connection.ConnectionString = _connectionString;
-            _connection.Open();
+            connection = new MySqlConnection(base.connectionString);
+            connection.ConnectionString = base.connectionString;
+            connection.Open();
         }
 
         public override void RemoveForeignKey(string table, string name)
         {
             if (ConstraintExists(table, name))
             {
-                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP FOREIGN KEY {1}", table, _dialect.Quote(name)));
-                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP KEY {1}", table, _dialect.Quote(name)));
+                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP FOREIGN KEY {1}", table, dialect.Quote(name)));
+                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP KEY {1}", table, dialect.Quote(name)));
             }
         }
         
@@ -32,7 +32,7 @@ namespace ECM7.Migrator.Providers.Mysql
         {
             if (ConstraintExists(table, name))
             {
-                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP KEY {1}", table, _dialect.Quote(name)));
+                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP KEY {1}", table, dialect.Quote(name)));
             }
         }
 

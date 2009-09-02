@@ -19,57 +19,77 @@ using ECM7.Migrator.Providers;
 
 namespace ECM7.Migrator
 {
-    /// <summary>
-    /// Handles loading Provider implementations
-    /// </summary>
-    public class ProviderFactory
-    {
-        private static readonly Assembly providerAssembly;
-        private static readonly Dictionary<String, object> dialects = new Dictionary<string, object>();
-        static ProviderFactory()
-        {
-            
-            //string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
-            //string fullPath = Path.Combine(directory, "Migrator.Providers.dll");
-            //if (fullPath.StartsWith("file:\\"))
-            //    fullPath = fullPath.Substring(6);
-            //else if (fullPath.StartsWith("file:"))
-            //    fullPath = fullPath.Substring(5);
-            providerAssembly = Assembly.GetAssembly(typeof(TransformationProvider));
-            //providerAssembly = Assembly.LoadFrom("Migrator.Providers.dll");
-            LoadDialects();
-        }
+	/// <summary>
+	/// Handles loading Provider implementations
+	/// </summary>
+	public class ProviderFactory
+	{
+		#region GetDialect
 
-        public static ITransformationProvider Create(string providerName, string connectionString)
-        {
-            object dialectInstance = DialectForProvider(providerName);
-            MethodInfo mi = dialectInstance.GetType().GetMethod("NewProviderForDialect", new[] {typeof (String)});
-            return (ITransformationProvider)mi.Invoke(dialectInstance, new object[] { connectionString });
-        }
+		private static readonly Dictionary<Type, Dialect> dialects = new Dictionary<Type, Dialect>();
 
-        public static object DialectForProvider(string providerName)
-        {
-            if (String.IsNullOrEmpty(providerName))
-                return null;
+		public static Dialect GetDialect<TDialect>()
+			where TDialect : Dialect, new()
+		{
+			Type type = typeof(TDialect);
+			if (!dialects.ContainsKey(type) || dialects[type] == null)
+				dialects[type] = new TDialect();
 
-            foreach (string key in dialects.Keys)
-            {
-                if (0 < key.IndexOf(providerName, StringComparison.InvariantCultureIgnoreCase))
-                    return dialects[key];
-            }
-            return null;
-        }
+			Require.IsNotNull(dialects[type], "Ќе удалось инициализировать диалект");
+			return dialects[type];
+		}
 
-        public static void LoadDialects()
-        {
-            Type dialectType = providerAssembly.GetType("ECM7.Migrator.Providers.Dialect");
-            foreach (Type t in providerAssembly.GetTypes())
-            {
-                if (t.IsSubclassOf(dialectType))
-                {
-                    dialects.Add(t.FullName, Activator.CreateInstance(t, null));
-                }
-            }
-        }
-    }
+		public static Dialect GetDialect(Type dialectType)
+		{
+			ValidateDialectType(dialectType);
+
+			if (!dialects.ContainsKey(dialectType) || dialects[dialectType] == null)
+				dialects[dialectType] = Activator.CreateInstance(dialectType, null) as Dialect;
+
+			Require.IsNotNull(dialects[dialectType], "Ќе удалось инициализировать диалект");
+			return dialects[dialectType];
+		}
+
+		/// <summary>
+		/// ѕроверка, что:
+		/// <para>- параметр dialectType не равен null;</para>
+		/// <para>- класс унаследован от Dialect;</para>
+		/// <para>- класс имеет открытый конструктор без параметров;</para>
+		/// </summary>
+		/// <param name="dialectType"> ласс диалекта</param>
+		private static void ValidateDialectType(Type dialectType)
+		{
+			Require.IsNotNull(dialectType, "Ќе задан диалект");
+			Require.That(dialectType.IsSubclassOf(typeof(Dialect)), " ласс диалекта должен быть унаследован от Dialect");
+
+			ConstructorInfo constructor = dialectType.GetConstructor(Type.EmptyTypes);
+			Require.IsNotNull(constructor, " ласс диалекта должен иметь открытый конструктор без параметров");
+		}
+
+		#endregion
+
+		#region Create
+
+		public static ITransformationProvider Create<TDialect>(
+			Type dialectType, string connectionString)
+			where TDialect : Dialect, new()
+		{
+			return GetDialect<TDialect>().NewProviderForDialect(connectionString);
+		}
+
+		public static ITransformationProvider Create(Type dialectType, string connectionString)
+		{
+			return GetDialect(dialectType).NewProviderForDialect(connectionString);
+		}		
+		
+		public static ITransformationProvider Create(string dialectTypeName, string connectionString)
+		{
+			Type dialectType = Type.GetType(dialectTypeName);
+			Require.IsNotNull(dialectType, "Ќе удалось загрузить тип диалекта: {0}".FormatWith(dialectTypeName.Nvl("null")));
+			return Create(dialectType, connectionString);
+		}
+
+		#endregion
+
+	}
 }

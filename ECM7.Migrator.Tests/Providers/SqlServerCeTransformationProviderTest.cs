@@ -12,6 +12,7 @@
 using System;
 using System.Configuration;
 using System.Data.SqlServerCe;
+using ECM7.Migrator.Framework;
 using ECM7.Migrator.Providers.SqlServer;
 using NUnit.Framework;
 using System.IO;
@@ -31,8 +32,8 @@ namespace ECM7.Migrator.Tests.Providers
 
 			EnsureDatabase(constr);
 
-            _provider = new SqlServerCeTransformationProvider(new SqlServerCeDialect(), constr);
-            _provider.BeginTransaction();
+            provider = new SqlServerCeTransformationProvider(new SqlServerCeDialect(), constr);
+            provider.BeginTransaction();
 
             AddDefaultTable();
         }
@@ -47,11 +48,23 @@ namespace ECM7.Migrator.Tests.Providers
             }
         }
 
-        // [Test,Ignore("SqlServerCe doesn't support check constraints")]
-		public override void CanAddCheckConstraint() { }
+        [Test]
+		public override void CanAddCheckConstraint()
+        {
+			Assert.Throws(typeof(MigrationException), () => base.CanAddCheckConstraint());
+		}
 
-		// [Test,Ignore("SqlServerCe doesn't support table renaming")]
+		[Test]
+		public override void RemoveCheckConstraint()
+		{
+			Assert.Throws(typeof(MigrationException), () => base.RemoveCheckConstraint());
+		}
+
+		[Test]
 		// see: http://www.pocketpcdn.com/articles/articles.php?&atb.set(c_id)=74&atb.set(a_id)=8145&atb.perform(details)=&
-		public override void RenameTableThatExists() { }
+		public override void RenameTableThatExists()
+		{
+			Assert.Throws(typeof(MigrationException), () => base.RenameTableThatExists());
+		}
     }
 }

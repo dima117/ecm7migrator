@@ -306,7 +306,7 @@ namespace ECM7.Migrator.Providers
 
         protected void CreateSchemaInfoTable()
         {
- 
+			// No Op
         }
 
         public void AddColumn(string table, Column column)

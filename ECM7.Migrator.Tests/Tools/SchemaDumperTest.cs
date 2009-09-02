@@ -26,8 +26,8 @@ namespace ECM7.Migrator.Tests.Tools
 
 			if (constr == null)
 				throw new ArgumentNullException("MySqlConnectionString", "No config file");
-			
-			SchemaDumper dumper = new SchemaDumper("MySql", constr);
+
+			SchemaDumper dumper = new SchemaDumper("ECM7.Migrator.Providers.Mysql.MysqlDialect, ECM7.Migrator.Providers", constr);
 			string output = dumper.Dump();
 			
 			Assert.IsNotNull(output);
