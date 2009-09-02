@@ -19,9 +19,9 @@ namespace ECM7.Migrator.Providers.SQLite
         public SQLiteTransformationProvider(Dialect dialect, string connectionString)
             : base(dialect, connectionString)
         {
-            _connection = new SqliteConnection(_connectionString);
-            _connection.ConnectionString = _connectionString;
-            _connection.Open();
+            connection = new SqliteConnection(base.connectionString);
+            connection.ConnectionString = base.connectionString;
+            connection.Open();
         }
 
         public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
@@ -226,7 +226,7 @@ namespace ECM7.Migrator.Providers.SQLite
         
         public bool ColumnMatch(string column, string columnDef)
         {
-            return columnDef.StartsWith(column + " ") || columnDef.StartsWith(_dialect.Quote(column));
+            return columnDef.StartsWith(column + " ") || columnDef.StartsWith(dialect.Quote(column));
         }
     }
 }

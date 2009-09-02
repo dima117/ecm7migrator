@@ -19,28 +19,28 @@ namespace ECM7.Migrator.Framework.Loggers
 	/// </summary>
 	public class Logger : IAttachableLogger
 	{
-		private readonly bool _trace;
-		private readonly List<ILogWriter> _writers = new List<ILogWriter>();
+		private readonly bool trace;
+		private readonly List<ILogWriter> writers = new List<ILogWriter>();
 
 		public Logger(bool trace)
 		{
-			_trace = trace;
+			this.trace = trace;
 		}
 
 		public Logger(bool trace, params ILogWriter[] writers)
 			: this(trace)
 		{
-			_writers.AddRange(writers);
+			this.writers.AddRange(writers);
 		}
 
 		public void Attach(ILogWriter writer)
 		{
-			_writers.Add(writer);
+			writers.Add(writer);
 		}
 
 		public void Detach(ILogWriter writer)
 		{
-			_writers.Remove(writer);
+			writers.Remove(writer);
 		}
 
 		public void Started(long currentVersion, long finalVersion)
@@ -130,7 +130,7 @@ namespace ECM7.Migrator.Framework.Loggers
 
 		public void Trace(string format, params object[] args)
 		{
-			if (_trace)
+			if (trace)
 			{
 				Log(format, args);
 			}
@@ -138,7 +138,7 @@ namespace ECM7.Migrator.Framework.Loggers
 
 		private void Write(string message, params object[] args)
 		{
-			foreach (ILogWriter writer in _writers)
+			foreach (ILogWriter writer in writers)
 			{
 				writer.Write(message, args);
 			}
@@ -146,7 +146,7 @@ namespace ECM7.Migrator.Framework.Loggers
 
 		private void WriteLine(string message, params object[] args)
 		{
-			foreach (ILogWriter writer in _writers)
+			foreach (ILogWriter writer in writers)
 			{
 				writer.WriteLine(message, args);
 			}

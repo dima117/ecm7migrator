@@ -19,18 +19,18 @@ namespace ECM7.Migrator.Framework.SchemaBuilder
 {
 	public class SchemaBuilder : IColumnOptions, IForeignKeyOptions, IDeleteTableOptions
 	{
-		private string _currentTable;
-		private IFluentColumn _currentColumn;
-		private IList<ISchemaBuilderExpression> _exprs;
+		private string currentTable;
+		private IFluentColumn currentColumn;
+		private readonly IList<ISchemaBuilderExpression> exprs;
 
 		public SchemaBuilder()
 		{
-			_exprs = new List<ISchemaBuilderExpression>();
+			exprs = new List<ISchemaBuilderExpression>();
 		}
 
 		public IEnumerable<ISchemaBuilderExpression> Expressions
 		{
-			get { return _exprs; }
+			get { return exprs; }
 		}
 
 		/// <summary>
@@ -43,8 +43,8 @@ namespace ECM7.Migrator.Framework.SchemaBuilder
 			if (string.IsNullOrEmpty(name))
 				throw new ArgumentNullException("name");
 
-			_exprs.Add(new AddTableExpression(name));
-			_currentTable = name;
+			exprs.Add(new AddTableExpression(name));
+			currentTable = name;
 
 			return this;
 		}
@@ -53,10 +53,10 @@ namespace ECM7.Migrator.Framework.SchemaBuilder
 		{
 			if (string.IsNullOrEmpty(name))
 				throw new ArgumentNullException("name");
-			_currentTable = "";
-			_currentColumn = null;
+			currentTable = "";
+			currentColumn = null;
 
-			_exprs.Add(new DeleteTableExpression(name));
+			exprs.Add(new DeleteTableExpression(name));
 
 			return this;
 		}
@@ -71,8 +71,8 @@ namespace ECM7.Migrator.Framework.SchemaBuilder
 			if (string.IsNullOrEmpty(newName))
 				throw new ArgumentNullException("newName");
 
-			_exprs.Add(new RenameTableExpression(_currentTable, newName));
-			_currentTable = newName;
+			exprs.Add(new RenameTableExpression(currentTable, newName));
+			currentTable = newName;
 
 			return this;
 		}
@@ -87,7 +87,7 @@ namespace ECM7.Migrator.Framework.SchemaBuilder
 			if (string.IsNullOrEmpty(name))
 				throw new ArgumentNullException("name");
 
-			_currentTable = name;
+			currentTable = name;
 
 			return this;
 		}
@@ -101,26 +101,26 @@ namespace ECM7.Migrator.Framework.SchemaBuilder
 		{
 			if (string.IsNullOrEmpty(name))
 				throw new ArgumentNullException("name");
-			if (string.IsNullOrEmpty(_currentTable))
+			if (string.IsNullOrEmpty(currentTable))
 				throw new ArgumentException("missing referenced table");
 
 			IFluentColumn column = new FluentColumn(name);
-			_currentColumn = column;
+			currentColumn = column;
 
-			_exprs.Add(new AddColumnExpression(_currentTable, column));
+			exprs.Add(new AddColumnExpression(currentTable, column));
 			return this;
 		}
 
 		public SchemaBuilder OfType(DbType columnType)
 		{
-			_currentColumn.ColumnType.DataType = columnType;
+			currentColumn.ColumnType.DataType = columnType;
 
 			return this;
 		}
 
 		public SchemaBuilder WithProperty(ColumnProperty columnProperty)
 		{
-			_currentColumn.ColumnProperty = columnProperty;
+			currentColumn.ColumnProperty = columnProperty;
 
 			return this;
 		}
@@ -130,7 +130,7 @@ namespace ECM7.Migrator.Framework.SchemaBuilder
 			if (size == 0)
 				throw new ArgumentNullException("size", "Size must be greater than zero");
 
-			_currentColumn.ColumnType.Length = size;
+			currentColumn.ColumnType.Length = size;
 
 			return this;
 		}
@@ -140,7 +140,7 @@ namespace ECM7.Migrator.Framework.SchemaBuilder
 			if (precision < 0)
 				throw new ArgumentNullException("precision", "Size must be greater or equal than zero");
 
-			_currentColumn.ColumnType.Precision = precision;
+			currentColumn.ColumnType.Scale = precision;
 
 			return this;
 		}
@@ -150,28 +150,28 @@ namespace ECM7.Migrator.Framework.SchemaBuilder
 			if (defaultValue == null)
 				throw new ArgumentNullException("defaultValue", "DefaultValue cannot be null or empty");
 
-			_currentColumn.DefaultValue = defaultValue;
+			currentColumn.DefaultValue = defaultValue;
 
 			return this;
 		}
 
 		public IForeignKeyOptions AsForeignKey()
 		{
-			_currentColumn.ColumnProperty = ColumnProperty.ForeignKey;
+			currentColumn.ColumnProperty = ColumnProperty.ForeignKey;
 
 			return this;
 		}
 
 		public SchemaBuilder ReferencedTo(string primaryKeyTable, string primaryKeyColumn)
 		{
-			_currentColumn.Constraint = ForeignKeyConstraint.NoAction;
-			_currentColumn.ForeignKey = new ForeignKey(primaryKeyTable, primaryKeyColumn);
+			currentColumn.Constraint = ForeignKeyConstraint.NoAction;
+			currentColumn.ForeignKey = new ForeignKey(primaryKeyTable, primaryKeyColumn);
 			return this;
 		}
 
 		public SchemaBuilder WithConstraint(ForeignKeyConstraint action)
 		{
-			_currentColumn.Constraint = action;
+			currentColumn.Constraint = action;
 
 			return this;
 		}

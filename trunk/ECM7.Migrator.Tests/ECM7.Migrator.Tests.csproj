@@ -78,6 +78,7 @@
     <Compile Include="MigratorTest.cs" />
     <Compile Include="MigratorTestDates.cs" />
     <Compile Include="ProviderFactoryTest.cs" />
+    <Compile Include="Providers\Common\TypeNamesTest.cs" />
     <Compile Include="Providers\GenericProviderTests.cs" />
     <Compile Include="Providers\SqlServer2005TransformationProviderTest.cs" />
     <Compile Include="Providers\MySqlTransformationProviderTest.cs" />

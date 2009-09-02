@@ -29,8 +29,8 @@ namespace ECM7.Migrator.Tests.Providers
             if (constr == null)
                 throw new ArgumentNullException("SqlServerConnectionString", "No config file");
 
-            _provider = new SqlServerTransformationProvider(new SqlServerDialect(), constr);
-            _provider.BeginTransaction();
+            provider = new SqlServerTransformationProvider(new SqlServerDialect(), constr);
+            provider.BeginTransaction();
 
             AddDefaultTable();
         }
@@ -45,18 +45,18 @@ namespace ECM7.Migrator.Tests.Providers
         [Test]
         public void InstanceForProvider()
         {
-            ITransformationProvider localProv = _provider["sqlserver"];
+            ITransformationProvider localProv = provider["sqlserver"];
             Assert.IsTrue(localProv is SqlServerTransformationProvider);
 
-            ITransformationProvider localProv2 = _provider["foo"];
+            ITransformationProvider localProv2 = provider["foo"];
             Assert.IsTrue(localProv2 is NoOpTransformationProvider);
         }
         
         [Test]
         public void ByteColumnWillBeCreatedAsBlob()
         {
-            _provider.AddColumn("TestTwo", "BlobColumn", DbType.Byte);
-            Assert.IsTrue(_provider.ColumnExists("TestTwo", "BlobColumn"));
+            provider.AddColumn("TestTwo", "BlobColumn", DbType.Byte);
+            Assert.IsTrue(provider.ColumnExists("TestTwo", "BlobColumn"));
         }
     }
 }

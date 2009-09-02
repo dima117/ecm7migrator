@@ -31,9 +31,9 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		protected override void CreateConnection()
 		{
-			_connection = new SqlCeConnection();
-			_connection.ConnectionString = _connectionString;
-			_connection.Open();
+			connection = new SqlCeConnection();
+			connection.ConnectionString = connectionString;
+			connection.Open();
 		}
 
 		public override bool ConstraintExists(string table, string name)
@@ -63,12 +63,12 @@ namespace ECM7.Migrator.Providers.SqlServer
 		// Not supported by SQLCe when we have a better schemadumper which gives the exact sql construction including constraints we may use it to insert into a new table and then drop the old table...but this solution is dangerous for big tables.
 		public override void RenameTable(string oldName, string newName)
 		{
-			
-			if (TableExists(newName))
-				throw new MigrationException(String.Format("Table with name '{0}' already exists", newName));
+			throw new MigrationException("SqlServerCe doesn't support table renaming");
+		}
 
-			//if (TableExists(oldName))
-			//    ExecuteNonQuery(String.Format("EXEC sp_rename {0}, {1}", oldName, newName));
+		public override void AddCheckConstraint(string name, string table, string checkSql)
+		{
+			throw new MigrationException("SqlServerCe doesn't support check constraints");
 		}
 
 		protected override string FindConstraints(string table, string column)

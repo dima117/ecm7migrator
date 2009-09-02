@@ -32,9 +32,9 @@ namespace ECM7.Migrator.Providers.SqlServer
 
     	protected virtual void CreateConnection()
     	{
-    		_connection = new SqlConnection();
-    		_connection.ConnectionString = _connectionString;
-    		_connection.Open();
+    		connection = new SqlConnection();
+    		connection.ConnectionString = connectionString;
+    		connection.Open();
     	}
 
         // FIXME: We should look into implementing this with INFORMATION_SCHEMA if possible

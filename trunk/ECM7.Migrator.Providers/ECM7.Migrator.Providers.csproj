@@ -69,28 +69,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ColumnPropertiesMapper.cs" />
-    <Compile Include="Dialect.cs" />
-    <Compile Include="ForeignKeyConstraintMapper.cs" />
     <Compile Include="Impl\Mysql\MysqlDialect.cs" />
     <Compile Include="Impl\Mysql\MySqlTransformationProvider.cs" />
     <Compile Include="Impl\SqlServer\SqlServer2005Dialect.cs" />
     <Compile Include="Impl\SqlServer\SqlServerCeDialect.cs" />
     <Compile Include="Impl\SqlServer\SqlServerCeTransformationProvider.cs" />
-    <Compile Include="NoOpTransformationProvider.cs" />
     <Compile Include="Impl\Oracle\OracleDialect.cs" />
     <Compile Include="Impl\Oracle\OracleTransformationProvider.cs" />
     <Compile Include="Impl\SQLite\SQLiteDialect.cs" />
     <Compile Include="Impl\SQLite\SQLiteTransformationProvider.cs" />
     <Compile Include="Impl\SqlServer\SqlServerDialect.cs" />
     <Compile Include="Impl\SqlServer\SqlServerTransformationProvider.cs" />
-    <Compile Include="TransformationProvider.cs" />
-    <Compile Include="TypeNames.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">
       <Project>{5270F048-E580-486C-B14C-E5B9F6E539D4}</Project>
       <Name>ECM7.Migrator.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator\ECM7.Migrator.csproj">
+      <Project>{1FEE70A4-AAD7-4C60-BE60-3F7DC03A8C4D}</Project>
+      <Name>ECM7.Migrator</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

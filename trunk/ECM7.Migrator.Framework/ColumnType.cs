@@ -2,9 +2,11 @@
 
 namespace ECM7.Migrator.Framework
 {
+	/// <summary>
+	/// Тип столбца таблицы
+	/// </summary>
 	public class ColumnType
 	{
-
 		public ColumnType(DbType dataType)
 		{
 			DataType = dataType;
@@ -15,20 +17,27 @@ namespace ECM7.Migrator.Framework
 		{
 			Length = length;
 		}
-		
-		public ColumnType(DbType dataType, int length, int precision)
+
+		public ColumnType(DbType dataType, int length, int scale)
 			: this(dataType, length)
 		{
-			Precision = precision;
+			Scale = scale;
 		}
 
+		/// <summary>
+		/// Тип данных
+		/// </summary>
 		public DbType DataType { get; set; }
 
-		public int Length { get; set; }
+		/// <summary>
+		/// Размер
+		/// </summary>
+		public int? Length { get; set; }
 
-		public int Precision { get; set; }
-
-		public int Scale { get; set; }
+		/// <summary>
+		/// Точность
+		/// </summary>
+		public int? Scale { get; set; }
 
 	}
 }

@@ -34,6 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ECM7.Common, Version=0.4.0.1001, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\ECM7.Common.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -54,6 +58,12 @@
     <Compile Include="MigrationLoader.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="ProviderFactory.cs" />
+    <Compile Include="Providers\ColumnPropertiesMapper.cs" />
+    <Compile Include="Providers\Dialect.cs" />
+    <Compile Include="Providers\ForeignKeyConstraintMapper.cs" />
+    <Compile Include="Providers\NoOpTransformationProvider.cs" />
+    <Compile Include="Providers\TransformationProvider.cs" />
+    <Compile Include="Providers\TypeNames.cs" />
     <Compile Include="Tools\SchemaDumper.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -63,10 +73,6 @@
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">
       <Project>{5270F048-E580-486C-B14C-E5B9F6E539D4}</Project>
       <Name>ECM7.Migrator.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ECM7.Migrator.Providers\ECM7.Migrator.Providers.csproj">
-      <Project>{D58C68E4-D789-40F7-9078-C9F587D4363C}</Project>
-      <Name>ECM7.Migrator.Providers</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

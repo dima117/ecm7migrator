@@ -12,9 +12,9 @@ namespace ECM7.Migrator.Providers.Oracle
         public OracleTransformationProvider(Dialect dialect, string connectionString)
             : base(dialect, connectionString)
         {
-            _connection = new OracleConnection();
-            _connection.ConnectionString = _connectionString;
-            _connection.Open();
+            connection = new OracleConnection();
+            connection.ConnectionString = base.connectionString;
+            connection.Open();
         }
 
         public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,

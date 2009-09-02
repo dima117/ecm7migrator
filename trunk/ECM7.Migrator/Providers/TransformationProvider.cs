@@ -28,21 +28,21 @@ namespace ECM7.Migrator.Providers
 	/// </summary>
 	public abstract class TransformationProvider : ITransformationProvider
 	{
-		private ILogger _logger;
-		protected IDbConnection _connection;
-		private IDbTransaction _transaction;
-		private List<long> _appliedMigrations;
+		private ILogger logger;
+		protected IDbConnection connection;
+		private IDbTransaction transaction;
+		private List<long> appliedMigrations;
 
-		protected readonly string _connectionString;
-		protected Dialect _dialect;
+		protected readonly string connectionString;
+		protected Dialect dialect;
 
 		private readonly ForeignKeyConstraintMapper constraintMapper = new ForeignKeyConstraintMapper();
 
 		protected TransformationProvider(Dialect dialect, string connectionString)
 		{
-			_dialect = dialect;
-			_connectionString = connectionString;
-			_logger = new Logger(false);
+			this.dialect = dialect;
+			this.connectionString = connectionString;
+			logger = new Logger(false);
 		}
 
 		/// <summary>
@@ -50,13 +50,13 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		public virtual ILogger Logger
 		{
-			get { return _logger; }
-			set { _logger = value; }
+			get { return logger; }
+			set { logger = value; }
 		}
 
 		public Dialect Dialect
 		{
-			get { return _dialect; }
+			get { return dialect; }
 		}
 
 		public ITransformationProvider this[string provider]
@@ -129,15 +129,15 @@ namespace ECM7.Migrator.Providers
 		{
 			if (TableExists(table) && ConstraintExists(table, name))
 			{
-				table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
-				name = _dialect.ConstraintNameNeedsQuote ? _dialect.Quote(name) : name;
+				table = dialect.TableNameNeedsQuote ? dialect.Quote(table) : table;
+				name = dialect.ConstraintNameNeedsQuote ? dialect.Quote(name) : name;
 				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP CONSTRAINT {1}", table, name));
 			}
 		}
 
 		public virtual void AddTable(string table, string engine, string columns)
 		{
-			table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
+			table = dialect.TableNameNeedsQuote ? dialect.Quote(table) : table;
 			string sqlCreate = String.Format("CREATE TABLE {0} ({1})", table, columns);
 			ExecuteNonQuery(sqlCreate);
 		}
@@ -196,7 +196,7 @@ namespace ECM7.Migrator.Providers
 				if (compoundPrimaryKey && column.IsPrimaryKey)
 					column.ColumnProperty = ColumnProperty.Unsigned | ColumnProperty.NotNull;
 
-				ColumnPropertiesMapper mapper = _dialect.GetAndMapColumnProperties(column);
+				ColumnPropertiesMapper mapper = dialect.GetAndMapColumnProperties(column);
 				columnProviders.Add(mapper);
 			}
 
@@ -275,7 +275,7 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			ColumnPropertiesMapper mapper = _dialect.GetAndMapColumnProperties(column);
+			ColumnPropertiesMapper mapper = dialect.GetAndMapColumnProperties(column);
 			ChangeColumn(table, mapper.ColumnSql);
 		}
 
@@ -353,7 +353,7 @@ namespace ECM7.Migrator.Providers
 			}
 
 			ColumnPropertiesMapper mapper =
-				_dialect.GetAndMapColumnProperties(column);
+				dialect.GetAndMapColumnProperties(column);
 
 			AddColumn(table, mapper.ColumnSql);
 
@@ -394,7 +394,7 @@ namespace ECM7.Migrator.Providers
 			}
 
 			ColumnPropertiesMapper mapper =
-				_dialect.GetAndMapColumnProperties(new Column(column, type, defaultValue));
+				dialect.GetAndMapColumnProperties(new Column(column, type, defaultValue));
 
 			AddColumn(table, mapper.ColumnSql);
 
@@ -576,12 +576,12 @@ namespace ECM7.Migrator.Providers
 
 		private IDbCommand BuildCommand(string sql)
 		{
-			IDbCommand cmd = _connection.CreateCommand();
+			IDbCommand cmd = connection.CreateCommand();
 			cmd.CommandText = sql;
 			cmd.CommandType = CommandType.Text;
-			if (_transaction != null)
+			if (transaction != null)
 			{
-				cmd.Transaction = _transaction;
+				cmd.Transaction = transaction;
 			}
 			return cmd;
 		}
@@ -687,18 +687,18 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		public void BeginTransaction()
 		{
-			if (_transaction == null && _connection != null)
+			if (transaction == null && connection != null)
 			{
 				EnsureHasConnection();
-				_transaction = _connection.BeginTransaction(IsolationLevel.ReadCommitted);
+				transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
 			}
 		}
 
 		protected void EnsureHasConnection()
 		{
-			if (_connection.State != ConnectionState.Open)
+			if (connection.State != ConnectionState.Open)
 			{
-				_connection.Open();
+				connection.Open();
 			}
 		}
 
@@ -707,18 +707,18 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		public virtual void Rollback()
 		{
-			if (_transaction != null && _connection != null && _connection.State == ConnectionState.Open)
+			if (transaction != null && connection != null && connection.State == ConnectionState.Open)
 			{
 				try
 				{
-					_transaction.Rollback();
+					transaction.Rollback();
 				}
 				finally
 				{
-					_connection.Close();
+					connection.Close();
 				}
 			}
-			_transaction = null;
+			transaction = null;
 		}
 
 		/// <summary>
@@ -726,18 +726,18 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		public void Commit()
 		{
-			if (_transaction != null && _connection != null && _connection.State == ConnectionState.Open)
+			if (transaction != null && connection != null && connection.State == ConnectionState.Open)
 			{
 				try
 				{
-					_transaction.Commit();
+					transaction.Commit();
 				}
 				finally
 				{
-					_connection.Close();
+					connection.Close();
 				}
 			}
-			_transaction = null;
+			transaction = null;
 		}
 
 		/// <summary>
@@ -747,19 +747,19 @@ namespace ECM7.Migrator.Providers
 		{
 			get
 			{
-				if (_appliedMigrations == null)
+				if (appliedMigrations == null)
 				{
-					_appliedMigrations = new List<long>();
+					appliedMigrations = new List<long>();
 					CreateSchemaInfoTable();
 					using (IDataReader reader = Select("version", "SchemaInfo"))
 					{
 						while (reader.Read())
 						{
-							_appliedMigrations.Add(reader.GetInt64(0));
+							appliedMigrations.Add(reader.GetInt64(0));
 						}
 					}
 				}
-				return _appliedMigrations;
+				return appliedMigrations;
 			}
 		}
 
@@ -771,7 +771,7 @@ namespace ECM7.Migrator.Providers
 		{
 			CreateSchemaInfoTable();
 			Insert("SchemaInfo", new[] { "version" }, new[] { version.ToString() });
-			_appliedMigrations.Add(version);
+			appliedMigrations.Add(version);
 		}
 
 		/// <summary>
@@ -782,7 +782,7 @@ namespace ECM7.Migrator.Providers
 		{
 			CreateSchemaInfoTable();
 			Delete("SchemaInfo", "version", version.ToString());
-			_appliedMigrations.Remove(version);
+			appliedMigrations.Remove(version);
 		}
 
 		protected void CreateSchemaInfoTable()
