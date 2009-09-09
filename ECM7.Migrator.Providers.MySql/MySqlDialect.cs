@@ -3,11 +3,11 @@ using System;
 using System.Data;
 using ECM7.Migrator.Framework;
 
-namespace ECM7.Migrator.Providers.Mysql
+namespace ECM7.Migrator.Providers.MySql
 {
-	public class MysqlDialect : Dialect
+	public class MySqlDialect : Dialect
 	{
-	    public MysqlDialect()
+	    public MySqlDialect()
 	    {
 	        RegisterColumnType(DbType.AnsiStringFixedLength, "CHAR(255)");
 			RegisterColumnType(DbType.AnsiStringFixedLength, 255, "CHAR($l)");

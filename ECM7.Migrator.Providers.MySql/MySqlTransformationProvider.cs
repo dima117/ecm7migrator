@@ -4,7 +4,7 @@ using System.Data;
 using ECM7.Migrator.Framework;
 using MySql.Data.MySqlClient;
 
-namespace ECM7.Migrator.Providers.Mysql
+namespace ECM7.Migrator.Providers.MySql
 {
     /// <summary>
     /// Summary description for MySqlTransformationProvider.

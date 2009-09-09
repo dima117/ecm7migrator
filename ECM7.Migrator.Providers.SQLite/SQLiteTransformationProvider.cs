@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using ECM7.Migrator.Framework;
-using ForeignKeyConstraint=ECM7.Migrator.Framework.ForeignKeyConstraint;
 #if DOTNET2
 using SqliteConnection=System.Data.SQLite.SQLiteConnection;
 #else
@@ -69,7 +68,8 @@ namespace ECM7.Migrator.Providers.SQLite
             if (ColumnExists(tableName, oldColumnName)) 
             {
                 string[] columnDefs = GetColumnDefs(tableName);
-                string columnDef = Array.Find(columnDefs, delegate(string col) { return ColumnMatch(oldColumnName, col); });
+                string columnDef = Array.Find(columnDefs,
+					col => ColumnMatch(oldColumnName, col));
                 
                 string newColumnDef = columnDef.Replace(oldColumnName, newColumnName);
                 
@@ -216,7 +216,7 @@ namespace ECM7.Migrator.Providers.SQLite
             sqldef = sqldef.Substring(0, end);
             sqldef = sqldef.Substring(start + 1);
             
-            string[] cols = sqldef.Split(new char[]{','});
+            string[] cols = sqldef.Split(new[]{','});
             for (int i = 0; i < cols.Length; i ++) 
             {
                 cols[i] = cols[i].Trim();

@@ -5,7 +5,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 {
     public class SqlServer2005Dialect : SqlServerDialect
     {
-        public SqlServer2005Dialect() :base()
+        public SqlServer2005Dialect()
         {
             RegisterColumnType(DbType.AnsiString, 2147483647, "VARCHAR(MAX)");
             RegisterColumnType(DbType.Binary, 2147483647, "VARBINARY(MAX)");
