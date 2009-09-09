@@ -13,7 +13,7 @@ using System;
 using System.Configuration;
 using System.Data;
 using ECM7.Migrator.Framework;
-using ECM7.Migrator.Providers.Mysql;
+using ECM7.Migrator.Providers.MySql;
 using NUnit.Framework;
 
 namespace ECM7.Migrator.Tests.Providers
@@ -27,7 +27,7 @@ namespace ECM7.Migrator.Tests.Providers
             string constr = ConfigurationManager.AppSettings["MySqlConnectionString"];
             if (constr == null)
                 throw new ArgumentNullException("MySqlConnectionString", "No config file");
-            provider = new MySqlTransformationProvider(new MysqlDialect(), constr);
+            provider = new MySqlTransformationProvider(new MySqlDialect(), constr);
             // provider.Logger = new Logger(true, new ConsoleWriter());
 
             AddDefaultTable();

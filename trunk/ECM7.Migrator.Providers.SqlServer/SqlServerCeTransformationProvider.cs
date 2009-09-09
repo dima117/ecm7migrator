@@ -31,6 +31,8 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		protected override void CreateConnection()
 		{
+			//SqlCeEngine engine = new SqlCeEngine(connectionString);
+			//engine.Upgrade();
 			connection = new SqlCeConnection();
 			connection.ConnectionString = connectionString;
 			connection.Open();
