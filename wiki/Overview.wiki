@@ -1,4 +1,4 @@
-Обзор ECM7 Migrator
+#summary Обзор ECM7 Migrator
 
 = Вступление =
 
