@@ -28,9 +28,10 @@ public class AddCustomerTable : Migration
 
 == Составные ключи ==
 
-The manual way is to create a table with no primary keys and then declare the primary keys separately.
+Чтобы создать в БД таблицу с составным первичным ключем, создаем таблицу без указания перивичного ключа и добавляем его отдельно.
 
-using Migrator.Framework;
+{{{
+using ECM7.Migrator.Framework;
 using System.Data;
 
 [Migration(20080806151301)]
@@ -49,10 +50,12 @@ public class AddCustomerTable : Migration
                 Database.RemoveTable("CustomerAddress");
         }
 }
+}}}
 
-The easier way is just to declare each of the columns as a primary key and let the tool do the work for you.
+Более легкий путь задать составной первичный ключ - указать нужным колонкам признак "первичный ключ" при создании таблицы.
 
-using Migrator.Framework;
+{{{
+using ECM7.Migrator.Framework;
 using System.Data;
 
 [Migration(20080806161420)]
@@ -70,6 +73,7 @@ public class AddCustomerTable : Migration
                 Database.RemoveTable("CustomerAddress");
         }
 }
+}}}
 
 A Sample Migration With different SQL for Different Databases
 
