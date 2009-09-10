@@ -16,3 +16,5 @@
       * используем MsBuild;
       * используем консольное приложение ECM7.Migrator.exe;
       * используем API из библиотеки ECM7.Migrator.dll.
+
+>> WritingMigrations
