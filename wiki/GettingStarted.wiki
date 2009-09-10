@@ -1,0 +1,39 @@
+#summary Начало работы с ECM7 Migrator
+
+= Introduction =
+
+Add your content here.
+
+
+= Details =
+
+Вот основные шаги, которые необходимо выполнить для того, чтобы использовать в своем проекте ECM7 Migrator:
+
+   1. Добавляем новый проект Class library. Назовем его, например, DBMigration.
+   
+   2. Добавляем в проект ссылки на библиотеки ECM7 Migrator:
+      * ECM7.Migrator.dll;
+      * ECM7.Migrator.Framework.dll;
+      * ECM7.Common.dll;
+      * провайдер для нужной СУБД (например, ECM7.Migrator.Providers.SqlServer.dll).
+
+   3. In your DBMigration project, add a reference to the Migrator.Framework.dll. That's the only additional reference you need in the project.
+   4. create a build.proj file in your DBMigration project dir. Refer to the full example in MSBuildTarget.wiki. If you're using SQL Server, the only attribute you should need to adjust is the Connectionstring.
+   5. Create your first migration.
+
+          e.g. File Name: CreateUser_001.cs
+
+              Class Name: CreateUser_001 
+
+   6. Compile and run your Migrations. The easiest way to run your migrations is to create two External Tools references for your migrations targets - one for going up, and one for going down to a specific version. Here's what the configurations look like if you're using MSBuild with .NET 2.0: 
+
+    Title: Migrate Up Command: C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe Arguments: build.proj /t:migrate Initial Directory: $(ProjectDir) Check the "Use Output window" box. 
+
+    Title: Migrate To Version Command: C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe Arguments: build.proj /t:migrate Initial Directory: $(ProjectDir) Check the "Use Output window" box Also check the "Prompt for arguments" box. You'll use that to specify which version you want to go to. (e.g. 0 for all the way back down). 
+
+    * For more details on the migrator tasks available, see WritingMigrations. 
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
