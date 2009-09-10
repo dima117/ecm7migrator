@@ -15,10 +15,9 @@ Add your content here.
       * ECM7.Common.dll;
       * провайдер для нужной СУБД (например, ECM7.Migrator.Providers.SqlServer.dll).
    3. Добавляем в проект ссылку на библиотеку ECM7.Migrator.Framework.dll.
-   4. Создаем "миграции" - классы, задающие набор изменений БД.
-          например: имя файла       - CreateUser001.cs
-
-                    название класса - CreateUser001 
+   4. Создаем "миграции" - классы, задающие набор изменений БД. Например: 
+      * имя файла - *CreateUser001.cs*;
+      * название класса - *CreateUser001*.
 
    6. Compile and run your Migrations. The easiest way to run your migrations is to create two External Tools references for your migrations targets - one for going up, and one for going down to a specific version. Here's what the configurations look like if you're using MSBuild with .NET 2.0: 
 
