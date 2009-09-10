@@ -11,18 +11,19 @@ using System.Data;
 [Migration(20080805151231)]
 public class AddCustomerTable : Migration
 {
-        public override void Up()
-        {
-                Database.AddTable("Customer",
-                          new Column("name", DbType.String, 50),
-                          new Column("address", DbType.String, 100),
-                          new Column("age", DbType.Int32, 100)
-                         );
-        }
-        public override void Down()
-        {
-                Database.RemoveTable("Customer");
-        }
+    public override void Up()
+    {
+        Database.AddTable("Customer",
+            new Column("name", DbType.String, 50),
+            new Column("address", DbType.String, 100),
+            new Column("age", DbType.Int32, 100)
+        );
+    }
+
+    public override void Down()
+    {
+        Database.RemoveTable("Customer");
+    }
 }
 }}}
 
@@ -37,18 +38,20 @@ using System.Data;
 [Migration(20080806151301)]
 public class AddCustomerTable : Migration
 {
-        public override void Up()
-        {
-                Database.AddTable("CustomerAddress",
-                          new Column("customer_id", DbType.Int32),
-                          new Column("address_id", DbType.Int32)
-                         );
-                Database.AddPrimaryKey("CustomerAddress", "customer_id", "address_id");
-        }
-        public override void Down()
-        {
-                Database.RemoveTable("CustomerAddress");
-        }
+    public override void Up()
+    {
+        Database.AddTable("CustomerAddress",
+            new Column("customer_id", DbType.Int32),
+            new Column("address_id", DbType.Int32)
+        );
+
+        Database.AddPrimaryKey("CustomerAddress", "customer_id", "address_id");
+    }
+
+    public override void Down()
+    {
+        Database.RemoveTable("CustomerAddress");
+    }
 }
 }}}
 
@@ -61,56 +64,59 @@ using System.Data;
 [Migration(20080806161420)]
 public class AddCustomerTable : Migration
 {
-        public override void Up()
-        {
-                Database.AddTable("CustomerAddress",
-                          new Column("customer_id", DbType.Int32, ColumnProperty.PrimaryKey),
-                          new Column("address_id", DbType.Int32, ColumnProperty.PrimaryKey)
-                         );
-        }
-        public override void Down()
-        {
-                Database.RemoveTable("CustomerAddress");
-        }
+    public override void Up()
+    {
+        Database.AddTable("CustomerAddress",
+            new Column("customer_id", DbType.Int32, ColumnProperty.PrimaryKey),
+            new Column("address_id", DbType.Int32, ColumnProperty.PrimaryKey)
+        );
+    }
+
+    public override void Down()
+    {
+        Database.RemoveTable("CustomerAddress");
+    }
 }
 }}}
 
-A Sample Migration With different SQL for Different Databases
+== Пример "миграции" с различными SQL командами для различных СУБД ==
 
-Only the parts that match Database[current provider] will be executed. This allows you to do things that are not database independent but still support multiple databases if necessary.
+Если необходимо выполнить некоторые изменения на определенной СУБД, используйте конструкцию Database.For<TDialect>(). Данные изменения выполнятся только в том случае, если текущий диалект соответствует указанному вами.
 
 In the below example we are supporting SqlServer and PostgreSQL and only the proper script will be run depending on the current provider executing. e.g. If your NAnt script sets the provider to SqlServer then the SqlServer blocks will be executed.
 
+{{{
 [Migration(20080806160101)]
 public class AddFooProcedure : Migration
 {
-        public override void Up()
-        {
-                Database["SqlServer"].ExecuteNonQuery(
-@"CREATE PROCEDURE Foo 
+    public override void Up()
+    {
+        Database.For<SqlServerDialect>().ExecuteNonQuery(@"
+CREATE PROCEDURE Foo 
         @var int = 0
 AS
 BEGIN
         SELECT @var
 END");
 
-                Database["PostgreSQL"].ExecteNonQuery(
-@"create or replace function foo() returns integer as $$
+        Database.For<PostgreSQLDialect>().ExecteNonQuery(@"
+create or replace function foo() returns integer as $$
 BEGIN
    select 1;
 END;
 $$ LANGUAGE plpgsql;");
 
-        }
+    }
 
-        public override void Down()
-        {
-                Database["SqlServer"].ExecuteNonQuery(@"DROP PROCEDURE Foo");
-                Database["PostgreSQL"].ExecuteNonQuery(@"DROP FUNCTION foo CASCADE");
-        }
+    public override void Down()
+    {
+        Database.For<SqlServerDialect>().ExecuteNonQuery(@"DROP PROCEDURE Foo");
+        Database.For<PostgreSQLDialect>().ExecuteNonQuery(@"DROP FUNCTION foo CASCADE");
+    }
 }
+}}}
 
-Add Foreign Key
+== Добавление внешнего ключа ==
 
 Add a foreign key constraint to the database.
 
