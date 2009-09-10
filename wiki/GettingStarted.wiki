@@ -1,11 +1,6 @@
 #summary Начало работы с ECM7 Migrator
 
-= Introduction =
-
-Add your content here.
-
-
-= Details =
+= Использование ECM7 Migrator в Visual Studio=
 
 Вот основные шаги, которые необходимо выполнить для того, чтобы использовать в своем проекте ECM7 Migrator:
    1. Добавляем новый проект Class library. Назовем его, например, DBMigration.
@@ -15,19 +10,9 @@ Add your content here.
       * ECM7.Common.dll;
       * провайдер для нужной СУБД (например, ECM7.Migrator.Providers.SqlServer.dll).
    3. Добавляем в проект ссылку на библиотеку ECM7.Migrator.Framework.dll.
-   4. Создаем "миграции" - классы, задающие набор изменений БД. Например: 
-      * имя файла - *CreateUser001.cs*;
-      * название класса - *CreateUser001*.
-
-   6. Compile and run your Migrations. The easiest way to run your migrations is to create two External Tools references for your migrations targets - one for going up, and one for going down to a specific version. Here's what the configurations look like if you're using MSBuild with .NET 2.0: 
-
-    Title: Migrate Up Command: C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe Arguments: build.proj /t:migrate Initial Directory: $(ProjectDir) Check the "Use Output window" box. 
-
-    Title: Migrate To Version Command: C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\MSBuild.exe Arguments: build.proj /t:migrate Initial Directory: $(ProjectDir) Check the "Use Output window" box Also check the "Prompt for arguments" box. You'll use that to specify which version you want to go to. (e.g. 0 for all the way back down). 
-
-    * For more details on the migrator tasks available, see WritingMigrations. 
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+   4. Создаем "миграции" - классы, задающие набор изменений БД. Подробнее о написании классов миграций смотрите на странице WritingMigrations.
+   5. Компилируем наш проект и выполняем изменения в БД одним из способов:
+      * используем NAnt;
+      * используем MsBuild;
+      * используем консольное приложение ECM7.Migrator.exe;
+      * используем API из библиотеки ECM7.Migrator.dll.
