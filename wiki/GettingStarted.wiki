@@ -21,6 +21,21 @@
 
 {{{
 
+    [Migration(7)]
+    public class AbstractTestMigration : Migration
+    {
+        override public void Up()
+        {
+            Database.AddTable("CustomerAddress",
+                new Column("customer_id", DbType.Int32, ColumnProperty.PrimaryKey),
+                new Column("address_id", DbType.Int32, ColumnProperty.PrimaryKey));
+        }
+
+        override public void Down()
+        {
+            Database.RemoveTable("CustomerAddress");
+        }
+    }
 
 }}}
 
