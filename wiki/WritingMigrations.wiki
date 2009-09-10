@@ -81,7 +81,7 @@ public class AddCustomerTable : Migration
 
 == Пример "миграции" с различными SQL командами для различных СУБД ==
 
-Если необходимо выполнить некоторые изменения на определенной СУБД, используйте конструкцию Database.For<TDialect>(). Данные изменения выполнятся только в том случае, если текущий диалект соответствует указанному вами.
+Если необходимо выполнить некоторые изменения на определенной СУБД, используйте конструкцию Database.For'<'TDialect'>'(). Данные изменения выполнятся только в том случае, если текущий диалект соответствует указанному вами.
 
 In the below example we are supporting SqlServer and PostgreSQL and only the proper script will be run depending on the current provider executing. e.g. If your NAnt script sets the provider to SqlServer then the SqlServer blocks will be executed.
 
