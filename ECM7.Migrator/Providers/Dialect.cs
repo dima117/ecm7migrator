@@ -29,6 +29,16 @@ namespace ECM7.Migrator.Providers
         }
         
         /// <summary>
+        /// ѕроверка, что заданный тип зарегистрирован
+        /// </summary>
+        /// <param name="type">ѕровер€емый тип</param>
+		/// <returns>¬озвращает true, если заданный тип зарегистрирован, иначе возвращает false.</returns>
+        public bool TypeIsRegistred(DbType type)
+        {
+        	return typeNames.HasType(type);
+        }
+
+    	/// <summary>
         /// Subclasses register a typename for the given type code and maximum
         /// column length. <c>$l</c> in the type name will be replaced by the column
         /// length (if appropriate)

@@ -45,6 +45,11 @@ namespace ECM7.Migrator.Providers
 			logger = new Logger(false);
 		}
 
+		public bool TypeIsSupported(DbType type)
+		{
+			return dialect.TypeIsRegistred(type);
+		}
+
 		/// <summary>
 		/// Returns the event logger
 		/// </summary>

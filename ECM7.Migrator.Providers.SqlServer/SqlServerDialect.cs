@@ -13,7 +13,7 @@ namespace ECM7.Migrator.Providers.SqlServer
             RegisterColumnType(DbType.AnsiStringFixedLength, 8000, "CHAR($l)");
             RegisterColumnType(DbType.AnsiString, "VARCHAR(255)");
             RegisterColumnType(DbType.AnsiString, 8000, "VARCHAR($l)");
-            RegisterColumnType(DbType.AnsiString, 2147483647, "TEXT");
+            RegisterColumnType(DbType.AnsiString, int.MaxValue, "TEXT");
             RegisterColumnType(DbType.Binary, "VARBINARY(8000)");
             RegisterColumnType(DbType.Binary, 8000, "VARBINARY($l)");
             RegisterColumnType(DbType.Binary, 2147483647, "IMAGE");
@@ -22,8 +22,8 @@ namespace ECM7.Migrator.Providers.SqlServer
             RegisterColumnType(DbType.Currency, "MONEY");
             RegisterColumnType(DbType.Date, "DATETIME");
             RegisterColumnType(DbType.DateTime, "DATETIME");
-            RegisterColumnType(DbType.Decimal, "DECIMAL(19,5)");
-            RegisterColumnType(DbType.Decimal, 19, "DECIMAL(19, $l)");
+            RegisterColumnType(DbType.Decimal, "DECIMAL");
+            RegisterColumnType(DbType.Decimal, 38, "DECIMAL($l, $s)");
             RegisterColumnType(DbType.Double, "DOUBLE PRECISION"); //synonym for FLOAT(53)
             RegisterColumnType(DbType.Guid, "UNIQUEIDENTIFIER");
             RegisterColumnType(DbType.Int16, "SMALLINT");

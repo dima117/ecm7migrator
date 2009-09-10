@@ -118,7 +118,7 @@ namespace ECM7.Migrator.Providers.MySql
         public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
         {
             if (ColumnExists(tableName, newColumnName))
-                throw new MigrationException(String.Format("Table '{0}' has column named '{0}' already", tableName, newColumnName));
+                throw new MigrationException(String.Format("Table '{0}' has column named '{1}' already", tableName, newColumnName));
                 
             if (ColumnExists(tableName, oldColumnName)) 
             {

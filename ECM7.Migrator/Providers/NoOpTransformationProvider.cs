@@ -1,3 +1,4 @@
+using System;
 using System.Data;
 using ECM7.Migrator.Framework;
 using System.Collections.Generic;
@@ -333,5 +334,10 @@ namespace ECM7.Migrator.Providers
         {
             // No Op
         }
+
+    	public bool TypeIsSupported(DbType type)
+    	{
+    		return false;
+    	}
     }
 }

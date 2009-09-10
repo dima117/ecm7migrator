@@ -161,6 +161,16 @@ namespace ECM7.Migrator.Providers
 
 		#endregion
 
+		/// <summary>
+		/// Проверка, содержит ли провайдер мэппинг для заданного типа
+		/// </summary>
+		/// <param name="type">Проверяемый тип</param>
+		/// <returns>Если мэппинг для проверяемого типа установлен, возвращается true, иначе возвращается false.</returns>
+		public bool HasType(DbType type)
+		{
+			return typeMapping.ContainsKey(type) || defaults.ContainsKey(type);
+		}
+
 		#region Replacing
 
 		public const string LENGTH_PLACE_HOLDER = "$l";
