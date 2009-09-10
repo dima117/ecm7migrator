@@ -3,7 +3,7 @@
 = Использование ECM7 Migrator в Visual Studio=
 
 Вот основные шаги, которые необходимо выполнить для того, чтобы использовать в своем проекте ECM7 Migrator:
-   1. Добавляем новый проект Class library. Назовем его, например, DBMigration.
+   1. Добавляем новый проект Class library.
    2. Обеспечиваем доступ из проекта к библиотекам, необходимым для работы ECM7 Migrator:
       * ECM7.Migrator.dll;
       * ECM7.Migrator.Framework.dll;
