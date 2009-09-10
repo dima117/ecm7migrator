@@ -1,6 +1,8 @@
 using System.Configuration;
+using ECM7.Common.Utils.Exceptions;
 using ECM7.Migrator.Framework;
 using NUnit.Framework;
+using System;
 
 namespace ECM7.Migrator.Tests
 {
@@ -15,9 +17,6 @@ namespace ECM7.Migrator.Tests
 		private const string SQL_SERVER_2005_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServer2005Dialect, ECM7.Migrator.Providers.SqlServer";
 		private const string SQL_SERVER_CE_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServerCeDialect, ECM7.Migrator.Providers.SqlServer";
 
-
-		// todo: добавить тест на некорректные диалекты	
-		// todo: разнести диалекты по отдельным проектам
 		[Test, Category("SqlServer")]
 		public void CanLoadSqlServerProvider()
 		{
@@ -67,5 +66,22 @@ namespace ECM7.Migrator.Tests
 				ORACLE_DIALECT, ConfigurationManager.AppSettings["OracleConnectionString"]);
 			Assert.IsNotNull(provider);
 		}
+
+		[Test, Category("Некорректные диалекты")]
+		public void CantLoadNotExistsDialect()
+		{
+			var ex = Assert.Throws<RequirementNotCompliedException>(() =>
+				ProviderFactory.Create("NotExistsDialect", string.Empty));
+			Console.WriteLine(ex.Message);
+		}
+
+		[Test, Category("Некорректные диалекты")]
+		public void CantLoadNotDialectClass()
+		{
+			var ex = Assert.Throws<RequirementNotCompliedException>(() =>
+				ProviderFactory.Create("System.Int32", string.Empty));
+			Console.WriteLine(ex.Message);
+		}
+
 	}
 }

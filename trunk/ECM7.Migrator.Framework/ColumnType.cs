@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System;
 
 namespace ECM7.Migrator.Framework
 {
@@ -39,5 +40,21 @@ namespace ECM7.Migrator.Framework
 		/// </summary>
 		public int? Scale { get; set; }
 
+		/// <summary>
+		/// Приведение типов DbType -> ColumnType
+		/// </summary>
+		/// <param name="type">Тип колонки, заданный в виде DbType</param>
+		/// <returns>Объект ColumnType, соответствующий заданному типу DbType</returns>
+		public static implicit operator ColumnType(DbType type)
+		{
+			return new ColumnType(type);
+		}
+
+		public override string ToString()
+		{
+			string length = (Length.HasValue && Scale.HasValue) ? "({0}, {1})".FormatWith(Length, Scale) :
+							(Length.HasValue) ? "({0})".FormatWith(Length) : string.Empty;
+			return "{0}{1}".FormatWith(DataType, length);
+		}
 	}
 }

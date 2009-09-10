@@ -19,7 +19,7 @@ namespace ECM7.Migrator.Tests
 	[TestFixture]
 	public class MigrationTypeComparerTest
 	{
-		private readonly Type[] _types = {
+		private readonly Type[] types = {
 			typeof(Migration1),
 			typeof(Migration2),
 			typeof(Migration3)
@@ -30,14 +30,14 @@ namespace ECM7.Migrator.Tests
 		{
             List<Type> list = new List<Type>();
 			
-			list.Add(_types[1]);
-			list.Add(_types[0]);
-			list.Add(_types[2]);
+			list.Add(types[1]);
+			list.Add(types[0]);
+			list.Add(types[2]);
 			
 			list.Sort(new MigrationTypeComparer(true));
 			
 			for (int i = 0; i < 3; i++) {
-				Assert.AreSame(_types[i], list[i]);
+				Assert.AreSame(types[i], list[i]);
 			}			
 		}
 		
@@ -46,14 +46,14 @@ namespace ECM7.Migrator.Tests
 		{
             List<Type> list = new List<Type>();
 			
-			list.Add(_types[1]);
-			list.Add(_types[0]);
-			list.Add(_types[2]);
+			list.Add(types[1]);
+			list.Add(types[0]);
+			list.Add(types[2]);
 			
 			list.Sort(new MigrationTypeComparer(false));
 			
 			for (int i = 0; i < 3; i++) {
-				Assert.AreSame(_types[2-i], list[i]);
+				Assert.AreSame(types[2-i], list[i]);
 			}			
 		}
 				

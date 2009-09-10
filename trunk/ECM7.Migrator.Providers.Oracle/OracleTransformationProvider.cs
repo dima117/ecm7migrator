@@ -105,7 +105,7 @@ namespace ECM7.Migrator.Providers.Oracle
 					string colName = reader["column_name"].ToString();
                     DbType colType = DbType.String;
 					string dataType = reader["data_type"].ToString().ToLower();
-					bool nullable = reader["nullable"].ToString() == "Y"; // todo: проверить, везде ли работает буква "Y"
+					bool nullable = reader["nullable"].ToString() == "Y";
                     
                     if (dataType.Equals("number"))
                     {

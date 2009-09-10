@@ -38,7 +38,6 @@ namespace ECM7.Migrator.Tests.Providers.Common
 
 		}
 
-
 		[Test]
 		public void PutAndGetTest2()
 		{
@@ -86,6 +85,24 @@ namespace ECM7.Migrator.Tests.Providers.Common
 
 			Assert.AreEqual("NUMBER(11, 2)", names.Get(DbType.Decimal.WithSize(11, 2)));
 			Assert.AreEqual("NUMBER(8, $s)", names.Get(DbType.Decimal.WithSize(8))); // will cause trouble
+		}
+
+		[Test]
+		public void HasTypeTest()
+		{
+			TypeNames names = new TypeNames();
+			Assert.IsFalse(names.HasType(DbType.Int32));
+			names.Put(DbType.Int32, string.Empty);
+			Assert.IsTrue(names.HasType(DbType.Int32));
+		}
+
+		[Test]
+		public void HasTypeWithLengthTest()
+		{
+			TypeNames names = new TypeNames();
+			Assert.IsFalse(names.HasType(DbType.Int32));
+			names.Put(DbType.Int32, 4, string.Empty);
+			Assert.IsTrue(names.HasType(DbType.Int32));
 		}
 	}
 }

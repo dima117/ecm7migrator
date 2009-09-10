@@ -474,5 +474,6 @@ namespace ECM7.Migrator.Framework
 		IDbCommand GetCommand();
 
 		void ExecuteSchemaBuilder(SchemaBuilder.SchemaBuilder schemaBuilder);
+		bool TypeIsSupported(DbType type);
 	}
 }
