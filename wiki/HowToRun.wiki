@@ -25,7 +25,7 @@
 <target name="migrate" description="Migrate the database" depends="build">
   <property name="version" value="-1? overwrite="false" />
   <migrate
-    provider="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
+    dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
     connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
     migrations="bin/MyProject.dll"
     to="${version}" />
@@ -51,24 +51,26 @@
 <target name="migrate" description="Migrate the database" depends="build">
   <property name="version" value="-1? overwrite="false" />
   <migrate
-    provider="MySql|PostgreSQL|SqlServer"
+    dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
     connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
     directory="migrations"
     to="${version}" />
 </target>
 }}}
 
-Outputing Generated SQL Statements
+=== Сохранение исполняемого SQL в файл ===
 
-To save all of the generated SQL Statements that Migrator.Net runs against your database add a scriptFile attribute.
+Для сохранения в файл сгенерированного SQL необходимо указать имя файла при помощи параметра _scriptFile_.
 
+{{{
 <loadtasks assembly="/Migrator.NAnt.dll" />
 <target name="migrate" description="Migrate the database" depends="build">
   <property name="version" value="-1? overwrite="false" />
   <migrate
-    provider="MySql|PostgreSQL|SqlServer"
+    dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
     connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
     directory="migrations"
     to="${version}" 
     scriptFile="migrations.sql"/>
 </target>
+}}}
