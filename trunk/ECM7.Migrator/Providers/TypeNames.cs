@@ -2,12 +2,13 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Data;
+using ECM7.Common.DataStructure;
 using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers
 {
 
-	using TypesDictionary = Dictionary<DbType, SortedList<int, string>>;
+	using TypesDictionary = Dictionary<DbType, SortedList<int, Pair<string, int?>>>;
 
 
 	/// <summary>
@@ -79,11 +80,11 @@ namespace ECM7.Migrator.Providers
 			return result;
 		}
 
-		private void PutValue(DbType typecode, int length, string value)
+		private void PutValue(DbType typecode, int length, Pair<string, int?> value)
 		{
-			SortedList<int, string> map;
+			SortedList<int, Pair<string, int?>> map;
 			if (!typeMapping.TryGetValue(typecode, out map))
-				typeMapping[typecode] = map = new SortedList<int, string>();
+				typeMapping[typecode] = map = new SortedList<int, Pair<string, int?>>();
 
 			map[length] = value;
 		}
@@ -97,9 +98,9 @@ namespace ECM7.Migrator.Providers
 		/// Возвращает строку SQL для типа, определенную с учетом его размеров.
 		/// Если строку SQL определить не удалось, возвращается null.
 		/// </returns>
-		private string GetValue(DbType typecode, int size)
+		private Pair<string, int?> GetValue(DbType typecode, int size)
 		{
-			SortedList<int, string> map;
+			SortedList<int, Pair<string, int?>> map;
 			typeMapping.TryGetValue(typecode, out map);
 
 			if (map == null) return null;
@@ -117,8 +118,13 @@ namespace ECM7.Migrator.Providers
 
 		public void Put(DbType typecode, int? length, string value)
 		{
+			Put(typecode, length, value, null);
+		}
+
+		public void Put(DbType typecode, int? length, string value, int? defaultScale)
+		{
 			if (length.HasValue)
-				PutValue(typecode, length.Value, value);
+				PutValue(typecode, length.Value, new Pair<string, int?>(value, defaultScale));
 			else
 				PutDefaultValue(typecode, value);
 		}
@@ -147,16 +153,17 @@ namespace ECM7.Migrator.Providers
 			return Get(typecode, length, null);
 		}
 
-		public string Get(DbType typecode, int? length, int? precision)
+		public string Get(DbType typecode, int? length, int? scale)
 		{
-			string result = null;
-
+			Pair<string, int?> result = null;
+			
 			if (length.HasValue)
 				result = GetValue(typecode, length.Value);
+				
+			if (result == null)
+				result = new Pair<string, int?>(GetDefaultValue(typecode), null);
 
-			if (result.IsNullOrEmpty())
-				result = GetDefaultValue(typecode);
-			return Replace(result, length, precision);
+			return Replace(result.First, length, scale ?? result.Second);
 		}
 
 		#endregion

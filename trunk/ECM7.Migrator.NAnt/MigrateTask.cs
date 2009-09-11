@@ -28,7 +28,7 @@ namespace ECM7.Migrator.NAnt
     /// <target name="migrate" description="Migrate the database" depends="build">
     ///  <property name="version" value="-1" overwrite="false" />
     ///  <migrate
-    ///    provider="MySql"
+	///    dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
     ///    connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
     ///    migrations="bin/MyProject.dll"
     ///    to="${version}" />
@@ -39,8 +39,8 @@ namespace ECM7.Migrator.NAnt
 	{
 		private long to = -1; // To last revision
 
-		[TaskAttribute("provider", Required = true)]
-		public string Provider { set; get; }
+		[TaskAttribute("dialect", Required = true)]
+		public string Dialect { set; get; }
 
 		[TaskAttribute("connectionstring", Required = true)]
 		public string ConnectionString { set; get; }
@@ -91,7 +91,7 @@ namespace ECM7.Migrator.NAnt
 
 		protected override void ExecuteTask()
 		{
-            if (! String.IsNullOrEmpty(Directory))
+            if (! string.IsNullOrEmpty(Directory))
             {
                 ScriptEngine engine = new ScriptEngine(Language, null);
                 Execute(engine.Compile(Directory));
@@ -106,7 +106,7 @@ namespace ECM7.Migrator.NAnt
 
         private void Execute(Assembly asm)
         {
-			Migrator mig = new Migrator(Provider, ConnectionString, Trace, new TaskLogger(this), asm);
+			Migrator mig = new Migrator(Dialect, ConnectionString, Trace, new TaskLogger(this), asm);
             mig.DryRun = DryRun;
             if (ScriptChanges)
             {

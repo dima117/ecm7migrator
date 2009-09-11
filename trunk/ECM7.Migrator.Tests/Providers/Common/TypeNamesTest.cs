@@ -88,6 +88,15 @@ namespace ECM7.Migrator.Tests.Providers.Common
 		}
 
 		[Test]
+		public void ReplacingWithDefaultScaleTest()
+		{
+			TypeNames names = new TypeNames();
+			names.Put(DbType.Xml, 20, "foo($l, $s)", 5);
+			Assert.AreEqual("foo(12, 7)", names.Get(DbType.Xml, 12, 7));
+			Assert.AreEqual("foo(12, 5)", names.Get(DbType.Xml, 12));
+		}
+
+		[Test]
 		public void HasTypeTest()
 		{
 			TypeNames names = new TypeNames();
@@ -100,7 +109,6 @@ namespace ECM7.Migrator.Tests.Providers.Common
 		public void HasTypeWithLengthTest()
 		{
 			TypeNames names = new TypeNames();
-			Assert.IsFalse(names.HasType(DbType.Int32));
 			names.Put(DbType.Int32, 4, string.Empty);
 			Assert.IsTrue(names.HasType(DbType.Int32));
 		}

@@ -41,16 +41,6 @@ namespace ECM7.Migrator.Tests.Providers
             Dialect dialect = new SqlServerDialect();
             Assert.AreEqual("[foo]", dialect.Quote("foo"));
         }
-
-        [Test]
-        public void InstanceForProvider()
-        {
-            ITransformationProvider localProv = provider["sqlserver"];
-            Assert.IsTrue(localProv is SqlServerTransformationProvider);
-
-            ITransformationProvider localProv2 = provider["foo"];
-            Assert.IsTrue(localProv2 is NoOpTransformationProvider);
-        }
         
         [Test]
         public void ByteColumnWillBeCreatedAsBlob()

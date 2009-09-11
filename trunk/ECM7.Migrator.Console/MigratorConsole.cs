@@ -23,7 +23,7 @@ namespace ECM7.Migrator.MigratorConsole
 	/// </remarks>
 	public class MigratorConsole
 	{
-		private string provider;
+		private string dialect;
 		private string connectionString;
 		private string migrationsAssembly;
 		private bool list;
@@ -116,7 +116,7 @@ namespace ECM7.Migrator.MigratorConsole
 		{
 			CheckArguments();
 			
-			SchemaDumper dumper = new SchemaDumper(provider, connectionString);
+			SchemaDumper dumper = new SchemaDumper(dialect, connectionString);
 			
 			dumper.DumpTo(dumpTo);
 		}
@@ -131,13 +131,13 @@ namespace ECM7.Migrator.MigratorConsole
 			
 			Console.WriteLine("Database migrator - v{0}.{1}.{2}", ver.Major, ver.Minor, ver.Revision);
 			Console.WriteLine();
-			Console.WriteLine("usage:\nMigrator.Console.exe provider connectionString migrationsAssembly [options]");
+			Console.WriteLine("usage:\nECM7.Migrator.Console.exe dialect connectionString migrationsAssembly [options]");
 			Console.WriteLine();
-			Console.WriteLine("\t{0} {1}", "provider".PadRight(TAB), "The database provider (SqlServer, MySql, Postgre)");
+			Console.WriteLine("\t{0} {1}", "dialect".PadRight(TAB), "Full name of dialect type (include assembly name)");
 			Console.WriteLine("\t{0} {1}", "connectionString".PadRight(TAB), "Connection string to the database");
 			Console.WriteLine("\t{0} {1}", "migrationAssembly".PadRight(TAB), "Path to the assembly containing the migrations");
 			Console.WriteLine("Options:");
-			Console.WriteLine("\t-{0}{1}", "version NO".PadRight(TAB), "To specific version to migrate the database to");
+			Console.WriteLine("\t-{0}{1}", "version NO".PadRight(TAB), "To specific version to migrate the database to (for migrae to latest version use -1)");
 			Console.WriteLine("\t-{0}{1}", "list".PadRight(TAB), "List migrations");
 			Console.WriteLine("\t-{0}{1}", "trace".PadRight(TAB), "Show debug informations");
 			Console.WriteLine("\t-{0}{1}", "dump FILE".PadRight(TAB), "Dump the database schema as migration code");
@@ -146,6 +146,7 @@ namespace ECM7.Migrator.MigratorConsole
 		}
 		
 		#region Private helper methods
+		
 		private void CheckArguments()
 		{
 			if (connectionString == null)
@@ -158,7 +159,7 @@ namespace ECM7.Migrator.MigratorConsole
 		{
 			Assembly asm = Assembly.LoadFrom(migrationsAssembly);
 
-			Migrator migrator = new Migrator(provider, connectionString, trace, asm);
+			Migrator migrator = new Migrator(dialect, connectionString, trace, asm);
 			migrator.Args = args;
 		    migrator.DryRun = dryrun;
 			return migrator;
@@ -166,6 +167,10 @@ namespace ECM7.Migrator.MigratorConsole
 				
 		private void ParseArguments(string[] argv)
 		{
+			dialect = argv[0];
+			connectionString = argv[1];
+			migrationsAssembly = argv[2];
+		
 			for (int i = 0; i < argv.Length; i++)
 			{
 				if (argv[i].Equals("-list"))
@@ -189,12 +194,6 @@ namespace ECM7.Migrator.MigratorConsole
 				{
 					dumpTo = argv[i+1];
 					i++;
-				}
-				else
-				{
-					if (i == 0) provider = argv[i];
-					if (i == 1) connectionString = argv[i];
-					if (i == 2) migrationsAssembly = argv[i];
 				}
 			}
 		}

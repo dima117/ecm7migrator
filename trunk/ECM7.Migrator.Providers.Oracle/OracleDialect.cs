@@ -23,7 +23,7 @@ namespace ECM7.Migrator.Providers.Oracle
             RegisterColumnType(DbType.Date, "DATE");
             RegisterColumnType(DbType.DateTime, "TIMESTAMP(4)");
             RegisterColumnType(DbType.Decimal, "NUMBER");
-            RegisterColumnType(DbType.Decimal, 38, "NUMBER($l, $s)");
+            RegisterColumnType(DbType.Decimal, 38, "NUMBER($l, $s)", 2);
             // having problems with both ODP and OracleClient from MS not being able
             // to read values out of a field that is DOUBLE PRECISION
 			RegisterColumnType(DbType.Double, "BINARY_DOUBLE");
