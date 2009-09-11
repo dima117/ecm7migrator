@@ -91,7 +91,7 @@ public class AddFooProcedure : Migration
 {
     public override void Up()
     {
-        Database.For<*SqlServerDialect*>().ExecuteNonQuery(@"
+        Database.For<SqlServerDialect>().ExecuteNonQuery(@"
 CREATE PROCEDURE Foo 
         @var int = 0
 AS
@@ -99,7 +99,7 @@ BEGIN
         SELECT @var
 END");
 
-        Database.For<*OracleDialect*>().ExecteNonQuery(@"
+        Database.For<OracleDialect>().ExecteNonQuery(@"
 CREATE OR REPLACE 
 PROCEDURE Foo IS
 BEGIN
@@ -111,18 +111,15 @@ END;");
     public override void Down()
     {
         Database.For<SqlServerDialect>().ExecuteNonQuery(@"DROP PROCEDURE Foo");
-        Database.For<PostgreSQLDialect>().ExecuteNonQuery(@"DROP FUNCTION foo CASCADE");
+        Database.For<PostgreSQLDialect>().ExecuteNonQuery(@"DROP PROCEDURE Foo");
     }
 }
 }}}
 
 == Добавление внешнего ключа ==
 
-Add a foreign key constraint to the database.
-
-SQLite does not support foreign keys, so this is a NO OP for it
-
-using Migrator.Framework;
+{{{
+using ECM7.Migrator.Framework;
 using System.Data;
 
 [Migration(5)]
@@ -138,10 +135,14 @@ public class AddForeignKeyToTheBookAuthor : Migration
                 Database.RemoveForeignKey(FK_NAME);
         }
 }
+}}}
 
-Add A Column to an Existing Table
+SQLite не поддерживает внешние ключи, по-этому при добавлении в БД SQLite внешнего ключа никаких операций не выполняется.
 
-using Migrator.Framework;
+== Добавление колонки в существующую таблицу ==
+
+{{{
+using ECM7.Migrator.Framework;
 using System.Data;
 
 [Migration(6)]
@@ -156,12 +157,14 @@ public class AddMiddleNameToCustomer : Migration
                 Database.RemoveColumn("Customer", "middle_name");
         }
 }
+}}}
 
-End Run, Safety Net, Catch All
+== Произвольный SQL ==
 
-If you want to do something not supported, then you can use the ExecuteNonQuery() method to call whatever SQL you need. In combination with the Database["Provider"].ExecuteNonQuery() you can still support multiple databases if need be.
+Если вы хотите выполнить какое-то действие, которое в данный момент не поддерживается ECM7.Migrator, вы можете использовать метод ExecuteNonQuery() для выполнения произвольного SQL запроса. В комбинации с Database.For<TDialect>().ExecuteNonQuery() вы можете обеспечить корректную работу "миграции" при запуске в различных СУБД.
 
-using Migrator.Framework;
+{{{
+using ECM7.Migrator.Framework;
 using System.Data;
 
 [Migration(6)]
@@ -176,3 +179,4 @@ public class AddMiddleNameToCustomer : Migration
                 Database.ExecuteNonQuery("whatever SQL you want");
         }
 }
+}}}
