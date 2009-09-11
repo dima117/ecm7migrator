@@ -155,7 +155,7 @@ namespace ECM7.Migrator.Tests.Providers.DataTypes
 		[Test]
 		public virtual void DecimalTest()
 		{
-			TestColumnType(DbType.Decimal, 2123423423m);
+			TestColumnType(DbType.Decimal.WithSize(10, 3), 2123423.423m);
 		}
 
 		#endregion
@@ -165,7 +165,7 @@ namespace ECM7.Migrator.Tests.Providers.DataTypes
 		[Test]
 		public virtual void DoubleTest()
 		{
-			TestColumnType(DbType.Double, 2123423423m);
+			TestColumnType(DbType.Double.WithSize(10, 4), 2123423.1423m);
 		}
 
 		#endregion
