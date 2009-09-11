@@ -23,7 +23,7 @@ namespace ECM7.Migrator.Providers.SqlServer
             RegisterColumnType(DbType.Date, "DATETIME");
             RegisterColumnType(DbType.DateTime, "DATETIME");
             RegisterColumnType(DbType.Decimal, "DECIMAL");
-            RegisterColumnType(DbType.Decimal, 38, "DECIMAL($l, $s)");
+            RegisterColumnType(DbType.Decimal, 38, "DECIMAL($l, $s)", 2);
             RegisterColumnType(DbType.Double, "DOUBLE PRECISION"); //synonym for FLOAT(53)
             RegisterColumnType(DbType.Guid, "UNIQUEIDENTIFIER");
             RegisterColumnType(DbType.Int16, "SMALLINT");

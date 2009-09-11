@@ -29,7 +29,7 @@ namespace ECM7.Migrator.MSBuild
 	/// </remarks>
 	/// <example>
     /// <Target name="Migrate" DependsOnTargets="Build">
-    ///     <Migrate Provider="SqlServer"
+    ///     <Migrate Dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
     ///         Connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
     ///         Migrations="bin/MyProject.dll"/>
     /// </Target>
@@ -39,7 +39,8 @@ namespace ECM7.Migrator.MSBuild
     ///     <CreateProperty Value="-1"  Condition="'$(SchemaVersion)'==''">
     ///        <Output TaskParameter="Value" PropertyName="SchemaVersion"/>
     ///     </CreateProperty>
-    ///     <Migrate Provider="SqlServer"
+    ///     <Migrate
+	///			Dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
     ///         Connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
     ///         Migrations="bin/MyProject.dll"
     ///         To="$(SchemaVersion)"/>
@@ -51,7 +52,7 @@ namespace ECM7.Migrator.MSBuild
 		private string scriptFile;
 
 		[Required]
-		public string Provider { set; get; }
+		public string Dialect { set; get; }
 
 		[Required]
 		public string ConnectionString { set; get; }
@@ -87,7 +88,7 @@ namespace ECM7.Migrator.MSBuild
         /// <value><c>true</c> if the changes should be scripted to a file; otherwise, <c>false</c>.</value>
 	    public bool ScriptChanges
 	    {
-            get { return !String.IsNullOrEmpty(scriptFile); }
+            get { return !string.IsNullOrEmpty(scriptFile); }
 	    }
 
 	    /// <summary>
@@ -122,7 +123,7 @@ namespace ECM7.Migrator.MSBuild
 
         private void Execute(Assembly asm)
 	    {
-			Migrator mig = new Migrator(Provider, ConnectionString, Trace, new TaskLogger(this), asm);
+			Migrator mig = new Migrator(Dialect, ConnectionString, Trace, new TaskLogger(this), asm);
             mig.DryRun = DryRun;
             if (ScriptChanges)
             {

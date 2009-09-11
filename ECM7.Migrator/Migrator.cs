@@ -35,8 +35,8 @@ namespace ECM7.Migrator
 
 		//todo: проверить работу с мигрэйшнами из нескольких сборок
 
-		public Migrator(string provider, string connectionString, params Assembly[] assemblies)
-			: this(provider, connectionString, false, assemblies)
+		public Migrator(string dialectTypeName, string connectionString, params Assembly[] assemblies)
+			: this(dialectTypeName, connectionString, false, assemblies)
 		{
 		}
 

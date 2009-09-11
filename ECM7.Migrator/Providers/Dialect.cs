@@ -8,7 +8,7 @@ namespace ECM7.Migrator.Providers
     /// <summary>
     /// ќпредел€ет реализацию деталей, специфических дл€ конкретной —”Ѕƒ.
     /// </summary>
-    public abstract class Dialect 
+    public abstract class Dialect
     {
         private readonly Dictionary<ColumnProperty, string> propertyMap = new Dictionary<ColumnProperty, string>();
         private readonly TypeNames typeNames = new TypeNames();
@@ -38,10 +38,13 @@ namespace ECM7.Migrator.Providers
         	return typeNames.HasType(type);
         }
 
-    	/// <summary>
-        /// Subclasses register a typename for the given type code and maximum
-        /// column length. <c>$l</c> in the type name will be replaced by the column
-        /// length (if appropriate)
+
+		/// <summary>
+		/// –егистрирует название типа Ѕƒ, которое будет использовано дл€
+		/// конкретного значени€ DbType, указанного в "миграци€х".
+		/// <para><c>$l</c> - будет заменено на конкретное значение длины</para>
+		/// <para><c>$s</c> - будет заменено на конкретное значение, показывающее 
+		/// количество знаков после зап€той дл€ вещественных чисел</para>м
         /// </summary>
         /// <param name="code">The typecode</param>
         /// <param name="capacity">Maximum length of database type</param>
@@ -50,13 +53,32 @@ namespace ECM7.Migrator.Providers
         {
             typeNames.Put(code, capacity, name);
         }
-
+        
         /// <summary>
-        /// Suclasses register a typename for the given type code. <c>$l</c> in the 
-        /// typename will be replaced by the column length (if appropriate).
+        /// –егистрирует название типа Ѕƒ, которое будет использовано дл€
+        /// конкретного значени€ DbType, указанного в "миграци€х".
+		/// <para><c>$l</c> - будет заменено на конкретное значение длины</para>
+		/// <para><c>$s</c> - будет заменено на конкретное значение, показывающее 
+		/// количество знаков после зап€той дл€ вещественных чисел</para>
         /// </summary>
-        /// <param name="code">The typecode</param>
-        /// <param name="name">The database type name</param>
+        /// <param name="code">“ип</param>
+        /// <param name="capacity">ћаксимальна€ длина</param>
+        /// <param name="name">Ќазвание типа Ѕƒ</param>
+        /// <param name="defaultScale">«начение по-умолчанию: количество знаков после зап€той дл€ вещественных чисел</param>
+        protected void RegisterColumnType(DbType code, int capacity, string name, int defaultScale)
+        {
+            typeNames.Put(code, capacity, name, defaultScale);
+        }
+
+
+		/// <summary>
+		/// –егистрирует название типа Ѕƒ, которое будет использовано дл€
+		/// конкретного значени€ DbType, указанного в "миграци€х".
+		/// <para><c>$l</c> - будет заменено на конкретное значение длины</para>
+		/// <para><c>$s</c> - будет заменено на конкретное значение, показывающее 
+		/// количество знаков после зап€той дл€ вещественных чисел</para>
+        /// <param name="code">“ип</param>
+		/// <param name="name">Ќазвание типа Ѕƒ</param>
         protected void RegisterColumnType(DbType code, string name)
         {
             typeNames.Put(code, name);

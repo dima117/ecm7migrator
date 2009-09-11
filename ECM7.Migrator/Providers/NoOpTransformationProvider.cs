@@ -285,12 +285,7 @@ namespace ECM7.Migrator.Providers
             // No Op
         }
 
-        public ITransformationProvider this[string provider]
-        {
-            get { return this; }
-        }
-
-        public void MigrationApplied(long version)
+    	public void MigrationApplied(long version)
         {
         	//no op
         }
@@ -299,8 +294,32 @@ namespace ECM7.Migrator.Providers
         {
         	//no op
         }
-        
-        public List<long> AppliedMigrations
+
+    	/// <summary>
+    	/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+    	/// </summary>
+    	public ITransformationProvider For<TDialect>()
+    	{
+    		return this;
+    	}
+
+    	/// <summary>
+    	/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+    	/// </summary>
+    	public ITransformationProvider For(Type dialectType)
+    	{
+    		return this;
+    	}
+
+    	/// <summary>
+    	/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'dialectTypeName'.
+    	/// </summary>
+    	public ITransformationProvider For(string dialectTypeName)
+    	{
+			return this;
+    	}
+
+    	public List<long> AppliedMigrations
         {
         	get { return new List<long>(); }
         }

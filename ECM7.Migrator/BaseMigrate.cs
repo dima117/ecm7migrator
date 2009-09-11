@@ -5,19 +5,19 @@ namespace ECM7.Migrator
 {
     public abstract class BaseMigrate
     {
-        protected readonly ITransformationProvider _provider;
-        protected ILogger _logger;
-        protected List<long> _availableMigrations;
-        protected List<long> _original;
-        protected long _current;
-        protected bool _dryrun;
+        protected readonly ITransformationProvider provider;
+        protected ILogger logger;
+        protected List<long> availableMigrations;
+        protected List<long> original;
+        protected long current;
+        protected bool dryrun;
 
         protected BaseMigrate(List<long> availableMigrations, ITransformationProvider provider, ILogger logger)
         {
-            _provider = provider;
-            _availableMigrations = availableMigrations;
-            _original = new List<long> (_provider.AppliedMigrations.ToArray()); //clone
-            _logger = logger;
+            this.provider = provider;
+            this.availableMigrations = availableMigrations;
+            original = new List<long> (this.provider.AppliedMigrations.ToArray()); //clone
+            this.logger = logger;
         }
 
         public static BaseMigrate GetInstance(List<long> availableMigrations, ITransformationProvider provider, ILogger logger)
@@ -27,19 +27,19 @@ namespace ECM7.Migrator
 
         public List<long> AppliedVersions
         {
-        	get { return _original; }
+        	get { return original; }
         }
 
         public virtual long Current
         {
-            get { return _current; }
-            protected set { _current = value; }
+            get { return current; }
+            protected set { current = value; }
         }
 
         public virtual bool DryRun
         {
-            get { return _dryrun; }
-            set { _dryrun = value; }
+            get { return dryrun; }
+            set { dryrun = value; }
         }
 
         public abstract long Previous { get; }
@@ -62,22 +62,22 @@ namespace ECM7.Migrator
         protected long NextMigration()
         {
         	// Start searching at the current index
-        	int migrationSearch = _availableMigrations.IndexOf(Current)+1;
+        	int migrationSearch = availableMigrations.IndexOf(Current)+1;
         	
         	// See if we can find a migration that matches the requirement
-        	while(migrationSearch < _availableMigrations.Count 
-        	      && _provider.AppliedMigrations.Contains(_availableMigrations[migrationSearch]))
+        	while(migrationSearch < availableMigrations.Count 
+        	      && provider.AppliedMigrations.Contains(availableMigrations[migrationSearch]))
         	{
         		migrationSearch++;
         	}
         	
         	// did we exhaust the list?
-        	if(migrationSearch == _availableMigrations.Count){
+        	if(migrationSearch == availableMigrations.Count){
         		// we're at the last one.  Done!
-        		return _availableMigrations[migrationSearch-1]+1;
+        		return availableMigrations[migrationSearch-1]+1;
         	}
         	// found one.
-        	return _availableMigrations[migrationSearch];
+        	return availableMigrations[migrationSearch];
         }
         
         /// <summary>
@@ -88,11 +88,11 @@ namespace ECM7.Migrator
         protected long PreviousMigration()
         {
         	// Start searching at the current index
-        	int migrationSearch = _availableMigrations.IndexOf(Current)-1;
+        	int migrationSearch = availableMigrations.IndexOf(Current)-1;
         	
         	// See if we can find a migration that matches the requirement
         	while(migrationSearch > -1 
-        	      && !_provider.AppliedMigrations.Contains(_availableMigrations[migrationSearch]))
+        	      && !provider.AppliedMigrations.Contains(availableMigrations[migrationSearch]))
         	{
         		migrationSearch--;
         	}
@@ -104,7 +104,7 @@ namespace ECM7.Migrator
         	}
         	
         	// found one.
-        	return _availableMigrations[migrationSearch];
+        	return availableMigrations[migrationSearch];
         }
     }
 }

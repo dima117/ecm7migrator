@@ -57,7 +57,7 @@ namespace ECM7.Migrator
 		/// <para>- класс имеет открытый конструктор без параметров;</para>
 		/// </summary>
 		/// <param name="dialectType"> ласс диалекта</param>
-		private static void ValidateDialectType(Type dialectType)
+		internal static void ValidateDialectType(Type dialectType)
 		{
 			Require.IsNotNull(dialectType, "Ќе задан диалект");
 			Require.That(dialectType.IsSubclassOf(typeof(Dialect)), " ласс диалекта должен быть унаследован от Dialect");

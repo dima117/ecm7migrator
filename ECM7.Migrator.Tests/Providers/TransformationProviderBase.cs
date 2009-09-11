@@ -79,7 +79,8 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public void CanExecuteBadSqlForNonCurrentProvider()
 		{
-			provider["foo"].ExecuteNonQuery("select foo from bar 123");
+			provider.For<GenericDialect>()
+				.ExecuteNonQuery("select foo from bar 123");
 		}
 
 		[Test]
@@ -201,7 +202,7 @@ namespace ECM7.Migrator.Tests.Providers
 		{
 			provider.ChangeColumn("TestTwo", new Column("TestId", DbType.String, 50, ColumnProperty.Null));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestId"));
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "Not an Int val." });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "Not an Int val." });
 		}
 
 		[Test]
@@ -337,8 +338,8 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public virtual void InsertData()
 		{
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
 			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
 				int[] vals = GetVals(reader);
@@ -352,8 +353,8 @@ namespace ECM7.Migrator.Tests.Providers
 		public void CanInsertNullData()
 		{
 			AddTable();
-			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "foo" });
-			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "2", null });
+			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "foo" });
+			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "2", null });
 			using (IDataReader reader = provider.Select("Title", "Test"))
 			{
 				string[] vals = GetStringVals(reader);
@@ -367,7 +368,7 @@ namespace ECM7.Migrator.Tests.Providers
 		public void CanInsertDataWithSingleQuotes()
 		{
 			AddTable();
-			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "Muad'Dib" });
+			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "Muad'Dib" });
 			using (IDataReader reader = provider.Select("Title", "Test"))
 			{
 				Assert.IsTrue(reader.Read());
@@ -394,7 +395,7 @@ namespace ECM7.Migrator.Tests.Providers
 		public void DeleteDataWithArrays()
 		{
 			InsertData();
-			provider.Delete("TestTwo", new string[] { "TestId" }, new string[] { "1" });
+			provider.Delete("TestTwo", new[] { "TestId" }, new[] { "1" });
 
 			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
@@ -407,10 +408,10 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public virtual void UpdateData()
 		{
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
 
-			provider.Update("TestTwo", new string[] { "TestId" }, new string[] { "3" });
+			provider.Update("TestTwo", new[] { "TestId" }, new[] { "3" });
 
 			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
@@ -426,10 +427,10 @@ namespace ECM7.Migrator.Tests.Providers
 		public virtual void CanUpdateWithNullData()
 		{
 			AddTable();
-			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "foo" });
-			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "2", null });
+			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "foo" });
+			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "2", null });
 
-			provider.Update("Test", new string[] { "Title" }, new string[] { null });
+			provider.Update("Test", new[] { "Title" }, new string[] { null });
 
 			using (IDataReader reader = provider.Select("Title", "Test"))
 			{
@@ -443,10 +444,10 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public void UpdateDataWithWhere()
 		{
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
 
-			provider.Update("TestTwo", new string[] { "TestId" }, new string[] { "3" }, "TestId='1'");
+			provider.Update("TestTwo", new[] { "TestId" }, new[] { "3" }, "TestId='1'");
 
 			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{

@@ -1,3 +1,4 @@
+using System;
 using System.Data;
 using System.Collections.Generic;
 
@@ -8,12 +9,6 @@ namespace ECM7.Migrator.Framework
 	/// </summary>
 	public interface ITransformationProvider
 	{
-
-		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'provider'.
-		/// </summary>
-		ITransformationProvider this[string provider] { get; }
-
 		/// <summary>
 		/// The list of Migrations currently applied to the database.
 		/// </summary>
@@ -475,5 +470,20 @@ namespace ECM7.Migrator.Framework
 
 		void ExecuteSchemaBuilder(SchemaBuilder.SchemaBuilder schemaBuilder);
 		bool TypeIsSupported(DbType type);
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// </summary>
+		ITransformationProvider For<TDialect>();
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// </summary>
+		ITransformationProvider For(Type dialectType);
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'dialectTypeName'.
+		/// </summary>
+		ITransformationProvider For(string dialectTypeName);
 	}
 }

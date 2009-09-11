@@ -27,7 +27,7 @@ namespace ECM7.Migrator.Providers.MySql
 			RegisterColumnType(DbType.Date, "DATE");
 			RegisterColumnType(DbType.DateTime, "DATETIME");
 			RegisterColumnType(DbType.Decimal, "NUMERIC");
-			RegisterColumnType(DbType.Decimal, 38, "NUMERIC($l, $s)");
+			RegisterColumnType(DbType.Decimal, 38, "NUMERIC($l, $s)", 2);
 			RegisterColumnType(DbType.Double, "DOUBLE");
 			RegisterColumnType(DbType.Guid, "VARCHAR(40)");
 			RegisterColumnType(DbType.Int16, "SMALLINT");

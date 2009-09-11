@@ -64,23 +64,6 @@ namespace ECM7.Migrator.Providers
 			get { return dialect; }
 		}
 
-		public ITransformationProvider this[string provider]
-		{
-			get
-			{
-				if (null != provider && IsThisProvider(provider))
-					return this;
-
-				return NoOpTransformationProvider.Instance;
-			}
-		}
-
-		public bool IsThisProvider(string provider)
-		{
-			// XXX: This might need to be more sophisticated. Currently just a convention
-			return GetType().Name.ToLower().StartsWith(provider.ToLower());
-		}
-
 		public virtual Column[] GetColumns(string table)
 		{
 			List<Column> columns = new List<Column>();
@@ -671,7 +654,7 @@ namespace ECM7.Migrator.Providers
 
 		public virtual int Delete(string table)
 		{
-			return Delete(table, (string[])null, (string[])null);
+			return Delete(table, (string[])null, null);
 		}
 
 		public virtual int Delete(string table, string[] columns, string[] values)
@@ -743,6 +726,37 @@ namespace ECM7.Migrator.Providers
 				}
 			}
 			transaction = null;
+		}
+
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// </summary>
+		public ITransformationProvider For<TDialect>()
+		{
+			return For(typeof(TDialect));
+		}
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// </summary>
+		public ITransformationProvider For(Type dialectType)
+		{
+			ProviderFactory.ValidateDialectType(dialectType);
+			if (this.Dialect.GetType() == dialectType)
+				return this;
+
+			return NoOpTransformationProvider.Instance;
+		}
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// </summary>
+		public ITransformationProvider For(string dialectTypeName)
+		{
+			Type dialectType = Type.GetType(dialectTypeName);
+			Require.IsNotNull(dialectType, "Не удалось загрузить тип диалекта: {0}".FormatWith(dialectTypeName.Nvl("null")));
+			return For(dialectType);
 		}
 
 		/// <summary>
@@ -830,9 +844,9 @@ namespace ECM7.Migrator.Providers
 			return Array.ConvertAll<string, string>(values,
 					  delegate(string val)
 					  {
-					  	return null == val
-					  	       	? "null"
-					  	       	: String.Format("'{0}'", val.Replace("'", "''"));
+						  return null == val
+								  ? "null"
+								  : String.Format("'{0}'", val.Replace("'", "''"));
 					  });
 		}
 
