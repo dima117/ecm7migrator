@@ -1,0 +1,16 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+Add your content here.
+
+
+= Доступные диалекты =
+
+||СУБД||Диалект||Сборка||Необходимые дополнительные сборки||
+||MS SQL Server 2000 || || || ||
+||MS SQL Server 2005 || || || ||
+||MS SQL Server CE || || || ||
+||Oracle 10g || || || ||
+||MySQL Server 5.0, 5.1 || || || ||
+||SQLite 3|| || || ||
