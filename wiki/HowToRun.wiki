@@ -204,3 +204,12 @@
 
 ----
 == API ==
+Для программного внесения изменений в БД необходимо создать экземпляр класса 
+Migrator и вызвать его метод 
+
+{{{
+Migrator migrator = new Migrator(
+    "ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer",
+    UoW.Session.Connection.ConnectionString,
+    typeof(DatabaseMigrator).Assembly);
+}}}
