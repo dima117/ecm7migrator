@@ -180,3 +180,5 @@ public class AddMiddleNameToCustomer : Migration
         }
 }
 }}}
+
+>>  HowToRun
