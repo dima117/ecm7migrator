@@ -4,116 +4,135 @@ using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers
 {
-    /// <summary>
-    /// This is basically a just a helper base class
-    /// per-database implementors may want to override ColumnSql
-    /// </summary>
-    public class ColumnPropertiesMapper
-    {
-        protected Dialect dialect;
-        
-        /// <summary>The SQL type</summary>
-        protected string type;
+	/// <summary>
+	/// This is basically a just a helper base class
+	/// per-database implementors may want to override ColumnSql
+	/// </summary>
+	/// todo: вынести методы мэппера колонок в диалект?
+	/// todo: переопределить мэппинг колонок для оракла и поменять местами not null и default
+	/// todo: разобраться с IdentityNeedsType
+	public class ColumnPropertiesMapper
+	{
+		protected Dialect dialect;
 
-        /// <summary>The name of the column</summary>
-        protected string name;
+		public ColumnPropertiesMapper(Dialect dialect)
+		{
+			this.dialect = dialect;
+		}
 
-        /// <summary>
-        /// the type of the column
-        /// </summary>
-        protected string columnSql;
+		public ColumnSqlMap MapColumnProperties(Column column)
+		{
+			Require.IsNotNull(column, "Не задан обрабатываемый столбец");
 
-        /// <summary>
-        /// Sql if This column is Indexed
-        /// </summary>
-        protected bool indexed;
+			string indexSql = GetIndexSql(column);
 
-        /// <summary>
-        /// Sql if this column has a default value
-        /// </summary>
-        protected object defaultVal;
 
-        public ColumnPropertiesMapper(Dialect dialect, string type)
-        {
-            this.dialect = dialect;
-            this.type = type;
-        }
+			List<string> vals = new List<string>();
+			BuildColumnSql(vals, column);
+			string columnSql = String.Join(" ", vals.ToArray());
 
-        /// <summary>
-        /// The sql for this column, override in database-specific implementation classes
-        /// </summary>
-        public virtual string ColumnSql
-        {
-            get { return columnSql; }
-        }
+			return new ColumnSqlMap(columnSql, indexSql);
+		}
 
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
-        
-        public object Default
-        {
-             get { return defaultVal; }
-             set { defaultVal = value; }
-         }
+		#region Генерация SQL
 
-        public string QuotedName
-        {
-            get { return dialect.Quote(Name); }
-        }
+		protected virtual void BuildColumnSql(List<string> vals, Column column)
+		{
+			AddColumnName(vals, column);
+			AddColumnType(vals, column);
+			// identity не нуждается в типе
+			AddSqlForIdentityWhichNotNeedsType(vals, column);
+			AddUnsignedSql(vals, column);
+			AddNotNullSql(vals, column);
+			AddPrimaryKeySql(vals, column);
+			// identity нуждается в типе
+			AddSqlForIdentityWhichNeedsType(vals, column);
+			AddUniqueSql(vals, column);
+			AddForeignKeySql(vals, column);
+			AddDefaultValueSql(vals, column);
+		}
 
-        public string IndexSql
-        {
-            get
-            {
-                if (dialect.SupportsIndex && indexed)
-                    return String.Format("INDEX({0})", dialect.Quote(name));
-                return null;
-            }
-        }
+		protected string GetIndexSql(Column column)
+		{
+			bool indexed = column.ColumnProperty.HasProperty(ColumnProperty.Indexed);
+			if (dialect.SupportsIndex && indexed)
+				return String.Format("INDEX({0})", dialect.Quote(column.Name));
+			return null;
+		}
 
-        public void MapColumnProperties(Column column)
-        {
-            Name = column.Name;
-            indexed = PropertySelected(column.ColumnProperty, ColumnProperty.Indexed);
-            
-            List<string> vals = new List<string>();
-            vals.Add(dialect.ColumnNameNeedsQuote ? QuotedName : Name);
-            
-            vals.Add(type);
-            
-            if (! dialect.IdentityNeedsType)
-                AddValueIfSelected(column, ColumnProperty.Identity, vals);
-                
-            AddValueIfSelected(column, ColumnProperty.Unsigned, vals);
-            if (! PropertySelected(column.ColumnProperty, ColumnProperty.PrimaryKey) || dialect.NeedsNotNullForIdentity)
-                AddValueIfSelected(column, ColumnProperty.NotNull, vals);
-                
-            AddValueIfSelected(column, ColumnProperty.PrimaryKey, vals);
-            
-            if (dialect.IdentityNeedsType)
-                AddValueIfSelected(column, ColumnProperty.Identity, vals);
-            
-            AddValueIfSelected(column, ColumnProperty.Unique, vals);
-            AddValueIfSelected(column, ColumnProperty.ForeignKey, vals);
 
-            if (column.DefaultValue != null)
-                vals.Add(dialect.Default(column.DefaultValue));
+		#region добавление элементов команды SQL для колонки
 
-            columnSql = String.Join(" ", vals.ToArray());
-        }
+		protected void AddColumnName(List<string> vals, Column column)
+		{
+			vals.Add(dialect.ColumnNameNeedsQuote ? dialect.Quote(column.Name) : column.Name);
+		}
 
-        private void AddValueIfSelected(Column column, ColumnProperty property, ICollection<string> vals)
-        {
-            if (PropertySelected(column.ColumnProperty, property))
-                vals.Add(dialect.SqlForProperty(property));
-        }
+		protected void AddColumnType(List<string> vals, Column column)
+		{
+			string type = !dialect.IdentityNeedsType && column.IsIdentity
+				? String.Empty : dialect.GetTypeName(column.ColumnType);
 
-        public static bool PropertySelected(ColumnProperty source, ColumnProperty comparison)
-        {
-            return (source & comparison) == comparison;
-        }
-    }
+			if (!type.IsNullOrEmpty())
+				vals.Add(type);
+		}
+
+		protected void AddSqlForIdentityWhichNotNeedsType(List<string> vals, Column column)
+		{
+			if (!dialect.IdentityNeedsType)// todo: исправить как унаследованные мэпперы
+				AddValueIfSelected(column, ColumnProperty.Identity, vals);
+		}
+
+		protected void AddUnsignedSql(List<string> vals, Column column)
+		{
+			AddValueIfSelected(column, ColumnProperty.Unsigned, vals);
+		}
+
+		protected void AddNotNullSql(List<string> vals, Column column)
+		{
+			if (!column.ColumnProperty.HasProperty(ColumnProperty.PrimaryKey) || dialect.NeedsNotNullForIdentity)
+				AddValueIfSelected(column, ColumnProperty.NotNull, vals);
+		}
+
+		protected void AddPrimaryKeySql(List<string> vals, Column column)
+		{
+			AddValueIfSelected(column, ColumnProperty.PrimaryKey, vals);
+		}
+
+		protected void AddSqlForIdentityWhichNeedsType(List<string> vals, Column column)
+		{
+			if (dialect.IdentityNeedsType)// todo: исправить как унаследованные мэпперы
+				AddValueIfSelected(column, ColumnProperty.Identity, vals);
+		}
+
+		protected void AddForeignKeySql(List<string> vals, Column column)
+		{
+			AddValueIfSelected(column, ColumnProperty.ForeignKey, vals);
+		}
+
+		protected void AddUniqueSql(List<string> vals, Column column)
+		{
+			AddValueIfSelected(column, ColumnProperty.Unique, vals);
+		}
+
+		private void AddDefaultValueSql(List<string> vals, Column column)
+		{
+			if (column.DefaultValue != null)
+				vals.Add(dialect.Default(column.DefaultValue));
+		}
+
+		#endregion
+
+		#endregion
+
+		#region Helpers
+
+		protected void AddValueIfSelected(Column column, ColumnProperty property, ICollection<string> vals)
+		{
+			if (column.ColumnProperty.HasProperty(property))
+				vals.Add(dialect.SqlForProperty(property));
+		}
+
+		#endregion
+	}
 }

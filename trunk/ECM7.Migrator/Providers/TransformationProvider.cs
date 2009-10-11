@@ -177,14 +177,14 @@ namespace ECM7.Migrator.Providers
 			List<string> pks = GetPrimaryKeys(columns);
 			bool compoundPrimaryKey = pks.Count > 1;
 
-			List<ColumnPropertiesMapper> columnProviders = new List<ColumnPropertiesMapper>(columns.Length);
+			List<ColumnSqlMap> columnProviders = new List<ColumnSqlMap>(columns.Length);
 			foreach (Column column in columns)
 			{
 				// Remove the primary key notation if compound primary key because we'll add it back later
 				if (compoundPrimaryKey && column.IsPrimaryKey)
 					column.ColumnProperty = ColumnProperty.Unsigned | ColumnProperty.NotNull;
 
-				ColumnPropertiesMapper mapper = dialect.GetAndMapColumnProperties(column);
+				ColumnSqlMap mapper = dialect.GetAndMapColumnProperties(column);
 				columnProviders.Add(mapper);
 			}
 
@@ -263,8 +263,8 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			ColumnPropertiesMapper mapper = dialect.GetAndMapColumnProperties(column);
-			ChangeColumn(table, mapper.ColumnSql);
+			ColumnSqlMap map = dialect.GetAndMapColumnProperties(column);
+			ChangeColumn(table, map.ColumnSql);
 		}
 
 		public virtual void ChangeColumn(string table, string sqlColumn)
@@ -285,17 +285,17 @@ namespace ECM7.Migrator.Providers
 			}
 		}
 
-		protected virtual string JoinColumnsAndIndexes(IEnumerable<ColumnPropertiesMapper> columns)
+		protected virtual string JoinColumnsAndIndexes(IEnumerable<ColumnSqlMap> columns)
 		{
 			string indexes = JoinIndexes(columns);
 			string columnsAndIndexes = JoinColumns(columns) + (indexes != null ? "," + indexes : String.Empty);
 			return columnsAndIndexes;
 		}
 
-		protected virtual string JoinIndexes(IEnumerable<ColumnPropertiesMapper> columns)
+		protected virtual string JoinIndexes(IEnumerable<ColumnSqlMap> columns)
 		{
 			List<string> indexes = new List<string>();
-			foreach (ColumnPropertiesMapper column in columns)
+			foreach (ColumnSqlMap column in columns)
 			{
 				string indexSql = column.IndexSql;
 				if (indexSql != null)
@@ -308,10 +308,10 @@ namespace ECM7.Migrator.Providers
 			return String.Join(", ", indexes.ToArray());
 		}
 
-		protected virtual string JoinColumns(IEnumerable<ColumnPropertiesMapper> columns)
+		protected virtual string JoinColumns(IEnumerable<ColumnSqlMap> columns)
 		{
 			List<string> columnStrings = new List<string>();
-			foreach (ColumnPropertiesMapper column in columns)
+			foreach (ColumnSqlMap column in columns)
 				columnStrings.Add(column.ColumnSql);
 			return String.Join(", ", columnStrings.ToArray());
 		}
@@ -340,11 +340,9 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			ColumnPropertiesMapper mapper =
-				dialect.GetAndMapColumnProperties(column);
+			ColumnSqlMap map = dialect.GetAndMapColumnProperties(column);
 
-			AddColumn(table, mapper.ColumnSql);
-
+			AddColumn(table, map.ColumnSql);
 		}
 
 		public void AddColumn(string table, string columnName, ColumnType type, ColumnProperty property, object defaultValue)
@@ -354,9 +352,7 @@ namespace ECM7.Migrator.Providers
 		}
 
 		/// <summary>
-		/// <see cref="TransformationProvider.AddColumn(string, string, DbType, int, ColumnProperty, object)">
-		/// AddColumn(string, string, Type, int, ColumnProperty, object)
-		/// </see>
+		/// Добавление колонки
 		/// </summary>
 		public virtual void AddColumn(string table, string column, DbType type)
 		{
@@ -364,9 +360,7 @@ namespace ECM7.Migrator.Providers
 		}
 
 		/// <summary>
-		/// <see cref="TransformationProvider.AddColumn(string, string, DbType, int, ColumnProperty, object)">
-		/// AddColumn(string, string, Type, int, ColumnProperty, object)
-		/// </see>
+		/// Добавление колонки
 		/// </summary>
 		public virtual void AddColumn(string table, string column, DbType type, int size)
 		{
@@ -381,17 +375,14 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			ColumnPropertiesMapper mapper =
-				dialect.GetAndMapColumnProperties(new Column(column, type, defaultValue));
+			Column newColumn = new Column(column, type, defaultValue);
 
-			AddColumn(table, mapper.ColumnSql);
+			AddColumn(table, newColumn);
 
 		}
 
 		/// <summary>
-		/// <see cref="TransformationProvider.AddColumn(string, string, DbType, int, ColumnProperty, object)">
-		/// AddColumn(string, string, Type, int, ColumnProperty, object)
-		/// </see>
+		/// Добавление колонки
 		/// </summary>
 		public virtual void AddColumn(string table, string column, DbType type, ColumnProperty property)
 		{
@@ -399,9 +390,7 @@ namespace ECM7.Migrator.Providers
 		}
 
 		/// <summary>
-		/// <see cref="TransformationProvider.AddColumn(string, string, DbType, int, ColumnProperty, object)">
-		/// AddColumn(string, string, Type, int, ColumnProperty, object)
-		/// </see>
+		/// Добавление колонки
 		/// </summary>
 		public virtual void AddColumn(string table, string column, DbType type, int size, ColumnProperty property)
 		{
