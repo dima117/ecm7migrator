@@ -84,15 +84,9 @@ namespace ECM7.Migrator.Providers
             typeNames.Put(code, name);
         }
 
-        public ColumnPropertiesMapper GetColumnMapper(Column column)
+        public virtual ColumnPropertiesMapper GetColumnMapper()
         {
-            string type = column.ColumnType.Length > 0 ? 
-				GetTypeName(column.ColumnType) : 
-				GetTypeName(column.ColumnType.DataType);
-            if (! IdentityNeedsType && column.IsIdentity)
-                type = String.Empty;
-            
-            return new ColumnPropertiesMapper(this, type);
+            return new ColumnPropertiesMapper(this);
         }
 		
 		#region GetTypeName
@@ -102,7 +96,7 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		/// <param name="type">The DbType</param>
 		/// <returns>The database type name used by ddl.</returns>
-		protected virtual string GetTypeName(DbType type)
+		public virtual string GetTypeName(DbType type)
 		{
 			return typeNames.Get(type);
 		}
@@ -112,7 +106,7 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		/// <param name="type">The DbType</param>
 		/// <returns>The database type name used by ddl.</returns>
-		protected virtual string GetTypeName(ColumnType type)
+		public virtual string GetTypeName(ColumnType type)
 		{
 			return typeNames.Get(type);
 		}
@@ -124,7 +118,7 @@ namespace ECM7.Migrator.Providers
 		/// <returns>The database type name used by ddl.</returns>
 		/// <param name="length"></param>
 		/// <param name="scale"></param>
-		protected virtual string GetTypeName(DbType type, int? length, int? scale)
+		public virtual string GetTypeName(DbType type, int? length, int? scale)
 		{
 			return typeNames.Get(type, length, scale);
 		}
@@ -193,14 +187,12 @@ namespace ECM7.Migrator.Providers
         {
             return String.Format("DEFAULT {0}", defaultValue);
         }
-        
-        public ColumnPropertiesMapper GetAndMapColumnProperties(Column column)
+
+		public ColumnSqlMap GetAndMapColumnProperties(Column column)
         {
-            ColumnPropertiesMapper mapper = GetColumnMapper(column);
-            mapper.MapColumnProperties(column);
-            if (column.DefaultValue != null)
-                mapper.Default = column.DefaultValue;
-            return mapper;
+            ColumnPropertiesMapper mapper = GetColumnMapper();
+            ColumnSqlMap map = mapper.MapColumnProperties(column);
+            return map;
         }
     }
 }
