@@ -74,7 +74,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ColumnPropertyMapperTest.cs" />
+    <Compile Include="ColumnPropertyMappingTest.cs" />
     <Compile Include="Data\TestMigrations.cs" />
     <Compile Include="MigrationLoaderTest.cs" />
     <Compile Include="MigrationTestCase.cs" />

@@ -13,7 +13,7 @@ namespace ECM7.Migrator.Providers.SqlServer
             RegisterColumnType(DbType.Xml, "XML");
         }
 
-        public override Type TransformationProvider { get { return typeof (SqlServerTransformationProvider); } }
+        public override Type TransformationProviderType { get { return typeof (SqlServerTransformationProvider); } }
 
     }
 }

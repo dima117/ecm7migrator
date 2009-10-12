@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using ECM7.Migrator.Framework;
 
@@ -38,6 +39,7 @@ namespace ECM7.Migrator.Providers.Oracle
             RegisterColumnType(DbType.String, 2000, "NVARCHAR2($l)");
             RegisterColumnType(DbType.String, 1073741823, "NCLOB");
             RegisterColumnType(DbType.Time, "DATE");
+	        
 	        RegisterProperty(ColumnProperty.Null, String.Empty);
         }
 
@@ -50,7 +52,17 @@ namespace ECM7.Migrator.Providers.Oracle
 			return base.Default(defaultValue);
 		}
 
-        public override Type TransformationProvider { get { return typeof(OracleTransformationProvider); } }
+        public override Type TransformationProviderType { get { return typeof(OracleTransformationProvider); } }
+
+		protected override void BuildColumnSql(List<string> vals, Column column)
+		{
+			AddColumnName(vals, column);
+			AddColumnType(vals, column);
+			AddDefaultValueSql(vals, column);
+			AddNotNullSql(vals, column);
+			AddPrimaryKeySql(vals, column);
+			AddUniqueSql(vals, column);
+		}
 
     }
 }

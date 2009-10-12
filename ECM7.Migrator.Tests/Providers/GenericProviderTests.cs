@@ -34,7 +34,7 @@ namespace ECM7.Migrator.Tests.Providers
 
 	public class GenericDialect : Dialect
 	{
-		public override Type TransformationProvider
+		public override Type TransformationProviderType
 		{
 			get { return typeof(GenericTransformationProvider); }
 		}
