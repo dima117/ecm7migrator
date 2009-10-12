@@ -21,11 +21,11 @@ namespace ECM7.Migrator.Providers
             RegisterProperty(ColumnProperty.PrimaryKey, "PRIMARY KEY");
         }
 
-        public abstract Type TransformationProvider { get; }
+        public abstract Type TransformationProviderType { get; }
 
         public ITransformationProvider NewProviderForDialect(string connectionString)
         {
-            return (ITransformationProvider) Activator.CreateInstance(TransformationProvider, this, connectionString);
+			return Activator.CreateInstance(TransformationProviderType, this, connectionString) as ITransformationProvider;
         }
         
         /// <summary>
@@ -82,11 +82,6 @@ namespace ECM7.Migrator.Providers
         protected void RegisterColumnType(DbType code, string name)
         {
             typeNames.Put(code, name);
-        }
-
-        public virtual ColumnPropertiesMapper GetColumnMapper()
-        {
-            return new ColumnPropertiesMapper(this);
         }
 		
 		#region GetTypeName
@@ -188,11 +183,121 @@ namespace ECM7.Migrator.Providers
             return String.Format("DEFAULT {0}", defaultValue);
         }
 
-		public ColumnSqlMap GetAndMapColumnProperties(Column column)
+		public virtual ColumnSqlMap MapColumnProperties(Column column)
         {
-            ColumnPropertiesMapper mapper = GetColumnMapper();
-            ColumnSqlMap map = mapper.MapColumnProperties(column);
-            return map;
+			Require.IsNotNull(column, "Не задан обрабатываемый столбец");
+
+			string indexSql = GetIndexSql(column);
+
+
+			List<string> vals = new List<string>();
+			BuildColumnSql(vals, column);
+			string columnSql = String.Join(" ", vals.ToArray());
+
+			return new ColumnSqlMap(columnSql, indexSql);
         }
+
+
+		#region Генерация SQL для колонок
+
+		protected virtual void BuildColumnSql(List<string> vals, Column column)
+		{
+			AddColumnName(vals, column);
+			AddColumnType(vals, column);
+			// identity не нуждается в типе
+			AddSqlForIdentityWhichNotNeedsType(vals, column);
+			AddUnsignedSql(vals, column);
+			AddNotNullSql(vals, column);
+			AddPrimaryKeySql(vals, column);
+			// identity нуждается в типе
+			AddSqlForIdentityWhichNeedsType(vals, column);
+			AddUniqueSql(vals, column);
+			AddForeignKeySql(vals, column);
+			AddDefaultValueSql(vals, column);
+		}
+
+		protected virtual string GetIndexSql(Column column)
+		{
+			bool indexed = column.ColumnProperty.HasProperty(ColumnProperty.Indexed);
+			if (SupportsIndex && indexed)
+				return String.Format("INDEX({0})", Quote(column.Name));
+			return null;
+		}
+
+
+		#region добавление элементов команды SQL для колонки
+
+		protected void AddColumnName(List<string> vals, Column column)
+		{
+			vals.Add(ColumnNameNeedsQuote ? Quote(column.Name) : column.Name);
+		}
+
+		protected void AddColumnType(List<string> vals, Column column)
+		{
+			string type = !IdentityNeedsType && column.IsIdentity
+				? String.Empty : GetTypeName(column.ColumnType);
+
+			if (!type.IsNullOrEmpty())
+				vals.Add(type);
+		}
+
+		protected void AddSqlForIdentityWhichNotNeedsType(List<string> vals, Column column)
+		{
+			if (!IdentityNeedsType)// todo: исправить как унаследованные мэпперы
+				AddValueIfSelected(column, ColumnProperty.Identity, vals);
+		}
+
+		protected void AddUnsignedSql(List<string> vals, Column column)
+		{
+			AddValueIfSelected(column, ColumnProperty.Unsigned, vals);
+		}
+
+		protected void AddNotNullSql(List<string> vals, Column column)
+		{
+			if (!column.ColumnProperty.HasProperty(ColumnProperty.PrimaryKey) || NeedsNotNullForIdentity)
+				AddValueIfSelected(column, ColumnProperty.NotNull, vals);
+		}
+
+		protected void AddPrimaryKeySql(List<string> vals, Column column)
+		{
+			AddValueIfSelected(column, ColumnProperty.PrimaryKey, vals);
+		}
+
+		protected void AddSqlForIdentityWhichNeedsType(List<string> vals, Column column)
+		{
+			if (IdentityNeedsType)// todo: исправить как унаследованные мэпперы
+				AddValueIfSelected(column, ColumnProperty.Identity, vals);
+		}
+
+		protected void AddForeignKeySql(List<string> vals, Column column)
+		{
+			AddValueIfSelected(column, ColumnProperty.ForeignKey, vals);
+		}
+
+		protected void AddUniqueSql(List<string> vals, Column column)
+		{
+			AddValueIfSelected(column, ColumnProperty.Unique, vals);
+		}
+
+		protected void AddDefaultValueSql(List<string> vals, Column column)
+		{
+			if (column.DefaultValue != null)
+				vals.Add(Default(column.DefaultValue));
+		}
+
+		#endregion
+
+		#region Helpers
+
+		protected void AddValueIfSelected(Column column, ColumnProperty property, ICollection<string> vals)
+		{
+			if (column.ColumnProperty.HasProperty(property))
+				vals.Add(SqlForProperty(property));
+		}
+
+		#endregion
+
+		#endregion
+    
     }
 }

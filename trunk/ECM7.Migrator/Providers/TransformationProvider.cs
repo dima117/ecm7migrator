@@ -184,8 +184,8 @@ namespace ECM7.Migrator.Providers
 				if (compoundPrimaryKey && column.IsPrimaryKey)
 					column.ColumnProperty = ColumnProperty.Unsigned | ColumnProperty.NotNull;
 
-				ColumnSqlMap mapper = dialect.GetAndMapColumnProperties(column);
-				columnProviders.Add(mapper);
+				ColumnSqlMap map = dialect.MapColumnProperties(column);
+				columnProviders.Add(map);
 			}
 
 			string columnsAndIndexes = JoinColumnsAndIndexes(columnProviders);
@@ -263,7 +263,7 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			ColumnSqlMap map = dialect.GetAndMapColumnProperties(column);
+			ColumnSqlMap map = dialect.MapColumnProperties(column);
 			ChangeColumn(table, map.ColumnSql);
 		}
 
@@ -340,7 +340,7 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			ColumnSqlMap map = dialect.GetAndMapColumnProperties(column);
+			ColumnSqlMap map = dialect.MapColumnProperties(column);
 
 			AddColumn(table, map.ColumnSql);
 		}
