@@ -470,6 +470,8 @@ namespace ECM7.Migrator.Framework
 
 		void ExecuteSchemaBuilder(SchemaBuilder.SchemaBuilder schemaBuilder);
 		bool TypeIsSupported(DbType type);
+		
+		#region For
 
 		/// <summary>
 		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
@@ -485,5 +487,21 @@ namespace ECM7.Migrator.Framework
 		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'dialectTypeName'.
 		/// </summary>
 		ITransformationProvider For(string dialectTypeName);
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// </summary>
+		void For<TDialect>(Action<ITransformationProvider> actions);
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// </summary>
+		void For(Type dialectType, Action<ITransformationProvider> actions);
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'dialectTypeName'.
+		/// </summary>
+		void For(string dialectTypeName, Action<ITransformationProvider> actions); 
+		#endregion
 	}
 }

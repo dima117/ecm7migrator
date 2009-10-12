@@ -84,6 +84,12 @@ namespace ECM7.Migrator.Tests.Providers
 		}
 
 		[Test]
+		public void CanExecuteBadSqlInDelegateForNonCurrentProvider()
+		{
+			provider.For<GenericDialect>(database => database.ExecuteNonQuery("select foo from bar 123"));
+		}
+
+		[Test]
 		public void TableCanBeAdded()
 		{
 			AddTable();

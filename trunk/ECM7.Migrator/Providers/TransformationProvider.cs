@@ -717,6 +717,7 @@ namespace ECM7.Migrator.Providers
 			transaction = null;
 		}
 
+		#region For
 
 		/// <summary>
 		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
@@ -748,6 +749,37 @@ namespace ECM7.Migrator.Providers
 			return For(dialectType);
 		}
 
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// </summary>
+		public void For<TDialect>(Action<ITransformationProvider> actions)
+		{
+			For(typeof(TDialect), actions);
+		}
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// </summary>
+		public void For(Type dialectType, Action<ITransformationProvider> actions)
+		{
+			ProviderFactory.ValidateDialectType(dialectType);
+			if (this.Dialect.GetType() == dialectType)
+				actions(this);
+		}
+
+		/// <summary>
+		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'dialectTypeName'.
+		/// </summary>
+		public void For(string dialectTypeName, Action<ITransformationProvider> actions)
+		{
+			Type dialectType = Type.GetType(dialectTypeName);
+			Require.IsNotNull(dialectType, "Не удалось загрузить тип диалекта: {0}".FormatWith(dialectTypeName.Nvl("null")));
+			For(dialectType, actions);
+		}
+
+
+
+		#endregion
 		/// <summary>
 		/// The list of Migrations currently applied to the database.
 		/// </summary>
