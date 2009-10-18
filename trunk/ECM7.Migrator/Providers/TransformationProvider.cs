@@ -538,7 +538,7 @@ namespace ECM7.Migrator.Providers
 		public int ExecuteNonQuery(string sql)
 		{
 			Logger.Trace(sql);
-			Logger.ApplyingDBChange(sql);
+			Logger.ApplyingDatabaseChange(sql);
 			IDbCommand cmd = BuildCommand(sql);
 			try
 			{

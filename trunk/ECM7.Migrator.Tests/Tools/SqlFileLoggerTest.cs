@@ -23,7 +23,7 @@ namespace ECM7.Migrator.Tests.Tools
         [Test]
         public void CanWriteSql()
         {
-            _logger.ApplyingDBChange("some_change");
+            _logger.ApplyingDatabaseChange("some_change");
             Assert.AreEqual("some_change" + Environment.NewLine, _sb.ToString());
         }
 
@@ -35,7 +35,7 @@ namespace ECM7.Migrator.Tests.Tools
             appliedVersions.Add(2L);
             appliedVersions.Add(3L);
 
-            _logger.ApplyingDBChange("some_change");
+            _logger.ApplyingDatabaseChange("some_change");
             _logger.Log("log something");
             _logger.Warn("danger will");
             _logger.Trace("trace");

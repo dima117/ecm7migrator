@@ -68,7 +68,7 @@ namespace ECM7.Migrator.NAnt.Loggers
 			LogInfo("Rolling back to migration {0}", originalVersion);
 		}
 
-        public void ApplyingDBChange(string sql)
+        public void ApplyingDatabaseChange(string sql)
         {
             Log(sql);
         }
