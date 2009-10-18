@@ -73,7 +73,7 @@ namespace ECM7.Migrator.Framework.Loggers
 			WriteLine("Rolling back to migration {0}", originalVersion);
 		}
 
-        public void ApplyingDBChange(string sql)
+        public void ApplyingDatabaseChange(string sql)
 	    {
 	        Log(sql);
 	    }

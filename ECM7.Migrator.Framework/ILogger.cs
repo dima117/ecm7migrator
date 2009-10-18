@@ -49,7 +49,7 @@ namespace ECM7.Migrator.Framework
         /// database.
         /// </remarks>
         /// <param name="sql">The Sql statement to log</param>
-        void ApplyingDBChange(string sql);
+        void ApplyingDatabaseChange(string sql);
 
 		/// <summary>
 		/// Log that we had an exception on a migration
