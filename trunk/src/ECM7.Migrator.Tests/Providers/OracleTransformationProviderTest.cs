@@ -27,14 +27,14 @@ namespace ECM7.Migrator.Tests.Providers
 		{
 			provider.ChangeColumn("TestTwo", new Column("TestId", DbType.String, 50, ColumnProperty.Null));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestId"));
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "0", "Not an Int val." });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new string[] { "0", "Not an Int val." });
 		}
 
 		[Test]
 		public override void InsertData()
 		{
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
 			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
 				int[] vals = GetVals(reader);

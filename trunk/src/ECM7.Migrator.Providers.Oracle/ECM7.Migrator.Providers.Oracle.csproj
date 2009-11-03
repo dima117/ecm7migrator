@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ECM7.Common, Version=0.4.0.1001, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\ECM7.Common.dll</HintPath>
+    </Reference>
     <Reference Include="Oracle.DataAccess, Version=10.2.0.100, Culture=neutral, PublicKeyToken=89b483f429c47342">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\DataAccess\Oracle.DataAccess.dll</HintPath>

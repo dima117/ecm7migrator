@@ -1,6 +1,7 @@
 using System.Data;
 using ECM7.Migrator.Framework;
 using NUnit.Framework;
+using ForeignKeyConstraint=ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Tests.Providers
 {
@@ -136,6 +137,20 @@ namespace ECM7.Migrator.Tests.Providers
             Assert.IsTrue(provider.TableExists("Test"), "Table doesn't exist");
             Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"), "Constraint doesn't exist");
         }
+
+		[Test]
+		public void AddForeignKeyWithDeleteCascade()
+		{
+			AddTableWithPrimaryKey();
+		
+			provider.AddForeignKey("FK", "TestTwo", "TestId", "Test", "Id", ForeignKeyConstraint.Cascade);
+
+			provider.Insert("Test", new[] { "Id", "Name" }, new[] { "42", "aaa" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "42" });
+			provider.Delete("Test", "Id", "42");
+			object count = provider.SelectScalar("count(*)", "TestTwo", "TestId = 42");
+			Assert.AreEqual(0, count);
+		}
 
         [Test]
         public void AddTableWithCompoundPrimaryKeyShouldKeepNullForOtherProperties()
