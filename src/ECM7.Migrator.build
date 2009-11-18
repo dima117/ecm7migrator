@@ -7,7 +7,7 @@
 	<property name="build.dir" value="..\build\Release"/>
 	<property name="web.dist.dir" value="web.dist"/>
 
-	<property name="zip.filename" value="..\ecm7.migrator.zip" />
+	<property name="zip.filename" value="..\ecm7.migrator-last.zip" />
 	
 	<!-- Tasks -->
 	<target name="compile" description="Compile all projects with using the Release Configuration">

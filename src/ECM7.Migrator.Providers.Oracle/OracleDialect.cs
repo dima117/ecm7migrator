@@ -31,7 +31,7 @@ namespace ECM7.Migrator.Providers.Oracle
             //RegisterColumnType(DbType.Guid, "CHAR(38)");
             RegisterColumnType(DbType.Int16, "NUMBER(5,0)");
             RegisterColumnType(DbType.Int32, "NUMBER(10,0)");
-            RegisterColumnType(DbType.Int64, "NUMBER(21,0)");
+            RegisterColumnType(DbType.Int64, "NUMBER(18,0)");
             RegisterColumnType(DbType.Single, "FLOAT(24)");
             RegisterColumnType(DbType.StringFixedLength, "NCHAR(255)");
             RegisterColumnType(DbType.StringFixedLength, 2000, "NCHAR($l)");
