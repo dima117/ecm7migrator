@@ -74,6 +74,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\config\AssemblyInfo.cs">
+      <Link>AssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="ColumnPropertyMappingTest.cs" />
     <Compile Include="Data\TestMigrations.cs" />
     <Compile Include="MigrationLoaderTest.cs" />
