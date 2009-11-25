@@ -651,7 +651,7 @@ namespace ECM7.Migrator.Providers
 			return null == columns || null == values ?
 					ExecuteNonQuery(String.Format("DELETE FROM {0}", table)) :
 					ExecuteNonQuery(String.Format("DELETE FROM {0} WHERE ({1})",
-						table, JoinColumnsAndValues(columns, values)));
+						table, JoinColumnsAndValues(columns, values, "and")));
 		}
 
 		public virtual int Delete(string table, string wherecolumn, string wherevalue)
@@ -863,24 +863,25 @@ namespace ECM7.Migrator.Providers
 		public virtual string[] QuoteValues(string[] values)
 		{
 			return Array.ConvertAll<string, string>(values,
-					  delegate(string val)
-					  {
-						  return null == val
-								  ? "null"
-								  : String.Format("'{0}'", val.Replace("'", "''"));
-					  });
+				val => null == val ? "null" : String.Format("'{0}'", val.Replace("'", "''")));
 		}
 
 		public string JoinColumnsAndValues(string[] columns, string[] values)
 		{
-			string[] quotedValues = QuoteValues(values);
-			string[] namesAndValues = new string[columns.Length];
-			for (int i = 0; i < columns.Length; i++)
-			{
-				namesAndValues[i] = String.Format("{0}={1}", columns[i], quotedValues[i]);
-			}
+			return JoinColumnsAndValues(columns, values, ",");
+		}
 
-			return String.Join(", ", namesAndValues);
+		public string JoinColumnsAndValues(string[] columns, string[] values, string separator)
+		{
+			Require.IsNotNull(separator, "Не задан разделитель");
+
+			string processedSeparator = " " + separator.Trim() + " ";
+			
+			string[] quotedValues = QuoteValues(values);
+			string[] namesAndValues = columns.Select((str, i) =>
+				"{0}={1}".FormatWith(str, quotedValues[i])).ToArray();
+
+			return string.Join(processedSeparator, namesAndValues);
 		}
 	}
 }

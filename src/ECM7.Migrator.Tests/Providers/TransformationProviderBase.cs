@@ -401,7 +401,7 @@ namespace ECM7.Migrator.Tests.Providers
 		public void DeleteDataWithArrays()
 		{
 			InsertData();
-			provider.Delete("TestTwo", new[] { "TestId" }, new[] { "1" });
+			provider.Delete("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
 
 			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
 			{
