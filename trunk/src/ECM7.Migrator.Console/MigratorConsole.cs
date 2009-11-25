@@ -32,7 +32,7 @@ namespace ECM7.Migrator.MigratorConsole
 		private string dumpTo;
 		private long migrateTo = -1;
 		private readonly string[] args;
-		
+
 		/// <summary>
 		/// Builds a new console
 		/// </summary>
@@ -40,17 +40,21 @@ namespace ECM7.Migrator.MigratorConsole
 		public MigratorConsole(string[] argv)
 		{
 			args = argv;
-			ParseArguments(argv);
 		}
-		
+
 		/// <summary>
 		/// Run the migrator's console
 		/// </summary>
 		/// <returns>-1 if error, else 0</returns>
 		public int Run()
 		{
+			if (ParseArguments(args))
+				return -1;
+
 			try
 			{
+				ParseArguments(args);
+
 				if (list)
 					List();
 				else if (dumpTo != null)
@@ -62,7 +66,6 @@ namespace ECM7.Migrator.MigratorConsole
 			{
 				Console.WriteLine("Invalid argument '{0}' : {1}", aex.ParamName, aex.Message);
 				Console.WriteLine();
-				PrintUsage();
 				return -1;
 			}
 			catch (Exception ex)
@@ -72,55 +75,55 @@ namespace ECM7.Migrator.MigratorConsole
 			}
 			return 0;
 		}
-		
+
 		/// <summary>
 		/// Runs the migrations.
 		/// </summary>
 		public void Migrate()
 		{
 			CheckArguments();
-			
+
 			Migrator mig = GetMigrator();
-            if (mig.DryRun)
-                mig.Logger.Log("********** Dry run! Not actually applying changes. **********");
+			if (mig.DryRun)
+				mig.Logger.Log("********** Dry run! Not actually applying changes. **********");
 
 			if (migrateTo == -1)
 				mig.MigrateToLastVersion();
 			else
 				mig.MigrateTo(migrateTo);
 		}
-		
+
 		/// <summary>
 		/// List migrations.
 		/// </summary>
 		public void List()
 		{
 			CheckArguments();
-			
+
 			Migrator mig = GetMigrator();
 			List<long> appliedMigrations = mig.AppliedMigrations;
-			
+
 			Console.WriteLine("Available migrations:");
 			foreach (Type t in mig.MigrationsTypes)
 			{
-                long v = MigrationLoader.GetMigrationVersion(t);
+				long v = MigrationLoader.GetMigrationVersion(t);
 				Console.WriteLine("{0} {1} {2}",
-                                  appliedMigrations.Contains(v) ? "=>" : "  ",
-				                  v.ToString().PadLeft(3),
-				                  StringUtils.ToHumanName(t.Name)
-				                 );
+								  appliedMigrations.Contains(v) ? "=>" : "  ",
+								  v.ToString().PadLeft(3),
+								  StringUtils.ToHumanName(t.Name)
+								 );
 			}
 		}
-		
+
 		public void Dump()
 		{
 			CheckArguments();
-			
+
 			SchemaDumper dumper = new SchemaDumper(dialect, connectionString);
-			
+
 			dumper.DumpTo(dumpTo);
 		}
-		
+
 		/// <summary>
 		/// Show usage information and help.
 		/// </summary>
@@ -128,7 +131,7 @@ namespace ECM7.Migrator.MigratorConsole
 		{
 			const int TAB = 17;
 			Version ver = Assembly.GetExecutingAssembly().GetName().Version;
-			
+
 			Console.WriteLine("Database migrator - v{0}.{1}.{2}", ver.Major, ver.Minor, ver.Revision);
 			Console.WriteLine();
 			Console.WriteLine("usage:\nECM7.Migrator.Console.exe dialect connectionString migrationsAssembly [options]");
@@ -144,9 +147,9 @@ namespace ECM7.Migrator.MigratorConsole
 			Console.WriteLine("\t-{0}{1}", "dryrun".PadRight(TAB), "Simulation mode (don't actually apply/remove any migrations)");
 			Console.WriteLine();
 		}
-		
+
 		#region Private helper methods
-		
+
 		private void CheckArguments()
 		{
 			if (connectionString == null)
@@ -154,48 +157,60 @@ namespace ECM7.Migrator.MigratorConsole
 			if (migrationsAssembly == null)
 				throw new ArgumentException("Migrations assembly missing", "migrationsAssembly");
 		}
-				
+
 		private Migrator GetMigrator()
 		{
 			Assembly asm = Assembly.LoadFrom(migrationsAssembly);
 
 			Migrator migrator = new Migrator(dialect, connectionString, trace, asm);
 			migrator.Args = args;
-		    migrator.DryRun = dryrun;
+			migrator.DryRun = dryrun;
 			return migrator;
 		}
-				
-		private void ParseArguments(string[] argv)
+
+		private bool ParseArguments(string[] argv)
 		{
-			dialect = argv[0];
-			connectionString = argv[1];
-			migrationsAssembly = argv[2];
-		
-			for (int i = 0; i < argv.Length; i++)
+			try
 			{
-				if (argv[i].Equals("-list"))
+				dialect = argv[0];
+				connectionString = argv[1];
+				migrationsAssembly = argv[2];
+
+				for (int i = 0; i < argv.Length; i++)
 				{
-					list = true;
-				}
-				else if (argv[i].Equals("-trace"))
-				{
-					trace = true;
-				}
-				else if (argv[i].Equals("-dryrun"))
-				{
-					dryrun = true;
-				}
-				else if (argv[i].Equals("-version"))
-				{
-					migrateTo = long.Parse(argv[i+1]);
-					i++;
-				}
-				else if (argv[i].Equals("-dump"))
-				{
-					dumpTo = argv[i+1];
-					i++;
+					if (argv[i].Equals("-list"))
+					{
+						list = true;
+					}
+					else if (argv[i].Equals("-trace"))
+					{
+						trace = true;
+					}
+					else if (argv[i].Equals("-dryrun"))
+					{
+						dryrun = true;
+					}
+					else if (argv[i].Equals("-version"))
+					{
+						migrateTo = long.Parse(argv[i + 1]);
+						i++;
+					}
+					else if (argv[i].Equals("-dump"))
+					{
+						dumpTo = argv[i + 1];
+						i++;
+					}
 				}
 			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Parse arguments error:");
+				Console.WriteLine(ex.Message);
+				PrintUsage();
+				return false;
+			}
+
+			return true;
 		}
 		#endregion
 	}
