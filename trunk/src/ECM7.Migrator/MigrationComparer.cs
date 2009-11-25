@@ -20,11 +20,11 @@ namespace ECM7.Migrator
 	/// </summary>
 	public class MigrationTypeComparer : IComparer<Type>
 	{
-		private readonly bool _ascending = true;
+		private readonly bool ascending = true;
 		
 		public MigrationTypeComparer(bool ascending)
 		{
-			_ascending = ascending;
+			this.ascending = ascending;
 		}
 
         public int Compare(Type x, Type y)
@@ -32,12 +32,10 @@ namespace ECM7.Migrator
 			MigrationAttribute attribOfX = (MigrationAttribute) Attribute.GetCustomAttribute(x, typeof(MigrationAttribute));
 			MigrationAttribute attribOfY = (MigrationAttribute) Attribute.GetCustomAttribute(y, typeof(MigrationAttribute));
 			
-			if (_ascending)
+			if (ascending)
 				return attribOfX.Version.CompareTo(attribOfY.Version);
-			else
-				return attribOfY.Version.CompareTo(attribOfX.Version);
-			
-			
+        	
+        	return attribOfY.Version.CompareTo(attribOfX.Version);
 		}
 	}
 }

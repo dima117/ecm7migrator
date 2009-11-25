@@ -787,17 +787,18 @@ namespace ECM7.Migrator.Providers
 		{
 			get
 			{
+
 				if (appliedMigrations == null)
 				{
 					appliedMigrations = new List<long>();
 					CreateSchemaInfoTable();
+					
+					// переделать на DataTable
 					using (IDataReader reader = Select("version", "SchemaInfo"))
-					{
 						while (reader.Read())
-						{
 							appliedMigrations.Add(reader.GetInt64(0));
-						}
-					}
+
+					appliedMigrations.Sort();
 				}
 				return appliedMigrations;
 			}
@@ -876,7 +877,7 @@ namespace ECM7.Migrator.Providers
 			Require.IsNotNull(separator, "Не задан разделитель");
 
 			string processedSeparator = " " + separator.Trim() + " ";
-			
+
 			string[] quotedValues = QuoteValues(values);
 			string[] namesAndValues = columns.Select((str, i) =>
 				"{0}={1}".FormatWith(str, quotedValues[i])).ToArray();

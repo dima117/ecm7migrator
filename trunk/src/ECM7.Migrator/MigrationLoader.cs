@@ -15,18 +15,16 @@ namespace ECM7.Migrator
 		private readonly ITransformationProvider provider;
 		private readonly List<Type> migrationsTypes = new List<Type>();
 
-		public MigrationLoader(ITransformationProvider provider, bool trace, params Assembly[] migrationAssembly)
+		public MigrationLoader(ITransformationProvider provider, bool trace, params Assembly[] migrationAssemblies)
 		{
 			this.provider = provider;
-			AddMigrations(migrationAssembly);
+			AddMigrations(migrationAssemblies);
 
 			if (trace)
 			{
 				provider.Logger.Trace("Loaded migrations:");
 				foreach (Type t in migrationsTypes)
-				{
 					provider.Logger.Trace("{0} {1}", GetMigrationVersion(t).ToString().PadLeft(5), StringUtils.ToHumanName(t.Name));
-				}
 			}
 		}
 
