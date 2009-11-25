@@ -17,6 +17,8 @@ namespace ECM7.Migrator.Tests.Providers.DataTypes
 		public abstract string ParameterName { get; }
 		public virtual int MaxStringFixedLength { get { return 8000; } }
 		public virtual int MaxStringVariableLength { get { return 50000; } }
+		public virtual long MaxInt64Value { get { return long.MaxValue; } }
+		public virtual long MinInt64Value { get { return long.MinValue; } }
 
 		public virtual object BooleanTestValue { get { return true; } }
 
@@ -139,13 +141,13 @@ namespace ECM7.Migrator.Tests.Providers.DataTypes
 		[Test]
 		public virtual void Int64MaxTest()
 		{
-			TestColumnType(DbType.Int64, Int64.MaxValue);
+			TestColumnType(DbType.Int64, MaxInt64Value);
 		}
 
 		[Test]
 		public virtual void Int64MinTest()
 		{
-			TestColumnType(DbType.Int64, Int64.MinValue);
+			TestColumnType(DbType.Int64, MinInt64Value);
 		}
 
 		#endregion

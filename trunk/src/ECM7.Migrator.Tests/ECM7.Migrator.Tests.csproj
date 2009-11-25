@@ -89,9 +89,11 @@
     <Compile Include="Providers\DataTypes\DataTypesTestBase.cs" />
     <Compile Include="Providers\DataTypes\MySqlDataTypesTest.cs" />
     <Compile Include="Providers\DataTypes\OracleDataTypesTest.cs" />
+    <Compile Include="Providers\DataTypes\PostgreSQLDataTypesTest.cs" />
     <Compile Include="Providers\DataTypes\SQLiteDataTypesTest.cs" />
     <Compile Include="Providers\DataTypes\SqlServerDataTypesTest.cs" />
     <Compile Include="Providers\GenericProviderTests.cs" />
+    <Compile Include="Providers\PostgreSQLTransformationProviderTest.cs" />
     <Compile Include="Providers\SqlServer2005TransformationProviderTest.cs" />
     <Compile Include="Providers\MySqlTransformationProviderTest.cs" />
     <Compile Include="Providers\OracleTransformationProviderTest.cs" />
@@ -116,6 +118,10 @@
     <ProjectReference Include="..\ECM7.Migrator.Providers.Oracle\ECM7.Migrator.Providers.Oracle.csproj">
       <Project>{CBA55443-9437-4396-AF4C-9A2A9A7628E5}</Project>
       <Name>ECM7.Migrator.Providers.Oracle</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.PostgreSQL\ECM7.Migrator.Providers.PostgreSQL.csproj">
+      <Project>{FFE9E6C3-E4F6-465B-AEC0-7EC35E293072}</Project>
+      <Name>ECM7.Migrator.Providers.PostgreSQL</Name>
     </ProjectReference>
     <ProjectReference Include="..\ECM7.Migrator.Providers.SQLite\ECM7.Migrator.Providers.SQLite.csproj">
       <Project>{F67D8D5F-7ADE-484B-9B3C-F7026F292EA8}</Project>
