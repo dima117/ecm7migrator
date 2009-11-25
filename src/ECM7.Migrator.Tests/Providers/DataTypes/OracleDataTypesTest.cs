@@ -17,9 +17,21 @@ namespace ECM7.Migrator.Tests.Providers.DataTypes
 
 		public override object BooleanTestValue { get { return 1; } }
 
+		public override long MaxInt64Value
+		{
+			get { return 999999999999999999; }
+		}
+
+		public override long MinInt64Value
+		{
+			get { return -999999999999999999; }
+		}
+
 		public override string ParameterName
 		{
 			get { return ":value"; }
 		}
+
+
 	}
 }
