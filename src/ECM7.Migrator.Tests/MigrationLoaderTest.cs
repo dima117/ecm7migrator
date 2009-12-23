@@ -37,16 +37,13 @@ namespace ECM7.Migrator.Tests
 			Assert.IsNull(_migrationLoader.GetMigration(99999999));
 		}
 
-		[Test]
+		[Test, ExpectedException(typeof(DuplicatedVersionException))]
 		public void CheckForDuplicatedVersion()
 		{
-			Assert.Throws<DuplicatedVersionException>(
-				() =>
-				{
-					_migrationLoader.MigrationsTypes.Add(
-						typeof(MigratorTest.FirstMigration));
-					_migrationLoader.CheckForDuplicatedVersion();
-				});
+			_migrationLoader.MigrationsTypes.Add(
+				typeof(MigratorTest.FirstMigration));
+			_migrationLoader.CheckForDuplicatedVersion();
+
 		}
 
 		private void SetUpCurrentVersion(int version, bool assertRollbackIsCalled)

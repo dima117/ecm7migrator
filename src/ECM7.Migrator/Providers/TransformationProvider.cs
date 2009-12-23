@@ -89,10 +89,7 @@ namespace ECM7.Migrator.Providers
 		public virtual Column GetColumnByName(string table, string columnName)
 		{
 			return Array.Find(GetColumns(table),
-				delegate(Column column)
-				{
-					return column.Name.ToLower() == columnName.ToLower();
-				});
+				column => column.Name.ToLower() == columnName.ToLower());
 		}
 
 		public virtual string[] GetTables()
@@ -506,7 +503,13 @@ namespace ECM7.Migrator.Providers
 		}
 
 		public virtual void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
-										  string[] refColumns, ForeignKeyConstraint constraint)
+			string[] refColumns, ForeignKeyConstraint constraint)
+		{
+			AddForeignKey(name, primaryTable, primaryColumns, refTable, refColumns, constraint, constraint);
+		}
+
+		public virtual void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
+			string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint)
 		{
 			if (ConstraintExists(primaryTable, name))
 			{
@@ -514,12 +517,13 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			string constraintResolved = constraintMapper.SqlForConstraint(constraint);
+			string onDeleteConstraintResolved = constraintMapper.SqlForConstraint(onDeleteConstraint);
+			string onUpdateConstraintResolved = constraintMapper.SqlForConstraint(onUpdateConstraint);
 			ExecuteNonQuery(
 				String.Format(
 					"ALTER TABLE {0} ADD CONSTRAINT {1} FOREIGN KEY ({2}) REFERENCES {3} ({4}) ON UPDATE {5} ON DELETE {6}",
 					primaryTable, name, String.Join(",", primaryColumns),
-					refTable, String.Join(",", refColumns), constraintResolved, constraintResolved));
+					refTable, String.Join(",", refColumns), onUpdateConstraintResolved, onDeleteConstraintResolved));
 		}
 
 		/// <summary>
@@ -733,7 +737,7 @@ namespace ECM7.Migrator.Providers
 		public ITransformationProvider For(Type dialectType)
 		{
 			ProviderFactory.ValidateDialectType(dialectType);
-			if (this.Dialect.GetType() == dialectType)
+			if (Dialect.GetType() == dialectType)
 				return this;
 
 			return NoOpTransformationProvider.Instance;
@@ -763,7 +767,7 @@ namespace ECM7.Migrator.Providers
 		public void For(Type dialectType, Action<ITransformationProvider> actions)
 		{
 			ProviderFactory.ValidateDialectType(dialectType);
-			if (this.Dialect.GetType() == dialectType)
+			if (Dialect.GetType() == dialectType)
 				actions(this);
 		}
 
@@ -863,7 +867,7 @@ namespace ECM7.Migrator.Providers
 
 		public virtual string[] QuoteValues(string[] values)
 		{
-			return Array.ConvertAll<string, string>(values,
+			return Array.ConvertAll(values,
 				val => null == val ? "null" : String.Format("'{0}'", val.Replace("'", "''")));
 		}
 

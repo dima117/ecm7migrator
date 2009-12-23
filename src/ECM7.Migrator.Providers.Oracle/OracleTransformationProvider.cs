@@ -46,6 +46,12 @@ namespace ECM7.Migrator.Providers.Oracle
 			ExecuteNonQuery(commandText);
 		}
 
+		// todo: написать тесты на добавление внешнего ключа с каскадным обновлением
+		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint)
+		{
+			throw new NotSupportedException("Oracle не поддерживает каскадное обновление");
+		}
+
 		public override void AddColumn(string table, string sqlColumn)
 		{
 			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD ({1})", table, sqlColumn));

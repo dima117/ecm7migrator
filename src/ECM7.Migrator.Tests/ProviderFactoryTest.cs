@@ -2,7 +2,6 @@ using System.Configuration;
 using ECM7.Common.Utils.Exceptions;
 using ECM7.Migrator.Framework;
 using NUnit.Framework;
-using System;
 
 namespace ECM7.Migrator.Tests
 {
@@ -12,6 +11,7 @@ namespace ECM7.Migrator.Tests
 		private const string MYSQL_DIALECT = "ECM7.Migrator.Providers.MySql.MySqlDialect, ECM7.Migrator.Providers.MySql";
 		private const string ORACLE_DIALECT = "ECM7.Migrator.Providers.Oracle.OracleDialect, ECM7.Migrator.Providers.Oracle";
 		private const string SQLITE_DIALECT = "ECM7.Migrator.Providers.SQLite.SQLiteDialect, ECM7.Migrator.Providers.SQLite";
+		private const string POSTGRE_SQL_DIALECT = "ECM7.Migrator.Providers.PostgreSQL.PostgreSQLDialect, ECM7.Migrator.Providers.PostgreSQL";
 
 		private const string SQL_SERVER_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer";
 		private const string SQL_SERVER_2005_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServer2005Dialect, ECM7.Migrator.Providers.SqlServer";
@@ -51,6 +51,14 @@ namespace ECM7.Migrator.Tests
 			Assert.IsNotNull(provider);
 		}
 
+		[Test, Category("PostgreSQL")]
+		public void CanLoadPostgreSQLProvider()
+		{
+			ITransformationProvider provider = ProviderFactory.Create(
+				POSTGRE_SQL_DIALECT, ConfigurationManager.AppSettings["NpgsqlConnectionString"]);
+			Assert.IsNotNull(provider);
+		}
+
 		[Test, Category("SQLite")]
 		public void CanLoadSqLiteProvider()
 		{
@@ -67,20 +75,16 @@ namespace ECM7.Migrator.Tests
 			Assert.IsNotNull(provider);
 		}
 
-		[Test, Category("Некорректные диалекты")]
+		[Test, Category("Некорректные диалекты"), ExpectedException(typeof(RequirementNotCompliedException))]
 		public void CantLoadNotExistsDialect()
 		{
-			var ex = Assert.Throws<RequirementNotCompliedException>(() =>
-				ProviderFactory.Create("NotExistsDialect", string.Empty));
-			Console.WriteLine(ex.Message);
+			ProviderFactory.Create("NotExistsDialect", string.Empty);
 		}
 
-		[Test, Category("Некорректные диалекты")]
+		[Test, Category("Некорректные диалекты"), ExpectedException(typeof(RequirementNotCompliedException))]
 		public void CantLoadNotDialectClass()
 		{
-			var ex = Assert.Throws<RequirementNotCompliedException>(() =>
-				ProviderFactory.Create("System.Int32", string.Empty));
-			Console.WriteLine(ex.Message);
+			ProviderFactory.Create("System.Int32", string.Empty);
 		}
 
 	}
