@@ -503,5 +503,8 @@ namespace ECM7.Migrator.Framework
 		/// </summary>
 		void For(string dialectTypeName, Action<ITransformationProvider> actions); 
 		#endregion
+
+		void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
+		                                   string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint);
 	}
 }

@@ -323,6 +323,10 @@ namespace ECM7.Migrator.Providers
 		{
 		}
 
+		public void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint)
+		{
+		}
+
 		#endregion
 
 		public List<long> AppliedMigrations

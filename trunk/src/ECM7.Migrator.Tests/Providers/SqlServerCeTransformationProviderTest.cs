@@ -48,23 +48,23 @@ namespace ECM7.Migrator.Tests.Providers
             }
         }
 
-        [Test]
+        [Test, ExpectedException(typeof(MigrationException))]
 		public override void CanAddCheckConstraint()
         {
-			Assert.Throws(typeof(MigrationException), () => base.CanAddCheckConstraint());
+			base.CanAddCheckConstraint();
 		}
 
-		[Test]
+		[Test, ExpectedException(typeof(MigrationException))]
 		public override void RemoveCheckConstraint()
 		{
-			Assert.Throws(typeof(MigrationException), () => base.RemoveCheckConstraint());
+			base.RemoveCheckConstraint();
 		}
 
-		[Test]
+		[Test, ExpectedException(typeof(MigrationException))]
 		// see: http://www.pocketpcdn.com/articles/articles.php?&atb.set(c_id)=74&atb.set(a_id)=8145&atb.perform(details)=&
 		public override void RenameTableThatExists()
 		{
-			Assert.Throws(typeof(MigrationException), () => base.RenameTableThatExists());
+			base.RenameTableThatExists();
 		}
     }
 }

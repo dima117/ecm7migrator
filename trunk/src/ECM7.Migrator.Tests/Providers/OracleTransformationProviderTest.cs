@@ -22,6 +22,12 @@ namespace ECM7.Migrator.Tests.Providers
 			AddDefaultTable();
 		}
 
+		[Test, ExpectedException(typeof(NotSupportedException))]
+		public override void CanAddForeignKeyWithDifferentActions()
+		{
+			base.CanAddForeignKeyWithDifferentActions();
+		}
+
 		[Test]
 		public override void ChangeColumn()
 		{

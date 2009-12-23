@@ -158,15 +158,12 @@ namespace ECM7.Migrator.Tests.Providers
 			provider.RemoveTable("Test_Rename");
 		}
 
-		[Test]
+		[Test, ExpectedException(typeof(MigrationException))]
 		public void RenameTableToExistingTable()
 		{
-			Assert.Throws<MigrationException>(
-				() =>
-				{
-					AddTable();
-					provider.RenameTable("Test", "TestTwo");
-				});
+			AddTable();
+			provider.RenameTable("Test", "TestTwo");
+
 		}
 
 		[Test]
@@ -179,15 +176,11 @@ namespace ECM7.Migrator.Tests.Providers
 			Assert.IsFalse(provider.ColumnExists("Test", "name"));
 		}
 
-		[Test]
+		[Test, ExpectedException(typeof(MigrationException))]
 		public void RenameColumnToExistingColumn()
 		{
-			Assert.Throws<MigrationException>(
-			() =>
-			{
-				AddTable();
-				provider.RenameColumn("Test", "Title", "name");
-			});
+			AddTable();
+			provider.RenameColumn("Test", "Title", "name");
 		}
 
 		[Test]
