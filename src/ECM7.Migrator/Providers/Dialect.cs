@@ -23,9 +23,9 @@ namespace ECM7.Migrator.Providers
 
         public abstract Type TransformationProviderType { get; }
 
-        public ITransformationProvider NewProviderForDialect(string connectionString)
+        public TransformationProvider NewProviderForDialect(string connectionString)
         {
-			return Activator.CreateInstance(TransformationProviderType, this, connectionString) as ITransformationProvider;
+			return Activator.CreateInstance(TransformationProviderType, this, connectionString) as TransformationProvider;
         }
         
         /// <summary>

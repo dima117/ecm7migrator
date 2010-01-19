@@ -24,6 +24,21 @@ namespace ECM7.Migrator
 	/// </summary>
 	public class ProviderFactory
 	{
+		#region Shortcuts
+
+		private static readonly Dictionary<string, string> shortcuts = new Dictionary<string, string>
+		{
+			{"SqlServer",		"ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"},
+			{"SqlServer2005",	"ECM7.Migrator.Providers.SqlServer.SqlServer2005Dialect, ECM7.Migrator.Providers.SqlServer"},
+			{"SqlServerCe",		"ECM7.Migrator.Providers.SqlServer.SqlServerCeDialect, ECM7.Migrator.Providers.SqlServer"},
+			{"Oracle",			"ECM7.Migrator.Providers.Oracle.OracleDialect, ECM7.Migrator.Providers.Oracle"},
+			{"MySql",			"ECM7.Migrator.Providers.MySql.MySqlDialect, ECM7.Migrator.Providers.MySql"},
+			{"SQLite",			"ECM7.Migrator.Providers.SQLite.SQLiteDialect, ECM7.Migrator.Providers.SQLite"},
+			{"PostgreSQL",		"ECM7.Migrator.Providers.PostgreSQL.PostgreSQLDialect, ECM7.Migrator.Providers.PostgreSQL"}
+		};
+
+		#endregion
+
 		#region GetDialect
 
 		private static readonly Dictionary<Type, Dialect> dialects = new Dictionary<Type, Dialect>();
@@ -70,22 +85,25 @@ namespace ECM7.Migrator
 
 		#region Create
 
-		public static ITransformationProvider Create<TDialect>(
+		public static TransformationProvider Create<TDialect>(
 			Type dialectType, string connectionString)
 			where TDialect : Dialect, new()
 		{
 			return GetDialect<TDialect>().NewProviderForDialect(connectionString);
 		}
 
-		public static ITransformationProvider Create(Type dialectType, string connectionString)
+		public static TransformationProvider Create(Type dialectType, string connectionString)
 		{
 			return GetDialect(dialectType).NewProviderForDialect(connectionString);
-		}		
-		
-		public static ITransformationProvider Create(string dialectTypeName, string connectionString)
+		}
+
+		public static TransformationProvider Create(string dialectName, string connectionString)
 		{
+			string dialectTypeName = shortcuts.ContainsKey(dialectName)
+			                         	? shortcuts[dialectName]
+			                         	: dialectName;
 			Type dialectType = Type.GetType(dialectTypeName);
-			Require.IsNotNull(dialectType, "Не удалось загрузить тип диалекта: {0}".FormatWith(dialectTypeName.Nvl("null")));
+			Require.IsNotNull(dialectType, "Не удалось загрузить диалект: {0}".FormatWith(dialectName.Nvl("null")));
 			return Create(dialectType, connectionString);
 		}
 
