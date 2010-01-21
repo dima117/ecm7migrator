@@ -37,11 +37,11 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// Foreign Key
 		/// </summary>
-		ForeignKey = Unsigned | Null,
+		ForeignKey = 64 | Null,
 		/// <summary>
 		/// Primary Key
 		/// </summary>
-		PrimaryKey = 64 | Unsigned | NotNull,
+		PrimaryKey = 128 | NotNull,
 		/// <summary>
 		/// Primary key. Make the column a PrimaryKey and unsigned
 		/// </summary>
