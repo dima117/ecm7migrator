@@ -79,7 +79,7 @@
     </Compile>
     <Compile Include="Helpers\TestProviders.cs" />
     <Compile Include="TestClasses\Common\ColumnPropertyMappingTest.cs" />
-    <Compile Include="TestClasses\Data\TestMigrations.cs" />
+    <Compile Include="Data\TestMigrations.cs" />
     <Compile Include="TestClasses\Common\MigrationLoaderTest.cs" />
     <Compile Include="TestClasses\Common\MigrationTestCase.cs" />
     <Compile Include="TestClasses\Common\MigrationTypeComparerTest.cs" />
