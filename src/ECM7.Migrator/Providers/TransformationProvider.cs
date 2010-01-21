@@ -179,9 +179,9 @@ namespace ECM7.Migrator.Providers
 			{
 				// Remove the primary key notation if compound primary key because we'll add it back later
 				if (compoundPrimaryKey && column.IsPrimaryKey)
-					column.ColumnProperty = ColumnProperty.Unsigned | ColumnProperty.NotNull;
+					column.ColumnProperty |= ColumnProperty.NotNull;
 
-				ColumnSqlMap map = dialect.MapColumnProperties(column);
+				ColumnSqlMap map = dialect.MapColumnProperties(column, compoundPrimaryKey);
 				columnProviders.Add(map);
 			}
 
@@ -260,7 +260,7 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			ColumnSqlMap map = dialect.MapColumnProperties(column);
+			ColumnSqlMap map = dialect.MapColumnProperties(column, false);
 			ChangeColumn(table, map.ColumnSql);
 		}
 
@@ -307,10 +307,9 @@ namespace ECM7.Migrator.Providers
 
 		protected virtual string JoinColumns(IEnumerable<ColumnSqlMap> columns)
 		{
-			List<string> columnStrings = new List<string>();
-			foreach (ColumnSqlMap column in columns)
-				columnStrings.Add(column.ColumnSql);
-			return String.Join(", ", columnStrings.ToArray());
+			return columns
+				.Select(col => col.ColumnSql)
+				.ToCommaSeparatedString();
 		}
 
 		/// <summary>
@@ -337,7 +336,7 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			ColumnSqlMap map = dialect.MapColumnProperties(column);
+			ColumnSqlMap map = dialect.MapColumnProperties(column, false);
 
 			AddColumn(table, map.ColumnSql);
 		}
@@ -394,6 +393,8 @@ namespace ECM7.Migrator.Providers
 			AddColumn(table, column, type, size, property, null);
 		}
 
+		// todo: проверить, чтобы все имена колонок и таблиц заключались в кавычки, если необходимо
+
 		/// <summary>
 		/// Append a primary key to a table.
 		/// </summary>
@@ -407,9 +408,10 @@ namespace ECM7.Migrator.Providers
 				Logger.Warn("Primary key {0} already exists", name);
 				return;
 			}
-			ExecuteNonQuery(
-				String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} PRIMARY KEY ({2}) ", table, name,
-							  String.Join(",", columns)));
+			string sql = String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} PRIMARY KEY ({2}) ", 
+							table, name,
+							columns.Select(col => Dialect.QuoteIfNeeded(col)).ToCommaSeparatedString());
+			ExecuteNonQuery(sql);
 		}
 
 		public virtual void AddUniqueConstraint(string name, string table, params string[] columns)
@@ -419,7 +421,9 @@ namespace ECM7.Migrator.Providers
 				Logger.Warn("Constraint {0} already exists", name);
 				return;
 			}
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2}) ", table, name, string.Join(", ", columns)));
+			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2}) ", 
+				table, name,
+				columns.Select(col => Dialect.QuoteIfNeeded(col)).ToCommaSeparatedString()));
 		}
 
 		public virtual void AddCheckConstraint(string name, string table, string checkSql)
@@ -796,7 +800,7 @@ namespace ECM7.Migrator.Providers
 				{
 					appliedMigrations = new List<long>();
 					CreateSchemaInfoTable();
-					
+
 					// переделать на DataTable
 					using (IDataReader reader = Select("version", "SchemaInfo"))
 						while (reader.Read())

@@ -14,7 +14,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using ECM7.Migrator.Framework;
 using ECM7.Migrator.Providers;
 
 namespace ECM7.Migrator
