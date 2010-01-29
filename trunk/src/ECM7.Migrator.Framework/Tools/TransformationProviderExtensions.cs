@@ -8,6 +8,8 @@ namespace ECM7.Migrator.Framework.Tools
 		/// Название служебной таблицы HiLo
 		/// </summary>
 		public const string HI_LO_TABLE_NAME = "hibernate_unique_key";
+		public const string KEY_FIELD_NAME = "entity_key";
+		public const string VALUE_FIELD_NAME = "next_hi_value";
 
 		/// <summary>
 		/// Добавление служебной таблицы HiLo
@@ -16,8 +18,8 @@ namespace ECM7.Migrator.Framework.Tools
 		public static void CreateHiLoTable(this ITransformationProvider database)
 		{
 			database.AddTable(HI_LO_TABLE_NAME,
-				new Column("table_name", DbType.AnsiString.WithSize(200), ColumnProperty.NotNull | ColumnProperty.PrimaryKey),
-				new Column("value", DbType.Int64, ColumnProperty.NotNull, 1)
+				new Column(KEY_FIELD_NAME, DbType.AnsiString.WithSize(200), ColumnProperty.NotNull | ColumnProperty.PrimaryKey),
+				new Column(VALUE_FIELD_NAME, DbType.Int64, ColumnProperty.NotNull, 1)
 			);
 		}
 
@@ -50,7 +52,7 @@ namespace ECM7.Migrator.Framework.Tools
 		{
 			Require.IsNotNullOrEmpty(table, "Не задано название таблицы для генерациии ID алгоритмом HiLo");
 			Require.That(database.TableExists(HI_LO_TABLE_NAME), "Отсутствует служебная таблица HiLo");
-			database.Insert(HI_LO_TABLE_NAME, new[] { "table_name" }, new[] { table });
+			database.Insert(HI_LO_TABLE_NAME, new[] { KEY_FIELD_NAME, VALUE_FIELD_NAME }, new[] { table, initialHiValue.ToString() });
 		}
 	}
 }
