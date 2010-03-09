@@ -46,6 +46,11 @@ namespace ECM7.Migrator.Providers.Oracle
 			ExecuteNonQuery(commandText);
 		}
 
+		public override bool IndexExists(string indexName, string tableName)
+		{
+			throw new NotImplementedException();
+		}
+
 		// todo: написать тесты на добавление внешнего ключа с каскадным обновлением
 		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint)
 		{

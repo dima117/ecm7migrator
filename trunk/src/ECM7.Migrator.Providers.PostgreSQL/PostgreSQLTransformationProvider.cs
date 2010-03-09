@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Data;
 using ECM7.Migrator.Framework;
 using Npgsql;
+using System.Text;
 
 namespace ECM7.Migrator.Providers.PostgreSQL
 {
@@ -31,12 +32,45 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			connection.ConnectionString = connectionString;
 			connection.Open();
 		}
-        
+
 		public override void RemoveTable(string name)
 		{
 			ExecuteNonQuery(String.Format("DROP TABLE IF EXISTS {0} CASCADE", name));
 		}
-        
+
+		public override bool IndexExists(string indexName, string tableName)
+		{
+			StringBuilder builder = new StringBuilder();
+
+			builder.Append("SELECT count(*) FROM pg_class c ");
+			builder.Append("JOIN pg_index i ON i.indexrelid = c.oid ");
+			builder.Append("JOIN pg_class c2 ON i.indrelid = c2.oid ");
+			builder.Append("LEFT JOIN pg_user u ON u.usesysid = c.relowner ");
+			builder.Append("LEFT JOIN pg_namespace n ON n.oid = c.relnamespace ");
+			builder.Append("WHERE c.relkind = 'i' ");
+			builder.Append("AND n.nspname NOT IN ('pg_catalog', 'pg_toast') ");
+			builder.Append("AND pg_table_is_visible(c.oid) ");
+			builder.AppendFormat("and lower(c.relname) = '{0}' ", indexName.ToLower());
+			builder.AppendFormat("and lower(c2.relname) = '{0}' ", tableName.ToLower());
+
+			int count = Convert.ToInt32(ExecuteScalar(builder.ToString()));
+			return count > 0;
+		}
+
+		public override void RemoveIndex(string indexName, string tableName)
+		{
+			if (!IndexExists(indexName, tableName))
+			{
+				Logger.Warn("Index {0} is not exists", indexName);
+				return;
+			}
+
+			string sql = string.Format("DROP INDEX {0}",
+					Dialect.QuoteIfNeeded(indexName));
+
+			ExecuteNonQuery(sql);
+		}
+
 		public override bool ConstraintExists(string table, string name)
 		{
 			using (IDataReader reader =
@@ -45,7 +79,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 				return reader.Read();
 			}
 		}
-        
+
 		public override bool ColumnExists(string table, string column)
 		{
 			if (!TableExists(table))
@@ -62,15 +96,15 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		{
 
 			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = lower('{0}')",table)))
+				ExecuteQuery(String.Format("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = lower('{0}')", table)))
 			{
 				return reader.Read();
 			}
 		}
-        
+
 		public override void ChangeColumn(string table, Column column)
 		{
-			if (! ColumnExists(table, column.Name))
+			if (!ColumnExists(table, column.Name))
 			{
 				Logger.Warn("Column {0}.{1} does not exist", table, column.Name);
 				return;
@@ -82,7 +116,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			ExecuteQuery(String.Format("UPDATE {0} SET {1}={2}", table, column.Name, tempColumn));
 			RemoveColumn(table, tempColumn);
 		}
-        
+
 		public override string[] GetTables()
 		{
 			List<string> tables = new List<string>();
@@ -90,7 +124,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			{
 				while (reader.Read())
 				{
-					tables.Add((string) reader[0]);
+					tables.Add((string)reader[0]);
 				}
 			}
 			return tables.ToArray();
@@ -122,10 +156,10 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		{
 			// Duplicate because of the lower case issue
 			return Array.Find(GetColumns(table),
-			                  delegate(Column column)
-			                  	{
-			                  		return column.Name == columnName.ToLower();
-			                  	});
+							  delegate(Column column)
+							  {
+								  return column.Name == columnName.ToLower();
+							  });
 		}
 	}
 }

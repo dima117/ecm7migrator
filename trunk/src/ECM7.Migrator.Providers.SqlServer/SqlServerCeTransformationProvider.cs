@@ -73,6 +73,32 @@ namespace ECM7.Migrator.Providers.SqlServer
 			throw new MigrationException("SqlServerCe doesn't support check constraints");
 		}
 
+		public override bool IndexExists(string indexName, string tableName)
+		{
+			string sql = string.Format(
+				"select count(*) from INFORMATION_SCHEMA.INDEXES where lower(TABLE_NAME) = '{0}' and lower(INDEX_NAME) = '{1}'",
+				Dialect.QuoteIfNeeded(tableName), Dialect.QuoteIfNeeded(indexName));
+
+			int count = Convert.ToInt32(ExecuteScalar(sql));
+			return count > 0;
+		}
+
+		public override void RemoveIndex(string indexName, string tableName)
+		{
+			if (!IndexExists(indexName, tableName))
+			{
+				Logger.Warn("Index {0} is not exists", indexName);
+				return;
+			}
+
+			string sql = string.Format("DROP INDEX {0}.{1}",
+					Dialect.QuoteIfNeeded(tableName),
+					Dialect.QuoteIfNeeded(indexName));
+
+			ExecuteNonQuery(sql);
+
+		}
+
 		protected override string FindConstraints(string table, string column)
 		{
 			return

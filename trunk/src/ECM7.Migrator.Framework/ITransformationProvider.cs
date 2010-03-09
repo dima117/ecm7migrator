@@ -133,6 +133,30 @@ namespace ECM7.Migrator.Framework
 		void AddForeignKey(string name, string foreignTable, string foreignColumn, string primaryTable, string primaryColumn, ForeignKeyConstraint constraint);
 
 		/// <summary>
+		/// Define a new index
+		/// </summary>
+		/// <param name="name">Name of new index</param>
+		/// <param name="unique">Sign that the index is unique</param>
+		/// <param name="table">Table name</param>
+		/// <param name="columns">Columns</param>
+		void AddIndex(string name, bool unique, string table, params string[] columns);
+
+		/// <summary>
+		/// Check that the index with the specified name already exists
+		/// </summary>
+		/// <param name="indexName"></param>
+		/// <returns></returns>
+		bool IndexExists(string indexName, string tableName);
+
+		/// <summary>
+		/// Deleting index
+		/// </summary>
+		/// <param name="indexName">Index name</param>
+		/// <param name="tableName">Table name</param>
+		void RemoveIndex(string indexName, string tableName);
+
+
+		/// <summary>
 		/// Add a foreign key constraint when you don't care about the name of the constraint.
 		/// Warning: This will prevent you from dropping the constraint since you won't know the name.
 		/// </summary>

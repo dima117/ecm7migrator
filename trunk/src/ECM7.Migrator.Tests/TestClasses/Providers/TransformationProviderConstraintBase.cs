@@ -2,7 +2,7 @@ using System.Data;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Tests.Providers;
 using NUnit.Framework;
-using ForeignKeyConstraint=ECM7.Migrator.Framework.ForeignKeyConstraint;
+using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Tests.TestClasses.Providers
 {
@@ -28,7 +28,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		{
 			AddTableWithPrimaryKey();
 			provider.AddForeignKey("FK_Test_TestTwo", "TestTwo", new[] { "TestId" }, "Test", new[] { "Id" },
-			                       ForeignKeyConstraint.Cascade, ForeignKeyConstraint.NoAction);
+								   ForeignKeyConstraint.Cascade, ForeignKeyConstraint.NoAction);
 		}
 
 		public void AddPrimaryKey()
@@ -59,6 +59,45 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"));
 		}
 
+		#region index
+
+		[Test]
+		public void CanAddIndex()
+		{
+			AddTable();
+			provider.AddIndex("ix_moo", false, "Test", new[] { "Id" });
+			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
+
+			provider.RemoveIndex("ix_moo", "Test");
+			Assert.IsFalse(provider.IndexExists("ix_moo", "Test"));
+		}
+
+		[Test]
+		public void CanAddUniqueIndex()
+		{
+			AddTable();
+			provider.AddIndex("ix_moo", true, "Test", new[] { "Id" });
+			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
+
+			provider.RemoveIndex("ix_moo", "Test");
+			Assert.IsFalse(provider.IndexExists("ix_moo", "Test"));
+
+		}
+
+		[Test]
+		public void CanAddComplexIndex()
+		{
+			AddTable();
+			provider.AddIndex("ix_moo", false, "Test", new[] { "Id", "Title" });
+			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
+
+			provider.RemoveIndex("ix_moo", "Test");
+			Assert.IsFalse(provider.IndexExists("ix_moo", "Test"));
+
+		}
+
+		#endregion
+
 		[Test]
 		public void AddIndexedColumn()
 		{
@@ -76,14 +115,14 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		{
 			AddForeignKey();
 			Assert.IsTrue(provider.ConstraintExists("TestTwo", "FK_Test_TestTwo"));
-		}		
-		
+		}
+
 		[Test]
 		public void CanAddForeignKeyWithCommonAction()
 		{
 			AddForeignKeyWithCommonAction();
 			Assert.IsTrue(provider.ConstraintExists("TestTwo", "FK_Test_TestTwo"));
-		}		
+		}
 
 		[Test]
 		public virtual void CanAddForeignKeyWithDifferentActions()
@@ -159,8 +198,8 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		public void AddTableWithCompoundPrimaryKey()
 		{
 			provider.AddTable("Test",
-			                  new Column("PersonId", DbType.Int32, ColumnProperty.PrimaryKey),
-			                  new Column("AddressId", DbType.Int32, ColumnProperty.PrimaryKey)
+							  new Column("PersonId", DbType.Int32, ColumnProperty.PrimaryKey),
+							  new Column("AddressId", DbType.Int32, ColumnProperty.PrimaryKey)
 				);
 			Assert.IsTrue(provider.TableExists("Test"), "Table doesn't exist");
 			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"), "Constraint doesn't exist");
@@ -184,9 +223,9 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		public void AddTableWithCompoundPrimaryKeyShouldKeepNullForOtherProperties()
 		{
 			provider.AddTable("Test",
-			                  new Column("PersonId", DbType.Int32, ColumnProperty.PrimaryKey),
-			                  new Column("AddressId", DbType.Int32, ColumnProperty.PrimaryKey),
-			                  new Column("Name", DbType.String, 30, ColumnProperty.Null)
+							  new Column("PersonId", DbType.Int32, ColumnProperty.PrimaryKey),
+							  new Column("AddressId", DbType.Int32, ColumnProperty.PrimaryKey),
+							  new Column("Name", DbType.String, 30, ColumnProperty.Null)
 				);
 			Assert.IsTrue(provider.TableExists("Test"), "Table doesn't exist");
 			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"), "Constraint doesn't exist");

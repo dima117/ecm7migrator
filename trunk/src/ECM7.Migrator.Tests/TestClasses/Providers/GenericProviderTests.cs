@@ -60,6 +60,11 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		{
 		}
 
+		public override bool IndexExists(string indexName, string tableName)
+		{
+			return false;
+		}
+
 		public override bool ConstraintExists(string table, string name)
 		{
 			return false;
