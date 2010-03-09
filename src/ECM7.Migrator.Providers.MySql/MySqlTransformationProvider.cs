@@ -36,7 +36,12 @@ namespace ECM7.Migrator.Providers.MySql
             }
         }
 
-        public override bool ConstraintExists(string table, string name)
+    	public override bool IndexExists(string indexName, string tableName)
+    	{
+    		throw new NotImplementedException();
+    	}
+
+    	public override bool ConstraintExists(string table, string name)
         {
             if (!TableExists(table)) 
             return false;

@@ -141,6 +141,11 @@ namespace ECM7.Migrator.Providers
 			// No Op
 		}
 
+		public void RemoveIndex(string indexName, string tableName)
+		{
+			// No Op
+		}
+
 		public void GenerateForeignKey(string primaryTable, string primaryColumn, string refTable, string refColumn)
 		{
 			// No Op
@@ -176,6 +181,16 @@ namespace ECM7.Migrator.Providers
 		public void AddForeignKey(string name, string primaryTable, string primaryColumn, string refTable, string refColumn, ForeignKeyConstraint constraint)
 		{
 			// No Op
+		}
+
+		public void AddIndex(string name, bool unique, string table, params string[] columns)
+		{
+			// No Op
+		}
+
+		public bool IndexExists(string indexName, string tableName)
+		{
+			return false;
 		}
 
 		public void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,

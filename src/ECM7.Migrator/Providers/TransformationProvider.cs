@@ -433,7 +433,47 @@ namespace ECM7.Migrator.Providers
 				Logger.Warn("Constraint {0} already exists", name);
 				return;
 			}
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} CHECK ({2}) ", table, name, checkSql));
+			string sql = "ALTER TABLE {0} ADD CONSTRAINT {1} CHECK ({2}) ".FormatWith(table, name, checkSql);
+			ExecuteNonQuery(sql);
+		}
+
+		public void AddIndex(string name, bool unique, string table, params string[] columns)
+		{
+			Require.That(columns.Length > 0, "Not specified columns of the table to create an index");
+
+			if (IndexExists(name, table))
+			{
+				Logger.Warn("Index {0} already exists", name);
+				return;
+			}
+
+			string uniqueString = unique ? "UNIQUE" : string.Empty;
+			string sql = "CREATE {0} INDEX {1} ON {2} ({3})"
+				.FormatWith(
+					uniqueString, 
+					Dialect.QuoteIfNeeded(name), 
+					Dialect.QuoteIfNeeded(table),
+					columns.Select(column => Dialect.QuoteIfNeeded(column)).ToCommaSeparatedString());
+
+			ExecuteNonQuery(sql);
+		}
+
+		public abstract bool IndexExists(string indexName, string tableName);
+		
+		public virtual void RemoveIndex(string indexName, string tableName)
+		{
+			if (!IndexExists(indexName, tableName))
+			{
+				Logger.Warn("Index {0} is not exists", indexName);
+				return;
+			}
+
+			string sql = "DROP INDEX {0} ON {1}"
+				.FormatWith(
+					Dialect.QuoteIfNeeded(indexName),
+					Dialect.QuoteIfNeeded(tableName));
+
+			ExecuteNonQuery(sql);
 		}
 
 		/// <summary>

@@ -39,6 +39,13 @@ namespace ECM7.Migrator.Providers.SqlServer
 
         // FIXME: We should look into implementing this with INFORMATION_SCHEMA if possible
         // so that it would be usable by all the SQL Server implementations
+		public override bool IndexExists(string indexName, string tableName)
+    	{
+    		string sql = string.Format("SELECT COUNT(*) FROM sysindexes WHERE lower(name) = '{0}'", indexName.ToLower());
+    		int count = Convert.ToInt32(ExecuteScalar(sql));
+    		return count > 0;
+		}
+
     	public override bool ConstraintExists(string table, string name)
         {
             using (IDataReader reader =

@@ -23,6 +23,11 @@ namespace ECM7.Migrator.Providers.SQLite
 			connection.Open();
 		}
 
+		public override bool IndexExists(string indexName, string tableName)
+		{
+			throw new NotImplementedException();
+		}
+
 		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, ECM7.Migrator.Framework.ForeignKeyConstraint onDeleteConstraint, ECM7.Migrator.Framework.ForeignKeyConstraint onUpdateConstraint)
 		{
 			// todo: написать тесты на отсутствие поддержки внешних ключей в SQLite
