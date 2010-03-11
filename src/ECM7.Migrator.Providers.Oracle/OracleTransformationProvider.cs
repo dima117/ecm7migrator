@@ -1,17 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.OracleClient;
 using ECM7.Migrator.Framework;
-using Oracle.DataAccess.Client;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
+using OracleConnection=Oracle.DataAccess.Client.OracleConnection;
 
 namespace ECM7.Migrator.Providers.Oracle
 {
 	public class OracleTransformationProvider : TransformationProvider
 	{
+		/// <summary>
+		/// “екуща€ схема oracle
+		/// todo: добавтиь проверку схемы в методы определени€ существовани€ объектов
+		/// </summary>
+		public string Scheme { get; protected set; }
+
 		public OracleTransformationProvider(Dialect dialect, string connectionString)
 			: base(dialect, connectionString)
 		{
+
+			var csBuilder = new OracleConnectionStringBuilder(connectionString);
+			Scheme = csBuilder.UserID;
+			
 			connection = new OracleConnection();
 			connection.ConnectionString = base.connectionString;
 			connection.Open();
@@ -48,7 +59,32 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override bool IndexExists(string indexName, string tableName)
 		{
-			throw new NotImplementedException();
+			string sql =
+				("select count(*) from user_indexes where " + 
+				"lower(table_owner) = '{0}' " + 
+				"and lower(INDEX_NAME) = '{1}' " + 
+				"and lower(TABLE_NAME) = '{2}'")
+				.FormatWith(Scheme.ToLower(), indexName.ToLower(), tableName.ToLower());
+
+			// todo: исправить создание индекса при создании колонок таблицы со свойством ColumnProperty.Indexed
+
+			// todo: сделать методы, запускающие выполнение запроса, с параметрами
+			int count = Convert.ToInt32(ExecuteScalar(sql));
+			return count > 0;
+		}
+
+		public override void RemoveIndex(string indexName, string tableName)
+		{
+			if (!IndexExists(indexName, tableName))
+			{
+				Logger.Warn("Index {0} is not exists", indexName);
+				return;
+			}
+
+			string sql = "DROP INDEX {0}"
+				.FormatWith(Dialect.QuoteIfNeeded(indexName));
+
+			ExecuteNonQuery(sql);
 		}
 
 		// todo: написать тесты на добавление внешнего ключа с каскадным обновлением
