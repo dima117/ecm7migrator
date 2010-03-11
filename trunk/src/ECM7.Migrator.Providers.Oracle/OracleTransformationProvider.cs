@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.OracleClient;
 using ECM7.Migrator.Framework;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 using OracleConnection=Oracle.DataAccess.Client.OracleConnection;
@@ -10,19 +9,9 @@ namespace ECM7.Migrator.Providers.Oracle
 {
 	public class OracleTransformationProvider : TransformationProvider
 	{
-		/// <summary>
-		/// Текущая схема oracle
-		/// todo: добавтиь проверку схемы в методы определения существования объектов
-		/// </summary>
-		public string Scheme { get; protected set; }
-
 		public OracleTransformationProvider(Dialect dialect, string connectionString)
 			: base(dialect, connectionString)
 		{
-
-			var csBuilder = new OracleConnectionStringBuilder(connectionString);
-			Scheme = csBuilder.UserID;
-			
 			connection = new OracleConnection();
 			connection.ConnectionString = base.connectionString;
 			connection.Open();
@@ -60,11 +49,10 @@ namespace ECM7.Migrator.Providers.Oracle
 		public override bool IndexExists(string indexName, string tableName)
 		{
 			string sql =
-				("select count(*) from user_indexes where " + 
-				"lower(table_owner) = '{0}' " + 
-				"and lower(INDEX_NAME) = '{1}' " + 
-				"and lower(TABLE_NAME) = '{2}'")
-				.FormatWith(Scheme.ToLower(), indexName.ToLower(), tableName.ToLower());
+				("select count(*) from user_indexes " + 
+				"where lower(INDEX_NAME) = '{0}' " + 
+				"and lower(TABLE_NAME) = '{1}'")
+				.FormatWith(indexName.ToLower(), tableName.ToLower());
 
 			// todo: исправить создание индекса при создании колонок таблицы со свойством ColumnProperty.Indexed
 
