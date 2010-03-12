@@ -38,7 +38,23 @@ namespace ECM7.Migrator.Providers.MySql
 
     	public override bool IndexExists(string indexName, string tableName)
     	{
-    		throw new NotImplementedException();
+			if (!TableExists(tableName))
+				return false;
+
+			string sql = string.Format("SHOW INDEXES FROM {0}", Dialect.QuoteIfNeeded(tableName));
+
+			using (IDataReader reader = ExecuteQuery(sql))
+			{
+				while (reader.Read())
+				{
+					if (reader["Key_name"].ToString().ToLower() == indexName.ToLower())
+					{
+						return true;
+					}
+				}
+			}
+
+			return false;
     	}
 
     	public override bool ConstraintExists(string table, string name)
