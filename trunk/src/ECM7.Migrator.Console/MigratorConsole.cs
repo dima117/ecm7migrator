@@ -48,7 +48,7 @@ namespace ECM7.Migrator.MigratorConsole
 		/// <returns>-1 if error, else 0</returns>
 		public int Run()
 		{
-			if (ParseArguments(args))
+			if (!ParseArguments(args))
 				return -1;
 
 			try
