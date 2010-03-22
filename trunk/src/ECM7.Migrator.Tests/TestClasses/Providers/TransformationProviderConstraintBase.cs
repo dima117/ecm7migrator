@@ -99,12 +99,6 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		#endregion
 
 		[Test]
-		public void AddIndexedColumn()
-		{
-			provider.AddColumn("TestTwo", "Test", DbType.String, 50, ColumnProperty.Indexed);
-		}
-
-		[Test]
 		public void AddUniqueColumn()
 		{
 			provider.AddColumn("TestTwo", "Test", DbType.String, 50, ColumnProperty.Unique);

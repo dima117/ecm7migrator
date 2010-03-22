@@ -174,19 +174,19 @@ namespace ECM7.Migrator.Providers
 			List<string> pks = GetPrimaryKeys(columns);
 			bool compoundPrimaryKey = pks.Count > 1;
 
-			List<ColumnSqlMap> columnProviders = new List<ColumnSqlMap>(columns.Length);
+			List<string> listColumnsSql = new List<string>(columns.Length);
 			foreach (Column column in columns)
 			{
 				// Remove the primary key notation if compound primary key because we'll add it back later
 				if (compoundPrimaryKey && column.IsPrimaryKey)
 					column.ColumnProperty |= ColumnProperty.NotNull;
 
-				ColumnSqlMap map = dialect.MapColumnProperties(column, compoundPrimaryKey);
-				columnProviders.Add(map);
+				string columnSql = dialect.GetColumnSql(column, compoundPrimaryKey);
+				listColumnsSql.Add(columnSql);
 			}
 
-			string columnsAndIndexes = JoinColumnsAndIndexes(columnProviders);
-			AddTable(name, engine, columnsAndIndexes);
+			string strColumnsSql = listColumnsSql.ToCommaSeparatedString();
+			AddTable(name, engine, strColumnsSql);
 
 			if (compoundPrimaryKey)
 			{
@@ -260,8 +260,8 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			ColumnSqlMap map = dialect.MapColumnProperties(column, false);
-			ChangeColumn(table, map.ColumnSql);
+			string columnSql = dialect.GetColumnSql(column, false);
+			ChangeColumn(table, columnSql);
 		}
 
 		public virtual void ChangeColumn(string table, string sqlColumn)
@@ -280,36 +280,6 @@ namespace ECM7.Migrator.Providers
 			{
 				return false;
 			}
-		}
-
-		protected virtual string JoinColumnsAndIndexes(IEnumerable<ColumnSqlMap> columns)
-		{
-			string indexes = JoinIndexes(columns);
-			string columnsAndIndexes = JoinColumns(columns) + (indexes != null ? "," + indexes : String.Empty);
-			return columnsAndIndexes;
-		}
-
-		protected virtual string JoinIndexes(IEnumerable<ColumnSqlMap> columns)
-		{
-			List<string> indexes = new List<string>();
-			foreach (ColumnSqlMap column in columns)
-			{
-				string indexSql = column.IndexSql;
-				if (indexSql != null)
-					indexes.Add(indexSql);
-			}
-
-			if (indexes.Count == 0)
-				return null;
-
-			return String.Join(", ", indexes.ToArray());
-		}
-
-		protected virtual string JoinColumns(IEnumerable<ColumnSqlMap> columns)
-		{
-			return columns
-				.Select(col => col.ColumnSql)
-				.ToCommaSeparatedString();
 		}
 
 		/// <summary>
@@ -336,9 +306,9 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			ColumnSqlMap map = dialect.MapColumnProperties(column, false);
+			string columnSql = dialect.GetColumnSql(column, false);
 
-			AddColumn(table, map.ColumnSql);
+			AddColumn(table, columnSql);
 		}
 
 		public void AddColumn(string table, string columnName, ColumnType type, ColumnProperty property, object defaultValue)
