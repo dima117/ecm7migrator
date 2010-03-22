@@ -58,7 +58,6 @@
     <Compile Include="MigrationLoader.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="ProviderFactory.cs" />
-    <Compile Include="Providers\ColumnSqlMap.cs" />
     <Compile Include="Providers\Dialect.cs" />
     <Compile Include="Providers\ForeignKeyConstraintMapper.cs" />
     <Compile Include="Providers\NoOpTransformationProvider.cs" />

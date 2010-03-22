@@ -190,18 +190,15 @@ namespace ECM7.Migrator.Providers
 			return String.Format("DEFAULT {0}", defaultValue);
 		}
 
-		public virtual ColumnSqlMap MapColumnProperties(Column column, bool compoundPrimaryKey)
+		public virtual string GetColumnSql(Column column, bool compoundPrimaryKey)
 		{
 			Require.IsNotNull(column, "Не задан обрабатываемый столбец");
-
-			string indexSql = GetIndexSql(column);
-
 
 			List<string> vals = new List<string>();
 			BuildColumnSql(vals, column, compoundPrimaryKey);
 			string columnSql = String.Join(" ", vals.ToArray());
 
-			return new ColumnSqlMap(columnSql, indexSql);
+			return columnSql;
 		}
 
 
@@ -222,15 +219,6 @@ namespace ECM7.Migrator.Providers
 			AddForeignKeySql(vals, column);
 			AddDefaultValueSql(vals, column);
 		}
-
-		protected virtual string GetIndexSql(Column column)
-		{
-			bool indexed = column.ColumnProperty.HasProperty(ColumnProperty.Indexed);
-			if (SupportsIndex && indexed)
-				return String.Format("INDEX({0})", Quote(column.Name));
-			return null;
-		}
-
 
 		#region добавление элементов команды SQL для колонки
 

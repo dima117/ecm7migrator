@@ -27,21 +27,17 @@ namespace ECM7.Migrator.Framework
 		/// </summary>
 		Unique = 8,
 		/// <summary>
-		/// Indexed Column
-		/// </summary>
-		Indexed = 16,
-		/// <summary>
 		/// Unsigned Column
 		/// </summary>
-		Unsigned = 32,
+		Unsigned = 16,
 		/// <summary>
 		/// Foreign Key
 		/// </summary>
-		ForeignKey = 64 | Null,
+		ForeignKey = 32,
 		/// <summary>
 		/// Primary Key
 		/// </summary>
-		PrimaryKey = 128 | NotNull,
+		PrimaryKey = 64 | NotNull,
 		/// <summary>
 		/// Primary key. Make the column a PrimaryKey and unsigned
 		/// </summary>
