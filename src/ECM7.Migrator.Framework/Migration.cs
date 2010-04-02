@@ -67,9 +67,7 @@ namespace ECM7.Migrator.Framework
     /// </example>
     public abstract class Migration : IMigration
     {
-        private ITransformationProvider _transformationProvider;
-
-        public string Name
+    	public string Name
         {
             get { return StringUtils.ToHumanName(GetType().Name); }
         }
@@ -98,18 +96,14 @@ namespace ECM7.Migrator.Framework
         {
         }
 
-        /// <summary>
-        /// Represents the database.
-        /// <see cref="ITransformationProvider"></see>.
-        /// </summary>
-        /// <seealso cref="ITransformationProvider">Migration.Framework.ITransformationProvider</seealso>
-        public ITransformationProvider Database
-        {
-            get { return _transformationProvider; }
-            set { _transformationProvider = value; }
-        }
+    	/// <summary>
+    	/// Represents the database.
+    	/// <see cref="ITransformationProvider"></see>.
+    	/// </summary>
+    	/// <seealso cref="ITransformationProvider">Migration.Framework.ITransformationProvider</seealso>
+    	public ITransformationProvider Database { get; set; }
 
-        /// <summary>
+    	/// <summary>
         /// This gets called once on the first migration object.
         /// </summary>
         public virtual void InitializeOnce(string[] args)

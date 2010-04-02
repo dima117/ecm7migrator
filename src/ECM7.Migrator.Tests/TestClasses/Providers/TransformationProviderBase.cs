@@ -63,6 +63,15 @@ namespace ECM7.Migrator.Tests.Providers
 		}
 
 		[Test]
+		public void CanExecuteScriptFromResources()
+		{
+			provider.ExecuteFromResource(GetType().Assembly, "ECM7.Migrator.Tests.Data.test.res.migration.sql");
+			object res = provider.SelectScalar("TestId", "TestTwo", "Id = 5555");
+
+			Assert.AreEqual(9999, Convert.ToInt32(res));
+		}
+
+		[Test]
 		public void TableExistsWorks()
 		{
 			Assert.IsFalse(provider.TableExists("gadadadadseeqwe"));

@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace ECM7.Migrator.Framework
 {
@@ -530,5 +531,7 @@ namespace ECM7.Migrator.Framework
 
 		void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
 		                                   string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint);
+
+		void ExecuteFromResource(Assembly assembly, string path);
 	}
 }
