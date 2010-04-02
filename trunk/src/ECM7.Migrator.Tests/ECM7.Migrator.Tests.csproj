@@ -146,6 +146,7 @@
     <None Include="..\config\app.config">
       <Link>app.config</Link>
     </None>
+    <EmbeddedResource Include="Data\test.res.migration.sql" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

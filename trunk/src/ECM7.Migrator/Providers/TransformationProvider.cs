@@ -19,6 +19,8 @@ using ECM7.Migrator.Framework;
 using ECM7.Migrator.Framework.Loggers;
 using ECM7.Migrator.Framework.SchemaBuilder;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
+using System.Reflection;
+using System.IO;
 
 namespace ECM7.Migrator.Providers
 {
@@ -282,6 +284,8 @@ namespace ECM7.Migrator.Providers
 			}
 		}
 
+		#region AddColumn
+
 		/// <summary>
 		/// Add a new column to an existing table.
 		/// </summary>
@@ -365,6 +369,8 @@ namespace ECM7.Migrator.Providers
 
 		// todo: проверить, чтобы все имена колонок и таблиц заключались в кавычки, если необходимо
 
+		#endregion
+
 		/// <summary>
 		/// Append a primary key to a table.
 		/// </summary>
@@ -378,7 +384,7 @@ namespace ECM7.Migrator.Providers
 				Logger.Warn("Primary key {0} already exists", name);
 				return;
 			}
-			string sql = String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} PRIMARY KEY ({2}) ", 
+			string sql = String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} PRIMARY KEY ({2}) ",
 							table, name,
 							columns.Select(col => Dialect.QuoteIfNeeded(col)).ToCommaSeparatedString());
 			ExecuteNonQuery(sql);
@@ -391,7 +397,7 @@ namespace ECM7.Migrator.Providers
 				Logger.Warn("Constraint {0} already exists", name);
 				return;
 			}
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2}) ", 
+			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2}) ",
 				table, name,
 				columns.Select(col => Dialect.QuoteIfNeeded(col)).ToCommaSeparatedString()));
 		}
@@ -407,6 +413,8 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sql);
 		}
 
+		#region indexes
+
 		public void AddIndex(string name, bool unique, string table, params string[] columns)
 		{
 			Require.That(columns.Length > 0, "Not specified columns of the table to create an index");
@@ -420,8 +428,8 @@ namespace ECM7.Migrator.Providers
 			string uniqueString = unique ? "UNIQUE" : string.Empty;
 			string sql = "CREATE {0} INDEX {1} ON {2} ({3})"
 				.FormatWith(
-					uniqueString, 
-					Dialect.QuoteIfNeeded(name), 
+					uniqueString,
+					Dialect.QuoteIfNeeded(name),
 					Dialect.QuoteIfNeeded(table),
 					columns.Select(column => Dialect.QuoteIfNeeded(column)).ToCommaSeparatedString());
 
@@ -429,7 +437,7 @@ namespace ECM7.Migrator.Providers
 		}
 
 		public abstract bool IndexExists(string indexName, string tableName);
-		
+
 		public virtual void RemoveIndex(string indexName, string tableName)
 		{
 			if (!IndexExists(indexName, tableName))
@@ -445,6 +453,10 @@ namespace ECM7.Migrator.Providers
 
 			ExecuteNonQuery(sql);
 		}
+
+		#endregion
+
+		#region ForeignKeys
 
 		/// <summary>
 		/// Guesses the name of the foreign key and add it
@@ -539,6 +551,8 @@ namespace ECM7.Migrator.Providers
 					primaryTable, name, String.Join(",", primaryColumns),
 					refTable, String.Join(",", refColumns), onUpdateConstraintResolved, onDeleteConstraintResolved));
 		}
+
+		#endregion
 
 		/// <summary>
 		/// Determines if a constraint exists.
@@ -901,6 +915,18 @@ namespace ECM7.Migrator.Providers
 				"{0}={1}".FormatWith(str, quotedValues[i])).ToArray();
 
 			return string.Join(processedSeparator, namesAndValues);
+		}
+
+		public void ExecuteFromResource(Assembly assembly, string path)
+		{
+			Require.IsNotNull(assembly, "Incorrect assembly");
+			
+			Stream stream = assembly.GetManifestResourceStream(path);
+			Require.IsNotNull(stream, "Не удалось загрузить указанный файл ресурсов");
+
+			StreamReader reader = new StreamReader(stream);
+			string sql = reader.ReadToEnd();
+			ExecuteNonQuery(sql);
 		}
 	}
 }
