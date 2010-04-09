@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Framework.Loggers;
+using ECM7.Migrator.Loader;
 
 namespace ECM7.Migrator
 {
@@ -34,6 +35,8 @@ namespace ECM7.Migrator
 		public string[] Args { get; set; }
 
 		//todo: проверить работу с мигрэйшнами из нескольких сборок
+		
+		#region constructors
 
 		public Migrator(string dialectTypeName, string connectionString, params Assembly[] assemblies)
 			: this(dialectTypeName, connectionString, false, assemblies)
@@ -62,13 +65,15 @@ namespace ECM7.Migrator
 
 			migrationLoader = new MigrationLoader(provider, trace, assemblies);
 			migrationLoader.CheckForDuplicatedVersion();
-		}
+		} 
+
+		#endregion
 
 
 		/// <summary>
 		/// Returns registered migration <see cref="System.Type">types</see>.
 		/// </summary>
-		public List<Type> MigrationsTypes
+		public List<MigrationInfo> MigrationsTypes
 		{
 			get { return migrationLoader.MigrationsTypes; }
 		}

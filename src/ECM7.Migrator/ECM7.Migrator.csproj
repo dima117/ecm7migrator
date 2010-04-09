@@ -51,11 +51,12 @@
     </Compile>
     <Compile Include="BaseMigrate.cs" />
     <Compile Include="Compile\ScriptEngine.cs" />
-    <Compile Include="DuplicatedVersionException.cs" />
+    <Compile Include="Loader\DuplicatedVersionException.cs" />
     <Compile Include="IrreversibleMigrationException.cs" />
+    <Compile Include="Loader\MigrationInfo.cs" />
     <Compile Include="MigrateAnywhere.cs" />
-    <Compile Include="MigrationComparer.cs" />
-    <Compile Include="MigrationLoader.cs" />
+    <Compile Include="Loader\MigrationComparer.cs" />
+    <Compile Include="Loader\MigrationLoader.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="ProviderFactory.cs" />
     <Compile Include="Providers\Dialect.cs" />

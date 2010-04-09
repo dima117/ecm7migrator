@@ -9,18 +9,27 @@
 //under the License.
 #endregion
 
-using System;
+using System.Collections.Generic;
 
-namespace ECM7.Migrator
+namespace ECM7.Migrator.Loader
 {
 	/// <summary>
-	/// Exception thrown when a migration number is not unique.
+	/// Comparer of Migration by their version attribute.
 	/// </summary>
-	public class DuplicatedVersionException : Exception
+	public class MigrationInfoComparer : IComparer<MigrationInfo>
 	{
-		public DuplicatedVersionException(long version)
-			: base(String.Format("Migration version #{0} is duplicated", version))
+		private readonly bool ascending = true;
+		
+		public MigrationInfoComparer(bool ascending)
 		{
+			this.ascending = ascending;
+		}
+
+		public int Compare(MigrationInfo x, MigrationInfo y)
+		{
+			return ascending 
+				? x.Version.CompareTo(y.Version) 
+				: y.Version.CompareTo(x.Version);
 		}
 	}
 }
