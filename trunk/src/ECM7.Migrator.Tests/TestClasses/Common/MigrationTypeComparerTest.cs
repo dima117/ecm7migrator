@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ECM7.Migrator.Framework;
+using ECM7.Migrator.Loader;
 using NUnit.Framework;
 
 namespace ECM7.Migrator.Tests.TestClasses.Common
@@ -17,32 +18,34 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		[Test]
 		public void SortAscending()
 		{
-			List<Type> list = new List<Type>();
-			
-			list.Add(types[1]);
-			list.Add(types[0]);
-			list.Add(types[2]);
-			
-			list.Sort(new MigrationTypeComparer(true));
+			List<MigrationInfo> list = new List<MigrationInfo>
+			                           	{
+			                           		new MigrationInfo(types[1]),
+			                           		new MigrationInfo(types[0]),
+			                           		new MigrationInfo(types[2])
+			                           	};
+
+			list.Sort(new MigrationInfoComparer(true));
 			
 			for (int i = 0; i < 3; i++) {
-				Assert.AreSame(types[i], list[i]);
+				Assert.AreSame(types[i], list[i].Type);
 			}			
 		}
 		
 		[Test]
 		public void SortDescending()
 		{
-			List<Type> list = new List<Type>();
-			
-			list.Add(types[1]);
-			list.Add(types[0]);
-			list.Add(types[2]);
-			
-			list.Sort(new MigrationTypeComparer(false));
+			List<MigrationInfo> list = new List<MigrationInfo>
+			                           	{
+			                           		new MigrationInfo(types[1]),
+			                           		new MigrationInfo(types[0]),
+			                           		new MigrationInfo(types[2])
+			                           	};
+
+			list.Sort(new MigrationInfoComparer(false));
 			
 			for (int i = 0; i < 3; i++) {
-				Assert.AreSame(types[2-i], list[i]);
+				Assert.AreSame(types[2-i], list[i].Type);
 			}			
 		}
 				

@@ -1,6 +1,7 @@
 using System.IO;
 using System.Reflection;
 using ECM7.Migrator.Compile;
+using ECM7.Migrator.Loader;
 using NUnit.Framework;
 
 namespace ECM7.Migrator.Tests.TestClasses.Common
@@ -22,7 +23,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			MigrationLoader loader = new MigrationLoader(null, false, asm);
 			Assert.AreEqual(2, loader.LastVersion);
 
-			Assert.AreEqual(2, MigrationLoader.GetMigrationTypes(asm).Count);
+			Assert.AreEqual(2, MigrationLoader.GetMigrationInfoList(asm).Count);
 		}
 	}
 }

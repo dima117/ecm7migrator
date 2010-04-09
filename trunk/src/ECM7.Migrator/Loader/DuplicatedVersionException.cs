@@ -11,18 +11,16 @@
 
 using System;
 
-namespace ECM7.Migrator.MigratorConsole
+namespace ECM7.Migrator.Loader
 {
 	/// <summary>
-	/// Console application boostrap class.
+	/// Exception thrown when a migration number is not unique.
 	/// </summary>
-	public class Boot
+	public class DuplicatedVersionException : Exception
 	{
-		[STAThread]
-		public static int Main(string[] argv)
+		public DuplicatedVersionException(long version)
+			: base(String.Format("Migration version #{0} is duplicated", version))
 		{
-			Console.MigratorConsole con = new Console.MigratorConsole(argv);
-			return con.Run();
 		}
 	}
 }
