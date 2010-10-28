@@ -7,9 +7,9 @@ namespace ECM7.Migrator.Providers.SqlServer
     {
         public SqlServer2005Dialect()
         {
-            RegisterColumnType(DbType.AnsiString, 2147483647, "VARCHAR(MAX)");
-            RegisterColumnType(DbType.Binary, 2147483647, "VARBINARY(MAX)");
-            RegisterColumnType(DbType.String, 1073741823, "NVARCHAR(MAX)");
+            RegisterColumnType(DbType.AnsiString, int.MaxValue, "VARCHAR(MAX)");
+			RegisterColumnType(DbType.Binary, int.MaxValue, "VARBINARY(MAX)");
+			RegisterColumnType(DbType.String, int.MaxValue, "NVARCHAR(MAX)");
             RegisterColumnType(DbType.Xml, "XML");
         }
 
