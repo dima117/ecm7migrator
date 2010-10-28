@@ -1,6 +1,7 @@
 using System;
 using System.Configuration;
 using System.Data;
+using ECM7.Migrator.Framework;
 using ECM7.Migrator.Providers;
 using ECM7.Migrator.Providers.SqlServer;
 using NUnit.Framework;
@@ -35,6 +36,16 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		{
 			provider.AddColumn("TestTwo", "BlobColumn", DbType.Byte);
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "BlobColumn"));
+		}
+
+		[Test]
+		public void CanAddTableWithPrimaryKeyAndIdentity()
+		{
+			provider.AddTable("Test",
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKeyWithIdentity),
+				new Column("Name", DbType.String, 100, ColumnProperty.Null)
+				);
+			Assert.IsTrue(provider.TableExists("Test"));
 		}
 	}
 }
