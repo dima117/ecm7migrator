@@ -20,6 +20,8 @@ using ECM7.Migrator.Loader;
 
 namespace ECM7.Migrator
 {
+	using System.Linq;
+
 	/// <summary>
 	/// Migrations mediator.
 	/// </summary>
@@ -35,7 +37,7 @@ namespace ECM7.Migrator
 		public string[] Args { get; set; }
 
 		//todo: проверить работу с мигрэйшнами из нескольких сборок
-		
+
 		#region constructors
 
 		public Migrator(string dialectTypeName, string connectionString, params Assembly[] assemblies)
@@ -65,10 +67,9 @@ namespace ECM7.Migrator
 
 			migrationLoader = new MigrationLoader(provider, trace, assemblies);
 			migrationLoader.CheckForDuplicatedVersion();
-		} 
+		}
 
 		#endregion
-
 
 		/// <summary>
 		/// Returns registered migration <see cref="System.Type">types</see>.
@@ -100,7 +101,11 @@ namespace ECM7.Migrator
 		/// </summary>
 		public ILogger Logger
 		{
-			get { return logger; }
+			get
+			{
+				return logger;
+			}
+
 			set
 			{
 				logger = value;
@@ -127,7 +132,6 @@ namespace ECM7.Migrator
 		/// <param name="version">The version that must became the current one</param>
 		public void MigrateTo(long version)
 		{
-
 			if (migrationLoader.MigrationsTypes.Count == 0)
 			{
 				logger.Warn("No public classes with the Migration attribute were found.");
@@ -135,8 +139,13 @@ namespace ECM7.Migrator
 			}
 
 			bool firstRun = true;
-			BaseMigrate migrate = BaseMigrate.GetInstance(migrationLoader.GetAvailableMigrations(), provider, logger);
+			List<long> availableMigrations = this.migrationLoader.GetAvailableMigrations();
+			BaseMigrate migrate = BaseMigrate.GetInstance(availableMigrations, provider, logger);
 			migrate.DryRun = DryRun;
+
+			// проверка корректности номеров миграций
+			CheckMigrationNumbers(availableMigrations, migrate.AppliedVersions);
+
 			Logger.Started(migrate.AppliedVersions, version);
 
 			while (migrate.Continue(version))
@@ -174,6 +183,18 @@ namespace ECM7.Migrator
 			}
 
 			Logger.Finished(migrate.AppliedVersions, version);
+		}
+
+		/// <summary>
+		/// Проверка, что выполнены все доступные миграции с номерами меньше текущей
+		/// </summary>
+		/// <param name="availableMigrations">Доступные миграции</param>
+		/// <param name="appliedVersions">Выполненные миграции</param>
+		public static void CheckMigrationNumbers(IList<long> availableMigrations, IList<long> appliedVersions)
+		{
+			long current = appliedVersions.IsEmpty() ? 0 : appliedVersions.Max();
+			var skippedMigrations = availableMigrations.Where(m => m <= current && !appliedVersions.Contains(m));
+			Require.AreEqual(skippedMigrations.Count(), 0, "The current database version is {0}, the migration {1} are available but not used".FormatWith(current, skippedMigrations.ToCommaSeparatedString()));
 		}
 	}
 }
