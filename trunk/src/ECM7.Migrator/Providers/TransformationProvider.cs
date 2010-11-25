@@ -488,7 +488,6 @@ namespace ECM7.Migrator.Providers
 
 		/// <summary>
 		/// Guesses the name of the foreign key and add it
-		/// </see>
 		/// </summary>
 		public virtual void GenerateForeignKey(string primaryTable, string[] primaryColumns, string refTable,
 											   string[] refColumns, ForeignKeyConstraint constraint)
@@ -531,7 +530,7 @@ namespace ECM7.Migrator.Providers
 		public virtual void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
 			string[] refColumns, ForeignKeyConstraint constraint)
 		{
-			AddForeignKey(name, primaryTable, primaryColumns, refTable, refColumns, constraint, constraint);
+			AddForeignKey(name, primaryTable, primaryColumns, refTable, refColumns, constraint, ForeignKeyConstraint.NoAction);
 		}
 
 		public virtual void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,

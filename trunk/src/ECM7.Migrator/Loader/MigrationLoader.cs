@@ -24,18 +24,22 @@ namespace ECM7.Migrator.Loader
 			{
 				provider.Logger.Trace("Loaded migrations:");
 				foreach (var m in migrationsTypes)
+				{
 					provider.Logger.Trace("{0} {1}", m.Version.ToString().PadLeft(5), StringUtils.ToHumanName(m.Type.Name));
+				}
 			}
 		}
 
 		public void AddMigrations(params Assembly[] assemblies)
 		{
 			foreach (Assembly assembly in assemblies)
+			{
 				if (assembly != null)
 				{
 					List<MigrationInfo> collection = GetMigrationInfoList(assembly);
 					migrationsTypes.AddRange(collection);
 				}
+			}
 		}
 
 		/// <summary>
@@ -53,7 +57,7 @@ namespace ECM7.Migrator.Loader
 		{
 			get
 			{
-				return migrationsTypes.Count == 0 ? 0 
+				return migrationsTypes.Count == 0 ? 0
 					: migrationsTypes.Select(info => info.Version).Max();
 			}
 		}
@@ -65,11 +69,13 @@ namespace ECM7.Migrator.Loader
 		public void CheckForDuplicatedVersion()
 		{
 			HashSet<long> versions = new HashSet<long>();
-			
+
 			foreach (var info in migrationsTypes)
 			{
 				if (versions.Contains(info.Version))
+				{
 					throw new DuplicatedVersionException(info.Version);
+				}
 
 				versions.Add(info.Version);
 			}
@@ -108,7 +114,10 @@ namespace ECM7.Migrator.Loader
 		{
 			var list = migrationsTypes.Where(info => info.Version == version).ToList();
 
-			if (list.Count == 0) return null;
+			if (list.Count == 0)
+			{
+				return null;
+			}
 
 			IMigration migration = (IMigration)Activator.CreateInstance(list[0].Type);
 			migration.Database = provider;

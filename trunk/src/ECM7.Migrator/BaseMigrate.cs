@@ -1,8 +1,8 @@
-using ECM7.Migrator.Framework;
-using System.Collections.Generic;
-
 namespace ECM7.Migrator
 {
+	using System.Collections.Generic;
+	using ECM7.Migrator.Framework;
+
 	public abstract class BaseMigrate
 	{
 		protected readonly ITransformationProvider provider;
@@ -16,7 +16,7 @@ namespace ECM7.Migrator
 		{
 			this.provider = provider;
 			this.availableMigrations = availableMigrations;
-			original = new List<long>(this.provider.AppliedMigrations.ToArray()); //clone
+			this.original = new List<long>(this.provider.AppliedMigrations.ToArray()); // clone
 			this.logger = logger;
 		}
 
