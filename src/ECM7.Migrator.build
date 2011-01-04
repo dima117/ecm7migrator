@@ -2,7 +2,7 @@
 <project name="ecm7" default="build" xmlns="http://nant.sf.net/release/0.86-beta1/nant.xsd">
 	
 	<!-- Settings -->
-	<property name="nant.settings.currentframework" value="net-3.5" />
+	<property name="nant.settings.currentframework" value="net-4.0" />
 
 	<property name="build.dir" value="..\build\Release"/>
 	<property name="web.dist.dir" value="web.dist"/>
