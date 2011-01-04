@@ -1,6 +1,19 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{3FADFB5B-00FC-45D6-BDB2-8D87E0A49251}"
+	ProjectSection(SolutionItems) = preProject
+		config\app.config = config\app.config
+		config\AssemblyInfo.cs = config\AssemblyInfo.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{97677CB5-C7A9-4AB1-9EE6-BA91427FD655}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B6FFECE8-ADE2-4694-A363-651AAFD51F94}"
+	ProjectSection(SolutionItems) = preProject
+		Settings.StyleCop = Settings.StyleCop
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator", "ECM7.Migrator\ECM7.Migrator.csproj", "{1FEE70A4-AAD7-4C60-BE60-3F7DC03A8C4D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Console", "ECM7.Migrator.Console\ECM7.Migrator.Console.csproj", "{FBE3A83A-D0F8-4D72-AF8D-9EF772569A31}"
@@ -13,14 +26,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.NAnt", "ECM7.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Tests", "ECM7.Migrator.Tests\ECM7.Migrator.Tests.csproj", "{882B6A93-67B8-45BF-8636-5796B1B1CBF8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{3FADFB5B-00FC-45D6-BDB2-8D87E0A49251}"
-	ProjectSection(SolutionItems) = preProject
-		config\app.config = config\app.config
-		config\AssemblyInfo.cs = config\AssemblyInfo.cs
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{97677CB5-C7A9-4AB1-9EE6-BA91427FD655}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Providers.MySql", "ECM7.Migrator.Providers.MySql\ECM7.Migrator.Providers.MySql.csproj", "{86CC1CD8-981F-42DA-AA2E-FE51576557AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Providers.Oracle", "ECM7.Migrator.Providers.Oracle\ECM7.Migrator.Providers.Oracle.csproj", "{CBA55443-9437-4396-AF4C-9A2A9A7628E5}"
@@ -30,11 +35,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Providers.SqlServer", "ECM7.Migrator.Providers.SqlServer\ECM7.Migrator.Providers.SqlServer.csproj", "{6ADF67EC-6865-4A44-8E41-2BAF236B9792}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Providers.PostgreSQL", "ECM7.Migrator.Providers.PostgreSQL\ECM7.Migrator.Providers.PostgreSQL.csproj", "{FFE9E6C3-E4F6-465B-AEC0-7EC35E293072}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B6FFECE8-ADE2-4694-A363-651AAFD51F94}"
-	ProjectSection(SolutionItems) = preProject
-		Settings.StyleCop = Settings.StyleCop
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
