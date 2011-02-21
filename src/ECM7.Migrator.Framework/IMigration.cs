@@ -34,6 +34,6 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// This gets called once on the first migration object.
 		/// </summary>
-		void InitializeOnce(string[] args);
+		void InitializeOnce();
 	}
 }

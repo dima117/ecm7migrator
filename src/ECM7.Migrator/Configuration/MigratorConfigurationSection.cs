@@ -1,11 +1,11 @@
-﻿namespace ECM7.Migrator
+﻿namespace ECM7.Migrator.Configuration
 {
 	using System.Configuration;
 
 	/// <summary>
 	/// Настройки мигратора
 	/// </summary>
-	public class MigratorConfiguration : ConfigurationSection
+	public class MigratorConfigurationSection : ConfigurationSection, IMigratorConfiguration
 	{
 		/// <summary>
 		/// Диалект
@@ -37,10 +37,19 @@
 		/// <summary>
 		/// Сборка с миграциями
 		/// </summary>
-		[ConfigurationProperty("assembly", IsRequired = true)]
+		[ConfigurationProperty("assembly")]
 		public string Assembly
 		{
 			get { return (string)base["assembly"]; }
+		}
+
+		/// <summary>
+		/// Путь к файлу с миграциями
+		/// </summary>
+		[ConfigurationProperty("assembly-file")]
+		public string AssemblyFile
+		{
+			get { return (string)base["assembly-file"]; }
 		}
 	}
 }

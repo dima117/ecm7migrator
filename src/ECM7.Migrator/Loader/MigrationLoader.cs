@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using ECM7.Migrator.Framework;
-using System.Linq;
-
 namespace ECM7.Migrator.Loader
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Reflection;
+	using ECM7.Migrator.Framework;
+
 	/// <summary>
 	/// Handles inspecting code to find all of the Migrations in assemblies and reading
 	/// other metadata such as the last revision, etc.
@@ -104,12 +104,18 @@ namespace ECM7.Migrator.Loader
 			return migrations;
 		}
 
+		/// <summary>
+		/// ѕолучить список номеров доступных миграций
+		/// </summary>
 		public List<long> GetAvailableMigrations()
 		{
 			migrationsTypes.Sort(new MigrationInfoComparer(true));
 			return migrationsTypes.Select(mInfo => mInfo.Version).ToList();
 		}
 
+		/// <summary>
+		/// ѕолучить миграцию по номеру версии
+		/// </summary>
 		public IMigration GetMigration(long version)
 		{
 			var list = migrationsTypes.Where(info => info.Version == version).ToList();

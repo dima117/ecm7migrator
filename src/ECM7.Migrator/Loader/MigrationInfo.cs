@@ -11,7 +11,10 @@ namespace ECM7.Migrator.Loader
 	/// </summary>
 	public struct MigrationInfo
 	{
-		// todo: написать тесты
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		/// <param name="type">Тип. из которого извлекается информация о миграции</param>
 		public MigrationInfo(Type type)
 		{
 			Require.IsNotNull(type, "Не задан обрабатываемый класс");
@@ -21,18 +24,24 @@ namespace ECM7.Migrator.Loader
 				type, typeof(MigrationAttribute)) as MigrationAttribute;
 			Require.IsNotNull(attribute, "Не найден атрибут Migration");
 
-
-			this.type = type;
-			version = attribute.Version;
-			ignore = attribute.Ignore;
+			Type = type;
+			Version = attribute.Version;
+			Ignore = attribute.Ignore;
 		}
 
-		private readonly Type type;
-		private readonly long version;
-		private readonly bool ignore;
+		/// <summary>
+		/// Тип миграции
+		/// </summary>
+		public readonly Type Type;
 
-		public Type Type { get { return type; } }
-		public long Version { get { return version; } }
-		public bool Ignore { get { return ignore; } }
+		/// <summary>
+		/// Версия
+		/// </summary>
+		public readonly long Version;
+
+		/// <summary>
+		/// ПРизнак: пропустить миграцию при выполнении
+		/// </summary>
+		public readonly bool Ignore;
 	}
 }

@@ -1,27 +1,12 @@
-#region License
-
-//The contents of this file are subject to the Mozilla Public License
-//Version 1.1 (the "License"); you may not use this file except in
-//compliance with the License. You may obtain a copy of the License at
-//http://www.mozilla.org/MPL/
-//Software distributed under the License is distributed on an "AS IS"
-//basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-//License for the specific language governing rights and limitations
-//under the License.
-
-#endregion
-
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using ECM7.Migrator.Framework;
-using ECM7.Migrator.Framework.Loggers;
-using ECM7.Migrator.Loader;
-
 namespace ECM7.Migrator
 {
-	using System.Configuration;
+	using System;
+	using System.Collections.Generic;
 	using System.Linq;
+	using System.Reflection;
+	using Framework;
+	using Framework.Loggers;
+	using Loader;
 
 	/// <summary>
 	/// Migrations mediator.
@@ -43,52 +28,8 @@ namespace ECM7.Migrator
 		/// </summary>
 		private ILogger logger = new Logger(false);
 
-		public string[] Args { get; set; }
-
 		// todo: проверить работу с мигрэйшнами из нескольких сборок
 		#region constructors
-
-		/// <summary>
-		/// Создание мигратора и его инициализация из конфига
-		/// </summary>
-		public static Migrator InitByConfig()
-		{
-			return InitByConfig("migrator");
-		}
-
-		/// <summary>
-		/// Создание мигратора и его инициализация из конфига
-		/// </summary>
-		public static Migrator InitByConfig(string configSectionName)
-		{
-			Require.IsNotNullOrEmpty(configSectionName, true, "Не задана секция конфигурационногог файла");
-			var config = ConfigurationManager.GetSection(configSectionName) as MigratorConfiguration;
-			Require.IsNotNull(config, "Конфигурация не задана");
-			Require.IsNotNullOrEmpty(config.Assembly, "Не задана сборка, содержащая миграции");
-			Require.IsNotNullOrEmpty(config.Dialect, "Не задан используемый диалект");
-
-			// сборка с миграциями
-			Assembly assembly = Assembly.Load(config.Assembly);
-
-			// строка подключения
-			string connectionString = null;
-
-			if (!config.ConnectionString.IsNullOrEmpty(true))
-			{
-				config.ConnectionString.Trim();
-			}
-			else if (!config.ConnectionStringName.IsNullOrEmpty(true))
-			{
-				string cstringName = config.ConnectionStringName.Trim();
-				connectionString = ConfigurationManager.ConnectionStrings[cstringName].ConnectionString;
-			}
-			else
-			{
-				Require.Throw("Не задана строка подключения");
-			}
-
-			return new Migrator(config.Dialect.Trim(), connectionString, assembly);
-		}
 
 		/// <summary>
 		/// Инициализация
@@ -148,15 +89,6 @@ namespace ECM7.Migrator
 		}
 
 		/// <summary>
-		/// Run all migrations up to the latest.  Make no changes to database if
-		/// dryrun is true.
-		/// </summary>
-		public void MigrateToLastVersion()
-		{
-			MigrateTo(migrationLoader.LastVersion);
-		}
-
-		/// <summary>
 		/// Returns the current migrations applied to the database.
 		/// </summary>
 		public List<long> AppliedMigrations
@@ -182,11 +114,6 @@ namespace ECM7.Migrator
 		}
 
 		/// <summary>
-		/// Признак: генерировать SQL, не выполняя его
-		/// </summary>
-		public virtual bool DryRun { get; set; }
-
-		/// <summary>
 		/// Migrate the database to a specific version.
 		/// Runs all migration between the actual version and the
 		/// specified version.
@@ -196,9 +123,13 @@ namespace ECM7.Migrator
 		/// the <c>Down()</c> method of previous migration will be invoked.
 		/// If <c>dryrun</c> is set, don't write any changes to the database.
 		/// </summary>
-		/// <param name="version">The version that must became the current one</param>
-		public void MigrateTo(long version)
+		/// <param name="databaseVersion">The version that must became the current one</param>
+		public void Migrate(long databaseVersion = -1)
 		{
+			long version = databaseVersion == -1 ? migrationLoader.LastVersion : databaseVersion;
+
+			Require.That(version > 0, "Версия БД должна быть больше 0 или иметь значение -1 (соответствует последней доступной версии)");
+
 			if (migrationLoader.MigrationsTypes.Count == 0)
 			{
 				logger.Warn("No public classes with the Migration attribute were found.");
@@ -208,7 +139,6 @@ namespace ECM7.Migrator
 			bool firstRun = true;
 			List<long> availableMigrations = migrationLoader.GetAvailableMigrations();
 			BaseMigrate migrate = BaseMigrate.GetInstance(availableMigrations, provider, logger);
-			migrate.DryRun = DryRun;
 
 			// проверка корректности номеров миграций
 			CheckMigrationNumbers(availableMigrations, migrate.AppliedVersions);
@@ -229,7 +159,7 @@ namespace ECM7.Migrator
 				{
 					if (firstRun)
 					{
-						migration.InitializeOnce(Args);
+						migration.InitializeOnce();
 						firstRun = false;
 					}
 
