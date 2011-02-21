@@ -160,7 +160,7 @@ namespace ECM7.Migrator.Console
 
 		private Migrator GetMigrator()
 		{
-			Assembly asm = Assembly.LoadFrom(migrationsAssembly);
+			Assembly asm = Assembly.Load(migrationsAssembly);
 
 			return new Migrator(dialect, connectionString, trace, asm) { Args = args, DryRun = dryrun };
 		}

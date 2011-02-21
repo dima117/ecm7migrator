@@ -90,6 +90,7 @@
     <Compile Include="TestClasses\Common\MigratorTest.cs" />
     <Compile Include="TestClasses\Common\MigratorTestDates.cs" />
     <Compile Include="TestClasses\Common\ProviderFactoryTest.cs" />
+    <Compile Include="TestClasses\ConfigurationTest.cs" />
     <Compile Include="TestClasses\Providers\Common\TypeNamesTest.cs" />
     <Compile Include="TestClasses\Providers\DataTypes\DataTypesTestBase.cs" />
     <Compile Include="TestClasses\Providers\DataTypes\MySqlDataTypesTest.cs" />

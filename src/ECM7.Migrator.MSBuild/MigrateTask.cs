@@ -113,7 +113,7 @@ namespace ECM7.Migrator.MSBuild
             {
                 foreach (ITaskItem assembly in Migrations)
                 {
-                    Assembly asm = Assembly.LoadFrom(assembly.GetMetadata("FullPath"));
+                    Assembly asm = Assembly.Load(assembly.GetMetadata("FullPath"));
                     Execute(asm);
                 }
             }
