@@ -20,6 +20,7 @@ using ECM7.Migrator.Loader;
 
 namespace ECM7.Migrator
 {
+	using System.Configuration;
 	using System.Linq;
 
 	/// <summary>
@@ -27,39 +28,106 @@ namespace ECM7.Migrator
 	/// </summary>
 	public class Migrator
 	{
+		/// <summary>
+		/// Провайдер
+		/// </summary>
 		private readonly ITransformationProvider provider;
 
+		/// <summary>
+		/// Загрузчик информации о миграциях
+		/// </summary>
 		private readonly MigrationLoader migrationLoader;
 
+		/// <summary>
+		/// Логгер
+		/// </summary>
 		private ILogger logger = new Logger(false);
-		protected bool dryrun;
 
 		public string[] Args { get; set; }
 
-		//todo: проверить работу с мигрэйшнами из нескольких сборок
-
+		// todo: проверить работу с мигрэйшнами из нескольких сборок
 		#region constructors
 
+		/// <summary>
+		/// Создание мигратора и его инициализация из конфига
+		/// </summary>
+		public static Migrator InitByConfig()
+		{
+			return InitByConfig("migrator");
+		}
+
+		/// <summary>
+		/// Создание мигратора и его инициализация из конфига
+		/// </summary>
+		public static Migrator InitByConfig(string configSectionName)
+		{
+			Require.IsNotNullOrEmpty(configSectionName, true, "Не задана секция конфигурационногог файла");
+			var config = ConfigurationManager.GetSection(configSectionName) as MigratorConfiguration;
+			Require.IsNotNull(config, "Конфигурация не задана");
+			Require.IsNotNullOrEmpty(config.Assembly, "Не задана сборка, содержащая миграции");
+			Require.IsNotNullOrEmpty(config.Dialect, "Не задан используемый диалект");
+
+			// сборка с миграциями
+			Assembly assembly = Assembly.Load(config.Assembly);
+
+			// строка подключения
+			string connectionString = null;
+
+			if (!config.ConnectionString.IsNullOrEmpty(true))
+			{
+				config.ConnectionString.Trim();
+			}
+			else if (!config.ConnectionStringName.IsNullOrEmpty(true))
+			{
+				string cstringName = config.ConnectionStringName.Trim();
+				connectionString = ConfigurationManager.ConnectionStrings[cstringName].ConnectionString;
+			}
+			else
+			{
+				Require.Throw("Не задана строка подключения");
+			}
+
+			return new Migrator(config.Dialect.Trim(), connectionString, assembly);
+		}
+
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		/// <param name="dialectTypeName">Диалект</param>
+		/// <param name="connectionString">Строка подключения</param>
+		/// <param name="assemblies">Сборки с миграциями</param>
 		public Migrator(string dialectTypeName, string connectionString, params Assembly[] assemblies)
 			: this(dialectTypeName, connectionString, false, assemblies)
 		{
 		}
 
+		/// <summary>
+		/// Инициализация
+		/// </summary>
 		public Migrator(string dialectTypeName, string connectionString, bool trace, params Assembly[] assemblies)
 			: this(ProviderFactory.Create(dialectTypeName, connectionString), trace, assemblies)
 		{
 		}
 
+		/// <summary>
+		/// Инициализация
+		/// </summary>
 		public Migrator(string dialectTypeName, string connectionString, bool trace, ILogger logger, params Assembly[] assemblies)
 			: this(ProviderFactory.Create(dialectTypeName, connectionString), trace, logger, assemblies)
 		{
 		}
 
+		/// <summary>
+		/// Инициализация
+		/// </summary>
 		public Migrator(ITransformationProvider provider, bool trace, params Assembly[] assemblies)
 			: this(provider, trace, new Logger(trace, new ConsoleWriter()), assemblies)
 		{
 		}
 
+		/// <summary>
+		/// Инициализация
+		/// </summary>
 		public Migrator(ITransformationProvider provider, bool trace, ILogger logger, params Assembly[] assemblies)
 		{
 			this.provider = provider;
@@ -113,11 +181,10 @@ namespace ECM7.Migrator
 			}
 		}
 
-		public virtual bool DryRun
-		{
-			get { return dryrun; }
-			set { dryrun = value; }
-		}
+		/// <summary>
+		/// Признак: генерировать SQL, не выполняя его
+		/// </summary>
+		public virtual bool DryRun { get; set; }
 
 		/// <summary>
 		/// Migrate the database to a specific version.
@@ -139,7 +206,7 @@ namespace ECM7.Migrator
 			}
 
 			bool firstRun = true;
-			List<long> availableMigrations = this.migrationLoader.GetAvailableMigrations();
+			List<long> availableMigrations = migrationLoader.GetAvailableMigrations();
 			BaseMigrate migrate = BaseMigrate.GetInstance(availableMigrations, provider, logger);
 			migrate.DryRun = DryRun;
 
@@ -194,7 +261,10 @@ namespace ECM7.Migrator
 		{
 			long current = appliedVersions.IsEmpty() ? 0 : appliedVersions.Max();
 			var skippedMigrations = availableMigrations.Where(m => m <= current && !appliedVersions.Contains(m));
-			Require.AreEqual(skippedMigrations.Count(), 0, "The current database version is {0}, the migration {1} are available but not used".FormatWith(current, skippedMigrations.ToCommaSeparatedString()));
+
+			string errorMessage = "The current database version is {0}, the migration {1} are available but not used"
+				.FormatWith(current, skippedMigrations.ToCommaSeparatedString());
+			Require.AreEqual(skippedMigrations.Count(), 0, errorMessage);
 		}
 	}
 }

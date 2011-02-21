@@ -99,7 +99,7 @@ namespace ECM7.Migrator.NAnt
 
             if (null != MigrationsAssembly)
             {
-                Assembly asm = Assembly.LoadFrom(MigrationsAssembly.FullName);
+                Assembly asm = Assembly.Load(MigrationsAssembly.FullName);
                 Execute(asm);
             }
 		}
