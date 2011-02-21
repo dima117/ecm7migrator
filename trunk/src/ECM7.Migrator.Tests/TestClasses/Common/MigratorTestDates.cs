@@ -28,7 +28,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void MigrateUpward()
 		{
 			SetUpCurrentVersion(2008010195);
-			migrator.MigrateTo(2008030195);
+			migrator.Migrate(2008030195);
 
 			Assert.AreEqual(2, UpCalled.Count);
 			Assert.AreEqual(0, DownCalled.Count);
@@ -41,7 +41,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void MigrateBackward()
 		{
 			SetUpCurrentVersion(2008030195);
-			migrator.MigrateTo(2008010195);
+			migrator.Migrate(2008010195);
 
 			Assert.AreEqual(0, UpCalled.Count);
 			Assert.AreEqual(2, DownCalled.Count);
@@ -57,7 +57,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 
 			try
 			{
-				migrator.MigrateTo(2008060195);
+				migrator.Migrate(2008060195);
 				Assert.Fail("La migration 5 devrait lancer une exception");
 			}
 			catch (Exception) { }
@@ -75,7 +75,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 
 			try
 			{
-				migrator.MigrateTo(3);
+				migrator.Migrate(3);
 				Assert.Fail("La migration 5 devrait lancer une exception");
 			}
 			catch (Exception) { }
@@ -91,7 +91,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		{
 			SetUpCurrentVersion(2008030195);
 
-			migrator.MigrateTo(2008030195);
+			migrator.Migrate(2008030195);
 
 			Assert.AreEqual(0, UpCalled.Count);
 			Assert.AreEqual(0, DownCalled.Count);
@@ -102,7 +102,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		{
 			SetUpCurrentVersion(2008030195, false, false);
 
-			migrator.MigrateToLastVersion();
+			migrator.Migrate();
 
 			Assert.AreEqual(2, UpCalled.Count);
 			Assert.AreEqual(0, DownCalled.Count);
@@ -113,7 +113,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		{
 			List<long> migs = new List<long> {2008010195, 2008030195};
 			SetUpCurrentVersion(2008030195, migs, false, false);
-			migrator.MigrateTo(2008040195);
+			migrator.Migrate(2008040195);
 
 
 			Assert.AreEqual(2, UpCalled.Count);
@@ -129,7 +129,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		{
 			List<long> migs = new List<long> { 2008010195, 2008030195, 2008040195 };
 			SetUpCurrentVersion(2008040195, migs, false, false);
-			migrator.MigrateTo(2008030195);
+			migrator.Migrate(2008030195);
 
 			Assert.AreEqual(1, UpCalled.Count);
 			Assert.AreEqual(1, DownCalled.Count);
@@ -146,7 +146,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			// rollback to version 2.  v3 should be untouched, and v4 should be rolled back
 			List<long> migs = new List<long> {2008010195, 2008020195, 2008040195};
 			SetUpCurrentVersion(2008040195, migs, false, false);
-			migrator.MigrateTo(2008020195);
+			migrator.Migrate(2008020195);
 
 			Assert.AreEqual(0, UpCalled.Count);
 			Assert.AreEqual(1, DownCalled.Count);
@@ -162,7 +162,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			// we migrate to Latest.  v3 should be applied and nothing else done.
 			List<long> migs = new List<long> {2008010195, 2008020195, 2008040195};
 			SetUpCurrentVersion(2008040195, migs, false, false);
-			migrator.MigrateTo(2008040195);
+			migrator.Migrate(2008040195);
 
 			Assert.AreEqual(1, UpCalled.Count);
 			Assert.AreEqual(0, DownCalled.Count);

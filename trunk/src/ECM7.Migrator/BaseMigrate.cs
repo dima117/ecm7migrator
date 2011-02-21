@@ -10,7 +10,6 @@ namespace ECM7.Migrator
 		protected List<long> availableMigrations;
 		protected List<long> original;
 		protected long current;
-		protected bool dryrun;
 
 		protected BaseMigrate(List<long> availableMigrations, ITransformationProvider provider, ILogger logger)
 		{
@@ -34,12 +33,6 @@ namespace ECM7.Migrator
 		{
 			get { return current; }
 			protected set { current = value; }
-		}
-
-		public virtual bool DryRun
-		{
-			get { return dryrun; }
-			set { dryrun = value; }
 		}
 
 		public abstract long Previous { get; }

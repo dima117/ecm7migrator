@@ -197,6 +197,7 @@
         <StringProperty Name="AdvancedNaming_PrivateConst">$(AA_BB)</StringProperty>
         <StringProperty Name="AdvancedNaming_InternalConst">$(AA_BB)</StringProperty>
         <StringProperty Name="AdvancedNaming_Abbreviations">A B C X ID 3D OK ECM7</StringProperty>
+        <StringProperty Name="AdvancedNaming_Words">StyleCop FxCop NAnt</StringProperty>
       </AnalyzerSettings>
     </Analyzer>
   </Analyzers>

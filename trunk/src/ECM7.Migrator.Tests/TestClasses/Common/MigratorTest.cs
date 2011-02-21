@@ -29,7 +29,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void MigrateUpward()
 		{
 			SetUpCurrentVersion(1);
-			migrator.MigrateTo(3);
+			migrator.Migrate(3);
 
 			Assert.AreEqual(2, UpCalled.Count);
 			Assert.AreEqual(0, DownCalled.Count);
@@ -42,7 +42,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void MigrateBackward()
 		{
 			SetUpCurrentVersion(3);
-			migrator.MigrateTo(1);
+			migrator.Migrate(1);
 
 			Assert.AreEqual(0, UpCalled.Count);
 			Assert.AreEqual(2, DownCalled.Count);
@@ -58,7 +58,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 
 			try
 			{
-				migrator.MigrateTo(6);
+				migrator.Migrate(6);
 				Assert.Fail("La migration 5 devrait lancer une exception");
 			}
 			catch { }
@@ -76,7 +76,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 
 			try
 			{
-				migrator.MigrateTo(3);
+				migrator.Migrate(3);
 				Assert.Fail("La migration 5 devrait lancer une exception");
 			}
 			catch { }
@@ -92,7 +92,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		{
 			SetUpCurrentVersion(3);
 
-			migrator.MigrateTo(3);
+			migrator.Migrate(3);
 
 			Assert.AreEqual(0, UpCalled.Count);
 			Assert.AreEqual(0, DownCalled.Count);
@@ -103,7 +103,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		{
 			SetUpCurrentVersion(3, false, false);
 
-			migrator.MigrateToLastVersion();
+			migrator.Migrate();
 
 			Assert.AreEqual(2, UpCalled.Count);
 			Assert.AreEqual(0, DownCalled.Count);
@@ -129,7 +129,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		[Test]
 		public void MigrateUpwardFrom0()
 		{
-			migrator.MigrateTo(3);
+			migrator.Migrate(3);
 
 			Assert.AreEqual(3, UpCalled.Count);
 			Assert.AreEqual(0, DownCalled.Count);

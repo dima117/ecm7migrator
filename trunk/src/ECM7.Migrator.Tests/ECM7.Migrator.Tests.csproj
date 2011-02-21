@@ -81,9 +81,10 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Data\FirstTestMigration.cs" />
     <Compile Include="Helpers\TestProviders.cs" />
     <Compile Include="TestClasses\Common\ColumnPropertyMappingTest.cs" />
-    <Compile Include="Data\TestMigrations.cs" />
+    <Compile Include="Data\SecondTestMigration.cs" />
     <Compile Include="TestClasses\Common\MigrationLoaderTest.cs" />
     <Compile Include="TestClasses\Common\MigrationTestCase.cs" />
     <Compile Include="TestClasses\Common\MigrationTypeComparerTest.cs" />
@@ -109,8 +110,6 @@
     <Compile Include="TestClasses\Providers\TransformationProviderBase.cs" />
     <Compile Include="TestClasses\Providers\TransformationProviderConstraintBase.cs" />
     <Compile Include="TestClasses\Common\SchemaBuilderTests.cs" />
-    <Compile Include="TestClasses\Common\ScriptEngineTests.cs" />
-    <Compile Include="TestClasses\Tools\SchemaDumperTest.cs" />
     <Compile Include="TestClasses\Tools\SqlFileLoggerTest.cs" />
     <Compile Include="TestClasses\Tools\TransformationProviderExtensionsTest.cs" />
   </ItemGroup>

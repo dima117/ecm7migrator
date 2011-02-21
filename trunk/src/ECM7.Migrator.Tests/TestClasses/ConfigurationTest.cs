@@ -1,6 +1,7 @@
 ﻿namespace ECM7.Migrator.Tests.TestClasses
 {
 	using System.Configuration;
+	using Configuration;
 	using NUnit.Framework;
 
 	/// <summary>
@@ -15,7 +16,7 @@
 		[Test]
 		public void CanReadValues()
 		{
-			var config = ConfigurationManager.GetSection("migrator-test") as MigratorConfiguration;
+			var config = ConfigurationManager.GetSection("migrator-test") as MigratorConfigurationSection;
 
 			Assert.IsNotNull(config);
 			Assert.AreEqual("111", config.Assembly);
@@ -30,7 +31,7 @@
 		[Test]
 		public void CanInitByConfig()
 		{
-			Migrator migrator = Migrator.InitByConfig();
+			Migrator migrator = MigratorFactory.InitByConfigFile();
 
 			Assert.IsNotNull(migrator);
 		}

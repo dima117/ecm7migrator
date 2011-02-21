@@ -70,7 +70,9 @@
       <Link>AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BaseMigrate.cs" />
-    <Compile Include="Compile\ScriptEngine.cs" />
+    <Compile Include="Configuration\IMigratorConfiguration.cs" />
+    <Compile Include="Configuration\MigratorConfiguration.cs" />
+    <Compile Include="Configuration\MigratorFactory.cs" />
     <Compile Include="Loader\DuplicatedVersionException.cs" />
     <Compile Include="IrreversibleMigrationException.cs" />
     <Compile Include="Loader\MigrationInfo.cs" />
@@ -78,14 +80,13 @@
     <Compile Include="Loader\MigrationComparer.cs" />
     <Compile Include="Loader\MigrationLoader.cs" />
     <Compile Include="Migrator.cs" />
-    <Compile Include="MigratorConfiguration.cs" />
+    <Compile Include="Configuration\MigratorConfigurationSection.cs" />
     <Compile Include="ProviderFactory.cs" />
     <Compile Include="Providers\Dialect.cs" />
     <Compile Include="Providers\ForeignKeyConstraintMapper.cs" />
     <Compile Include="Providers\NoOpTransformationProvider.cs" />
     <Compile Include="Providers\TransformationProvider.cs" />
     <Compile Include="Providers\TypeNames.cs" />
-    <Compile Include="Tools\SchemaDumper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
