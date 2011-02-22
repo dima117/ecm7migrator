@@ -61,17 +61,15 @@
 
 			if (!config.ConnectionString.IsNullOrEmpty(true))
 			{
-				config.ConnectionString.Trim();
+				connectionString = config.ConnectionString.Trim();
 			}
 			else if (!config.ConnectionStringName.IsNullOrEmpty(true))
 			{
 				string cstringName = config.ConnectionStringName.Trim();
 				connectionString = ConfigurationManager.ConnectionStrings[cstringName].ConnectionString;
 			}
-			else
-			{
-				Require.Throw("Не задана строка подключения");
-			}
+
+			Require.IsNotNullOrEmpty(connectionString, true, "Не задана строка подключения");
 
 			return connectionString;
 		}

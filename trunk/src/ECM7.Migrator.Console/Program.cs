@@ -42,9 +42,15 @@ namespace ECM7.Migrator.Console
 
 				return 0;
 			}
-			catch (Exception ex)
+			catch (Exception exception)
 			{
-				System.Console.WriteLine(ex.Message);
+				for (Exception ex = exception; ex != null; ex = ex.InnerException)
+				{
+					Console.WriteLine(ex.Message);
+				}
+
+				Console.WriteLine(exception.StackTrace);
+
 				PrintUsage();
 				return -1;
 			}
@@ -53,9 +59,9 @@ namespace ECM7.Migrator.Console
 		#region parse arguments
 
 		/// <summary>
-		/// Определение нужной версии БД
+		/// Определение нужной версии базы данных
 		/// </summary>
-		/// <param name="args">АРгументы командной строки</param>
+		/// <param name="args">Аргументы командной строки</param>
 		private static long GetDestinationVersion(IEnumerable<string> args)
 		{
 			long version = -1;

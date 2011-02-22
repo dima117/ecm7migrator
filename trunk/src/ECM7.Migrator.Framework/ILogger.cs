@@ -1,8 +1,11 @@
-using System;
-using System.Collections.Generic;
-
 namespace ECM7.Migrator.Framework
 {
+	using System;
+	using System.Collections.Generic;
+
+	/// <summary>
+	/// Logger interface
+	/// </summary>
 	public interface ILogger
 	{
 		/// <summary>
@@ -41,15 +44,15 @@ namespace ECM7.Migrator.Framework
 		/// </param>
 		void RollingBack(long originalVersion);
 
-        /// <summary>
-        /// Log a Sql statement that changes the schema or content of the database as part of a migration
-        /// </summary>
-        /// <remarks>
-        /// SELECT statements should not be logged using this method as they do not alter the data or schema of the
-        /// database.
-        /// </remarks>
-        /// <param name="sql">The Sql statement to log</param>
-        void ApplyingDatabaseChange(string sql);
+		/// <summary>
+		/// Log a Sql statement that changes the schema or content of the database as part of a migration
+		/// </summary>
+		/// <remarks>
+		/// SELECT statements should not be logged using this method as they do not alter the data or schema of the
+		/// database.
+		/// </remarks>
+		/// <param name="sql">The Sql statement to log</param>
+		void ApplyingDatabaseChange(string sql);
 
 		/// <summary>
 		/// Log that we had an exception on a migration
@@ -59,12 +62,12 @@ namespace ECM7.Migrator.Framework
 		/// <param name="ex">The exception itself</param>
 		void Exception(long version, string migrationName, Exception ex);
 
-        /// <summary>
-        /// Log that we had an exception on a migration
-        /// </summary>
-        /// <param name="message">An informative message to show to the user.</param>
-        /// <param name="ex">The exception itself</param>
-        void Exception(string message, Exception ex);
+		/// <summary>
+		/// Log that we had an exception on a migration
+		/// </summary>
+		/// <param name="message">An informative message to show to the user.</param>
+		/// <param name="ex">The exception itself</param>
+		void Exception(string message, Exception ex);
 
 		/// <summary>
 		/// Log that we have finished a migration
@@ -72,7 +75,7 @@ namespace ECM7.Migrator.Framework
 		/// <param name="currentVersion">List of versions with which we started</param>
 		/// <param name="finalVersion">Final Version</param>
 		void Finished(List<long> currentVersion, long finalVersion);
-		
+
 		/// <summary>
 		/// Log a message
 		/// </summary>
@@ -83,15 +86,15 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// Log a Warning
 		/// </summary>
-        /// <param name="format">The format string ("{0}, blabla {1}").</param>
-        /// <param name="args">Parameters to apply to the format string.</param>
+		/// <param name="format">The format string ("{0}, blabla {1}").</param>
+		/// <param name="args">Parameters to apply to the format string.</param>
 		void Warn(string format, params object[] args);
 
 		/// <summary>
 		/// Log a Trace Message
 		/// </summary>
-        /// <param name="format">The format string ("{0}, blabla {1}").</param>
-        /// <param name="args">Parameters to apply to the format string.</param>
+		/// <param name="format">The format string ("{0}, blabla {1}").</param>
+		/// <param name="args">Parameters to apply to the format string.</param>
 		void Trace(string format, params object[] args);
 	}
 }

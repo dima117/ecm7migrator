@@ -4,30 +4,30 @@ using System.IO;
 
 namespace ECM7.Migrator.Framework.Loggers
 {
-    public class SqlScriptFileLogger : ILogger, IDisposable
-    {
-        private readonly ILogger innerLogger;
-        private TextWriter streamWriter;
+	public class SqlScriptFileLogger : ILogger, IDisposable
+	{
+		private readonly ILogger innerLogger;
+		private TextWriter streamWriter;
 
-        public SqlScriptFileLogger(ILogger logger, TextWriter streamWriter)
-        {
-            innerLogger = logger;
-            this.streamWriter = streamWriter;
-        }
+		public SqlScriptFileLogger(ILogger logger, TextWriter streamWriter)
+		{
+			innerLogger = logger;
+			this.streamWriter = streamWriter;
+		}
 
-        #region IDisposable Members
+		#region IDisposable Members
 
-        public void Dispose()
-        {
-            if (streamWriter != null)
-            {
-                streamWriter.Dispose();
-                streamWriter = null;
-            }
-        }
+		public void Dispose()
+		{
+			if (streamWriter != null)
+			{
+				streamWriter.Dispose();
+				streamWriter = null;
+			}
+		}
 
-        #endregion
-        
+		#endregion
+
 		#region ILogger members
 
 		public void Log(string format, params object[] args)
@@ -90,8 +90,8 @@ namespace ECM7.Migrator.Framework.Loggers
 		{
 			innerLogger.Finished(appliedVersions, currentVersion);
 			streamWriter.Close();
-		} 
-		
+		}
+
 		#endregion
-    }
+	}
 }
