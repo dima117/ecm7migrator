@@ -1,5 +1,6 @@
 namespace ECM7.Migrator.NAnt
 {
+	using System.IO;
 	using Configuration;
 	using global::NAnt.Core;
 	using global::NAnt.Core.Attributes;
@@ -13,8 +14,8 @@ namespace ECM7.Migrator.NAnt
 	///  <property name="version" value="-1" overwrite="false" />
 	///  <migrate
 	///    dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
-	///    connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
-	///    migrations="bin/MyProject.dll"
+	///    connection-string="Database=MyDB;Data Source=localhost;User Id=;Password=;"
+	///    assembly-file="bin/MyProject.dll"
 	///    to="${version}" />
 	/// </target>
 	/// </example>
@@ -55,7 +56,15 @@ namespace ECM7.Migrator.NAnt
 		/// Путь к файлу с миграциями
 		/// </summary>
 		[TaskAttribute("assembly-file")]
-		public string AssemblyFile { get; set; }
+		public FileInfo AssemblyFileInfo { get; set; }
+
+		/// <summary>
+		/// Путь к файлу сборки с миграциями
+		/// </summary>
+		public string AssemblyFile
+		{
+			get { return AssemblyFileInfo.FullName; }
+		}
 
 		/// <summary>
 		/// Версия, до которой нужно обновить БД
