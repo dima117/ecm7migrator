@@ -1,25 +1,17 @@
 namespace ECM7.Migrator.MSBuild
 {
-	using System;
-	using System.IO;
-	using System.Reflection;
-	using Framework.Loggers;
-	using Logger;
+	using Configuration;
 	using Microsoft.Build.Framework;
 	using Microsoft.Build.Utilities;
 
 	/// <summary>
 	/// Runs migrations on a database
 	/// </summary>
-	/// <remarks>
-	/// To script the changes applied to the database via the migrations into a file, set the <see cref="ScriptChanges"/> 
-	/// flag and provide a file to write the changes to via the <see cref="ScriptFile"/> setting.
-	/// </remarks>
 	/// <example>
 	/// <Target name="Migrate" DependsOnTargets="Build">
 	///     <Migrate Dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
 	///         Connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
-	///         Migrations="bin/MyProject.dll"/>
+	///         AssemblyFile="bin/MyProject.dll"/>
 	/// </Target>
 	/// </example>
 	/// <example>
@@ -34,104 +26,66 @@ namespace ECM7.Migrator.MSBuild
 	///         To="$(SchemaVersion)"/>
 	/// </Target>
 	/// </example>
-	public class Migrate : Task
+	public class Migrate : Task, IMigratorConfiguration
 	{
-		private long to = -1; // To last revision
-		private string scriptFile;
+		#region IMigratorConfiguration members
 
+		/// <summary>
+		/// Диалект
+		/// </summary>
 		[Required]
 		public string Dialect { get; set; }
 
-		[Required]
+		/// <summary>
+		/// Строка подключения
+		/// </summary>
 		public string ConnectionString { get; set; }
 
 		/// <summary>
-		/// The paths to the assemblies that contain your migrations. 
-		/// This will generally just be a single item.
+		/// Название строки подключения
 		/// </summary>
-		public ITaskItem[] Migrations { get; set; }
+		public string ConnectionStringName { get; set; }
 
 		/// <summary>
-		/// The paths to the directory that contains your migrations. 
-		/// This will generally just be a single item.
+		/// Сборка с миграциями
 		/// </summary>
-		public string Directory { get; set; }
+		public string Assembly { get; set; }
 
-		public string Language { get; set; }
+		/// <summary>
+		/// Путь к файлу с миграциями
+		/// </summary>
+		public string AssemblyFile { get; set; }
 
+		#endregion
+
+		/// <summary>
+		/// Версия, до которой нужно обновить БД
+		/// <para>По умолчанию = -1 (обновить до последней версии)</para>
+		/// </summary>
+		private long to = -1;
+
+		/// <summary>
+		/// Версия, до которой нужно обновить БД
+		/// </summary>
 		public long To
 		{
 			get { return to; }
 			set { to = value; }
 		}
 
-		public bool Trace { get; set; }
-
-		public bool DryRun { get; set; }
-
 		/// <summary>
-		/// Gets value indicating whether to script the changes made to the database 
-		/// to the file indicated by <see cref="ScriptFile"/>.
+		/// Executes a task.
 		/// </summary>
-		/// <value><c>true</c> if the changes should be scripted to a file; otherwise, <c>false</c>.</value>
-		public bool ScriptChanges
-		{
-			get { return !string.IsNullOrEmpty(scriptFile); }
-		}
-
-		/// <summary>
-		/// Gets or sets the script file that will contain the Sql statements 
-		/// that are executed as part of the migrations.
-		/// </summary>
-		public string ScriptFile
-		{
-			get { return scriptFile; }
-			set { scriptFile = value; }
-		}
-
+		/// <returns>
+		/// true if the task executed successfully; otherwise, false.
+		/// </returns>
 		public override bool Execute()
 		{
-			if (null != Migrations)
-			{
-				foreach (ITaskItem assembly in Migrations)
-				{
-					Assembly asm = Assembly.Load(assembly.GetMetadata("FullPath"));
-					Execute(asm);
-				}
-			}
+			Migrator migrator = MigratorFactory.CreateMigrator(this);
+
+			migrator.Migrate(to);
 
 			return true;
 		}
-
-		private void Execute(Assembly asm)
-		{
-			Migrator mig = new Migrator(Dialect, ConnectionString, Trace, new TaskLogger(this), asm);
-			mig.DryRun = DryRun;
-			if (ScriptChanges)
-			{
-				using (StreamWriter writer = new StreamWriter(ScriptFile))
-				{
-					mig.Logger = new SqlScriptFileLogger(mig.Logger, writer);
-					RunMigration(mig);
-				}
-			}
-			else
-			{
-				RunMigration(mig);
-			}
-		}
-
-		private void RunMigration(Migrator mig)
-		{
-			if (mig.DryRun)
-				mig.Logger.Log("********** Dry run! Not actually applying changes. **********");
-
-			if (to == -1)
-				mig.MigrateToLastVersion();
-			else
-				mig.Migrate(to);
-		}
 	}
 }
-
-

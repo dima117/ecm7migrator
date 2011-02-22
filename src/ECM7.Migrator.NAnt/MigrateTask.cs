@@ -36,25 +36,25 @@ namespace ECM7.Migrator.NAnt
 		/// <summary>
 		/// Строка подключения
 		/// </summary>
-		[TaskAttribute("connection-string", Required = true)]
+		[TaskAttribute("connection-string")]
 		public string ConnectionString { get; set; }
 
 		/// <summary>
 		/// Название строки подключения
 		/// </summary>
-		[TaskAttribute("connection-string-name", Required = true)]
+		[TaskAttribute("connection-string-name")]
 		public string ConnectionStringName { get; set; }
 
 		/// <summary>
 		/// Сборка с миграциями
 		/// </summary>
-		[TaskAttribute("assembly", Required = true)]
+		[TaskAttribute("assembly")]
 		public string Assembly { get; set; }
 
 		/// <summary>
 		/// Путь к файлу с миграциями
 		/// </summary>
-		[TaskAttribute("assembly-file", Required = true)]
+		[TaskAttribute("assembly-file")]
 		public string AssemblyFile { get; set; }
 
 		/// <summary>

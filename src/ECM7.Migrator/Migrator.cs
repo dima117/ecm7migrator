@@ -128,7 +128,7 @@ namespace ECM7.Migrator
 		{
 			long version = databaseVersion == -1 ? migrationLoader.LastVersion : databaseVersion;
 
-			Require.That(version > 0, "Версия БД должна быть больше 0 или иметь значение -1 (соответствует последней доступной версии)");
+			Require.That(version >= 0, "Версия БД должна быть больше/равна 0 или иметь значение -1 (соответствует последней доступной версии)");
 
 			if (migrationLoader.MigrationsTypes.Count == 0)
 			{
