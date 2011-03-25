@@ -1,15 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using ECM7.Migrator.Framework;
-#if DOTNET2
-using SqliteConnection=System.Data.SQLite.SQLiteConnection;
-#else
-using Mono.Data.Sqlite;
-#endif
-
 namespace ECM7.Migrator.Providers.SQLite
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Data;
+	using System.Linq;
+	using ECM7.Migrator.Framework;
+	using SqliteConnection = System.Data.SQLite.SQLiteConnection;
+
 	/// <summary>
 	/// Summary description for SQLiteTransformationProvider.
 	/// </summary>
@@ -23,38 +20,56 @@ namespace ECM7.Migrator.Providers.SQLite
 			connection.Open();
 		}
 
+		/// <summary>
+		/// Check that the index with the specified name already exists
+		/// </summary>
 		public override bool IndexExists(string indexName, string tableName)
 		{
 			throw new NotImplementedException();
 		}
 
-		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, ECM7.Migrator.Framework.ForeignKeyConstraint onDeleteConstraint, ECM7.Migrator.Framework.ForeignKeyConstraint onUpdateConstraint)
+		/// <summary>
+		/// Добавление внешнего ключа
+		/// </summary>
+		public override void AddForeignKey(
+			string name,
+			string primaryTable,
+			string[] primaryColumns,
+			string refTable,
+			string[] refColumns,
+			ECM7.Migrator.Framework.ForeignKeyConstraint onDeleteConstraint,
+			ECM7.Migrator.Framework.ForeignKeyConstraint onUpdateConstraint)
 		{
 			// todo: написать тесты на отсутствие поддержки внешних ключей в SQLite
 			throw new NotSupportedException("SQLite не поддерживает внешние ключи");
 		}
 
 
+		/// <summary>
+		/// Remove an existing foreign key constraint
+		/// </summary>
+		/// <param name="name">The name of the foreign key to remove</param>
+		/// <param name="table">The table that contains the foreign key.</param>
 		public override void RemoveForeignKey(string name, string table)
 		{
 			throw new NotSupportedException("SQLite не поддерживает внешние ключи");
 		}
 
+		/// <summary>
+		/// Remove an existing column from a table
+		/// </summary>
+		/// <param name="table">The name of the table to remove the column from</param>
+		/// <param name="column">The column to remove</param>
 		public override void RemoveColumn(string table, string column)
 		{
 			if (!(TableExists(table) && ColumnExists(table, column)))
-				return;
-
-			string[] origColDefs = GetColumnDefs(table);
-			List<string> colDefs = new List<string>();
-
-			foreach (string origdef in origColDefs)
 			{
-				if (!ColumnMatch(column, origdef))
-					colDefs.Add(origdef);
+				return;
 			}
 
-			string[] newColDefs = colDefs.ToArray();
+			string[] origColDefs = GetColumnDefs(table);
+
+			string[] newColDefs = origColDefs.Where(origdef => !ColumnMatch(column, origdef)).ToArray();
 			string colDefsSql = String.Join(",", newColDefs);
 
 			string[] colNames = ParseSqlForColumnNames(newColDefs);
@@ -66,16 +81,23 @@ namespace ECM7.Migrator.Providers.SQLite
 			ExecuteQuery(String.Format("ALTER TABLE {0}_temp RENAME TO {0}", table));
 		}
 
+		/// <summary>
+		/// Rename an existing table
+		/// </summary>
+		/// <param name="tableName">The name of the table</param>
+		/// <param name="oldColumnName">The old name of the column</param>
+		/// <param name="newColumnName">The new name of the column</param>
 		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
 			if (ColumnExists(tableName, newColumnName))
+			{
 				throw new MigrationException(String.Format("Table '{0}' has column named '{1}' already", tableName, newColumnName));
+			}
 
 			if (ColumnExists(tableName, oldColumnName))
 			{
 				string[] columnDefs = GetColumnDefs(tableName);
-				string columnDef = Array.Find(columnDefs,
-					col => ColumnMatch(oldColumnName, col));
+				string columnDef = Array.Find(columnDefs, col => ColumnMatch(oldColumnName, col));
 
 				string newColumnDef = columnDef.Replace(oldColumnName, newColumnName);
 
@@ -85,6 +107,12 @@ namespace ECM7.Migrator.Providers.SQLite
 			}
 		}
 
+		/// <summary>
+		/// Change the definition of an existing column.
+		/// </summary>
+		/// <param name="table">The name of the table that will get the new column</param>
+		/// <param name="column">
+		/// An instance of a <see cref="Column">Column</see> with the specified properties and the name of an existing column</param>
 		public override void ChangeColumn(string table, Column column)
 		{
 			if (!ColumnExists(table, column.Name))
@@ -100,6 +128,10 @@ namespace ECM7.Migrator.Providers.SQLite
 			RemoveColumn(table, tempColumn);
 		}
 
+		/// <summary>
+		/// Check if a table already exists
+		/// </summary>
+		/// <param name="table">The name of the table that you want to check on.</param>
 		public override bool TableExists(string table)
 		{
 			using (IDataReader reader =
@@ -109,11 +141,21 @@ namespace ECM7.Migrator.Providers.SQLite
 			}
 		}
 
+		/// <summary>
+		/// Determines if a constraint exists.
+		/// </summary>
+		/// <param name="table">Table owning the constraint</param>
+		/// <param name="name">Constraint name</param>
+		/// <returns><c>true</c> if the constraint exists.</returns>
 		public override bool ConstraintExists(string table, string name)
 		{
 			return false;
 		}
 
+		/// <summary>
+		/// Get the names of all of the tables
+		/// </summary>
+		/// <returns>The names of all the tables.</returns>
 		public override string[] GetTables()
 		{
 			List<string> tables = new List<string>();
