@@ -14,11 +14,13 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		{
 			string constr = ConfigurationManager.AppSettings["SQLiteConnectionString"];
 			if (constr == null)
+			{
 				throw new ArgumentNullException("SQLiteConnectionString", "No config file");
+			}
 
 			provider = new SQLiteTransformationProvider(new SQLiteDialect(), constr);
 			provider.BeginTransaction();
-            
+
 			AddDefaultTable();
 		}
 
