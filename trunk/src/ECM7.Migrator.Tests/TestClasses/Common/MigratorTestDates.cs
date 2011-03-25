@@ -1,22 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using ECM7.Migrator.Framework;
-using ECM7.Migrator.Framework.Loggers;
-using ECM7.Migrator.Loader;
-using NUnit.Framework;
-using NUnit.Mocks;
-
 namespace ECM7.Migrator.Tests.TestClasses.Common
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Reflection;
+	using ECM7.Common.Utils.Exceptions;
+	using Framework;
+	using Framework.Loggers;
+	using Loader;
+	using NUnit.Framework;
+	using NUnit.Mocks;
+
 	[TestFixture]
 	public class MigratorTestDates
 	{
 		private Migrator migrator;
 
 		// Collections that contain the version that are called migrating up and down
-		private static readonly List<long> UpCalled = new List<long>();
-		private static readonly List<long> DownCalled = new List<long>();
+		private static readonly List<long> upCalled = new List<long>();
+		private static readonly List<long> downCalled = new List<long>();
 
 		[SetUp]
 		public void SetUp()
@@ -30,11 +31,11 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			SetUpCurrentVersion(2008010195);
 			migrator.Migrate(2008030195);
 
-			Assert.AreEqual(2, UpCalled.Count);
-			Assert.AreEqual(0, DownCalled.Count);
+			Assert.AreEqual(2, upCalled.Count);
+			Assert.AreEqual(0, downCalled.Count);
 
-			Assert.AreEqual(2008020195, UpCalled[0]);
-			Assert.AreEqual(2008030195, UpCalled[1]);
+			Assert.AreEqual(2008020195, upCalled[0]);
+			Assert.AreEqual(2008030195, upCalled[1]);
 		}
 
 		[Test]
@@ -43,11 +44,11 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			SetUpCurrentVersion(2008030195);
 			migrator.Migrate(2008010195);
 
-			Assert.AreEqual(0, UpCalled.Count);
-			Assert.AreEqual(2, DownCalled.Count);
+			Assert.AreEqual(0, upCalled.Count);
+			Assert.AreEqual(2, downCalled.Count);
 
-			Assert.AreEqual(2008030195, DownCalled[0]);
-			Assert.AreEqual(2008020195, DownCalled[1]);
+			Assert.AreEqual(2008030195, downCalled[0]);
+			Assert.AreEqual(2008020195, downCalled[1]);
 		}
 
 		[Test]
@@ -62,10 +63,10 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			}
 			catch (Exception) { }
 
-			Assert.AreEqual(1, UpCalled.Count);
-			Assert.AreEqual(0, DownCalled.Count);
+			Assert.AreEqual(1, upCalled.Count);
+			Assert.AreEqual(0, downCalled.Count);
 
-			Assert.AreEqual(2008040195, UpCalled[0]);
+			Assert.AreEqual(2008040195, upCalled[0]);
 		}
 
 		[Test]
@@ -80,10 +81,10 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			}
 			catch (Exception) { }
 
-			Assert.AreEqual(0, UpCalled.Count);
-			Assert.AreEqual(1, DownCalled.Count);
+			Assert.AreEqual(0, upCalled.Count);
+			Assert.AreEqual(1, downCalled.Count);
 
-			Assert.AreEqual(2008060195, DownCalled[0]);
+			Assert.AreEqual(2008060195, downCalled[0]);
 		}
 
 		[Test]
@@ -93,8 +94,8 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 
 			migrator.Migrate(2008030195);
 
-			Assert.AreEqual(0, UpCalled.Count);
-			Assert.AreEqual(0, DownCalled.Count);
+			Assert.AreEqual(0, upCalled.Count);
+			Assert.AreEqual(0, downCalled.Count);
 		}
 
 		[Test]
@@ -104,74 +105,25 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 
 			migrator.Migrate();
 
-			Assert.AreEqual(2, UpCalled.Count);
-			Assert.AreEqual(0, DownCalled.Count);
+			Assert.AreEqual(2, upCalled.Count);
+			Assert.AreEqual(0, downCalled.Count);
 		}
 
 		[Test]
-		public void MigrateUpWithHoles()
+		public void CantMigrateUpWithHoles()
 		{
-			List<long> migs = new List<long> {2008010195, 2008030195};
+			List<long> migs = new List<long> { 2008010195, 2008030195 };
 			SetUpCurrentVersion(2008030195, migs, false, false);
-			migrator.Migrate(2008040195);
-
-
-			Assert.AreEqual(2, UpCalled.Count);
-			Assert.AreEqual(0, DownCalled.Count);
-
-			Assert.AreEqual(2008020195, UpCalled[0]);
-			Assert.AreEqual(2008040195, UpCalled[1]);
-
+			Assert.Throws<RequirementNotCompliedException>(() => migrator.Migrate(2008040195));
 		}
 
 		[Test]
-		public void MigrateDownWithHoles()
+		public void CantMigrateDownWithHoles()
 		{
 			List<long> migs = new List<long> { 2008010195, 2008030195, 2008040195 };
 			SetUpCurrentVersion(2008040195, migs, false, false);
-			migrator.Migrate(2008030195);
-
-			Assert.AreEqual(1, UpCalled.Count);
-			Assert.AreEqual(1, DownCalled.Count);
-
-			Assert.AreEqual(2008020195, UpCalled[0]);
-			Assert.AreEqual(2008040195, DownCalled[0]);
-
+			Assert.Throws<RequirementNotCompliedException>(() => migrator.Migrate(2008030195));
 		}
-
-		[Test]
-		public void PostMergeMigrateDown()
-		{
-			// Assume trunk had versions 1 2 and 4.  A branch is merged with 3, then 
-			// rollback to version 2.  v3 should be untouched, and v4 should be rolled back
-			List<long> migs = new List<long> {2008010195, 2008020195, 2008040195};
-			SetUpCurrentVersion(2008040195, migs, false, false);
-			migrator.Migrate(2008020195);
-
-			Assert.AreEqual(0, UpCalled.Count);
-			Assert.AreEqual(1, DownCalled.Count);
-
-			Assert.AreEqual(2008040195, DownCalled[0]);
-
-		}
-
-		[Test]
-		public void PostMergeOldAndMigrateLatest()
-		{
-			// Assume trunk had versions 1 2 and 4.  A branch is merged with 3, then 
-			// we migrate to Latest.  v3 should be applied and nothing else done.
-			List<long> migs = new List<long> {2008010195, 2008020195, 2008040195};
-			SetUpCurrentVersion(2008040195, migs, false, false);
-			migrator.Migrate(2008040195);
-
-			Assert.AreEqual(1, UpCalled.Count);
-			Assert.AreEqual(0, DownCalled.Count);
-
-			Assert.AreEqual(2008030195, UpCalled[0]);
-
-		}
-
-
 
 		[Test]
 		public void ToHumanName()
@@ -181,12 +133,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 
 		#region Helper methods and classes
 
-		private void SetUpCurrentVersion(long version)
-		{
-			SetUpCurrentVersion(version, false);
-		}
-
-		private void SetUpCurrentVersion(long version, bool assertRollbackIsCalled)
+		private void SetUpCurrentVersion(long version, bool assertRollbackIsCalled = false)
 		{
 			SetUpCurrentVersion(version, assertRollbackIsCalled, true);
 		}
@@ -217,8 +164,8 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 
 			// Enlève toutes les migrations trouvée automatiquement
 			migrator.MigrationsTypes.Clear();
-			UpCalled.Clear();
-			DownCalled.Clear();
+			upCalled.Clear();
+			downCalled.Clear();
 
 			migrator.MigrationsTypes.Add(new MigrationInfo(typeof(FirstMigration)));
 			migrator.MigrationsTypes.Add(new MigrationInfo(typeof(SecondMigration)));
@@ -235,11 +182,11 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		{
 			override public void Up()
 			{
-				UpCalled.Add(new MigrationInfo(GetType()).Version);
+				upCalled.Add(new MigrationInfo(GetType()).Version);
 			}
 			override public void Down()
 			{
-				DownCalled.Add(new MigrationInfo(GetType()).Version);
+				downCalled.Add(new MigrationInfo(GetType()).Version);
 			}
 		}
 
