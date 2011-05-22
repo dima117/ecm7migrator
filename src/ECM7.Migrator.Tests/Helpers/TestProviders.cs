@@ -27,7 +27,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQL_SERVER_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"]);
+					SQL_SERVER_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"], string.Empty);
 			}
 		}
 
@@ -36,7 +36,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQL_SERVER_2005_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"]);
+					SQL_SERVER_2005_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"], string.Empty);
 			}
 		}
 
@@ -45,7 +45,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQL_SERVER_CE_DIALECT, ConfigurationManager.AppSettings["SqlServerCeConnectionString"]);
+					SQL_SERVER_CE_DIALECT, ConfigurationManager.AppSettings["SqlServerCeConnectionString"], string.Empty);
 			}
 		}
 
@@ -54,7 +54,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					MYSQL_DIALECT, ConfigurationManager.AppSettings["MySqlConnectionString"]);
+					MYSQL_DIALECT, ConfigurationManager.AppSettings["MySqlConnectionString"], string.Empty);
 			}
 		}
 
@@ -63,7 +63,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					POSTGRE_SQL_DIALECT, ConfigurationManager.AppSettings["NpgsqlConnectionString"]);
+					POSTGRE_SQL_DIALECT, ConfigurationManager.AppSettings["NpgsqlConnectionString"], string.Empty);
 			}
 		}
 
@@ -72,7 +72,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQLITE_DIALECT, ConfigurationManager.AppSettings["SQLiteConnectionString"]);
+					SQLITE_DIALECT, ConfigurationManager.AppSettings["SQLiteConnectionString"], string.Empty);
 			}
 		}
 
@@ -81,7 +81,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					ORACLE_DIALECT, ConfigurationManager.AppSettings["OracleConnectionString"]);
+					ORACLE_DIALECT, ConfigurationManager.AppSettings["OracleConnectionString"], string.Empty);
 			}
 		}
 	}

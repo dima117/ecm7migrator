@@ -51,5 +51,14 @@
 		{
 			get { return (string)base["assembly-file"]; }
 		}
+
+		/// <summary>
+		/// Ключ миграций
+		/// </summary>
+		[ConfigurationProperty("key")]
+		public string Key
+		{
+			get { return (string)base["key"]; }
+		}
 	}
 }

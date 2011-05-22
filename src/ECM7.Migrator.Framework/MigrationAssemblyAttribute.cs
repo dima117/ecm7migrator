@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 
 //The contents of this file are subject to the Mozilla Public License
 //Version 1.1 (the "License"); you may not use this file except in
@@ -16,38 +16,28 @@ using System;
 namespace ECM7.Migrator.Framework
 {
     /// <summary>
-    /// Describe a migration
+    /// Describe a migration assembly
     /// </summary>
-    public class MigrationAttribute : Attribute
+    public class MigrationAssemblyAttribute : Attribute
     {
-		private long _version;
-		private bool _ignore = false;
+		private string _key;
 
 		/// <summary>
 		/// Describe the migration
 		/// </summary>
-		/// <param name="version">The unique version of the migration.</param>	
-		public MigrationAttribute(long version)
+		/// <param name="key">Key of the migration.</param>	
+		public MigrationAssemblyAttribute(string key)
 		{
-			Version = version;
+			Key = key;
 		}
 
 		/// <summary>
-		/// The version reflected by the migration
+		/// The key of the migration
 		/// </summary>
-		public long Version
+		public string Key
 		{
-			get { return _version; }
-			private set { _version = value; }
+			get { return _key; }
+			private set { _key = value; }
 		}
-
-		/// <summary>
-        /// Set to <c>true</c> to ignore this migration.
-        /// </summary>
-        public bool Ignore
-        {
-            get { return _ignore; }
-            set { _ignore = value; }
-        }
     }
 }

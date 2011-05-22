@@ -14,10 +14,12 @@ namespace ECM7.Migrator.Loader
 	{
 		private readonly ITransformationProvider provider;
 		private readonly List<MigrationInfo> migrationsTypes = new List<MigrationInfo>();
+		private readonly string key;
 
 		public MigrationLoader(ITransformationProvider provider, bool trace, params Assembly[] migrationAssemblies)
 		{
 			this.provider = provider;
+			this.key = provider.Key;
 			AddMigrations(migrationAssemblies);
 
 			if (trace)
@@ -36,7 +38,7 @@ namespace ECM7.Migrator.Loader
 			{
 				if (assembly != null)
 				{
-					List<MigrationInfo> collection = GetMigrationInfoList(assembly);
+					List<MigrationInfo> collection = GetMigrationInfoList(assembly, key ?? string.Empty);
 					migrationsTypes.AddRange(collection);
 				}
 			}
@@ -85,18 +87,29 @@ namespace ECM7.Migrator.Loader
 		/// Collect migrations in one <c>Assembly</c>.
 		/// </summary>
 		/// <param name="asm">The <c>Assembly</c> to browse.</param>
+		/// <param name="asm">Key of the assembly</param>
 		/// <returns>The migrations collection</returns>
-		public static List<MigrationInfo> GetMigrationInfoList(Assembly asm)
+		public static List<MigrationInfo> GetMigrationInfoList(Assembly asm, string key)
 		{
 			List<MigrationInfo> migrations = new List<MigrationInfo>();
-			foreach (Type type in asm.GetExportedTypes())
-			{
-				MigrationAttribute attribute = Attribute.GetCustomAttribute(
-					type, typeof(MigrationAttribute)) as MigrationAttribute;
 
-				if (attribute != null && typeof(IMigration).IsAssignableFrom(type) && !attribute.Ignore)
+			MigrationAssemblyAttribute asmAttribute = Attribute.GetCustomAttribute(
+				asm, typeof(MigrationAssemblyAttribute)) as MigrationAssemblyAttribute;
+			
+			if ((asmAttribute == null && string.IsNullOrEmpty(key) ||
+				(asmAttribute != null && asmAttribute.Key == key)))
+			{
+				foreach (Type type in asm.GetExportedTypes())
 				{
-					migrations.Add(new MigrationInfo(type));
+					MigrationAttribute attribute = Attribute.GetCustomAttribute(
+						type, typeof(MigrationAttribute)) as MigrationAttribute;
+
+					if (attribute != null
+						&& typeof(IMigration).IsAssignableFrom(type)
+						&& !attribute.Ignore)
+					{
+						migrations.Add(new MigrationInfo(type));
+					}
 				}
 			}
 

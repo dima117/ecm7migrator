@@ -389,5 +389,7 @@ namespace ECM7.Migrator.Providers
 		{
 			return false;
 		}
+
+		public string Key { get; set; }
 	}
 }

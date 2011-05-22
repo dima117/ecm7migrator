@@ -56,13 +56,13 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		[Test, Category("Некорректные диалекты"), ExpectedException(typeof(RequirementNotCompliedException))]
 		public void CantLoadNotExistsDialect()
 		{
-			ProviderFactory.Create("NotExistsDialect", string.Empty);
+			ProviderFactory.Create("NotExistsDialect", string.Empty, string.Empty);
 		}
 
 		[Test, Category("Некорректные диалекты"), ExpectedException(typeof(RequirementNotCompliedException))]
 		public void CantLoadNotDialectClass()
 		{
-			ProviderFactory.Create("System.Int32", string.Empty);
+			ProviderFactory.Create("System.Int32", string.Empty, string.Empty);
 		}
 
 		#endregion
@@ -73,7 +73,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void SqlServerShortcutTest()
 		{
 			TransformationProvider tp = ProviderFactory.Create(
-				"SqlServer", ConfigurationManager.AppSettings["SqlServerConnectionString"]);
+				"SqlServer", ConfigurationManager.AppSettings["SqlServerConnectionString"], string.Empty);
 			Assert.That(tp is ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider);
 			Assert.That(tp.Dialect is ECM7.Migrator.Providers.SqlServer.SqlServerDialect);
 		}
@@ -82,7 +82,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void SqlServer2005ShortcutTest()
 		{
 			TransformationProvider tp = ProviderFactory.Create(
-				"SqlServer2005", ConfigurationManager.AppSettings["SqlServerConnectionString"]);
+				"SqlServer2005", ConfigurationManager.AppSettings["SqlServerConnectionString"], string.Empty);
 			Assert.That(tp is ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider);
 			Assert.That(tp.Dialect is ECM7.Migrator.Providers.SqlServer.SqlServer2005Dialect);
 		}
@@ -91,7 +91,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void SqlServerCeShortcutTest()
 		{
 			TransformationProvider tp = ProviderFactory.Create(
-				"SqlServerCe", ConfigurationManager.AppSettings["SqlServerCeConnectionString"]);
+				"SqlServerCe", ConfigurationManager.AppSettings["SqlServerCeConnectionString"], string.Empty);
 			Assert.That(tp is ECM7.Migrator.Providers.SqlServer.SqlServerCeTransformationProvider);
 			Assert.That(tp.Dialect is ECM7.Migrator.Providers.SqlServer.SqlServerCeDialect);
 		}
@@ -100,7 +100,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void OracleShortcutTest()
 		{
 			TransformationProvider tp = ProviderFactory.Create(
-				"Oracle", ConfigurationManager.AppSettings["OracleConnectionString"]);
+				"Oracle", ConfigurationManager.AppSettings["OracleConnectionString"], string.Empty);
 			Assert.That(tp is ECM7.Migrator.Providers.Oracle.OracleTransformationProvider);
 			Assert.That(tp.Dialect is ECM7.Migrator.Providers.Oracle.OracleDialect);
 		}
@@ -109,7 +109,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void MySqlShortcutTest()
 		{
 			TransformationProvider tp = ProviderFactory.Create(
-				"MySql", ConfigurationManager.AppSettings["MySqlConnectionString"]);
+				"MySql", ConfigurationManager.AppSettings["MySqlConnectionString"], string.Empty);
 			Assert.That(tp is ECM7.Migrator.Providers.MySql.MySqlTransformationProvider);
 			Assert.That(tp.Dialect is ECM7.Migrator.Providers.MySql.MySqlDialect);
 		}
@@ -118,7 +118,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void SQLiteShortcutTest()
 		{
 			TransformationProvider tp = ProviderFactory.Create(
-				"SQLite", ConfigurationManager.AppSettings["SQLiteConnectionString"]);
+				"SQLite", ConfigurationManager.AppSettings["SQLiteConnectionString"], string.Empty);
 			Assert.That(tp is ECM7.Migrator.Providers.SQLite.SQLiteTransformationProvider);
 			Assert.That(tp.Dialect is ECM7.Migrator.Providers.SQLite.SQLiteDialect);
 		}
@@ -127,7 +127,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		public void PostgreSQLShortcutTest()
 		{
 			TransformationProvider tp = ProviderFactory.Create(
-				"PostgreSQL", ConfigurationManager.AppSettings["NpgsqlConnectionString"]);
+				"PostgreSQL", ConfigurationManager.AppSettings["NpgsqlConnectionString"], string.Empty);
 			Assert.That(tp is ECM7.Migrator.Providers.PostgreSQL.PostgreSQLTransformationProvider);
 			Assert.That(tp.Dialect is ECM7.Migrator.Providers.PostgreSQL.PostgreSQLDialect);
 		}

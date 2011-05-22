@@ -9,8 +9,8 @@ namespace ECM7.Migrator.Providers.Oracle
 {
 	public class OracleTransformationProvider : TransformationProvider
 	{
-		public OracleTransformationProvider(Dialect dialect, string connectionString)
-			: base(dialect, connectionString)
+		public OracleTransformationProvider(Dialect dialect, string connectionString, string key)
+			: base(dialect, connectionString, key)
 		{
 			connection = new OracleConnection();
 			connection.ConnectionString = base.connectionString;

@@ -12,8 +12,8 @@ namespace ECM7.Migrator.Providers.SQLite
 	/// </summary>
 	public class SQLiteTransformationProvider : TransformationProvider
 	{
-		public SQLiteTransformationProvider(Dialect dialect, string connectionString)
-			: base(dialect, connectionString)
+		public SQLiteTransformationProvider(Dialect dialect, string connectionString, string key)
+			: base(dialect, connectionString, key)
 		{
 			connection = new SqliteConnection(base.connectionString);
 			connection.ConnectionString = base.connectionString;

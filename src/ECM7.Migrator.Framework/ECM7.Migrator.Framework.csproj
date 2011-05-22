@@ -82,6 +82,7 @@
     <Compile Include="Loggers\Logger.cs" />
     <Compile Include="Loggers\SqlScriptFileLogger.cs" />
     <Compile Include="Migration.cs" />
+    <Compile Include="MigrationAssemblyAttribute.cs" />
     <Compile Include="MigrationAttribute.cs" />
     <Compile Include="MigrationException.cs" />
     <Compile Include="SchemaBuilder\AddColumnExpression.cs" />

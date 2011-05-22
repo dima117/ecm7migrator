@@ -11,8 +11,8 @@ namespace ECM7.Migrator.Providers.MySql
     /// </summary>
     public class MySqlTransformationProvider : TransformationProvider
     {
-        public MySqlTransformationProvider(Dialect dialect, string connectionString)
-            : base(dialect, connectionString)
+        public MySqlTransformationProvider(Dialect dialect, string connectionString, string key)
+            : base(dialect, connectionString, key)
         {
             connection = new MySqlConnection(base.connectionString);
             connection.ConnectionString = base.connectionString;
