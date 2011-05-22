@@ -533,5 +533,10 @@ namespace ECM7.Migrator.Framework
 		                                   string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint);
 
 		void ExecuteFromResource(Assembly assembly, string path);
+
+		/// <summary>
+		/// Key of the migrations
+		/// </summary>
+		string Key { get; }
 	}
 }

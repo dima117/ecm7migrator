@@ -85,6 +85,7 @@
     <Compile Include="Helpers\TestProviders.cs" />
     <Compile Include="TestClasses\Common\ColumnPropertyMappingTest.cs" />
     <Compile Include="Data\SecondTestMigration.cs" />
+    <Compile Include="TestClasses\Common\MigrationKeyTests.cs" />
     <Compile Include="TestClasses\Common\MigrationLoaderTest.cs" />
     <Compile Include="TestClasses\Common\MigrationTestCase.cs" />
     <Compile Include="TestClasses\Common\MigrationTypeComparerTest.cs" />
@@ -136,6 +137,10 @@
     <ProjectReference Include="..\ECM7.Migrator.Providers.SqlServer\ECM7.Migrator.Providers.SqlServer.csproj">
       <Project>{6ADF67EC-6865-4A44-8E41-2BAF236B9792}</Project>
       <Name>ECM7.Migrator.Providers.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.TestAssembly\ECM7.Migrator.TestAssembly.csproj">
+      <Project>{C7EBEAE4-50AD-49B1-89BB-2D9035E8117D}</Project>
+      <Name>ECM7.Migrator.TestAssembly</Name>
     </ProjectReference>
     <ProjectReference Include="..\ECM7.Migrator\ECM7.Migrator.csproj">
       <Project>{1FEE70A4-AAD7-4C60-BE60-3F7DC03A8C4D}</Project>

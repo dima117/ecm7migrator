@@ -30,7 +30,12 @@
 		/// <summary>
 		/// Путь к файлу с миграциями
 		/// </summary>
-		public string AssemblyFile { get;  set; }
+		public string AssemblyFile { get; set; }
+
+		/// <summary>
+		/// Ключ миграций
+		/// </summary>
+		public string Key { get; set; }
 
 		#endregion
 	}

@@ -30,20 +30,23 @@ namespace ECM7.Migrator.Providers
 	/// </summary>
 	public abstract class TransformationProvider : ITransformationProvider
 	{
+		private const string SchemaInfoTable = "SchemaInfo";
 		private ILogger logger;
 		protected IDbConnection connection;
 		private IDbTransaction transaction;
 		private List<long> appliedMigrations;
+		private string key;
 
 		protected readonly string connectionString;
 		protected Dialect dialect;
 
 		private readonly ForeignKeyConstraintMapper constraintMapper = new ForeignKeyConstraintMapper();
 
-		protected TransformationProvider(Dialect dialect, string connectionString)
+		protected TransformationProvider(Dialect dialect, string connectionString, string key)
 		{
 			this.dialect = dialect;
 			this.connectionString = connectionString;
+			this.key = key ?? string.Empty;
 			logger = new Logger(false);
 		}
 
@@ -64,6 +67,12 @@ namespace ECM7.Migrator.Providers
 		public Dialect Dialect
 		{
 			get { return dialect; }
+		}
+
+		public string Key
+		{
+			get { return key; }
+			set { key = value; }
 		}
 
 		public virtual Column[] GetColumns(string table)
@@ -824,8 +833,12 @@ namespace ECM7.Migrator.Providers
 					appliedMigrations = new List<long>();
 					CreateSchemaInfoTable();
 
+					string where = string.Format(
+						"[key] = '{0}'",
+						this.key.Replace("'", "''"));
+
 					// переделать на DataTable
-					using (IDataReader reader = Select("version", "SchemaInfo"))
+					using (IDataReader reader = Select("version", SchemaInfoTable, where))
 						while (reader.Read())
 							appliedMigrations.Add(reader.GetInt64(0));
 
@@ -842,7 +855,7 @@ namespace ECM7.Migrator.Providers
 		public void MigrationApplied(long version)
 		{
 			CreateSchemaInfoTable();
-			Insert("SchemaInfo", new[] { "version" }, new[] { version.ToString() });
+			Insert(SchemaInfoTable, new[] { "version", "[key]" }, new[] { version.ToString(), this.key });
 			appliedMigrations.Add(version);
 		}
 
@@ -853,16 +866,31 @@ namespace ECM7.Migrator.Providers
 		public void MigrationUnApplied(long version)
 		{
 			CreateSchemaInfoTable();
-			Delete("SchemaInfo", "version", version.ToString());
+			Delete(SchemaInfoTable, new[] { "version", "[key]" }, new[] { version.ToString(), key });
 			appliedMigrations.Remove(version);
 		}
 
 		protected void CreateSchemaInfoTable()
 		{
 			EnsureHasConnection();
-			if (!TableExists("SchemaInfo"))
+			Column verColumn = new Column("Version", DbType.Int64, ColumnProperty.NotNull);
+			Column keyColumn = new Column("[Key]", DbType.String.WithSize(200), ColumnProperty.NotNull, "''");
+
+			if (!TableExists(SchemaInfoTable))
 			{
-				AddTable("SchemaInfo", new Column("Version", DbType.Int64, ColumnProperty.PrimaryKey));
+				AddTable(SchemaInfoTable, verColumn, keyColumn);
+				AddUniqueConstraint("UC_SchemaInfo", SchemaInfoTable, "Version", "[Key]");
+			}
+			else
+			{
+				if (!ColumnExists(SchemaInfoTable, "Key"))
+				{
+					AddTable("SchemaTmp", verColumn, keyColumn);
+					ExecuteNonQuery("INSERT INTO SchemaTmp (Version) SELECT Version FROM SchemaInfo");
+					RemoveTable(SchemaInfoTable);
+					RenameTable("SchemaTmp", SchemaInfoTable);
+					AddUniqueConstraint("UC_SchemaInfo", SchemaInfoTable, "Version", "[Key]");
+				}
 			}
 		}
 

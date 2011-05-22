@@ -37,8 +37,35 @@ namespace ECM7.Migrator
 		/// <param name="dialectTypeName">Диалект</param>
 		/// <param name="connectionString">Строка подключения</param>
 		/// <param name="assemblies">Сборки с миграциями</param>
+		public Migrator(string dialectTypeName, string connectionString, string key, params Assembly[] assemblies)
+			: this(dialectTypeName, connectionString, key, false, assemblies)
+		{
+		}
+
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		public Migrator(string dialectTypeName, string connectionString, string key, bool trace, params Assembly[] assemblies)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString, key), trace, assemblies)
+		{
+		}
+
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		public Migrator(string dialectTypeName, string connectionString, string key, bool trace, ILogger logger, params Assembly[] assemblies)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString, key), trace, logger, assemblies)
+		{
+		}
+
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		/// <param name="dialectTypeName">Диалект</param>
+		/// <param name="connectionString">Строка подключения</param>
+		/// <param name="assemblies">Сборки с миграциями</param>
 		public Migrator(string dialectTypeName, string connectionString, params Assembly[] assemblies)
-			: this(dialectTypeName, connectionString, false, assemblies)
+			: this(dialectTypeName, connectionString, string.Empty, false, assemblies)
 		{
 		}
 
@@ -46,7 +73,7 @@ namespace ECM7.Migrator
 		/// Инициализация
 		/// </summary>
 		public Migrator(string dialectTypeName, string connectionString, bool trace, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString), trace, assemblies)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString, string.Empty), trace, assemblies)
 		{
 		}
 
@@ -54,7 +81,7 @@ namespace ECM7.Migrator
 		/// Инициализация
 		/// </summary>
 		public Migrator(string dialectTypeName, string connectionString, bool trace, ILogger logger, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString), trace, logger, assemblies)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString, string.Empty), trace, logger, assemblies)
 		{
 		}
 

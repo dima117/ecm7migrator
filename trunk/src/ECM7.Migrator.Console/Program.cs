@@ -81,18 +81,38 @@ namespace ECM7.Migrator.Console
 			return version;
 		}
 
+		private static string GetKey(IEnumerable<string> args)
+		{
+			string key = string.Empty;
+
+			// TODO: учесть строки с пробелами, если есть кавычки
+			Regex regex = new Regex(@"^\s*-key:(?'key'\.+)\s*$", RegexOptions.IgnoreCase);
+
+			foreach (string param in args)
+			{
+				if (regex.IsMatch(param))
+				{
+					Match match = regex.Match(param);
+					key = match.Groups["key"].Value;
+				}
+			}
+
+			return key;
+		}
+
 		/// <summary>
 		/// Получение конфигурации мигратора из набора аргументов консоли
 		/// </summary>
 		/// <param name="args">Список аргументов</param>
 		private static MigratorConfiguration GetConfig(string[] args)
 		{
-			Require.That(args.Length >= 3, "Required parameters: dialect, connection string, migration assembly");
+			Require.That(args.Length >= 3, "Parameters: dialect, connection string, migration assembly");
 
 			// получаем значения первых трех аргументов
 			string dialect = args[0];
 			string connectionString = args[1];
 			string migrationsAssembly = args[2];
+			string key = GetKey(args);
 
 			MigratorConfiguration config = new MigratorConfiguration { Dialect = dialect };
 
@@ -115,6 +135,8 @@ namespace ECM7.Migrator.Console
 			{
 				config.ConnectionString = connectionString;
 			}
+
+			config.Key = key;
 
 			return config;
 		}

@@ -16,7 +16,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 			string constr = ConfigurationManager.AppSettings["MySqlConnectionString"];
 			if (constr == null)
 				throw new ArgumentNullException("MySqlConnectionString", "No config file");
-			provider = new MySqlTransformationProvider(new MySqlDialect(), constr);
+			provider = new MySqlTransformationProvider(new MySqlDialect(), constr, string.Empty);
 			// provider.Logger = new Logger(true, new ConsoleWriter());
 
 			AddDefaultTable();

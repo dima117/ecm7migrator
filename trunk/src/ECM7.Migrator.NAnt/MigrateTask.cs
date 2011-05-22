@@ -59,6 +59,12 @@ namespace ECM7.Migrator.NAnt
 		public FileInfo AssemblyFileInfo { get; set; }
 
 		/// <summary>
+		/// Ключ миграций
+		/// </summary>
+		[TaskAttribute("key")]
+		public string Key { get; set; }
+
+		/// <summary>
 		/// Путь к файлу сборки с миграциями
 		/// </summary>
 		public string AssemblyFile

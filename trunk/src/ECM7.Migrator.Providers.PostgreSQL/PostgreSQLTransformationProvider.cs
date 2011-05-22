@@ -25,8 +25,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 	/// </summary>
 	public class PostgreSQLTransformationProvider : TransformationProvider
 	{
-		public PostgreSQLTransformationProvider(Dialect dialect, string connectionString)
-			: base(dialect, connectionString)
+		public PostgreSQLTransformationProvider(Dialect dialect, string connectionString, string key)
+			: base(dialect, connectionString, key)
 		{
 			connection = new NpgsqlConnection();
 			connection.ConnectionString = connectionString;

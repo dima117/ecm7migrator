@@ -23,8 +23,8 @@ namespace ECM7.Migrator.Providers.SqlServer
 	/// </summary>
 	public class SqlServerCeTransformationProvider : SqlServerTransformationProvider
 	{
-		public SqlServerCeTransformationProvider(Dialect dialect, string connectionString)
-			: base(dialect, connectionString)
+		public SqlServerCeTransformationProvider(Dialect dialect, string connectionString, string key)
+			: base(dialect, connectionString, key)
 		{
 
 		}

@@ -85,25 +85,25 @@ namespace ECM7.Migrator
 		#region Create
 
 		public static TransformationProvider Create<TDialect>(
-			Type dialectType, string connectionString)
+			Type dialectType, string connectionString, string key)
 			where TDialect : Dialect, new()
 		{
-			return GetDialect<TDialect>().NewProviderForDialect(connectionString);
+			return GetDialect<TDialect>().NewProviderForDialect(connectionString, key);
 		}
 
-		public static TransformationProvider Create(Type dialectType, string connectionString)
+		public static TransformationProvider Create(Type dialectType, string connectionString, string key)
 		{
-			return GetDialect(dialectType).NewProviderForDialect(connectionString);
+			return GetDialect(dialectType).NewProviderForDialect(connectionString, key);
 		}
 
-		public static TransformationProvider Create(string dialectName, string connectionString)
+		public static TransformationProvider Create(string dialectName, string connectionString, string key)
 		{
 			string dialectTypeName = shortcuts.ContainsKey(dialectName)
 			                         	? shortcuts[dialectName]
 			                         	: dialectName;
 			Type dialectType = Type.GetType(dialectTypeName);
 			Require.IsNotNull(dialectType, "Не удалось загрузить диалект: {0}".FormatWith(dialectName.Nvl("null")));
-			return Create(dialectType, connectionString);
+			return Create(dialectType, connectionString, key);
 		}
 
 		#endregion
