@@ -21,6 +21,7 @@ using ECM7.Migrator.Framework.SchemaBuilder;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 using System.Reflection;
 using System.IO;
+using ECM7.Migrator.Compatibility;
 
 namespace ECM7.Migrator.Providers
 {
@@ -873,23 +874,21 @@ namespace ECM7.Migrator.Providers
 		protected void CreateSchemaInfoTable()
 		{
 			EnsureHasConnection();
-			Column verColumn = new Column("Version", DbType.Int64, ColumnProperty.NotNull);
-			Column keyColumn = new Column("[Key]", DbType.String.WithSize(200), ColumnProperty.NotNull, "''");
 
 			if (!TableExists(SchemaInfoTable))
 			{
-				AddTable(SchemaInfoTable, verColumn, keyColumn);
+				AddTable(
+					SchemaInfoTable,
+					new Column("Version", DbType.Int64, ColumnProperty.NotNull),
+					new Column("[Key]", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
 				AddUniqueConstraint("UC_SchemaInfo", SchemaInfoTable, "Version", "[Key]");
 			}
 			else
 			{
 				if (!ColumnExists(SchemaInfoTable, "Key"))
 				{
-					AddTable("SchemaTmp", verColumn, keyColumn);
-					ExecuteNonQuery("INSERT INTO SchemaTmp (Version) SELECT Version FROM SchemaInfo");
-					RemoveTable(SchemaInfoTable);
-					RenameTable("SchemaTmp", SchemaInfoTable);
-					AddUniqueConstraint("UC_SchemaInfo", SchemaInfoTable, "Version", "[Key]");
+					// TODO: Удалить код совместимости для старой таблицы SchemaInfo в следующих версиях
+					UpdateSchemaInfo.Update(this);
 				}
 			}
 		}
