@@ -20,8 +20,7 @@ namespace ECM7.Migrator.Loader
 			Require.IsNotNull(type, "Не задан обрабатываемый класс");
 			Require.That(typeof(IMigration).IsAssignableFrom(type), "Класс миграции должен реализовывать интерфейс IMigration");
 
-			MigrationAttribute attribute = Attribute.GetCustomAttribute(
-				type, typeof(MigrationAttribute)) as MigrationAttribute;
+			MigrationAttribute attribute = type.GetCustomAttribute<MigrationAttribute>();
 			Require.IsNotNull(attribute, "Не найден атрибут Migration");
 
 			Type = type;

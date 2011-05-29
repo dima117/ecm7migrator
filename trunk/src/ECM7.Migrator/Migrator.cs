@@ -2,7 +2,6 @@ namespace ECM7.Migrator
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Linq;
 	using System.Reflection;
 	using Framework;
 	using Framework.Loggers;
@@ -42,35 +41,8 @@ namespace ECM7.Migrator
 		/// <param name="dialectTypeName">Диалект</param>
 		/// <param name="connectionString">Строка подключения</param>
 		/// <param name="assemblies">Сборки с миграциями</param>
-		public Migrator(string dialectTypeName, string connectionString, string key, params Assembly[] assemblies)
-			: this(dialectTypeName, connectionString, key, false, assemblies)
-		{
-		}
-
-		/// <summary>
-		/// Инициализация
-		/// </summary>
-		public Migrator(string dialectTypeName, string connectionString, string key, bool trace, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString), key, assemblies)
-		{
-		}
-
-		/// <summary>
-		/// Инициализация
-		/// </summary>
-		public Migrator(string dialectTypeName, string connectionString, string key, bool trace, ILogger logger, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString), key, logger, assemblies)
-		{
-		}
-
-		/// <summary>
-		/// Инициализация
-		/// </summary>
-		/// <param name="dialectTypeName">Диалект</param>
-		/// <param name="connectionString">Строка подключения</param>
-		/// <param name="assemblies">Сборки с миграциями</param>
 		public Migrator(string dialectTypeName, string connectionString, params Assembly[] assemblies)
-			: this(dialectTypeName, connectionString, string.Empty, false, assemblies)
+			: this(dialectTypeName, connectionString, string.Empty, null, assemblies)
 		{
 		}
 
@@ -79,14 +51,6 @@ namespace ECM7.Migrator
 		/// </summary>
 		public Migrator(string dialectTypeName, string connectionString, string key, ILogger logger, params Assembly[] assemblies)
 			: this(ProviderFactory.Create(dialectTypeName, connectionString), key, logger, assemblies)
-		{
-		}
-
-		/// <summary>
-		/// Инициализация
-		/// </summary>
-		public Migrator(ITransformationProvider provider, string key, bool trace, params Assembly[] assemblies)
-			: this(provider, key, new Logger(trace, new ConsoleWriter()), assemblies)
 		{
 		}
 
@@ -102,14 +66,10 @@ namespace ECM7.Migrator
 			Logger = logger;
 
 			migrationLoader = new MigrationLoader(key, logger, assemblies);
-			migrationLoader.CheckForDuplicatedVersion();
 
 			// TODO:!!!! ПЕРЕИМЕНОВАТЬ ПОЛЕ MIGRATE В VERSIONMANAGER!!!!!
 			List<long> availableMigrations = migrationLoader.GetAvailableMigrations();
-			migrate = BaseMigrate.GetInstance(availableMigrations, provider, logger);
-
-			// проверка корректности номеров миграций
-			migrate.CheckMigrationNumbers(availableMigrations);
+			migrate = new BaseMigrate(provider, key, availableMigrations, logger);
 		}
 
 		#endregion
@@ -127,7 +87,10 @@ namespace ECM7.Migrator
 		/// </summary>
 		public List<long> AppliedMigrations
 		{
-			get { return provider.AppliedMigrations; }
+			get
+			{
+				return migrate.AppliedVersions;
+			}
 		}
 
 		/// <summary>
@@ -176,7 +139,7 @@ namespace ECM7.Migrator
 
 			while (migrate.Continue(version))
 			{
-				IMigration migration = migrationLoader.GetMigration(migrate.Current);
+				IMigration migration = migrationLoader.GetMigration(migrate.Current, provider);
 				if (null == migration)
 				{
 					logger.Skipping(migrate.Current);

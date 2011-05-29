@@ -41,6 +41,8 @@ namespace ECM7.Migrator.Loader
 					logger.Trace("{0} {1}", m.Version.ToString().PadLeft(5), StringUtils.ToHumanName(m.Type.Name));
 				}
 			}
+
+			CheckForDuplicatedVersion();
 		}
 
 		/// <summary>
@@ -71,9 +73,9 @@ namespace ECM7.Migrator.Loader
 		/// <param name="key">Ключ</param>
 		private static bool AssemblyHasTargetKey(Assembly assembly, string key)
 		{
-			MigrationAssemblyAttribute asmAttribute = Attribute.GetCustomAttribute(
-				assembly, typeof(MigrationAssemblyAttribute)) as MigrationAssemblyAttribute;
-
+			MigrationAssemblyAttribute asmAttribute = 
+				assembly.GetCustomAttribute<MigrationAssemblyAttribute>();
+			
 			string targetKey = key ?? string.Empty;
 
 			string assemblyKey = asmAttribute == null 
@@ -98,7 +100,7 @@ namespace ECM7.Migrator.Loader
 		{
 			get
 			{
-				return migrationsTypes.Count == 0 ? 0
+				return migrationsTypes.IsEmpty() ? 0 
 					: migrationsTypes.Select(info => info.Version).Max();
 			}
 		}
@@ -133,8 +135,7 @@ namespace ECM7.Migrator.Loader
 
 			foreach (Type type in asm.GetExportedTypes())
 			{
-				MigrationAttribute attribute = Attribute.GetCustomAttribute(
-					type, typeof(MigrationAttribute)) as MigrationAttribute;
+				MigrationAttribute attribute = type.GetCustomAttribute<MigrationAttribute>();
 
 				if (attribute != null
 					&& typeof(IMigration).IsAssignableFrom(type)
