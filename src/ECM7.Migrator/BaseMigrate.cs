@@ -6,64 +6,102 @@ namespace ECM7.Migrator
 
 	using ECM7.Migrator.Framework;
 
-	public class BaseMigrate
+	/// <summary>
+	/// Менеджер версий БД
+	/// </summary>
+	public sealed class BaseMigrate
 	{
 		// TODO!!!!!!!! СДЕЛАТЬ СПИСОК ВЫПОЛНЕННЫХ ВЕРСИЙ, КЭШИРОВАТЬ ЕГО, МЕНЯТЬ ЕГО ПРИ ИЗМЕНЕНИИ БД И ОПРЕДЕЛЯТЬ ПО НЕМУ НОМЕР ТЕКУЩЕЙ ВЕРСИИ!!!!!!!
 
 		// TODO!!!! ЗАГРУЖАТЬ МИГРАЦИИ СО ВСЕМИ КЛЮЧАМИ И ДАВАТЬ ВОЗМОЖНОСТЬ ФИЛЬТРОВАТЬ ПО КЛЮЧУ
-		protected readonly ITransformationProvider provider;
-		protected ILogger logger;
-		protected List<long> availableMigrations;
-		protected List<long> original;
-		protected long current;
 
+		/// <summary>
+		/// Провайдер СУБД
+		/// </summary>
+		private readonly ITransformationProvider provider;
+
+		/// <summary>
+		/// Logger
+		/// </summary>
+		private readonly ILogger logger;
+
+		/// <summary>
+		/// Доступные для выполнения миграции
+		/// </summary>
+		private readonly List<long> availableMigrations;
+
+		/// <summary>
+		/// Выполненные миграции на текущий момент
+		/// </summary>
+		private readonly List<long> currentAppliedMigrations;
+
+		/// <summary>
+		/// Выполненные миграции на момент инициализации
+		/// </summary>
+		private readonly List<long> originalAppliedMigrations;
+
+		/// <summary>
+		/// Номер текущей миграции
+		/// </summary>
+		public long Current
+		{
+			get
+			{
+				return currentAppliedMigrations.IsEmpty() ? 0 : currentAppliedMigrations.Max();
+			}
+		}
+
+		/// <summary>
+		/// Признак, что миграции должны выполняться в порядке возрастания
+		/// </summary>
 		private bool goForward;
 
-		protected BaseMigrate(List<long> availableMigrations, ITransformationProvider provider, ILogger logger)
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		/// <param name="provider">Провайдер СУБД</param>
+		/// <param name="key">Ключ для фильтрации миграций</param>
+		/// <param name="availableMigrations">Номера версий доступных для выполнения миграций</param>
+		/// <param name="logger">Logger</param>
+		public BaseMigrate(ITransformationProvider provider, string key, List<long> availableMigrations, ILogger logger)
 		{
+			// валидация параметров
+			Require.IsNotNull(provider, "Не задан провайдер СУБД");
+
 			this.provider = provider;
-			this.availableMigrations = availableMigrations;
-			this.original = new List<long>(this.provider.AppliedMigrations.ToArray()); // clone
 			this.logger = logger;
 
-			current = 0;
-			if (provider.AppliedMigrations.Count > 0)
-			{
-				current = provider.AppliedMigrations[provider.AppliedMigrations.Count - 1];
-			}
+			// списки доступных и выполненных миграций
+			this.availableMigrations = availableMigrations;
+			this.originalAppliedMigrations = provider.GetAppliedMigrations(key);
+			this.currentAppliedMigrations = new List<long>(originalAppliedMigrations.ToArray()); // clone
 
 			goForward = false;
+
+			CheckMigrationNumbers();
 		}
 
 		/// <summary>
 		/// Проверка, что выполнены все доступные миграции с номерами меньше текущей
 		/// </summary>
-		/// <param name="availableMigrations">Доступные миграции</param>
-		public void CheckMigrationNumbers(IList<long> availableMigrations)
+		private void CheckMigrationNumbers()
 		{
-			
-			long current = appliedVersions.IsEmpty() ? 0 : appliedVersions.Max();
-			var skippedMigrations = availableMigrations.Where(m => m <= current && !appliedVersions.Contains(m));
+			long current = this.Current;
 
-			string errorMessage = "The current database version is {0}, the migration {1} are available but not used"
-				.FormatWith(current, skippedMigrations.ToCommaSeparatedString());
-			Require.AreEqual(skippedMigrations.Count(), 0, errorMessage);
-		}
+			var skippedMigrations = availableMigrations
+				.Where(m => m <= current && !currentAppliedMigrations.Contains(m));
 
-		public static BaseMigrate GetInstance(List<long> availableMigrations, ITransformationProvider provider, ILogger logger)
-		{
-			return new BaseMigrate(availableMigrations, provider, logger);
+			Require.AreEqual(
+				skippedMigrations.Count(),
+				0,
+				"The current database version is {0}, the migration {1} are available but not used",
+				current,
+				skippedMigrations.ToCommaSeparatedString());
 		}
 
 		public List<long> AppliedVersions
 		{
-			get { return original; }
-		}
-
-		public virtual long Current
-		{
-			get { return current; }
-			protected set { current = value; }
+			get { return originalAppliedMigrations; }
 		}
 
 		public long Previous
@@ -98,48 +136,30 @@ namespace ECM7.Migrator
 			return !goForward || Current <= targetVersion;
 		}
 
-		public void Migrate(IMigration migration)
-		{
-			provider.BeginTransaction();
-			MigrationAttribute attr = (MigrationAttribute)Attribute.GetCustomAttribute(migration.GetType(), typeof(MigrationAttribute));
-
-			if (provider.AppliedMigrations.Contains(attr.Version))
-			{
-				RemoveMigration(migration, attr);
-			}
-			else
-			{
-				ApplyMigration(migration, attr);
-			}
-
-		}
-
 		/// <summary>
-		/// Finds the next migration available to be applied.  Only returns
-		/// migrations that have NOT already been applied.
+		/// Ищем версию первой доступной невыполненной миграции, превышающую текущую версию
 		/// </summary>
-		/// <returns>The migration number of the next available Migration.</returns>
-		protected long NextMigration()
+		private long NextMigration()
 		{
 			// Start searching at the current index
-			int migrationSearch = availableMigrations.IndexOf(Current) + 1;
+			int pos = availableMigrations.IndexOf(Current) + 1;
 
 			// See if we can find a migration that matches the requirement
-			while (migrationSearch < availableMigrations.Count
-				  && provider.AppliedMigrations.Contains(availableMigrations[migrationSearch]))
+			while (pos < availableMigrations.Count
+				  && currentAppliedMigrations.Contains(availableMigrations[pos]))
 			{
-				migrationSearch++;
+				pos++;
 			}
 
 			// did we exhaust the list?
-			if (migrationSearch == availableMigrations.Count)
+			if (pos == availableMigrations.Count)
 			{
 				// we're at the last one.  Done!
-				return availableMigrations[migrationSearch - 1] + 1;
+				return availableMigrations[pos - 1] + 1;
 			}
 
 			// found one.
-			return availableMigrations[migrationSearch];
+			return availableMigrations[pos];
 		}
 
 		/// <summary>
@@ -147,13 +167,13 @@ namespace ECM7.Migrator
 		/// migrations that HAVE already been applied.
 		/// </summary>
 		/// <returns>The most recently applied Migration.</returns>
-		protected long PreviousMigration()
+		private long PreviousMigration()
 		{
 			// Start searching at the current index
 			int migrationSearch = availableMigrations.IndexOf(Current) - 1;
 
 			// See if we can find a migration that matches the requirement
-			while (migrationSearch > -1 && !provider.AppliedMigrations.Contains(availableMigrations[migrationSearch]))
+			while (migrationSearch > -1 && !currentAppliedMigrations.Contains(availableMigrations[migrationSearch]))
 			{
 				migrationSearch--;
 			}
@@ -169,26 +189,46 @@ namespace ECM7.Migrator
 			return availableMigrations[migrationSearch];
 		}
 
+		#region выполнение миграций
+
+		public void Migrate(IMigration migration)
+		{
+			provider.BeginTransaction();
+			MigrationAttribute attr = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+			if (currentAppliedMigrations.Contains(attr.Version))
+			{
+				RemoveMigration(migration, attr);
+			}
+			else
+			{
+				ApplyMigration(migration, attr);
+			}
+		}
+
 		private void ApplyMigration(IMigration migration, MigrationAttribute attr)
 		{
-			// we're adding this one
+			// перенести в мигратор, оставить только изменение номеров версий
 			logger.MigrateUp(Current, migration.Name);
 
 			migration.Up();
-			provider.MigrationApplied(attr.Version);
+			provider.MigrationApplied(attr.Version,);
+			currentAppliedMigrations.Add(attr.Version);
 			provider.Commit();
 			migration.AfterUp();
 		}
 
 		private void RemoveMigration(IMigration migration, MigrationAttribute attr)
 		{
-			// we're removing this one
+			// перенести в мигратор, оставить только изменение номеров версий
 			logger.MigrateDown(Current, migration.Name);
 			migration.Down();
 			provider.MigrationUnApplied(attr.Version);
+			currentAppliedMigrations.Remove(attr.Version);
 			provider.Commit();
 			migration.AfterDown();
 		}
 
+		#endregion
 	}
 }

@@ -48,7 +48,7 @@
 
 			string connectionString = GetConnectionString(config);
 
-			return new Migrator(config.Dialect.Trim(), connectionString, config.Key, assemblies.ToArray());
+			return new Migrator(config.Dialect.Trim(), connectionString, config.Key, null, assemblies.ToArray());
 		}
 
 		/// <summary>
