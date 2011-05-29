@@ -154,6 +154,7 @@
   <ItemGroup>
     <None Include="..\config\app.config">
       <Link>app.config</Link>
+      <SubType>Designer</SubType>
     </None>
     <EmbeddedResource Include="Data\test.res.migration.sql" />
   </ItemGroup>

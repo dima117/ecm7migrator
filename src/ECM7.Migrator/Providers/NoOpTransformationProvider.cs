@@ -301,14 +301,24 @@ namespace ECM7.Migrator.Providers
 			// No Op
 		}
 
-		public void MigrationApplied(long version)
+		/// <summary>
+		/// Marks a Migration version number as having been applied
+		/// </summary>
+		/// <param name="version">The version number of the migration that was applied</param>
+		/// <param name="key">Key of migration series</param>
+		public void MigrationApplied(long version, string key)
 		{
-			//no op
+			// no op
 		}
 
-		public void MigrationUnApplied(long version)
+		/// <summary>
+		/// Marks a Migration version number as having been rolled back from the database
+		/// </summary>
+		/// <param name="version">The version number of the migration that was removed</param>
+		/// <param name="key">Key of migration series</param>
+		public void MigrationUnApplied(long version, string key)
 		{
-			//no op
+			// no op
 		}
 
 		#region For
@@ -350,9 +360,12 @@ namespace ECM7.Migrator.Providers
 
 		#endregion
 
-		public List<long> AppliedMigrations
+		/// <summary>
+		/// The list of Migrations currently applied to the database.
+		/// </summary>
+		public List<long> GetAppliedMigrations(string key)
 		{
-			get { return new List<long>(); }
+			return new List<long>();
 		}
 
 		protected void CreateSchemaInfoTable()
@@ -360,11 +373,25 @@ namespace ECM7.Migrator.Providers
 			// No Op
 		}
 
+		/// <summary>
+		/// Add a column to an existing table
+		/// </summary>
+		/// <param name="table">The name of the table that will get the new column</param>
+		/// <param name="column">An instance of a <see cref="Column">Column</see> with the specified properties</param>
 		public void AddColumn(string table, Column column)
 		{
 			// No Op
 		}
 
+		/// <summary>
+		/// Add a foreign key constraint when you don't care about the name of the constraint.
+		/// Warning: This will prevent you from dropping the constraint since you won't know the name.
+		///
+		/// The current expectations are that there is a column named the same as the foreignTable present in
+		/// the table. This is subject to change because I think it's not a good convention.
+		/// </summary>
+		/// <param name="primaryTable">The table that holds the primary key (eg. Table.PK_id)</param>
+		/// <param name="refTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
 		public void GenerateForeignKey(string primaryTable, string refTable)
 		{
 			// No Op

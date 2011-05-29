@@ -14,14 +14,16 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+
+using ECM7.Migrator.Compatibility;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Framework.Loggers;
 using ECM7.Migrator.Framework.SchemaBuilder;
+
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
-using System.Reflection;
-using System.IO;
-using ECM7.Migrator.Compatibility;
 
 namespace ECM7.Migrator.Providers
 {
@@ -35,19 +37,16 @@ namespace ECM7.Migrator.Providers
 		private ILogger logger;
 		protected IDbConnection connection;
 		private IDbTransaction transaction;
-		private List<long> appliedMigrations;
-		private string key;
 
 		protected readonly string connectionString;
 		protected Dialect dialect;
 
 		private readonly ForeignKeyConstraintMapper constraintMapper = new ForeignKeyConstraintMapper();
 
-		protected TransformationProvider(Dialect dialect, string connectionString, string key)
+		protected TransformationProvider(Dialect dialect, string connectionString)
 		{
 			this.dialect = dialect;
 			this.connectionString = connectionString;
-			this.key = key ?? string.Empty;
 			logger = new Logger(false);
 		}
 
@@ -68,12 +67,6 @@ namespace ECM7.Migrator.Providers
 		public Dialect Dialect
 		{
 			get { return dialect; }
-		}
-
-		public string Key
-		{
-			get { return key; }
-			set { key = value; }
 		}
 
 		public virtual Column[] GetColumns(string table)
@@ -824,51 +817,48 @@ namespace ECM7.Migrator.Providers
 		/// <summary>
 		/// The list of Migrations currently applied to the database.
 		/// </summary>
-		public List<long> AppliedMigrations
+		public List<long> GetAppliedMigrations(string key)
 		{
-			get
+			var appliedMigrations = new List<long>();
+
+			CreateSchemaInfoTable();
+
+			string where = string.Format("[key] = '{0}'", key.Replace("'", "''")); // TODO: проверить на других СУБД
+
+			// переделать на DataTable
+			using (IDataReader reader = Select("version", SchemaInfoTable, where))
 			{
-
-				if (appliedMigrations == null)
+				while (reader.Read())
 				{
-					appliedMigrations = new List<long>();
-					CreateSchemaInfoTable();
-
-					string where = string.Format(
-						"[key] = '{0}'",
-						this.key.Replace("'", "''"));
-
-					// переделать на DataTable
-					using (IDataReader reader = Select("version", SchemaInfoTable, where))
-						while (reader.Read())
-							appliedMigrations.Add(reader.GetInt64(0));
-
-					appliedMigrations.Sort();
+					appliedMigrations.Add(reader.GetInt64(0));
 				}
-				return appliedMigrations;
 			}
+
+			appliedMigrations.Sort();
+
+			return appliedMigrations;
 		}
 
 		/// <summary>
 		/// Marks a Migration version number as having been applied
 		/// </summary>
 		/// <param name="version">The version number of the migration that was applied</param>
-		public void MigrationApplied(long version)
+		/// <param name="key">Key of migration series</param>
+		public void MigrationApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
-			Insert(SchemaInfoTable, new[] { "version", "[key]" }, new[] { version.ToString(), this.key });
-			appliedMigrations.Add(version);
+			Insert(SchemaInfoTable, new[] { "version", "[key]" }, new[] { version.ToString(), key });
 		}
 
 		/// <summary>
 		/// Marks a Migration version number as having been rolled back from the database
 		/// </summary>
 		/// <param name="version">The version number of the migration that was removed</param>
-		public void MigrationUnApplied(long version)
+		/// <param name="key">Key of migration series</param>
+		public void MigrationUnApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
 			Delete(SchemaInfoTable, new[] { "version", "[key]" }, new[] { version.ToString(), key });
-			appliedMigrations.Remove(version);
 		}
 
 		protected void CreateSchemaInfoTable()
@@ -946,7 +936,7 @@ namespace ECM7.Migrator.Providers
 		public void ExecuteFromResource(Assembly assembly, string path)
 		{
 			Require.IsNotNull(assembly, "Incorrect assembly");
-			
+
 			Stream stream = assembly.GetManifestResourceStream(path);
 			Require.IsNotNull(stream, "Не удалось загрузить указанный файл ресурсов");
 

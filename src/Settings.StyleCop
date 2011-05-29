@@ -1,6 +1,13 @@
-<StyleCopSettings Version="4.3">
+<StyleCopSettings Version="105">
+  <Parsers>
+    <Parser ParserId="StyleCop.CSharp.CsParser">
+      <ParserSettings>
+        <BooleanProperty Name="AnalyzeDesignerFiles">False</BooleanProperty>
+      </ParserSettings>
+    </Parser>
+  </Parsers>
   <Analyzers>
-    <Analyzer AnalyzerId="Microsoft.StyleCop.CSharp.DocumentationRules">
+    <Analyzer AnalyzerId="StyleCop.CSharp.DocumentationRules">
       <Rules>
         <Rule Name="FileMustHaveHeader">
           <RuleSettings>
@@ -70,7 +77,7 @@
       </Rules>
       <AnalyzerSettings />
     </Analyzer>
-    <Analyzer AnalyzerId="Microsoft.StyleCop.CSharp.ReadabilityRules">
+    <Analyzer AnalyzerId="StyleCop.CSharp.ReadabilityRules">
       <Rules>
         <Rule Name="PrefixLocalCallsWithThis">
           <RuleSettings>
@@ -85,7 +92,7 @@
       </Rules>
       <AnalyzerSettings />
     </Analyzer>
-    <Analyzer AnalyzerId="Microsoft.StyleCop.CSharp.OrderingRules">
+    <Analyzer AnalyzerId="StyleCop.CSharp.OrderingRules">
       <Rules>
         <Rule Name="UsingDirectivesMustBePlacedWithinNamespace">
           <RuleSettings>
@@ -110,7 +117,7 @@
       </Rules>
       <AnalyzerSettings />
     </Analyzer>
-    <Analyzer AnalyzerId="Microsoft.StyleCop.CSharp.NamingRules">
+    <Analyzer AnalyzerId="StyleCop.CSharp.NamingRules">
       <Rules>
         <Rule Name="FieldNamesMustNotContainUnderscore">
           <RuleSettings>
@@ -174,7 +181,7 @@
         </CollectionProperty>
       </AnalyzerSettings>
     </Analyzer>
-    <Analyzer AnalyzerId="Microsoft.StyleCop.CSharp.SpacingRules">
+    <Analyzer AnalyzerId="StyleCop.CSharp.SpacingRules">
       <Rules>
         <Rule Name="TabsMustNotBeUsed">
           <RuleSettings>
@@ -184,20 +191,15 @@
       </Rules>
       <AnalyzerSettings />
     </Analyzer>
-    <Analyzer AnalyzerId="Shuruev.StyleCop.CSharp.StyleCopPlus">
+    <Analyzer AnalyzerId="StyleCopPlus.StyleCopPlusRules">
       <AnalyzerSettings>
-        <StringProperty Name="AdvancedNaming_ClassInternal">$(AaBb)</StringProperty>
-        <StringProperty Name="AdvancedNaming_StructInternal">$(AaBb)</StringProperty>
+        <StringProperty Name="AdvancedNaming_Abbreviations">A B C X ID 3D OK ECM7</StringProperty>
         <StringProperty Name="AdvancedNaming_ProtectedInstanceField">$(aaBb)</StringProperty>
         <StringProperty Name="AdvancedNaming_PrivateInstanceField">$(aaBb)</StringProperty>
         <StringProperty Name="AdvancedNaming_ProtectedStaticField">$(aaBb)</StringProperty>
         <StringProperty Name="AdvancedNaming_PrivateStaticField">$(aaBb)</StringProperty>
-        <StringProperty Name="AdvancedNaming_PublicConst">$(AA_BB)</StringProperty>
-        <StringProperty Name="AdvancedNaming_ProtectedConst">$(AA_BB)</StringProperty>
-        <StringProperty Name="AdvancedNaming_PrivateConst">$(AA_BB)</StringProperty>
-        <StringProperty Name="AdvancedNaming_InternalConst">$(AA_BB)</StringProperty>
-        <StringProperty Name="AdvancedNaming_Abbreviations">A B C X ID 3D OK ECM7</StringProperty>
-        <StringProperty Name="AdvancedNaming_Words">StyleCop FxCop NAnt MSBuild SQLite</StringProperty>
+        <StringProperty Name="AdvancedNaming_ProtectedConst">$(aaBb)</StringProperty>
+        <StringProperty Name="AdvancedNaming_PrivateConst">$(aaBb):$(AA_BB)</StringProperty>
       </AnalyzerSettings>
     </Analyzer>
   </Analyzers>

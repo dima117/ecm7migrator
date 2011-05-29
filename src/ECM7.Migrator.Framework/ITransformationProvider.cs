@@ -1,6 +1,6 @@
 using System;
-using System.Data;
 using System.Collections.Generic;
+using System.Data;
 using System.Reflection;
 
 namespace ECM7.Migrator.Framework
@@ -13,7 +13,7 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// The list of Migrations currently applied to the database.
 		/// </summary>
-		List<long> AppliedMigrations { get; }
+		List<long> GetAppliedMigrations(string key);
 
 		ILogger Logger { get; set; }
 
@@ -376,13 +376,15 @@ namespace ECM7.Migrator.Framework
 		/// Marks a Migration version number as having been applied
 		/// </summary>
 		/// <param name="version">The version number of the migration that was applied</param>
-		void MigrationApplied(long version);
+		/// <param name="key">Key of migration series</param>
+		void MigrationApplied(long version, string key);
 
 		/// <summary>
 		/// Marks a Migration version number as having been rolled back from the database
 		/// </summary>
 		/// <param name="version">The version number of the migration that was removed</param>
-		void MigrationUnApplied(long version);
+		/// <param name="key">Key of migration series</param>
+		void MigrationUnApplied(long version, string key);
 
 		/// <summary>
 		/// Remove an existing column from a table
@@ -495,7 +497,7 @@ namespace ECM7.Migrator.Framework
 
 		void ExecuteSchemaBuilder(SchemaBuilder.SchemaBuilder schemaBuilder);
 		bool TypeIsSupported(DbType type);
-		
+
 		#region For
 
 		/// <summary>
@@ -533,10 +535,5 @@ namespace ECM7.Migrator.Framework
 		                                   string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint);
 
 		void ExecuteFromResource(Assembly assembly, string path);
-
-		/// <summary>
-		/// Key of the migrations
-		/// </summary>
-		string Key { get; }
 	}
 }
