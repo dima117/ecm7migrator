@@ -1,6 +1,7 @@
 using System;
-using System.Data;
 using System.Collections.Generic;
+using System.Data;
+
 using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers
@@ -23,9 +24,10 @@ namespace ECM7.Migrator.Providers
 
 		public abstract Type TransformationProviderType { get; }
 
-		public TransformationProvider NewProviderForDialect(string connectionString, string key)
+		public TransformationProvider NewProviderForDialect(string connectionString)
 		{
-			return Activator.CreateInstance(TransformationProviderType, this, connectionString, key) as TransformationProvider;
+			// TODO: пройти по провайдерам и удалить из конструктора ключ
+			return Activator.CreateInstance(TransformationProviderType, this, connectionString) as TransformationProvider;
 		}
 
 		/// <summary>

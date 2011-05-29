@@ -28,6 +28,11 @@ namespace ECM7.Migrator
 		/// </summary>
 		private ILogger logger = new Logger(false);
 
+		/// <summary>
+		/// Менеджер версий
+		/// </summary>
+		private readonly BaseMigrate migrate; 
+
 		// todo: проверить работу с мигрэйшнами из нескольких сборок
 		#region constructors
 
@@ -46,7 +51,7 @@ namespace ECM7.Migrator
 		/// Инициализация
 		/// </summary>
 		public Migrator(string dialectTypeName, string connectionString, string key, bool trace, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString, key), trace, assemblies)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString), key, assemblies)
 		{
 		}
 
@@ -54,7 +59,7 @@ namespace ECM7.Migrator
 		/// Инициализация
 		/// </summary>
 		public Migrator(string dialectTypeName, string connectionString, string key, bool trace, ILogger logger, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString, key), trace, logger, assemblies)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString), key, logger, assemblies)
 		{
 		}
 
@@ -72,37 +77,39 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string dialectTypeName, string connectionString, bool trace, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString, string.Empty), trace, assemblies)
+		public Migrator(string dialectTypeName, string connectionString, string key, ILogger logger, params Assembly[] assemblies)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString), key, logger, assemblies)
 		{
 		}
 
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string dialectTypeName, string connectionString, bool trace, ILogger logger, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString, string.Empty), trace, logger, assemblies)
+		public Migrator(ITransformationProvider provider, string key, bool trace, params Assembly[] assemblies)
+			: this(provider, key, new Logger(trace, new ConsoleWriter()), assemblies)
 		{
 		}
 
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(ITransformationProvider provider, bool trace, params Assembly[] assemblies)
-			: this(provider, trace, new Logger(trace, new ConsoleWriter()), assemblies)
+		public Migrator(ITransformationProvider provider, string key, ILogger logger, params Assembly[] assemblies)
 		{
-		}
-
-		/// <summary>
-		/// Инициализация
-		/// </summary>
-		public Migrator(ITransformationProvider provider, bool trace, ILogger logger, params Assembly[] assemblies)
-		{
+			// TODO!!! ОСТАВИТЬ ЗДЕСЬ ТОЛЬКО ИНИЦИАЛИЗАЦИЮ, ОСТАЛЬНОЕ ПЕРЕНЕСТИ В МЕТОД MIGRATE
+			Require.IsNotNull(provider, "Не задан провайдер СУБД");
 			this.provider = provider;
+
 			Logger = logger;
 
-			migrationLoader = new MigrationLoader(provider, trace, assemblies);
+			migrationLoader = new MigrationLoader(key, logger, assemblies);
 			migrationLoader.CheckForDuplicatedVersion();
+
+			// TODO:!!!! ПЕРЕИМЕНОВАТЬ ПОЛЕ MIGRATE В VERSIONMANAGER!!!!!
+			List<long> availableMigrations = migrationLoader.GetAvailableMigrations();
+			migrate = BaseMigrate.GetInstance(availableMigrations, provider, logger);
+
+			// проверка корректности номеров миграций
+			migrate.CheckMigrationNumbers(availableMigrations);
 		}
 
 		#endregion
@@ -164,11 +171,6 @@ namespace ECM7.Migrator
 			}
 
 			bool firstRun = true;
-			List<long> availableMigrations = migrationLoader.GetAvailableMigrations();
-			BaseMigrate migrate = BaseMigrate.GetInstance(availableMigrations, provider, logger);
-
-			// проверка корректности номеров миграций
-			CheckMigrationNumbers(availableMigrations, migrate.AppliedVersions);
 
 			Logger.Started(migrate.AppliedVersions, version);
 
@@ -207,21 +209,6 @@ namespace ECM7.Migrator
 			}
 
 			Logger.Finished(migrate.AppliedVersions, version);
-		}
-
-		/// <summary>
-		/// Проверка, что выполнены все доступные миграции с номерами меньше текущей
-		/// </summary>
-		/// <param name="availableMigrations">Доступные миграции</param>
-		/// <param name="appliedVersions">Выполненные миграции</param>
-		public static void CheckMigrationNumbers(IList<long> availableMigrations, IList<long> appliedVersions)
-		{
-			long current = appliedVersions.IsEmpty() ? 0 : appliedVersions.Max();
-			var skippedMigrations = availableMigrations.Where(m => m <= current && !appliedVersions.Contains(m));
-
-			string errorMessage = "The current database version is {0}, the migration {1} are available but not used"
-				.FormatWith(current, skippedMigrations.ToCommaSeparatedString());
-			Require.AreEqual(skippedMigrations.Count(), 0, errorMessage);
 		}
 	}
 }

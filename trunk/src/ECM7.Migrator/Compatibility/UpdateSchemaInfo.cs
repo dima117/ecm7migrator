@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Data;
 using ECM7.Migrator.Framework;
-using System.Data;
 
 namespace ECM7.Migrator.Compatibility
 {
-	class UpdateSchemaInfo
+	public class UpdateSchemaInfo
 	{
 		/// <summary>
 		/// Расширяет таблицу SchemaInfo полем Key.
 		/// Использутеся при переходе от старой версии
-		/// 
+		///
 		/// Должно быть удалено в будущем
 		/// </summary>
 		/// <param name="provider"></param>

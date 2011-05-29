@@ -77,7 +77,6 @@
     <Compile Include="Loader\DuplicatedVersionException.cs" />
     <Compile Include="IrreversibleMigrationException.cs" />
     <Compile Include="Loader\MigrationInfo.cs" />
-    <Compile Include="MigrateAnywhere.cs" />
     <Compile Include="Loader\MigrationComparer.cs" />
     <Compile Include="Loader\MigrationLoader.cs" />
     <Compile Include="Migrator.cs" />

@@ -7,41 +7,80 @@ namespace ECM7.Migrator.Loader
 	using ECM7.Migrator.Framework;
 
 	/// <summary>
-	/// Handles inspecting code to find all of the Migrations in assemblies and reading
-	/// other metadata such as the last revision, etc.
+	/// Класс для работы с миграциями в сборке
 	/// </summary>
 	public class MigrationLoader
 	{
-		private readonly ITransformationProvider provider;
-		private readonly List<MigrationInfo> migrationsTypes = new List<MigrationInfo>();
-		private readonly string key;
+		/// <summary>
+		/// Список загруженных типов миграций
+		/// </summary>
+		private readonly List<MigrationInfo> migrationsTypes;
 
-		public MigrationLoader(ITransformationProvider provider, bool trace, params Assembly[] migrationAssemblies)
+		/// <summary>
+		/// Ключ для фильтрации миграций
+		/// </summary>
+		public string Key { get; private set; }
+
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		/// <param name="key">Ключ для фильтрации миграций</param>
+		/// <param name="logger">Логгер для записи сообщений трассировки</param>
+		/// <param name="migrationAssemblies">Список сборок с миграциями</param>
+		public MigrationLoader(string key, ILogger logger, params Assembly[] migrationAssemblies)
 		{
-			this.provider = provider;
-			this.key = provider.Key;
-			AddMigrations(migrationAssemblies);
+			this.Key = key;
 
-			if (trace)
+			this.migrationsTypes = LoadMigrations(key, migrationAssemblies);
+
+			if (logger != null)
 			{
-				provider.Logger.Trace("Loaded migrations:");
+				logger.Trace("Loaded migrations:");
 				foreach (var m in migrationsTypes)
 				{
-					provider.Logger.Trace("{0} {1}", m.Version.ToString().PadLeft(5), StringUtils.ToHumanName(m.Type.Name));
+					logger.Trace("{0} {1}", m.Version.ToString().PadLeft(5), StringUtils.ToHumanName(m.Type.Name));
 				}
 			}
 		}
 
-		public void AddMigrations(params Assembly[] assemblies)
+		/// <summary>
+		/// Загрузить доступные миграции
+		/// </summary>
+		/// <param name="key">Ключ для фильтрации загружаемых миграций</param>
+		/// <param name="assemblies">Список сборок с миграциями</param>
+		private static List<MigrationInfo> LoadMigrations(string key, params Assembly[] assemblies)
 		{
+			List<MigrationInfo> migrationsTypes = new List<MigrationInfo>();
+
 			foreach (Assembly assembly in assemblies)
 			{
-				if (assembly != null)
+				if (assembly != null && AssemblyHasTargetKey(assembly, key))
 				{
-					List<MigrationInfo> collection = GetMigrationInfoList(assembly, key ?? string.Empty);
+					List<MigrationInfo> collection = GetMigrationInfoList(assembly);
 					migrationsTypes.AddRange(collection);
 				}
 			}
+
+			return migrationsTypes;
+		}
+
+		/// <summary>
+		/// Проверка, помечена ли сборка с миграциями заданным ключем
+		/// </summary>
+		/// <param name="assembly">Проверяемая сборка</param>
+		/// <param name="key">Ключ</param>
+		private static bool AssemblyHasTargetKey(Assembly assembly, string key)
+		{
+			MigrationAssemblyAttribute asmAttribute = Attribute.GetCustomAttribute(
+				assembly, typeof(MigrationAssemblyAttribute)) as MigrationAssemblyAttribute;
+
+			string targetKey = key ?? string.Empty;
+
+			string assemblyKey = asmAttribute == null 
+				? string.Empty 
+				: asmAttribute.Key ?? string.Empty;
+
+			return targetKey == assemblyKey;
 		}
 
 		/// <summary>
@@ -87,29 +126,21 @@ namespace ECM7.Migrator.Loader
 		/// Collect migrations in one <c>Assembly</c>.
 		/// </summary>
 		/// <param name="asm">The <c>Assembly</c> to browse.</param>
-		/// <param name="asm">Key of the assembly</param>
 		/// <returns>The migrations collection</returns>
-		public static List<MigrationInfo> GetMigrationInfoList(Assembly asm, string key)
+		public static List<MigrationInfo> GetMigrationInfoList(Assembly asm)
 		{
 			List<MigrationInfo> migrations = new List<MigrationInfo>();
 
-			MigrationAssemblyAttribute asmAttribute = Attribute.GetCustomAttribute(
-				asm, typeof(MigrationAssemblyAttribute)) as MigrationAssemblyAttribute;
-			
-			if ((asmAttribute == null && string.IsNullOrEmpty(key) ||
-				(asmAttribute != null && asmAttribute.Key == key)))
+			foreach (Type type in asm.GetExportedTypes())
 			{
-				foreach (Type type in asm.GetExportedTypes())
-				{
-					MigrationAttribute attribute = Attribute.GetCustomAttribute(
-						type, typeof(MigrationAttribute)) as MigrationAttribute;
+				MigrationAttribute attribute = Attribute.GetCustomAttribute(
+					type, typeof(MigrationAttribute)) as MigrationAttribute;
 
-					if (attribute != null
-						&& typeof(IMigration).IsAssignableFrom(type)
-						&& !attribute.Ignore)
-					{
-						migrations.Add(new MigrationInfo(type));
-					}
+				if (attribute != null
+					&& typeof(IMigration).IsAssignableFrom(type)
+					&& !attribute.Ignore)
+				{
+					migrations.Add(new MigrationInfo(type));
 				}
 			}
 
@@ -129,8 +160,10 @@ namespace ECM7.Migrator.Loader
 		/// <summary>
 		/// Получить миграцию по номеру версии
 		/// </summary>
-		public IMigration GetMigration(long version)
+		public IMigration GetMigration(long version, ITransformationProvider provider)
 		{
+			Require.IsNotNull(provider, "Не задан провайдер СУБД");
+
 			var list = migrationsTypes.Where(info => info.Version == version).ToList();
 
 			if (list.Count == 0)
