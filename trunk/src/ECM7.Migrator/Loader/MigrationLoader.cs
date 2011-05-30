@@ -63,6 +63,8 @@ namespace ECM7.Migrator.Loader
 				}
 			}
 
+			migrationsTypes.Sort(new MigrationInfoComparer(true));
+
 			return migrationsTypes;
 		}
 
@@ -147,15 +149,6 @@ namespace ECM7.Migrator.Loader
 
 			migrations.Sort(new MigrationInfoComparer(true));
 			return migrations;
-		}
-
-		/// <summary>
-		/// ѕолучить список номеров доступных миграций
-		/// </summary>
-		public List<long> GetAvailableMigrations()
-		{
-			migrationsTypes.Sort(new MigrationInfoComparer(true));
-			return migrationsTypes.Select(mInfo => mInfo.Version).ToList();
 		}
 
 		/// <summary>

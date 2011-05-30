@@ -2,6 +2,7 @@ namespace ECM7.Migrator
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 	using System.Reflection;
 	using Framework;
 	using Framework.Loggers;
@@ -68,7 +69,8 @@ namespace ECM7.Migrator
 			migrationLoader = new MigrationLoader(key, logger, assemblies);
 
 			// TODO:!!!! ПЕРЕИМЕНОВАТЬ ПОЛЕ MIGRATE В VERSIONMANAGER!!!!!
-			List<long> availableMigrations = migrationLoader.GetAvailableMigrations();
+			List<long> availableMigrations = migrationLoader.MigrationsTypes
+				.Select(mInfo => mInfo.Version).ToList();
 			migrate = new BaseMigrate(provider, key, availableMigrations, logger);
 		}
 
@@ -77,7 +79,7 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Returns registered migration <see cref="System.Type">types</see>.
 		/// </summary>
-		public List<MigrationInfo> MigrationsTypes
+		public List<MigrationInfo> AvailableMigrations
 		{
 			get { return migrationLoader.MigrationsTypes; }
 		}
@@ -85,11 +87,11 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Returns the current migrations applied to the database.
 		/// </summary>
-		public List<long> AppliedMigrations
+		public IList<long> AppliedMigrations
 		{
 			get
 			{
-				return migrate.AppliedVersions;
+				return migrate.CurrentAppliedVersions;
 			}
 		}
 
@@ -123,55 +125,67 @@ namespace ECM7.Migrator
 		/// <param name="databaseVersion">The version that must became the current one</param>
 		public void Migrate(long databaseVersion = -1)
 		{
-			long version = databaseVersion == -1 ? migrationLoader.LastVersion : databaseVersion;
-
-			Require.That(version >= 0, "Версия БД должна быть больше/равна 0 или иметь значение -1 (соответствует последней доступной версии)");
+			long targetVersion = databaseVersion < 0 ? migrationLoader.LastVersion : databaseVersion;
 
 			if (migrationLoader.MigrationsTypes.Count == 0)
 			{
 				logger.Warn("No public classes with the Migration attribute were found.");
-				return;
 			}
-
-			bool firstRun = true;
-
-			Logger.Started(migrate.AppliedVersions, version);
-
-			while (migrate.Continue(version))
+			else
 			{
-				IMigration migration = migrationLoader.GetMigration(migrate.Current, provider);
-				if (null == migration)
-				{
-					logger.Skipping(migrate.Current);
-					migrate.Iterate();
-					continue;
-				}
+				Logger.Started(migrate.CurrentAppliedVersions, targetVersion);
 
-				try
+				while (migrate.Continue(targetVersion))
 				{
-					if (firstRun)
+					IMigration migration = migrationLoader.GetMigration(migrate.Current, provider);
+
+					if (migration == null)
 					{
-						migration.InitializeOnce();
-						firstRun = false;
+						logger.Skipping(migrate.Current);
 					}
-
-					migrate.Migrate(migration);
-				}
-				catch (Exception ex)
-				{
-					Logger.Exception(migrate.Current, migration.Name, ex);
-
-					// Oho! error! We rollback changes.
-					Logger.RollingBack(migrate.Previous);
-					provider.Rollback();
-
-					throw;
+					else
+					{
+						RunMigration(migration);
+					}
 				}
 
-				migrate.Iterate();
+				Logger.Finished(migrate.OriginalAppliedVersions, targetVersion);
 			}
+		}
 
-			Logger.Finished(migrate.AppliedVersions, version);
+		private void RunMigration(IMigration migration)
+		{
+			try
+			{
+				this.provider.BeginTransaction();
+				MigrationAttribute attr = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+
+				// TODO! поменять это условие
+				if (this.migrate.CurrentAppliedVersions.Contains(attr.Version))
+				{
+					this.logger.MigrateDown(attr.Version, migration.Name);
+					migration.Down();
+					this.migrate.RemoveVersion(attr.Version);
+				}
+				else
+				{
+					this.logger.MigrateUp(attr.Version, migration.Name);
+					migration.Up();
+					this.migrate.AddVersion(attr.Version);
+				}
+
+				this.provider.Commit();
+			}
+			catch (Exception ex)
+			{
+				this.Logger.Exception(this.migrate.Current, migration.Name, ex);
+
+				// Oho! error! We rollback changes.
+				this.Logger.RollingBack(this.migrate.Previous);
+				this.provider.Rollback();
+
+				throw;
+			}
 		}
 	}
 }

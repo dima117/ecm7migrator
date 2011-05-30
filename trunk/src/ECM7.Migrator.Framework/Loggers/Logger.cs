@@ -48,7 +48,7 @@ namespace ECM7.Migrator.Framework.Loggers
 			WriteLine("Current version : {0}.  Target version : {1}", currentVersion, finalVersion);
 		}
 
-		public void Started(List<long> currentVersions, long finalVersion)
+		public void Started(IList<long> currentVersions, long finalVersion)
 		{
 			WriteLine("Latest version applied : {0}.  Target version : {1}", LatestVersion(currentVersions), finalVersion);
 		}
@@ -112,7 +112,7 @@ namespace ECM7.Migrator.Framework.Loggers
 			WriteLine("Migrated to version {0}", currentVersion);
 		}
 
-		public void Finished(List<long> originalVersions, long currentVersion)
+		public void Finished(IList<long> originalVersions, long currentVersion)
 		{
 			WriteLine("Migrated to version {0}", currentVersion);
 		}
@@ -157,7 +157,7 @@ namespace ECM7.Migrator.Framework.Loggers
 			return new Logger(false, new ConsoleWriter());
 		}
 		
-		private string LatestVersion(List<long> versions)
+		private string LatestVersion(IList<long> versions)
         {
 			if (versions.Count > 0)
 			{

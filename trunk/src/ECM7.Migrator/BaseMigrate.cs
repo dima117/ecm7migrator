@@ -41,6 +41,11 @@ namespace ECM7.Migrator
 		private readonly List<long> originalAppliedMigrations;
 
 		/// <summary>
+		/// Ключ для фильтрации миграций
+		/// </summary>
+		public string Key { get; private set; }
+
+		/// <summary>
 		/// Номер текущей миграции
 		/// </summary>
 		public long Current
@@ -70,6 +75,7 @@ namespace ECM7.Migrator
 
 			this.provider = provider;
 			this.logger = logger;
+			this.Key = key ?? string.Empty;
 
 			// списки доступных и выполненных миграций
 			this.availableMigrations = availableMigrations;
@@ -99,7 +105,18 @@ namespace ECM7.Migrator
 				skippedMigrations.ToCommaSeparatedString());
 		}
 
-		public List<long> AppliedVersions
+		/// <summary>
+		/// Список миграций, выполненных в текущий момент
+		/// </summary>
+		public IList<long> CurrentAppliedVersions
+		{
+			get { return currentAppliedMigrations; }
+		}
+
+		/// <summary>
+		/// Список миграций, которые были выполнены на момент инициализации
+		/// </summary>
+		public IList<long> OriginalAppliedVersions
 		{
 			get { return originalAppliedMigrations; }
 		}
@@ -112,11 +129,6 @@ namespace ECM7.Migrator
 		public long Next
 		{
 			get { return goForward ? NextMigration() : PreviousMigration(); }
-		}
-
-		public void Iterate()
-		{
-			Current = Next;
 		}
 
 		public bool Continue(long targetVersion)
@@ -189,46 +201,32 @@ namespace ECM7.Migrator
 			return availableMigrations[migrationSearch];
 		}
 
-		#region выполнение миграций
-
-		public void Migrate(IMigration migration)
+		/// <summary>
+		/// Добавить запись о версии в БД
+		/// </summary>
+		/// <param name="version">Номер версии</param>
+		public void AddVersion(long version)
 		{
-			provider.BeginTransaction();
-			MigrationAttribute attr = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+			provider.MigrationApplied(version, Key);
 
-			if (currentAppliedMigrations.Contains(attr.Version))
+			if (!currentAppliedMigrations.Contains(version))
 			{
-				RemoveMigration(migration, attr);
-			}
-			else
-			{
-				ApplyMigration(migration, attr);
+				currentAppliedMigrations.Add(version);
 			}
 		}
 
-		private void ApplyMigration(IMigration migration, MigrationAttribute attr)
+		/// <summary>
+		/// Удалить запись о версии из БД
+		/// </summary>
+		/// <param name="version">Номер версии</param>
+		public void RemoveVersion(long version)
 		{
-			// перенести в мигратор, оставить только изменение номеров версий
-			logger.MigrateUp(Current, migration.Name);
+			provider.MigrationUnApplied(version, Key);
 
-			migration.Up();
-			provider.MigrationApplied(attr.Version,);
-			currentAppliedMigrations.Add(attr.Version);
-			provider.Commit();
-			migration.AfterUp();
+			if (currentAppliedMigrations.Contains(version))
+			{
+				currentAppliedMigrations.Remove(version);
+			}
 		}
-
-		private void RemoveMigration(IMigration migration, MigrationAttribute attr)
-		{
-			// перенести в мигратор, оставить только изменение номеров версий
-			logger.MigrateDown(Current, migration.Name);
-			migration.Down();
-			provider.MigrationUnApplied(attr.Version);
-			currentAppliedMigrations.Remove(attr.Version);
-			provider.Commit();
-			migration.AfterDown();
-		}
-
-		#endregion
 	}
 }

@@ -51,7 +51,7 @@ namespace ECM7.Migrator.Framework.Loggers
 			streamWriter.WriteLine(sql);
 		}
 
-		public void Started(List<long> appliedVersions, long finalVersion)
+		public void Started(IList<long> appliedVersions, long finalVersion)
 		{
 			innerLogger.Started(appliedVersions, finalVersion);
 		}
@@ -86,7 +86,7 @@ namespace ECM7.Migrator.Framework.Loggers
 			innerLogger.Exception(message, ex);
 		}
 
-		public void Finished(List<long> appliedVersions, long currentVersion)
+		public void Finished(IList<long> appliedVersions, long currentVersion)
 		{
 			innerLogger.Finished(appliedVersions, currentVersion);
 			streamWriter.Close();
