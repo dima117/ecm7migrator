@@ -189,7 +189,7 @@ namespace ECM7.Migrator.Console
 			List<long> appliedMigrations = mig.AppliedMigrations;
 
 			Console.WriteLine("Available migrations:");
-			foreach (var info in mig.MigrationsTypes)
+			foreach (var info in mig.AvailableMigrations)
 			{
 				long v = info.Version;
 				Console.WriteLine(

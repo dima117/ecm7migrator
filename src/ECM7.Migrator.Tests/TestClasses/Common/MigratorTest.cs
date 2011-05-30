@@ -170,19 +170,19 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			migrator = new Migrator((ITransformationProvider)providerMock.MockInstance, false, Assembly.GetExecutingAssembly());
 
 			// Enlève toutes les migrations trouvée automatiquement
-			migrator.MigrationsTypes.Clear();
+			migrator.AvailableMigrations.Clear();
 			UpCalled.Clear();
 			DownCalled.Clear();
 
-			migrator.MigrationsTypes.Add(new MigrationInfo(typeof(FirstMigration)));
-			migrator.MigrationsTypes.Add(new MigrationInfo(typeof(SecondMigration)));
-			migrator.MigrationsTypes.Add(new MigrationInfo(typeof(ThirdMigration)));
-			migrator.MigrationsTypes.Add(new MigrationInfo(typeof(ForthMigration)));
-			migrator.MigrationsTypes.Add(new MigrationInfo(typeof(SixthMigration)));
+			migrator.AvailableMigrations.Add(new MigrationInfo(typeof(FirstMigration)));
+			migrator.AvailableMigrations.Add(new MigrationInfo(typeof(SecondMigration)));
+			migrator.AvailableMigrations.Add(new MigrationInfo(typeof(ThirdMigration)));
+			migrator.AvailableMigrations.Add(new MigrationInfo(typeof(ForthMigration)));
+			migrator.AvailableMigrations.Add(new MigrationInfo(typeof(SixthMigration)));
 
 			if (includeBad)
 			{
-				migrator.MigrationsTypes.Add(new MigrationInfo(typeof(BadMigration)));
+				migrator.AvailableMigrations.Add(new MigrationInfo(typeof(BadMigration)));
 			}
 		}
 

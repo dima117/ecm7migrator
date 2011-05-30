@@ -13,7 +13,7 @@ namespace ECM7.Migrator.Framework
 		/// </summary>
 		/// <param name="currentVersion">Start list of versions</param>
 		/// <param name="finalVersion">Final Version</param>
-		void Started(List<long> currentVersion, long finalVersion);
+		void Started(IList<long> currentVersion, long finalVersion);
 
 		/// <summary>
 		/// Log that we are migrating up
@@ -74,7 +74,7 @@ namespace ECM7.Migrator.Framework
 		/// </summary>
 		/// <param name="currentVersion">List of versions with which we started</param>
 		/// <param name="finalVersion">Final Version</param>
-		void Finished(List<long> currentVersion, long finalVersion);
+		void Finished(IList<long> currentVersion, long finalVersion);
 
 		/// <summary>
 		/// Log a message

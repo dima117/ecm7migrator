@@ -8,7 +8,7 @@ namespace ECM7.Migrator.Framework
 	/// (eg.: delete a table).
 	/// <para>
 	/// Each migration must be decorated with the <c>[Migration(0)]</c> attribute.
-	/// Each migration number (0) must be unique, or else a 
+	/// Each migration number (0) must be unique, or else a
 	/// <c>DuplicatedVersionException</c> will be trown.
 	/// </para>
 	/// <para>
@@ -21,7 +21,7 @@ namespace ECM7.Migrator.Framework
 	/// so you can easely move from one version of to another with fine grain
 	/// modifications.
 	/// You should give meaningful name to the migration class and prepend the
-	/// migration number to the filename so they keep ordered, eg.: 
+	/// migration number to the filename so they keep ordered, eg.:
 	/// <c>002_CreateTableTest.cs</c>.
 	/// </para>
 	/// <para>
@@ -54,6 +54,9 @@ namespace ECM7.Migrator.Framework
 	/// </example>
 	public abstract class Migration : IMigration
 	{
+		/// <summary>
+		/// Название
+		/// </summary>
 		public string Name
 		{
 			get { return StringUtils.ToHumanName(GetType().Name); }
@@ -65,23 +68,9 @@ namespace ECM7.Migrator.Framework
 		public abstract void Up();
 
 		/// <summary>
-		/// This is run after the Up transaction has been committed
-		/// </summary>
-		public virtual void AfterUp()
-		{
-		}
-
-		/// <summary>
 		/// Defines transformations to revert things done in <c>Up</c>.
 		/// </summary>
 		public abstract void Down();
-
-		/// <summary>
-		/// This is run after the Down transaction has been committed
-		/// </summary>
-		public virtual void AfterDown()
-		{
-		}
 
 		/// <summary>
 		/// Represents the database.
@@ -89,12 +78,5 @@ namespace ECM7.Migrator.Framework
 		/// </summary>
 		/// <seealso cref="ITransformationProvider">Migration.Framework.ITransformationProvider</seealso>
 		public ITransformationProvider Database { get; set; }
-
-		/// <summary>
-		/// This gets called once on the first migration object.
-		/// </summary>
-		public virtual void InitializeOnce()
-		{
-		}
 	}
 }

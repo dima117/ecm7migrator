@@ -20,7 +20,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		{
 			_migrator = new Migrator(TransformationProvider, true, MigrationAssembly);
 
-			Assert.IsTrue(_migrator.MigrationsTypes.Count > 0, "No migrations in assembly " + MigrationAssembly.Location);
+			Assert.IsTrue(_migrator.AvailableMigrations.Count > 0, "No migrations in assembly " + MigrationAssembly.Location);
 
 			_migrator.Migrate(0);
 		}
