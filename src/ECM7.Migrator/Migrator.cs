@@ -28,11 +28,6 @@ namespace ECM7.Migrator
 		/// </summary>
 		private ILogger logger = new Logger(false);
 
-		/// <summary>
-		/// Менеджер версий
-		/// </summary>
-		private readonly BaseMigrate migrate; 
-
 		// todo: проверить работу с мигрэйшнами из нескольких сборок
 		#region constructors
 
@@ -67,11 +62,6 @@ namespace ECM7.Migrator
 			Logger = logger;
 
 			migrationLoader = new MigrationLoader(key, logger, assemblies);
-
-			// TODO:!!!! ПЕРЕИМЕНОВАТЬ ПОЛЕ MIGRATE В VERSIONMANAGER!!!!!
-			List<long> availableMigrations = migrationLoader.MigrationsTypes
-				.Select(mInfo => mInfo.Version).ToList();
-			migrate = new BaseMigrate(provider, key, availableMigrations, logger);
 		}
 
 		#endregion
@@ -87,12 +77,9 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Returns the current migrations applied to the database.
 		/// </summary>
-		public IList<long> AppliedMigrations
+		public IList<long> GetAppliedMigrations(string key = "")
 		{
-			get
-			{
-				return migrate.CurrentAppliedVersions;
-			}
+			return provider.GetAppliedMigrations(key);
 		}
 
 		/// <summary>
@@ -127,65 +114,74 @@ namespace ECM7.Migrator
 		{
 			long targetVersion = databaseVersion < 0 ? migrationLoader.LastVersion : databaseVersion;
 
-			if (migrationLoader.MigrationsTypes.Count == 0)
-			{
-				logger.Warn("No public classes with the Migration attribute were found.");
-			}
-			else
-			{
-				Logger.Started(migrate.CurrentAppliedVersions, targetVersion);
+			// TODO:!!!!!!!!!!! убрать migrationLoader.Key
+			IList<long> appliedMigrations = provider.GetAppliedMigrations(migrationLoader.Key);
+			IList<long> availableMigrations = migrationLoader.MigrationsTypes
+				.Select(mInfo => mInfo.Version).ToList();
 
-				while (migrate.Continue(targetVersion))
+			IList<long> versionsToRun = GetVersionsToRun(targetVersion, appliedMigrations, availableMigrations);
+			long startVersion = appliedMigrations.IsEmpty() ? 0 : appliedMigrations.Max();
+
+			Logger.Started(appliedMigrations, targetVersion);
+
+			for (int index = 0; index < versionsToRun.Count; index++)
+			{
+				long currentVersion = versionsToRun[index];
+				long previousVersion = index == 0 ? startVersion : versionsToRun[index - 1];
+				IMigration migration = this.migrationLoader.GetMigration(currentVersion, this.provider);
+
+				Require.IsNotNull(migration, "Не найдена миграция версии {0}", currentVersion);
+
+				try
 				{
-					IMigration migration = migrationLoader.GetMigration(migrate.Current, provider);
+					this.provider.BeginTransaction();
+					MigrationAttribute attr = migration.GetType().GetCustomAttribute<MigrationAttribute>();
 
-					if (migration == null)
+					// TODO! поменять это условие
+					if (appliedMigrations.Contains(attr.Version))
 					{
-						logger.Skipping(migrate.Current);
+						this.logger.MigrateDown(attr.Version, migration.Name);
+						migration.Down();
+						this.provider.MigrationUnApplied(attr.Version, this.migrationLoader.Key);
 					}
 					else
 					{
-						RunMigration(migration);
+						this.logger.MigrateUp(attr.Version, migration.Name);
+						migration.Up();
+						this.provider.MigrationApplied(attr.Version, this.migrationLoader.Key);
 					}
-				}
 
-				Logger.Finished(migrate.OriginalAppliedVersions, targetVersion);
+					this.provider.Commit();
+				}
+				catch (Exception ex)
+				{
+					this.Logger.Exception(currentVersion, migration.Name, ex);
+
+					// при ошибке откатываем изменения
+					this.provider.Rollback();
+					this.Logger.RollingBack(previousVersion);
+
+					throw;
+				}
 			}
 		}
 
-		private void RunMigration(IMigration migration)
+		/// <summary>
+		/// Получить список версий для выполнения TODO:!!!! НАПИСАТЬ ТЕСТЫ
+		/// </summary>
+		/// <param name="target">Версия назначения</param>
+		/// <param name="appliedMigrations">Список версий выполненных миграций</param>
+		/// <param name="availableMigrations">Список версий доступных миграций</param>
+		public static IList<long> GetVersionsToRun(long target, IEnumerable<long> appliedMigrations, IEnumerable<long> availableMigrations)
 		{
-			try
-			{
-				this.provider.BeginTransaction();
-				MigrationAttribute attr = migration.GetType().GetCustomAttribute<MigrationAttribute>();
+			long current = appliedMigrations.IsEmpty() ? 0 : appliedMigrations.Max();
 
-				// TODO! поменять это условие
-				if (this.migrate.CurrentAppliedVersions.Contains(attr.Version))
-				{
-					this.logger.MigrateDown(attr.Version, migration.Name);
-					migration.Down();
-					this.migrate.RemoveVersion(attr.Version);
-				}
-				else
-				{
-					this.logger.MigrateUp(attr.Version, migration.Name);
-					migration.Up();
-					this.migrate.AddVersion(attr.Version);
-				}
+			HashSet<long> set = new HashSet<long>(appliedMigrations);
+			set.UnionWith(availableMigrations);
 
-				this.provider.Commit();
-			}
-			catch (Exception ex)
-			{
-				this.Logger.Exception(this.migrate.Current, migration.Name, ex);
-
-				// Oho! error! We rollback changes.
-				this.Logger.RollingBack(this.migrate.Previous);
-				this.provider.Rollback();
-
-				throw;
-			}
+			return target >= current
+			    ? set.Where(n => n > current && n <= target).OrderBy(x => x).ToList()
+			    : set.Where(n => n <= current && n > target).OrderByDescending(x => x).ToList();
 		}
 	}
 }

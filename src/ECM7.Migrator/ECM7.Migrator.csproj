@@ -69,7 +69,6 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="BaseMigrate.cs" />
     <Compile Include="Compatibility\UpdateSchemaInfo.cs" />
     <Compile Include="Configuration\IMigratorConfiguration.cs" />
     <Compile Include="Configuration\MigratorConfiguration.cs" />
@@ -87,6 +86,7 @@
     <Compile Include="Providers\NoOpTransformationProvider.cs" />
     <Compile Include="Providers\TransformationProvider.cs" />
     <Compile Include="Providers\TypeNames.cs" />
+    <Compile Include="VersionException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
