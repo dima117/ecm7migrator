@@ -86,7 +86,6 @@
     <Compile Include="TestClasses\Common\ColumnPropertyMappingTest.cs" />
     <Compile Include="Data\SecondTestMigration.cs" />
     <Compile Include="TestClasses\Common\MigrationKeyTests.cs" />
-    <Compile Include="TestClasses\Common\MigrationLoaderTest.cs" />
     <Compile Include="TestClasses\Common\MigrationTestCase.cs" />
     <Compile Include="TestClasses\Common\MigrationTypeComparerTest.cs" />
     <Compile Include="TestClasses\Common\MigratorTest.cs" />

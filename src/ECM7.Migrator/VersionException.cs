@@ -3,10 +3,12 @@
 	using System;
 	using System.Collections.Generic;
 
+	using ECM7.Common.Utils.Exceptions;
+
 	/// <summary>
 	/// Исключение, генерируемое при наличии некорректных версий
 	/// </summary>
-	public class VersionException : ApplicationException
+	public class VersionException : RequirementNotCompliedException
 	{
 		/// <summary>
 		/// Список некорректных версий
