@@ -19,7 +19,7 @@
 			var applied = new List<long> { 1, 2, 3 };
 			var available = new List<long> { 1, 2, 3, 4, 77, 88 };
 
-			var res = Migrator.GetVersionsToRun(1, applied, available);
+			var res = Migrator.BuildMigrationPlan(1, applied, available);
 			Assert.AreEqual(2, res.Count);
 			Assert.AreEqual(3, res[0]);
 			Assert.AreEqual(2, res[1]);
@@ -34,7 +34,7 @@
 			var applied = new List<long> { 1, 2, 3 };
 			var available = new List<long> { 1, 2, 3, 4, 77, 88 };
 
-			var res = Migrator.GetVersionsToRun(88, applied, available);
+			var res = Migrator.BuildMigrationPlan(88, applied, available);
 			Assert.AreEqual(3, res.Count);
 			Assert.AreEqual(4, res[0]);
 			Assert.AreEqual(77, res[1]);
@@ -50,14 +50,14 @@
 			var applied = new List<long> { 5, 10 };
 			var available = new List<long> { 5, 10, 15, 20 };
 
-			var res = Migrator.GetVersionsToRun(12, applied, available);
+			var res = Migrator.BuildMigrationPlan(12, applied, available);
 			Assert.AreEqual(0, res.Count);
 
-			var res2 = Migrator.GetVersionsToRun(17, applied, available);
+			var res2 = Migrator.BuildMigrationPlan(17, applied, available);
 			Assert.AreEqual(1, res2.Count);
 			Assert.AreEqual(15, res2[0]);
 
-			var res3 = Migrator.GetVersionsToRun(23, applied, available);
+			var res3 = Migrator.BuildMigrationPlan(23, applied, available);
 			Assert.AreEqual(2, res3.Count);
 			Assert.AreEqual(15, res3[0]);
 			Assert.AreEqual(20, res3[1]);
@@ -72,11 +72,11 @@
 			var applied = new List<long> { 5, 10, 15 };
 			var available = new List<long> { 5, 10, 15, 20 };
 
-			var res = Migrator.GetVersionsToRun(12, applied, available);
+			var res = Migrator.BuildMigrationPlan(12, applied, available);
 			Assert.AreEqual(1, res.Count);
 			Assert.AreEqual(15, res[0]);
 
-			var res2 = Migrator.GetVersionsToRun(7, applied, available);
+			var res2 = Migrator.BuildMigrationPlan(7, applied, available);
 			Assert.AreEqual(2, res2.Count);
 			Assert.AreEqual(15, res2[0]);
 			Assert.AreEqual(10, res2[1]);
@@ -91,7 +91,7 @@
 			var applied = new List<long> { 1, 2, 3 };
 			var available = new List<long> { 1, 2, 3, 4, 77, 88 };
 
-			var res = Migrator.GetVersionsToRun(3, applied, available);
+			var res = Migrator.BuildMigrationPlan(3, applied, available);
 			Assert.AreEqual(0, res.Count);
 		}
 
@@ -101,11 +101,10 @@
 		[Test]
 		public void CanBuildPlanForVersionsHasntMigrationClass()
 		{
-			// TODO:!!! сделать генерацию исключения
 			var applied = new List<long> { 1, 2, 3, 4 };
-			var available = new List<long> { 1, 4, 77, 88 };
+			var available = new List<long> { 1, 2, 4, 77, 88 };
 
-			var res = Migrator.GetVersionsToRun(1, applied, available);
+			var res = Migrator.BuildMigrationPlan(1, applied, available);
 			Assert.AreEqual(3, res.Count);
 			Assert.AreEqual(4, res[0]);
 			Assert.AreEqual(3, res[1]);
@@ -122,7 +121,7 @@
 			var available = new List<long> { 1, 2, 3, 4, 5 };
 
 			var ex = Assert.Throws<VersionException>(() =>
-				Migrator.GetVersionsToRun(5, applied, available));
+				Migrator.BuildMigrationPlan(5, applied, available));
 
 			Assert.AreEqual(2, ex.Versions.Count);
 			Assert.That(ex.Versions.Contains(3));

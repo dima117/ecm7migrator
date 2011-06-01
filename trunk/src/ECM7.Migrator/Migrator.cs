@@ -119,7 +119,7 @@ namespace ECM7.Migrator
 			IList<long> availableMigrations = migrationLoader.MigrationsTypes
 				.Select(mInfo => mInfo.Version).ToList();
 
-			IList<long> versionsToRun = GetVersionsToRun(targetVersion, appliedMigrations, availableMigrations);
+			IList<long> versionsToRun = BuildMigrationPlan(targetVersion, appliedMigrations, availableMigrations);
 			long startVersion = appliedMigrations.IsEmpty() ? 0 : appliedMigrations.Max();
 
 			Logger.Started(appliedMigrations, targetVersion);
@@ -167,16 +167,24 @@ namespace ECM7.Migrator
 		}
 
 		/// <summary>
-		/// Получить список версий для выполнения TODO:!!!! НАПИСАТЬ ТЕСТЫ
+		/// Получить список версий для выполнения
 		/// </summary>
 		/// <param name="target">Версия назначения</param>
 		/// <param name="appliedMigrations">Список версий выполненных миграций</param>
 		/// <param name="availableMigrations">Список версий доступных миграций</param>
-		public static IList<long> GetVersionsToRun(long target, IEnumerable<long> appliedMigrations, IEnumerable<long> availableMigrations)
+		public static IList<long> BuildMigrationPlan(long target, IEnumerable<long> appliedMigrations, IEnumerable<long> availableMigrations)
 		{
 			long current = appliedMigrations.IsEmpty() ? 0 : appliedMigrations.Max();
-
 			HashSet<long> set = new HashSet<long>(appliedMigrations);
+
+			// проверки
+			var list = availableMigrations.Where(x => x < current && !set.Contains(x));
+			if (!list.IsEmpty())
+			{
+				throw new VersionException(
+					"Доступны невыполненные миграции, версия которых меньше текущей версии БД", list);
+			}
+
 			set.UnionWith(availableMigrations);
 
 			return target >= current

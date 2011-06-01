@@ -32,6 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ECM7.Common, Version=0.11.0.1001, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="Moq">
+      <HintPath>..\References\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\References\nunit.framework.dll</HintPath>
     </Reference>
@@ -40,14 +44,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MigrationLoaderTest.cs" />
     <Compile Include="MigratorPlanTest.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">
+      <Project>{5270F048-E580-486C-B14C-E5B9F6E539D4}</Project>
+      <Name>ECM7.Migrator.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.TestAssembly\ECM7.Migrator.TestAssembly.csproj">
+      <Project>{C7EBEAE4-50AD-49B1-89BB-2D9035E8117D}</Project>
+      <Name>ECM7.Migrator.TestAssembly</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ECM7.Migrator\ECM7.Migrator.csproj">
       <Project>{1FEE70A4-AAD7-4C60-BE60-3F7DC03A8C4D}</Project>
       <Name>ECM7.Migrator</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

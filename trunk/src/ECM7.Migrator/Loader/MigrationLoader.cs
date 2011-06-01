@@ -42,7 +42,7 @@ namespace ECM7.Migrator.Loader
 				}
 			}
 
-			CheckForDuplicatedVersion();
+			CheckForDuplicatedVersion(this.migrationsTypes);
 		}
 
 		/// <summary>
@@ -75,13 +75,13 @@ namespace ECM7.Migrator.Loader
 		/// <param name="key">Ключ</param>
 		private static bool AssemblyHasTargetKey(Assembly assembly, string key)
 		{
-			MigrationAssemblyAttribute asmAttribute = 
+			MigrationAssemblyAttribute asmAttribute =
 				assembly.GetCustomAttribute<MigrationAssemblyAttribute>();
-			
+
 			string targetKey = key ?? string.Empty;
 
-			string assemblyKey = asmAttribute == null 
-				? string.Empty 
+			string assemblyKey = asmAttribute == null
+				? string.Empty
 				: asmAttribute.Key ?? string.Empty;
 
 			return targetKey == assemblyKey;
@@ -102,7 +102,7 @@ namespace ECM7.Migrator.Loader
 		{
 			get
 			{
-				return migrationsTypes.IsEmpty() ? 0 
+				return migrationsTypes.IsEmpty() ? 0
 					: migrationsTypes.Select(info => info.Version).Max();
 			}
 		}
@@ -111,18 +111,16 @@ namespace ECM7.Migrator.Loader
 		/// Check for duplicated version in migrations.
 		/// </summary>
 		/// <exception cref="CheckForDuplicatedVersion">CheckForDuplicatedVersion</exception>
-		public void CheckForDuplicatedVersion()
+		public static void CheckForDuplicatedVersion(List<MigrationInfo> migrationsTypes)
 		{
-			HashSet<long> versions = new HashSet<long>();
-
-			foreach (var info in migrationsTypes)
+			IEnumerable<long> list = migrationsTypes
+				.GroupBy(v => v.Version)
+				.Where(x => x.Count() > 1)
+				.Select(x => x.Key);
+			
+			if (!list.IsEmpty())
 			{
-				if (versions.Contains(info.Version))
-				{
-					throw new DuplicatedVersionException(info.Version);
-				}
-
-				versions.Add(info.Version);
+				throw new DuplicatedVersionException(list);
 			}
 		}
 
@@ -154,6 +152,8 @@ namespace ECM7.Migrator.Loader
 		/// <summary>
 		/// Получить миграцию по номеру версии
 		/// </summary>
+		/// <param name="version">Версия миграции</param>
+		/// <param name="provider">Провайдер СУБД для установки в качестве текущего провайдера миграции</param>
 		public IMigration GetMigration(long version, ITransformationProvider provider)
 		{
 			Require.IsNotNull(provider, "Не задан провайдер СУБД");
