@@ -3,18 +3,23 @@ using System.Collections.Generic;
 using System.Data;
 using ECM7.Migrator.Framework;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
-using OracleConnection=Oracle.DataAccess.Client.OracleConnection;
+using OracleConnection = Oracle.DataAccess.Client.OracleConnection;
 
 namespace ECM7.Migrator.Providers.Oracle
 {
+	/// <summary>
+	/// Провайдер трансформации для Oracle
+	/// </summary>
 	public class OracleTransformationProvider : TransformationProvider
 	{
-		public OracleTransformationProvider(Dialect dialect, string connectionString, string key)
-			: base(dialect, connectionString, key)
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		/// <param name="dialect">Диалект</param>
+		/// <param name="connectionString">Строка подключения</param>
+		public OracleTransformationProvider(Dialect dialect, string connectionString)
+			: base(dialect, new OracleConnection(connectionString))
 		{
-			connection = new OracleConnection();
-			connection.ConnectionString = base.connectionString;
-			connection.Open();
 		}
 
 		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
@@ -49,8 +54,8 @@ namespace ECM7.Migrator.Providers.Oracle
 		public override bool IndexExists(string indexName, string tableName)
 		{
 			string sql =
-				("select count(*) from user_indexes " + 
-				"where lower(INDEX_NAME) = '{0}' " + 
+				("select count(*) from user_indexes " +
+				"where lower(INDEX_NAME) = '{0}' " +
 				"and lower(TABLE_NAME) = '{1}'")
 				.FormatWith(indexName.ToLower(), tableName.ToLower());
 

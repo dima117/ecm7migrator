@@ -81,8 +81,13 @@ namespace ECM7.Migrator.Console
 			return version;
 		}
 
+		/// <summary>
+		/// Получить ключ из параметров командной строки
+		/// </summary>
+		/// <param name="args">Параметры командной строки</param>
 		private static string GetKey(IEnumerable<string> args)
 		{
+			// TODO: прикрутить какую-нибудь библиотеку для разбора параметров командной строки
 			string key = string.Empty;
 
 			// TODO: учесть строки с пробелами, если есть кавычки
@@ -186,7 +191,7 @@ namespace ECM7.Migrator.Console
 		public static void List(IMigratorConfiguration config)
 		{
 			Migrator mig = MigratorFactory.CreateMigrator(config);
-			List<long> appliedMigrations = mig.AppliedMigrations;
+			IList<long> appliedMigrations = mig.GetAppliedMigrations();
 
 			Console.WriteLine("Available migrations:");
 			foreach (var info in mig.AvailableMigrations)

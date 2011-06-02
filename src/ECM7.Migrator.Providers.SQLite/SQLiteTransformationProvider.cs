@@ -12,12 +12,14 @@ namespace ECM7.Migrator.Providers.SQLite
 	/// </summary>
 	public class SQLiteTransformationProvider : TransformationProvider
 	{
-		public SQLiteTransformationProvider(Dialect dialect, string connectionString, string key)
-			: base(dialect, connectionString, key)
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		/// <param name="dialect"></param>
+		/// <param name="connectionString"></param>
+		public SQLiteTransformationProvider(Dialect dialect, string connectionString)
+			: base(dialect, new SqliteConnection(connectionString))
 		{
-			connection = new SqliteConnection(base.connectionString);
-			connection.ConnectionString = base.connectionString;
-			connection.Open();
 		}
 
 		/// <summary>

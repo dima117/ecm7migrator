@@ -23,19 +23,9 @@ namespace ECM7.Migrator.Providers.SqlServer
 	/// </summary>
 	public class SqlServerCeTransformationProvider : SqlServerTransformationProvider
 	{
-		public SqlServerCeTransformationProvider(Dialect dialect, string connectionString, string key)
-			: base(dialect, connectionString, key)
+		public SqlServerCeTransformationProvider(Dialect dialect, string connectionString)
+			: base(dialect, new SqlCeConnection(connectionString))
 		{
-
-		}
-
-		protected override void CreateConnection()
-		{
-			//SqlCeEngine engine = new SqlCeEngine(connectionString);
-			//engine.Upgrade();
-			connection = new SqlCeConnection();
-			connection.ConnectionString = connectionString;
-			connection.Open();
 		}
 
 		public override bool ConstraintExists(string table, string name)
