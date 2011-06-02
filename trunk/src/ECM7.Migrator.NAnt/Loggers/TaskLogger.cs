@@ -85,7 +85,7 @@ namespace ECM7.Migrator.NAnt.Loggers
 		/// Получить номер последней версии
 		/// </summary>
 		/// <param name="versions">Список номеров версий</param>
-		private static string LatestVersion(List<long> versions)
+		private static string LatestVersion(IList<long> versions)
 		{
 			if (versions.Count > 0)
 			{
@@ -102,7 +102,7 @@ namespace ECM7.Migrator.NAnt.Loggers
 		/// </summary>
 		/// <param name="currentVersions">Start list of versions</param>
 		/// <param name="finalVersion">Final Version</param>
-		public void Started(List<long> currentVersions, long finalVersion)
+		public void Started(IList<long> currentVersions, long finalVersion)
 		{
 			LogInfo("Latest version applied : {0}.  Target version : {1}", LatestVersion(currentVersions), finalVersion);
 		}
@@ -193,7 +193,7 @@ namespace ECM7.Migrator.NAnt.Loggers
 		/// </summary>
 		/// <param name="originalVersions">List of versions with which we started</param>
 		/// <param name="currentVersion">Final Version</param>
-		public void Finished(List<long> originalVersions, long currentVersion)
+		public void Finished(IList<long> originalVersions, long currentVersion)
 		{
 			LogInfo("Migrated to version {0}", currentVersion);
 		}

@@ -1,22 +1,9 @@
-#region License
-
-//The contents of this file are subject to the Mozilla Public License
-//Version 1.1 (the "License"); you may not use this file except in
-//compliance with the License. You may obtain a copy of the License at
-//http://www.mozilla.org/MPL/
-//Software distributed under the License is distributed on an "AS IS"
-//basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-//License for the specific language governing rights and limitations
-//under the License.
-
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text;
 using ECM7.Migrator.Framework;
 using Npgsql;
-using System.Text;
 
 namespace ECM7.Migrator.Providers.PostgreSQL
 {
@@ -25,12 +12,14 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 	/// </summary>
 	public class PostgreSQLTransformationProvider : TransformationProvider
 	{
-		public PostgreSQLTransformationProvider(Dialect dialect, string connectionString, string key)
-			: base(dialect, connectionString, key)
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		/// <param name="dialect">Диалект</param>
+		/// <param name="connectionString">Строка подключения</param>
+		public PostgreSQLTransformationProvider(Dialect dialect, string connectionString)
+			: base(dialect, new NpgsqlConnection(connectionString))
 		{
-			connection = new NpgsqlConnection();
-			connection.ConnectionString = connectionString;
-			connection.Open();
 		}
 
 		public override void RemoveTable(string name)

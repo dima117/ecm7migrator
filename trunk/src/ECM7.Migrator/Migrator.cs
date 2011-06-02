@@ -28,6 +28,11 @@ namespace ECM7.Migrator
 		/// </summary>
 		private ILogger logger = new Logger(false);
 
+		/// <summary>
+		/// Ключ для фильтрации миграций
+		/// </summary>
+		private readonly string key; 
+
 		// todo: проверить работу с мигрэйшнами из нескольких сборок
 		#region constructors
 
@@ -55,13 +60,15 @@ namespace ECM7.Migrator
 		/// </summary>
 		public Migrator(ITransformationProvider provider, string key, ILogger logger, params Assembly[] assemblies)
 		{
+			this.key = key;
+
 			// TODO!!! ОСТАВИТЬ ЗДЕСЬ ТОЛЬКО ИНИЦИАЛИЗАЦИЮ, ОСТАЛЬНОЕ ПЕРЕНЕСТИ В МЕТОД MIGRATE
 			Require.IsNotNull(provider, "Не задан провайдер СУБД");
 			this.provider = provider;
 
-			Logger = logger;
-
 			migrationLoader = new MigrationLoader(key, logger, assemblies);
+
+			Logger = logger;
 		}
 
 		#endregion
@@ -77,7 +84,7 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Returns the current migrations applied to the database.
 		/// </summary>
-		public IList<long> GetAppliedMigrations(string key = "")
+		public IList<long> GetAppliedMigrations()
 		{
 			return provider.GetAppliedMigrations(key);
 		}

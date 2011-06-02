@@ -11,12 +11,14 @@ namespace ECM7.Migrator.Providers.MySql
     /// </summary>
     public class MySqlTransformationProvider : TransformationProvider
     {
-        public MySqlTransformationProvider(Dialect dialect, string connectionString, string key)
-            : base(dialect, connectionString, key)
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		/// <param name="dialect">Диалект</param>
+		/// <param name="connectionString">Строка подключения</param>
+        public MySqlTransformationProvider(Dialect dialect, string connectionString)
+            : base(dialect, new MySqlConnection(connectionString))
         {
-            connection = new MySqlConnection(base.connectionString);
-            connection.ConnectionString = base.connectionString;
-            connection.Open();
         }
 
         public override void RemoveForeignKey(string table, string name)

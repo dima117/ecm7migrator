@@ -38,15 +38,19 @@ namespace ECM7.Migrator.Providers
 		protected IDbConnection connection;
 		private IDbTransaction transaction;
 
-		protected readonly string connectionString;
 		protected Dialect dialect;
 
 		private readonly ForeignKeyConstraintMapper constraintMapper = new ForeignKeyConstraintMapper();
 
-		protected TransformationProvider(Dialect dialect, string connectionString)
+		protected TransformationProvider(Dialect dialect, IDbConnection connection)
 		{
+			Require.IsNotNull(dialect, "Не задан диалект");
 			this.dialect = dialect;
-			this.connectionString = connectionString;
+
+			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
+			this.connection = connection;
+			this.connection.Open();
+
 			logger = new Logger(false);
 		}
 
