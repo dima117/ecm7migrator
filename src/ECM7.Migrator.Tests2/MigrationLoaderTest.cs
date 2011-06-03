@@ -1,8 +1,14 @@
 namespace ECM7.Migrator.Tests2
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Reflection;
+
 	using ECM7.Common.Utils.Exceptions;
 	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Loader;
+	using ECM7.Migrator.TestAssembly;
 
 	using Moq;
 
@@ -14,6 +20,36 @@ namespace ECM7.Migrator.Tests2
 	[TestFixture]
 	public class MigrationLoaderTest
 	{
+		/// <summary>
+		/// ѕроверка загрузки миграций
+		/// </summary>
+		[Test]
+		public void CanLoadMigrationsByKey()
+		{
+			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
+			MigrationLoader loader = new MigrationLoader("test-key111", null, assembly);
+
+			IList<long> list = loader.MigrationsTypes.Select(x => x.Version).ToList();
+			Assert.AreEqual(2, list.Count);
+			Assert.IsTrue(list.Contains(1));
+			Assert.IsTrue(list.Contains(2));
+		}
+
+		// todo: проверить загрузку свойств миграции
+
+		/// <summary>
+		/// ѕроверка, что не загружаютс€ миграции, не относ€щиес€ к заданному ключу
+		/// </summary>
+		[Test]
+		public void CantLoadMigrationsByInvalidKey()
+		{
+			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
+			MigrationLoader loader = new MigrationLoader("moo-moo-moo", null, assembly);
+
+			IList<MigrationInfo> list = loader.MigrationsTypes;
+			Assert.IsTrue(list.IsEmpty());
+		}
+
 		/// <summary>
 		/// ѕроверка, что при отсутствии миграции с заданным номером версии возвращаетс€ null
 		/// </summary>
@@ -32,63 +68,65 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void ForNullProviderShouldThrowException()
 		{
-			Assert.Throws<RequirementNotCompliedException>(delegate
-				{
-					new MigrationLoader(string.Empty, null).GetMigration(1, null);
-				});
+			var loader = new MigrationLoader(string.Empty, null);
+			Assert.Throws<RequirementNotCompliedException>(() => loader.GetMigration(1, null));
 		}
 
-
-
-		private MigrationLoader migrationLoader;
-
-		[SetUp]
-		public void SetUp()
-		{
-			SetUpCurrentVersion(0, false);
-		}
-
+		/// <summary>
+		/// ѕроверка корректности определени€ последней доступной версии
+		/// </summary>
 		[Test]
 		public void LastVersion()
 		{
-			Assert.AreEqual(7, migrationLoader.LastVersion);
+			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
+			MigrationLoader loader = new MigrationLoader("test-key111", null, assembly);
+			Assert.AreEqual(2, loader.LastVersion);
 		}
 
+		/// <summary>
+		/// ѕроверка, что при отсутствии миграций последн€€ доступна€ верси€ == 0
+		/// (загружаем по несуществующему ключу)
+		/// </summary>
 		[Test]
-		public void ZeroIfNoMigrations()
+		public void LaseVersionIsZeroIfNoMigrations()
 		{
-			migrationLoader.MigrationsTypes.Clear();
-			Assert.AreEqual(0, migrationLoader.LastVersion);
+			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
+			MigrationLoader loader = new MigrationLoader("moo-moo-moo", null, assembly);
+			Assert.AreEqual(0, loader.LastVersion);
 		}
 
-		[Test, ExpectedException(typeof(DuplicatedVersionException))]
+		/// <summary>
+		/// ѕроверка ограничени€ на повторнеие номеров версий
+		/// </summary>
+		[Test]
 		public void CheckForDuplicatedVersion()
 		{
-			//migrationLoader.MigrationsTypes.Add(
-			//    new MigrationInfo(typeof(MigratorTest.FirstMigration)));
-			//migrationLoader.CheckForDuplicatedVersion();
+			var versions = new long[] { 1, 2, 3, 4, 2, 4 };
 
+			var ex = Assert.Throws<DuplicatedVersionException>(() =>
+				MigrationLoader.CheckForDuplicatedVersion(versions));
+
+			Assert.AreEqual(2, ex.Versions.Count);
+			Assert.That(ex.Versions.Contains(2));
+			Assert.That(ex.Versions.Contains(4));
 		}
 
-		private void SetUpCurrentVersion(int version, bool assertRollbackIsCalled)
+		/// <summary>
+		/// ѕроверка создани€ объекта миграции по номеру версии
+		/// </summary>
+		[Test]
+		public void CanCreateMigrationObject()
 		{
-			//DynamicMock providerMock = new DynamicMock(typeof(ITransformationProvider));
+			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
+			MigrationLoader loader = new MigrationLoader("test-key111", null, assembly);
 
-			//providerMock.SetReturnValue("get_CurrentVersion", version);
-			//providerMock.SetReturnValue("get_Logger", new Logger(false));
-			//if (assertRollbackIsCalled)
-			//    providerMock.Expect("Rollback");
-			//else
-			//    providerMock.ExpectNoCall("Rollback");
+			Mock<ITransformationProvider> provider = new Moq.Mock<ITransformationProvider>();
 
-			//migrationLoader = new MigrationLoader((ITransformationProvider)providerMock.MockInstance, true);
-			//migrationLoader.MigrationsTypes.Add(new MigrationInfo(typeof(MigratorTest.FirstMigration)));
-			//migrationLoader.MigrationsTypes.Add(new MigrationInfo(typeof(MigratorTest.SecondMigration)));
-			//migrationLoader.MigrationsTypes.Add(new MigrationInfo(typeof(MigratorTest.ThirdMigration)));
-			//migrationLoader.MigrationsTypes.Add(new MigrationInfo(typeof(MigratorTest.ForthMigration)));
-			//migrationLoader.MigrationsTypes.Add(new MigrationInfo(typeof(MigratorTest.BadMigration)));
-			//migrationLoader.MigrationsTypes.Add(new MigrationInfo(typeof(MigratorTest.SixthMigration)));
-			//migrationLoader.MigrationsTypes.Add(new MigrationInfo(typeof(MigratorTest.NonIgnoredMigration)));
+			IMigration migration = loader.GetMigration(2, provider.Object);
+
+			Assert.IsNotNull(migration);
+			Assert.That(migration is SecondTestMigration);
+			Assert.AreSame(provider.Object, migration.Database);
 		}
 	}
 }

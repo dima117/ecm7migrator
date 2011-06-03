@@ -17,6 +17,7 @@ using System.Data;
 
 namespace ECM7.Migrator.Framework.SchemaBuilder
 {
+	[Obsolete]
 	public class SchemaBuilder : IColumnOptions, IForeignKeyOptions, IDeleteTableOptions
 	{
 		private string currentTable;

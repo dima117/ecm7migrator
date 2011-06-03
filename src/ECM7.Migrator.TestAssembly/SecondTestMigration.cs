@@ -24,23 +24,9 @@ namespace ECM7.Migrator.TestAssembly
 		}
 
 		/// <summary>
-		/// This is run after the Up transaction has been committed
-		/// </summary>
-		public virtual void AfterUp()
-		{
-		}
-
-		/// <summary>
 		/// Defines transformations to revert things done in <c>Up</c>.
 		/// </summary>
 		public void Down()
-		{
-		}
-
-		/// <summary>
-		/// This is run after the Down transaction has been committed
-		/// </summary>
-		public virtual void AfterDown()
 		{
 		}
 
@@ -50,12 +36,5 @@ namespace ECM7.Migrator.TestAssembly
 		/// </summary>
 		/// <seealso cref="ITransformationProvider">Migration.Framework.ITransformationProvider</seealso>
 		public ITransformationProvider Database { get; set; }
-
-		/// <summary>
-		/// This gets called once on the first migration object.
-		/// </summary>
-		public virtual void InitializeOnce()
-		{
-		}
 	}
 }

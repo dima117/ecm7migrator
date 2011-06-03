@@ -42,7 +42,7 @@ namespace ECM7.Migrator.Loader
 				}
 			}
 
-			CheckForDuplicatedVersion(this.migrationsTypes);
+			CheckForDuplicatedVersion(this.migrationsTypes.Select(mi => mi.Version));
 		}
 
 		/// <summary>
@@ -58,7 +58,7 @@ namespace ECM7.Migrator.Loader
 			{
 				if (assembly != null && AssemblyHasTargetKey(assembly, key))
 				{
-					List<MigrationInfo> collection = GetMigrationInfoList(assembly);
+					IEnumerable<MigrationInfo> collection = GetMigrationInfoList(assembly);
 					migrationsTypes.AddRange(collection);
 				}
 			}
@@ -111,10 +111,10 @@ namespace ECM7.Migrator.Loader
 		/// Check for duplicated version in migrations.
 		/// </summary>
 		/// <exception cref="CheckForDuplicatedVersion">CheckForDuplicatedVersion</exception>
-		public static void CheckForDuplicatedVersion(List<MigrationInfo> migrationsTypes)
+		public static void CheckForDuplicatedVersion(IEnumerable<long> migrationsTypes)
 		{
 			IEnumerable<long> list = migrationsTypes
-				.GroupBy(v => v.Version)
+				.GroupBy(v => v)
 				.Where(x => x.Count() > 1)
 				.Select(x => x.Key);
 			
@@ -129,7 +129,7 @@ namespace ECM7.Migrator.Loader
 		/// </summary>
 		/// <param name="asm">The <c>Assembly</c> to browse.</param>
 		/// <returns>The migrations collection</returns>
-		public static List<MigrationInfo> GetMigrationInfoList(Assembly asm)
+		private static IEnumerable<MigrationInfo> GetMigrationInfoList(Assembly asm)
 		{
 			List<MigrationInfo> migrations = new List<MigrationInfo>();
 

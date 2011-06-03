@@ -95,7 +95,7 @@
     <Compile Include="SchemaBuilder\IFluentColumn.cs" />
     <Compile Include="SchemaBuilder\IForeignKeyOptions.cs" />
     <Compile Include="SchemaBuilder\ISchemaBuilderExpression.cs" />
-    <Compile Include="SchemaBuilder\RenameTableExpression.cs" />
+    <Compile Include="RenameTableExpression.cs" />
     <Compile Include="SchemaBuilder\SchemaBuilder.cs" />
     <Compile Include="StringUtils.cs" />
     <Compile Include="Tools\TransformationProviderExtensions.cs" />

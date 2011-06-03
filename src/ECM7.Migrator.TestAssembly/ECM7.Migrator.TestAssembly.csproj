@@ -43,6 +43,7 @@
     <Compile Include="FirstTestMigration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SecondTestMigration.cs" />
+    <Compile Include="ThirdTestMigration.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">
