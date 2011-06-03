@@ -407,11 +407,6 @@ namespace ECM7.Migrator.Providers
 			return null;
 		}
 
-		public void ExecuteSchemaBuilder(SchemaBuilder schemaBuilder)
-		{
-			// No Op
-		}
-
 		public bool TypeIsSupported(DbType type)
 		{
 			return false;

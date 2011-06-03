@@ -56,7 +56,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 	public class GenericTransformationProvider : TransformationProvider
 	{
 		public GenericTransformationProvider()
-			: base(new GenericDialect(), null, string.Empty)
+			: base(new GenericDialect(), null)
 		{
 		}
 

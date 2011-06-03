@@ -110,17 +110,6 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		}
 
 		[Test]
-		public void CanCheckMigrationNumbers()
-		{
-			Assert.DoesNotThrow(() => Migrator.CheckMigrationNumbers(new List<long> { 1, 2, 3, 4 }, new List<long> { 1, 2 }));
-			Assert.DoesNotThrow(() => Migrator.CheckMigrationNumbers(new List<long> { 1, 2, 3, 4 }, new List<long>()));
-			Assert.DoesNotThrow(() => Migrator.CheckMigrationNumbers(new List<long> { 1 }, new List<long> { 1, 2 }));
-			Assert.DoesNotThrow(() => Migrator.CheckMigrationNumbers(new List<long> { 1, 3, 4 }, new List<long> { 1, 2 }));
-
-			Assert.Throws<RequirementNotCompliedException>(() => Migrator.CheckMigrationNumbers(new List<long> { 1, 2, 3, 4 }, new List<long> { 1, 4 }));
-		}
-
-		[Test]
 		public void ToHumanName()
 		{
 			Assert.AreEqual("Create a table", StringUtils.ToHumanName("CreateATable"));
@@ -167,7 +156,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			else
 				providerMock.ExpectNoCall("Rollback");
 
-			migrator = new Migrator((ITransformationProvider)providerMock.MockInstance, false, Assembly.GetExecutingAssembly());
+			migrator = new Migrator((ITransformationProvider)providerMock.MockInstance, string.Empty, null, Assembly.GetExecutingAssembly());
 
 			// Enlève toutes les migrations trouvée automatiquement
 			migrator.AvailableMigrations.Clear();

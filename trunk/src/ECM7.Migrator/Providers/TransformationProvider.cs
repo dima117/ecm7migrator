@@ -902,12 +902,6 @@ namespace ECM7.Migrator.Providers
 			return BuildCommand(null);
 		}
 
-		public void ExecuteSchemaBuilder(SchemaBuilder builder)
-		{
-			foreach (ISchemaBuilderExpression expr in builder.Expressions)
-				expr.Create(this);
-		}
-
 		public virtual string QuoteValues(string values)
 		{
 			return QuoteValues(new[] { values })[0];
