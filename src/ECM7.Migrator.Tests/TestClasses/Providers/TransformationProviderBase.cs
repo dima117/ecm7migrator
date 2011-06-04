@@ -315,20 +315,22 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public void AppliedMigrations()
 		{
+			string key = "mi mi mi";
 			Assert.IsFalse(provider.TableExists("SchemaInfo"));
 
 			// Check that a "get" call works on the first run.
-			Assert.AreEqual(0, provider.AppliedMigrations.Count);
+			Assert.AreEqual(0, provider.GetAppliedMigrations(key).Count);
 			Assert.IsTrue(provider.TableExists("SchemaInfo"), "No SchemaInfo table created");
 
 			// Check that a "set" called after the first run works.
-			provider.MigrationApplied(1);
-			Assert.AreEqual(1, provider.AppliedMigrations[0]);
+			provider.MigrationApplied(1, key);
+			Assert.AreEqual(1, provider.GetAppliedMigrations(key)[0]);
 
 			provider.RemoveTable("SchemaInfo");
+
 			// Check that a "set" call works on the first run.
-			provider.MigrationApplied(1);
-			Assert.AreEqual(1, provider.AppliedMigrations[0]);
+			provider.MigrationApplied(1, key);
+			Assert.AreEqual(1, provider.GetAppliedMigrations(key)[0]);
 			Assert.IsTrue(provider.TableExists("SchemaInfo"), "No SchemaInfo table created");
 		}
 
@@ -340,7 +342,7 @@ namespace ECM7.Migrator.Tests.Providers
 		public void CommitTwice()
 		{
 			provider.Commit();
-			Assert.AreEqual(0, provider.AppliedMigrations.Count);
+			Assert.AreEqual(0, provider.GetAppliedMigrations(string.Empty).Count);
 			provider.Commit();
 		}
 

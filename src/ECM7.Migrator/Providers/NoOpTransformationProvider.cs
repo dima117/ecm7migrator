@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
+
 using ECM7.Migrator.Framework;
-using System.Collections.Generic;
-using ECM7.Migrator.Framework.SchemaBuilder;
+
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Providers

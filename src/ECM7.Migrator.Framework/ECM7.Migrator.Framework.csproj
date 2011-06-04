@@ -85,18 +85,6 @@
     <Compile Include="MigrationAssemblyAttribute.cs" />
     <Compile Include="MigrationAttribute.cs" />
     <Compile Include="MigrationException.cs" />
-    <Compile Include="SchemaBuilder\AddColumnExpression.cs" />
-    <Compile Include="SchemaBuilder\AddTableExpression.cs" />
-    <Compile Include="SchemaBuilder\DeleteTableExpression.cs" />
-    <Compile Include="SchemaBuilder\FluentColumn.cs" />
-    <Compile Include="SchemaBuilder\ForeignKey.cs" />
-    <Compile Include="SchemaBuilder\IColumnOptions.cs" />
-    <Compile Include="SchemaBuilder\IDeleteTableOptions.cs" />
-    <Compile Include="SchemaBuilder\IFluentColumn.cs" />
-    <Compile Include="SchemaBuilder\IForeignKeyOptions.cs" />
-    <Compile Include="SchemaBuilder\ISchemaBuilderExpression.cs" />
-    <Compile Include="RenameTableExpression.cs" />
-    <Compile Include="SchemaBuilder\SchemaBuilder.cs" />
     <Compile Include="StringUtils.cs" />
     <Compile Include="Tools\TransformationProviderExtensions.cs" />
   </ItemGroup>

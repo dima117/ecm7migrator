@@ -21,7 +21,6 @@ using System.Reflection;
 using ECM7.Migrator.Compatibility;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Framework.Loggers;
-using ECM7.Migrator.Framework.SchemaBuilder;
 
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
