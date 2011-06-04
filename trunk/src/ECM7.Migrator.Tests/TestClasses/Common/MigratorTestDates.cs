@@ -156,11 +156,16 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			providerMock.SetReturnValue("get_AppliedMigrations", appliedVersions);
 			providerMock.SetReturnValue("get_Logger", new Logger(false));
 			if (assertRollbackIsCalled)
+			{
 				providerMock.Expect("Rollback");
+			}
 			else
+			{
 				providerMock.ExpectNoCall("Rollback");
+			}
 
-			migrator = new Migrator((ITransformationProvider)providerMock.MockInstance, false, Assembly.GetExecutingAssembly());
+			ITransformationProvider provider = (ITransformationProvider)providerMock.MockInstance;
+			migrator = new Migrator(provider, string.Empty, null, Assembly.GetExecutingAssembly());
 
 			// Enlève toutes les migrations trouvée automatiquement
 			migrator.AvailableMigrations.Clear();
@@ -174,8 +179,9 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			migrator.AvailableMigrations.Add(new MigrationInfo(typeof(SixthMigration)));
 
 			if (includeBad)
+			{
 				migrator.AvailableMigrations.Add(new MigrationInfo(typeof(BadMigration)));
-
+			}
 		}
 
 		public class AbstractTestMigration : Migration

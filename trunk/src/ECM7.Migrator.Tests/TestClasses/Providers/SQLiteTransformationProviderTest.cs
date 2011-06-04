@@ -18,7 +18,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 				throw new ArgumentNullException("SQLiteConnectionString", "No config file");
 			}
 
-			provider = new SQLiteTransformationProvider(new SQLiteDialect(), constr, string.Empty);
+			provider = new SQLiteTransformationProvider(new SQLiteDialect(), constr);
 			provider.BeginTransaction();
 
 			AddDefaultTable();

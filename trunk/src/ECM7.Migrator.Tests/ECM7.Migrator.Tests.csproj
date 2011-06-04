@@ -109,7 +109,6 @@
     <Compile Include="TestClasses\Providers\SqlServerTransformationProviderTest.cs" />
     <Compile Include="TestClasses\Providers\TransformationProviderBase.cs" />
     <Compile Include="TestClasses\Providers\TransformationProviderConstraintBase.cs" />
-    <Compile Include="TestClasses\Common\SchemaBuilderTests.cs" />
     <Compile Include="TestClasses\Tools\SqlFileLoggerTest.cs" />
     <Compile Include="TestClasses\Tools\TransformationProviderExtensionsTest.cs" />
   </ItemGroup>

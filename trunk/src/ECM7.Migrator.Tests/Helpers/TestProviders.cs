@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
+﻿using System.Configuration;
+
 using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Tests.Helpers
@@ -27,7 +24,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQL_SERVER_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"], string.Empty);
+					SQL_SERVER_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"]);
 			}
 		}
 
@@ -36,7 +33,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQL_SERVER_2005_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"], string.Empty);
+					SQL_SERVER_2005_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"]);
 			}
 		}
 
@@ -45,7 +42,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQL_SERVER_CE_DIALECT, ConfigurationManager.AppSettings["SqlServerCeConnectionString"], string.Empty);
+					SQL_SERVER_CE_DIALECT, ConfigurationManager.AppSettings["SqlServerCeConnectionString"]);
 			}
 		}
 
@@ -54,7 +51,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					MYSQL_DIALECT, ConfigurationManager.AppSettings["MySqlConnectionString"], string.Empty);
+					MYSQL_DIALECT, ConfigurationManager.AppSettings["MySqlConnectionString"]);
 			}
 		}
 
@@ -63,7 +60,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					POSTGRE_SQL_DIALECT, ConfigurationManager.AppSettings["NpgsqlConnectionString"], string.Empty);
+					POSTGRE_SQL_DIALECT, ConfigurationManager.AppSettings["NpgsqlConnectionString"]);
 			}
 		}
 
@@ -72,7 +69,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQLITE_DIALECT, ConfigurationManager.AppSettings["SQLiteConnectionString"], string.Empty);
+					SQLITE_DIALECT, ConfigurationManager.AppSettings["SQLiteConnectionString"]);
 			}
 		}
 
@@ -81,7 +78,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					ORACLE_DIALECT, ConfigurationManager.AppSettings["OracleConnectionString"], string.Empty);
+					ORACLE_DIALECT, ConfigurationManager.AppSettings["OracleConnectionString"]);
 			}
 		}
 	}
