@@ -21,6 +21,7 @@ namespace ECM7.Migrator.TestAssembly
 		/// </summary>
 		public void Up()
 		{
+			Database.ExecuteNonQuery("up");
 		}
 
 		/// <summary>
@@ -28,6 +29,7 @@ namespace ECM7.Migrator.TestAssembly
 		/// </summary>
 		public void Down()
 		{
+			Database.ExecuteNonQuery("down");
 		}
 
 		/// <summary>

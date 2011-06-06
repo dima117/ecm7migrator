@@ -48,7 +48,11 @@ namespace ECM7.Migrator.Providers
 
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 			this.connection = connection;
-			this.connection.Open();
+			
+			if (connection.State != ConnectionState.Open)
+			{
+				this.connection.Open();
+			}
 
 			logger = new Logger(false);
 		}
@@ -874,7 +878,7 @@ namespace ECM7.Migrator.Providers
 					SchemaInfoTable,
 					new Column("Version", DbType.Int64, ColumnProperty.NotNull),
 					new Column("[Key]", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
-				AddUniqueConstraint("UC_SchemaInfo", SchemaInfoTable, "Version", "[Key]");
+				AddPrimaryKey("PK_SchemaInfo", SchemaInfoTable, "Version", "[Key]");
 			}
 			else
 			{

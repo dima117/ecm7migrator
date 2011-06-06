@@ -21,7 +21,7 @@ namespace ECM7.Migrator.Compatibility
 			provider.ExecuteNonQuery("INSERT INTO SchemaTmp (Version) SELECT Version FROM SchemaInfo");
 			provider.RemoveTable("SchemaInfo");
 			provider.RenameTable("SchemaTmp", "SchemaInfo");
-			provider.AddUniqueConstraint("UC_SchemaInfo", "SchemaInfo", "Version", "[Key]");
+			provider.AddPrimaryKey("PK_SchemaInfo", "SchemaInfo", "Version", "[Key]");
 		}
 	}
 }

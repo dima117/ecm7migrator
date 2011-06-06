@@ -78,6 +78,7 @@
     <Compile Include="Loader\MigrationInfo.cs" />
     <Compile Include="Loader\MigrationComparer.cs" />
     <Compile Include="Loader\MigrationLoader.cs" />
+    <Compile Include="MigrationPlan.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="Configuration\MigratorConfigurationSection.cs" />
     <Compile Include="ProviderFactory.cs" />

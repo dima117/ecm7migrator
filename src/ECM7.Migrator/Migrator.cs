@@ -26,7 +26,7 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Логгер
 		/// </summary>
-		private ILogger logger = new Logger(false);
+		private readonly ILogger logger = new Logger(false);
 
 		/// <summary>
 		/// Ключ для фильтрации миграций
@@ -68,7 +68,7 @@ namespace ECM7.Migrator
 
 			migrationLoader = new MigrationLoader(key, logger, assemblies);
 
-			Logger = logger;
+			this.logger = logger;
 		}
 
 		#endregion
@@ -98,12 +98,6 @@ namespace ECM7.Migrator
 			{
 				return logger;
 			}
-
-			set
-			{
-				logger = value;
-				provider.Logger = value;
-			}
 		}
 
 		/// <summary>
@@ -121,55 +115,61 @@ namespace ECM7.Migrator
 		{
 			long targetVersion = databaseVersion < 0 ? migrationLoader.LastVersion : databaseVersion;
 
-			// TODO:!!!!!!!!!!! убрать migrationLoader.Key
-			IList<long> appliedMigrations = provider.GetAppliedMigrations(migrationLoader.Key);
+			IList<long> appliedMigrations = provider.GetAppliedMigrations(key);
 			IList<long> availableMigrations = migrationLoader.MigrationsTypes
 				.Select(mInfo => mInfo.Version).ToList();
 
-			IList<long> versionsToRun = BuildMigrationPlan(targetVersion, appliedMigrations, availableMigrations);
-			long startVersion = appliedMigrations.IsEmpty() ? 0 : appliedMigrations.Max();
+			MigrationPlan plan = BuildMigrationPlan(targetVersion, appliedMigrations, availableMigrations);
 
 			Logger.Started(appliedMigrations, targetVersion);
 
-			for (int index = 0; index < versionsToRun.Count; index++)
+			long currentDatabaseVersion = plan.StartVersion;
+
+			foreach (long currentExecutedVersion in plan)
 			{
-				long currentVersion = versionsToRun[index];
-				long previousVersion = index == 0 ? startVersion : versionsToRun[index - 1];
-				IMigration migration = this.migrationLoader.GetMigration(currentVersion, this.provider);
+				ExecuteMigration(currentExecutedVersion, currentDatabaseVersion);
 
-				Require.IsNotNull(migration, "Не найдена миграция версии {0}", currentVersion);
+				currentDatabaseVersion = currentExecutedVersion;
+			}
+		}
 
-				try
+		/// <summary>
+		/// Выполнение миграции
+		/// </summary>
+		/// <param name="targetVersion">Версия выполняемой миграции</param>
+		/// <param name="currentDatabaseVersion">Текущая версия БД</param>
+		public void ExecuteMigration(long targetVersion, long currentDatabaseVersion)
+		{
+			IMigration migration = this.migrationLoader.GetMigration(targetVersion, this.provider);
+			Require.IsNotNull(migration, "Не найдена миграция версии {0}", targetVersion);
+
+			try
+			{
+				this.provider.BeginTransaction();
+
+				if (targetVersion <= currentDatabaseVersion)
 				{
-					this.provider.BeginTransaction();
-					MigrationAttribute attr = migration.GetType().GetCustomAttribute<MigrationAttribute>();
-
-					// TODO! поменять это условие
-					if (appliedMigrations.Contains(attr.Version))
-					{
-						this.logger.MigrateDown(attr.Version, migration.Name);
-						migration.Down();
-						this.provider.MigrationUnApplied(attr.Version, this.migrationLoader.Key);
-					}
-					else
-					{
-						this.logger.MigrateUp(attr.Version, migration.Name);
-						migration.Up();
-						this.provider.MigrationApplied(attr.Version, this.migrationLoader.Key);
-					}
-
-					this.provider.Commit();
+					this.logger.MigrateDown(targetVersion, migration.Name);
+					migration.Down();
+					this.provider.MigrationUnApplied(targetVersion, this.key);
 				}
-				catch (Exception ex)
+				else
 				{
-					this.Logger.Exception(currentVersion, migration.Name, ex);
-
-					// при ошибке откатываем изменения
-					this.provider.Rollback();
-					this.Logger.RollingBack(previousVersion);
-
-					throw;
+					this.logger.MigrateUp(targetVersion, migration.Name);
+					migration.Up();
+					this.provider.MigrationApplied(targetVersion, this.key);
 				}
+
+				this.provider.Commit();
+			}
+			catch (Exception ex)
+			{
+				this.Logger.Exception(targetVersion, migration.Name, ex);
+
+				// при ошибке откатываем изменения
+				this.provider.Rollback();
+				this.Logger.RollingBack(currentDatabaseVersion);
+				throw;
 			}
 		}
 
@@ -179,13 +179,13 @@ namespace ECM7.Migrator
 		/// <param name="target">Версия назначения</param>
 		/// <param name="appliedMigrations">Список версий выполненных миграций</param>
 		/// <param name="availableMigrations">Список версий доступных миграций</param>
-		public static IList<long> BuildMigrationPlan(long target, IEnumerable<long> appliedMigrations, IEnumerable<long> availableMigrations)
+		public static MigrationPlan BuildMigrationPlan(long target, IEnumerable<long> appliedMigrations, IEnumerable<long> availableMigrations)
 		{
-			long current = appliedMigrations.IsEmpty() ? 0 : appliedMigrations.Max();
+			long startVersion = appliedMigrations.IsEmpty() ? 0 : appliedMigrations.Max();
 			HashSet<long> set = new HashSet<long>(appliedMigrations);
 
 			// проверки
-			var list = availableMigrations.Where(x => x < current && !set.Contains(x));
+			var list = availableMigrations.Where(x => x < startVersion && !set.Contains(x));
 			if (!list.IsEmpty())
 			{
 				throw new VersionException(
@@ -194,9 +194,11 @@ namespace ECM7.Migrator
 
 			set.UnionWith(availableMigrations);
 
-			return target >= current
-			    ? set.Where(n => n > current && n <= target).OrderBy(x => x).ToList()
-			    : set.Where(n => n <= current && n > target).OrderByDescending(x => x).ToList();
+			var versions = target < startVersion
+			               	? set.Where(n => n <= startVersion && n > target).OrderByDescending(x => x).ToList()
+			               	: set.Where(n => n > startVersion && n <= target).OrderBy(x => x).ToList();
+
+			return new MigrationPlan(versions, startVersion);
 		}
 	}
 }

@@ -44,6 +44,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\config\AssemblyInfo.cs">
+      <Link>AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="ExecuteMigrationTest.cs" />
     <Compile Include="MigrationLoaderTest.cs" />
     <Compile Include="MigratorPlanTest.cs" />
   </ItemGroup>
