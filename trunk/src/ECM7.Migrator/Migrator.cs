@@ -60,7 +60,7 @@ namespace ECM7.Migrator
 		/// </summary>
 		public Migrator(ITransformationProvider provider, string key, ILogger logger, params Assembly[] assemblies)
 		{
-			this.key = key;
+			this.key = key ?? string.Empty;
 
 			// TODO!!! нярюбхрэ гдеяэ рнкэйн хмхжхюкхгюжхч, нярюкэмне оепемеярх б лернд MIGRATE
 			Require.IsNotNull(provider, "мЕ ГЮДЮМ ОПНБЮИДЕП ясад");

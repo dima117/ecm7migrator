@@ -826,6 +826,7 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		public List<long> GetAppliedMigrations(string key)
 		{
+			Require.IsNotNull(key, "Не указан ключ миграциий");
 			var appliedMigrations = new List<long>();
 
 			CreateSchemaInfoTable();
