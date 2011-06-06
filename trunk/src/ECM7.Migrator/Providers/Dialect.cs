@@ -26,7 +26,6 @@ namespace ECM7.Migrator.Providers
 
 		public TransformationProvider NewProviderForDialect(string connectionString)
 		{
-			// TODO: пройти по провайдерам и удалить из конструктора ключ
 			return Activator.CreateInstance(TransformationProviderType, this, connectionString) as TransformationProvider;
 		}
 

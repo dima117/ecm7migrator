@@ -6,7 +6,7 @@ using ECM7.Migrator.Providers;
 namespace ECM7.Migrator
 {
 	/// <summary>
-	/// Handles loading Provider implementations
+	/// Диалект - задает специфические особенности СУБД
 	/// </summary>
 	public class ProviderFactory
 	{

@@ -1,38 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
-using ECM7.Migrator.Loader;
-using NUnit.Mocks;
-using ECM7.Migrator.Framework;
-using ECM7.Migrator.Framework.Loggers;
-using ECM7.Migrator.TestAssembly;
-using ECM7.Migrator.Providers.SqlServer;
 using System.Configuration;
 using System.Data;
+using System.Linq;
+
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Loader;
+using ECM7.Migrator.Providers.SqlServer;
+
+using NUnit.Framework;
 
 namespace ECM7.Migrator.Tests.TestClasses.Common
 {
 	[TestFixture, Category("SqlServer2005")]
 	public class MigrationKeyTests
 	{
-		[Test]
-		public void LoadKeyMigrations()
-		{
-			MigrationLoader loader = new MigrationLoader(
-				"key",
-				null,
-				this.GetType().Assembly,
-				typeof(ECM7.Migrator.TestAssembly.FirstTestMigration).Assembly);
-
-
-			var migrations = loader.MigrationsTypes.Select(x => x.Version).ToList();
-			Assert.AreEqual(2, migrations.Count);
-			Assert.AreEqual(1, migrations[0]);
-			Assert.AreEqual(2, migrations[1]);
-		}
-
 		[Test]
 		public void AppliedMigrationsWithKey()
 		{
