@@ -4,6 +4,7 @@
 	using System.Reflection;
 
 	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Framework.Loggers;
 
 	using Moq;
 
@@ -25,7 +26,7 @@
 			var logger = new Mock<ILogger>();
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
 
-			var migrator = new Migrator(provider.Object, "test-key111", logger.Object, asm);
+			var migrator = new Migrator(provider.Object, asm, logger.Object);
 
 			migrator.ExecuteMigration(2, 1);
 
@@ -47,7 +48,7 @@
 			var logger = new Mock<ILogger>();
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
 
-			var migrator = new Migrator(provider.Object, "test-key111", logger.Object, asm);
+			var migrator = new Migrator(provider.Object, asm, logger.Object);
 
 			migrator.ExecuteMigration(2, 2);
 
@@ -73,7 +74,7 @@
 				.Setup(log => log.MigrateDown(It.IsAny<long>(), It.IsAny<string>()))
 				.Throws<Exception>();
 
-			var migrator = new Migrator(provider.Object, "test-key111", logger.Object, asm);
+			var migrator = new Migrator(provider.Object, asm, logger.Object);
 
 			Assert.Throws<Exception>(() => migrator.ExecuteMigration(2, 2));
 

@@ -3,6 +3,8 @@ namespace ECM7.Migrator.NAnt.Loggers
 	using System;
 	using System.Collections.Generic;
 	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Framework.Loggers;
+
 	using global::NAnt.Core;
 
 	/// <summary>

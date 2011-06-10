@@ -2,6 +2,7 @@ namespace ECM7.Migrator
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
 	using System.Linq;
 	using System.Reflection;
 	using Framework;
@@ -21,54 +22,44 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Загрузчик информации о миграциях
 		/// </summary>
-		private readonly MigrationLoader migrationLoader;
+		private readonly MigrationAssembly migrationAssembly;
 
 		/// <summary>
 		/// Логгер
 		/// </summary>
-		private readonly ILogger logger = new Logger(false);
+		private readonly ILogger logger;
 
 		/// <summary>
 		/// Ключ для фильтрации миграций
 		/// </summary>
-		private readonly string key; 
+		private string Key
+		{
+			get { return migrationAssembly.Key; }
+		}
 
-		// todo: проверить работу с мигрэйшнами из нескольких сборок
 		#region constructors
 
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		/// <param name="dialectTypeName">Диалект</param>
-		/// <param name="connectionString">Строка подключения</param>
-		/// <param name="assemblies">Сборки с миграциями</param>
-		public Migrator(string dialectTypeName, string connectionString, params Assembly[] assemblies)
-			: this(dialectTypeName, connectionString, string.Empty, null, assemblies)
+		public Migrator(string dialectTypeName, string connectionString, Assembly asm, ILogger logger = null)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString), asm, logger)
 		{
 		}
 
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string dialectTypeName, string connectionString, string key, ILogger logger, params Assembly[] assemblies)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString), key, logger, assemblies)
+		public Migrator(ITransformationProvider provider, Assembly asm, ILogger logger = null)
 		{
-		}
+			var internalLogger = logger ?? new Logger(false);
+			this.logger = internalLogger;
 
-		/// <summary>
-		/// Инициализация
-		/// </summary>
-		public Migrator(ITransformationProvider provider, string key, ILogger logger, params Assembly[] assemblies)
-		{
-			this.key = key ?? string.Empty;
-
-			// TODO!!! ОСТАВИТЬ ЗДЕСЬ ТОЛЬКО ИНИЦИАЛИЗАЦИЮ, ОСТАЛЬНОЕ ПЕРЕНЕСТИ В МЕТОД MIGRATE
 			Require.IsNotNull(provider, "Не задан провайдер СУБД");
 			this.provider = provider;
 
-			migrationLoader = new MigrationLoader(key, logger, assemblies);
-
-			this.logger = logger;
+			Require.IsNotNull(asm, "Не задана сборка с миграциями");
+			this.migrationAssembly = new MigrationAssembly(asm, internalLogger);
 		}
 
 		#endregion
@@ -76,9 +67,9 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Returns registered migration <see cref="System.Type">types</see>.
 		/// </summary>
-		public List<MigrationInfo> AvailableMigrations
+		public ReadOnlyCollection<MigrationInfo> AvailableMigrations
 		{
-			get { return migrationLoader.MigrationsTypes; }
+			get { return this.migrationAssembly.MigrationsTypes; }
 		}
 
 		/// <summary>
@@ -86,7 +77,7 @@ namespace ECM7.Migrator
 		/// </summary>
 		public IList<long> GetAppliedMigrations()
 		{
-			return provider.GetAppliedMigrations(key);
+			return provider.GetAppliedMigrations(Key);
 		}
 
 		/// <summary>
@@ -113,10 +104,11 @@ namespace ECM7.Migrator
 		/// <param name="databaseVersion">The version that must became the current one</param>
 		public void Migrate(long databaseVersion = -1)
 		{
-			long targetVersion = databaseVersion < 0 ? migrationLoader.LastVersion : databaseVersion;
 
-			IList<long> appliedMigrations = provider.GetAppliedMigrations(key);
-			IList<long> availableMigrations = migrationLoader.MigrationsTypes
+			long targetVersion = databaseVersion < 0 ? this.migrationAssembly.LastVersion : databaseVersion;
+
+			IList<long> appliedMigrations = provider.GetAppliedMigrations(Key);
+			IList<long> availableMigrations = this.migrationAssembly.MigrationsTypes
 				.Select(mInfo => mInfo.Version).ToList();
 
 			MigrationPlan plan = BuildMigrationPlan(targetVersion, appliedMigrations, availableMigrations);
@@ -140,7 +132,7 @@ namespace ECM7.Migrator
 		/// <param name="currentDatabaseVersion">Текущая версия БД</param>
 		public void ExecuteMigration(long targetVersion, long currentDatabaseVersion)
 		{
-			IMigration migration = this.migrationLoader.GetMigration(targetVersion, this.provider);
+			IMigration migration = this.migrationAssembly.InstantiateMigration(targetVersion, this.provider);
 			Require.IsNotNull(migration, "Не найдена миграция версии {0}", targetVersion);
 
 			try
@@ -151,13 +143,13 @@ namespace ECM7.Migrator
 				{
 					this.logger.MigrateDown(targetVersion, migration.Name);
 					migration.Down();
-					this.provider.MigrationUnApplied(targetVersion, this.key);
+					this.provider.MigrationUnApplied(targetVersion, Key);
 				}
 				else
 				{
 					this.logger.MigrateUp(targetVersion, migration.Name);
 					migration.Up();
-					this.provider.MigrationApplied(targetVersion, this.key);
+					this.provider.MigrationApplied(targetVersion, Key);
 				}
 
 				this.provider.Commit();
@@ -195,8 +187,8 @@ namespace ECM7.Migrator
 			set.UnionWith(availableMigrations);
 
 			var versions = target < startVersion
-			               	? set.Where(n => n <= startVersion && n > target).OrderByDescending(x => x).ToList()
-			               	: set.Where(n => n > startVersion && n <= target).OrderBy(x => x).ToList();
+							? set.Where(n => n <= startVersion && n > target).OrderByDescending(x => x).ToList()
+							: set.Where(n => n > startVersion && n <= target).OrderBy(x => x).ToList();
 
 			return new MigrationPlan(versions, startVersion);
 		}

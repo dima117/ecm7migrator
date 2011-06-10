@@ -1,12 +1,12 @@
 namespace ECM7.Migrator.Tests2
 {
-	using System;
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Reflection;
 
 	using ECM7.Common.Utils.Exceptions;
 	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Framework.Loggers;
 	using ECM7.Migrator.Loader;
 	using ECM7.Migrator.TestAssembly;
 
@@ -21,33 +21,24 @@ namespace ECM7.Migrator.Tests2
 	public class MigrationLoaderTest
 	{
 		/// <summary>
-		/// Проверка загрузки миграций
+		/// Проверка загрузки ключа сборки и миграций
 		/// </summary>
 		[Test]
-		public void CanLoadMigrationsByKey()
+		public void CanLoadMigrationsWithKey()
 		{
+			var logger = new Mock<ILogger>();
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
-			MigrationLoader loader = new MigrationLoader("test-key111", null, assembly);
+			var migrationAssembly = new MigrationAssembly(assembly, logger.Object);
 
-			IList<long> list = loader.MigrationsTypes.Select(x => x.Version).ToList();
+			IList<long> list = migrationAssembly.MigrationsTypes.Select(x => x.Version).ToList();
+
+			Assert.AreEqual("test-key111", migrationAssembly.Key);
+
 			Assert.AreEqual(2, list.Count);
 			Assert.IsTrue(list.Contains(1));
 			Assert.IsTrue(list.Contains(2));
-		}
 
-		// todo: проверить загрузку свойств миграции
-
-		/// <summary>
-		/// Проверка, что не загружаются миграции, не относящиеся к заданному ключу
-		/// </summary>
-		[Test]
-		public void CantLoadMigrationsByInvalidKey()
-		{
-			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
-			MigrationLoader loader = new MigrationLoader("moo-moo-moo", null, assembly);
-
-			IList<MigrationInfo> list = loader.MigrationsTypes;
-			Assert.IsTrue(list.IsEmpty());
+			Assert.AreEqual(2, migrationAssembly.LastVersion);
 		}
 
 		/// <summary>
@@ -56,10 +47,13 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void NullIfNoMigrationForVersion()
 		{
-			MigrationLoader loader = new MigrationLoader(string.Empty, null);
+			var logger = new Mock<ILogger>();
+			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
+
+			MigrationAssembly migrationAssembly = new MigrationAssembly(assembly, logger.Object);
 			Mock<ITransformationProvider> provider = new Moq.Mock<ITransformationProvider>();
 
-			Assert.IsNull(loader.GetMigration(99999999, provider.Object));
+			Assert.IsNull(migrationAssembly.InstantiateMigration(99999999, provider.Object));
 		}
 
 		/// <summary>
@@ -68,9 +62,13 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void ForNullProviderShouldThrowException()
 		{
-			var loader = new MigrationLoader(string.Empty, null);
-			Assert.Throws<RequirementNotCompliedException>(() => loader.GetMigration(1, null));
+			var logger = new Mock<ILogger>();
+			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
+
+			var loader = new MigrationAssembly(assembly, logger.Object);
+			Assert.Throws<RequirementNotCompliedException>(() => loader.InstantiateMigration(1, null));
 		}
+
 
 		/// <summary>
 		/// Проверка корректности определения последней доступной версии
@@ -78,9 +76,10 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void LastVersion()
 		{
+			var logger = new Mock<ILogger>();
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
-			MigrationLoader loader = new MigrationLoader("test-key111", null, assembly);
-			Assert.AreEqual(2, loader.LastVersion);
+			MigrationAssembly migrationAssembly = new MigrationAssembly(assembly, logger.Object);
+			Assert.AreEqual(2, migrationAssembly.LastVersion);
 		}
 
 		/// <summary>
@@ -90,9 +89,10 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void LaseVersionIsZeroIfNoMigrations()
 		{
-			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
-			MigrationLoader loader = new MigrationLoader("moo-moo-moo", null, assembly);
-			Assert.AreEqual(0, loader.LastVersion);
+			var logger = new Mock<ILogger>();
+			Assembly assembly = this.GetType().Assembly; // загружаем текущую сборку - в ней нет миграций
+			MigrationAssembly migrationAssembly = new MigrationAssembly(assembly, logger.Object);
+			Assert.AreEqual(0, migrationAssembly.LastVersion);
 		}
 
 		/// <summary>
@@ -104,7 +104,7 @@ namespace ECM7.Migrator.Tests2
 			var versions = new long[] { 1, 2, 3, 4, 2, 4 };
 
 			var ex = Assert.Throws<DuplicatedVersionException>(() =>
-				MigrationLoader.CheckForDuplicatedVersion(versions));
+				MigrationAssembly.CheckForDuplicatedVersion(versions));
 
 			Assert.AreEqual(2, ex.Versions.Count);
 			Assert.That(ex.Versions.Contains(2));
@@ -117,12 +117,13 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void CanCreateMigrationObject()
 		{
+			var logger = new Mock<ILogger>();
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
-			MigrationLoader loader = new MigrationLoader("test-key111", null, assembly);
+			MigrationAssembly migrationAssembly = new MigrationAssembly(assembly, logger.Object);
 
 			Mock<ITransformationProvider> provider = new Moq.Mock<ITransformationProvider>();
 
-			IMigration migration = loader.GetMigration(2, provider.Object);
+			IMigration migration = migrationAssembly.InstantiateMigration(2, provider.Object);
 
 			Assert.IsNotNull(migration);
 			Assert.That(migration is SecondTestMigration);
