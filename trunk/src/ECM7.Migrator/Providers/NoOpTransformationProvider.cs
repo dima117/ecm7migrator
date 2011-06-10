@@ -9,6 +9,8 @@ using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Providers
 {
+	using ECM7.Migrator.Framework.Loggers;
+
 	/// <summary>
 	/// No Op (Null Object Pattern) implementation of the ITransformationProvider
 	/// </summary>

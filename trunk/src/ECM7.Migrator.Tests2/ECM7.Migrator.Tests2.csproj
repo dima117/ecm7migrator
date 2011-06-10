@@ -48,7 +48,7 @@
       <Link>AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ExecuteMigrationTest.cs" />
-    <Compile Include="MigrationLoaderTest.cs" />
+    <Compile Include="MigrationAssemblyTest.cs" />
     <Compile Include="MigratorPlanTest.cs" />
   </ItemGroup>
   <ItemGroup>

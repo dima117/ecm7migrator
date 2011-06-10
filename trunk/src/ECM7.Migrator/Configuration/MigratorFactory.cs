@@ -1,9 +1,7 @@
 ﻿namespace ECM7.Migrator.Configuration
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Configuration;
-	using System.Linq;
 	using System.Reflection;
 
 	/// <summary>
@@ -44,11 +42,11 @@
 			Require.IsNotNull(config, "Конфигурация не задана");
 			Require.IsNotNullOrEmpty(config.Dialect, "Не задан используемый диалект");
 
-			IEnumerable<Assembly> assemblies = GetAssemblies(config);
+			Assembly assembly = GetAssembly(config);
 
 			string connectionString = GetConnectionString(config);
 
-			return new Migrator(config.Dialect.Trim(), connectionString, config.Key, null, assemblies.ToArray());
+			return new Migrator(config.Dialect.Trim(), connectionString, assembly, null); // BUG НЕ РАБОТАЕТ!!!!!!
 		}
 
 		/// <summary>
@@ -75,23 +73,27 @@
 		}
 
 		/// <summary>
-		/// Загрузка сборок с миграциями
+		/// Загрузка сборки с миграциями
 		/// </summary>
 		/// <param name="config">Конфигурация мигратора</param>
-		private static IEnumerable<Assembly> GetAssemblies(IMigratorConfiguration config)
+		private static Assembly GetAssembly(IMigratorConfiguration config)
 		{
-			IList<Assembly> assemblies = new List<Assembly>();
+			Assembly assembly = null;
+
 			if (!config.Assembly.IsNullOrEmpty(true))
 			{
-				assemblies.Add(Assembly.Load(config.Assembly));
+				assembly = Assembly.Load(config.Assembly);
 			}
-
-			if (!config.AssemblyFile.IsNullOrEmpty(true))
+			else
 			{
-				assemblies.Add(Assembly.LoadFrom(config.AssemblyFile));
+				if (!config.AssemblyFile.IsNullOrEmpty(true))
+				{
+					assembly = Assembly.LoadFrom(config.AssemblyFile);
+				}
 			}
 
-			return assemblies;
+			Require.IsNotNull(assembly, "Не задана сборка, содержащая миграции");
+			return assembly;
 		}
 
 		#endregion
