@@ -71,6 +71,10 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite, Version=1.0.66.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\DataAccess\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.SqlServerCe, Version=3.5.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <HintPath>..\References\DataAccess\System.Data.SqlServerCe.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
@@ -108,7 +112,6 @@
     <Compile Include="TestClasses\Providers\TransformationProviderBase.cs" />
     <Compile Include="TestClasses\Providers\TransformationProviderConstraintBase.cs" />
     <Compile Include="TestClasses\Tools\SqlFileLoggerTest.cs" />
-    <Compile Include="TestClasses\Tools\TransformationProviderExtensionsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
