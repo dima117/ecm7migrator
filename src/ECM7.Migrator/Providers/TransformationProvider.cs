@@ -48,11 +48,6 @@ namespace ECM7.Migrator.Providers
 
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 			this.connection = connection;
-			
-			if (connection.State != ConnectionState.Open)
-			{
-				this.connection.Open();
-			}
 
 			logger = new Logger(false);
 		}
@@ -594,6 +589,7 @@ namespace ECM7.Migrator.Providers
 
 		private IDbCommand BuildCommand(string sql)
 		{
+			this.EnsureHasConnection();
 			IDbCommand cmd = connection.CreateCommand();
 			cmd.CommandText = sql;
 			cmd.CommandType = CommandType.Text;

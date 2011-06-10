@@ -86,7 +86,6 @@
     <Compile Include="MigrationAttribute.cs" />
     <Compile Include="MigrationException.cs" />
     <Compile Include="StringUtils.cs" />
-    <Compile Include="Tools\TransformationProviderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
