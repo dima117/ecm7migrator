@@ -2,6 +2,9 @@ namespace ECM7.Migrator.NAnt
 {
 	using System.IO;
 	using Configuration;
+
+	using ECM7.Migrator.NAnt.Loggers;
+
 	using global::NAnt.Core;
 	using global::NAnt.Core.Attributes;
 
@@ -87,7 +90,7 @@ namespace ECM7.Migrator.NAnt
 		/// </summary>
 		protected override void ExecuteTask()
 		{
-			Migrator migrator = MigratorFactory.CreateMigrator(this);
+			Migrator migrator = MigratorFactory.CreateMigrator(this, new TaskLogger(this));
 
 			migrator.Migrate(to);
 		}

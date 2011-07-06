@@ -5,6 +5,8 @@ using System.Reflection;
 
 namespace ECM7.Migrator.Framework
 {
+	using log4net;
+
 	/// <summary>
 	/// The main interface to use in Migrations to make changes on a database schema.
 	/// </summary>
@@ -15,7 +17,7 @@ namespace ECM7.Migrator.Framework
 		/// </summary>
 		List<long> GetAppliedMigrations(string key);
 
-		ILogger Logger { get; set; }
+		ILog Logger { get; }
 
 		/// <summary>
 		/// Add a column to an existing table
@@ -145,7 +147,8 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// Check that the index with the specified name already exists
 		/// </summary>
-		/// <param name="indexName"></param>
+		/// <param name="indexName">Название индекса</param>
+		/// <param name="tableName">Название таблицы</param>
 		/// <returns></returns>
 		bool IndexExists(string indexName, string tableName);
 

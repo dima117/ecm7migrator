@@ -6,7 +6,9 @@ using MySql.Data.MySqlClient;
 
 namespace ECM7.Migrator.Providers.MySql
 {
-    /// <summary>
+	using log4net;
+
+	/// <summary>
     /// Summary description for MySqlTransformationProvider.
     /// </summary>
     public class MySqlTransformationProvider : TransformationProvider
@@ -16,8 +18,9 @@ namespace ECM7.Migrator.Providers.MySql
 		/// </summary>
 		/// <param name="dialect">Диалект</param>
 		/// <param name="connectionString">Строка подключения</param>
-        public MySqlTransformationProvider(Dialect dialect, string connectionString)
-            : base(dialect, new MySqlConnection(connectionString))
+		/// <param name="logger">Логгер</param>
+		public MySqlTransformationProvider(Dialect dialect, string connectionString, ILog logger)
+            : base(dialect, new MySqlConnection(connectionString), logger)
         {
         }
 
@@ -172,7 +175,7 @@ namespace ECM7.Migrator.Providers.MySql
                         
                         if (!reader.IsDBNull(reader.GetOrdinal("Extra")))
                         {
-                            definition += " " + reader["Extra"].ToString();
+                            definition += " " + reader["Extra"];
                         }
                     }
                 }

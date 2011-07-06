@@ -6,8 +6,9 @@ namespace ECM7.Migrator
 	using System.Linq;
 	using System.Reflection;
 	using Framework;
-	using Framework.Loggers;
 	using Loader;
+
+	using log4net;
 
 	/// <summary>
 	/// Migrations mediator.
@@ -27,7 +28,7 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Логгер
 		/// </summary>
-		private readonly ILogger logger;
+		private readonly ILog logger;
 
 		/// <summary>
 		/// Ключ для фильтрации миграций
@@ -42,24 +43,24 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string dialectTypeName, string connectionString, Assembly asm, ILogger logger = null)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString), asm, logger)
+		public Migrator(string dialectTypeName, string connectionString, Assembly asm, ILog logger)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString, logger), asm, logger)
 		{
 		}
 
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(ITransformationProvider provider, Assembly asm, ILogger logger = null)
+		public Migrator(ITransformationProvider provider, Assembly asm, ILog logger)
 		{
-			var internalLogger = logger ?? new Logger(false);
-			this.logger = internalLogger;
+			Require.IsNotNull(logger, "Не задан объект, реализующий интерфейс ILog");
+			this.logger = logger;
 
 			Require.IsNotNull(provider, "Не задан провайдер СУБД");
 			this.provider = provider;
 
 			Require.IsNotNull(asm, "Не задана сборка с миграциями");
-			this.migrationAssembly = new MigrationAssembly(asm, internalLogger);
+			this.migrationAssembly = new MigrationAssembly(asm, logger);
 		}
 
 		#endregion
@@ -83,12 +84,9 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Get or set the event logger.
 		/// </summary>
-		public ILogger Logger
+		public ILog Logger
 		{
-			get
-			{
-				return logger;
-			}
+			get { return logger; }
 		}
 
 		/// <summary>
@@ -113,9 +111,8 @@ namespace ECM7.Migrator
 
 			MigrationPlan plan = BuildMigrationPlan(targetVersion, appliedMigrations, availableMigrations);
 
-			Logger.Started(appliedMigrations, targetVersion);
-
 			long currentDatabaseVersion = plan.StartVersion;
+			Logger.Started(currentDatabaseVersion, targetVersion);
 
 			foreach (long currentExecutedVersion in plan)
 			{

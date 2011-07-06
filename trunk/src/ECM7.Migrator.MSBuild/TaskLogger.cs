@@ -1,176 +1,163 @@
-namespace ECM7.Migrator.NAnt.Loggers
+namespace ECM7.Migrator.MSBuild
 {
-	using System;
-	using global::NAnt.Core;
 	using log4net;
 	using log4net.Core;
 
-	using Level = global::NAnt.Core.Level;
+	using System;
+
+	using Microsoft.Build.Utilities;
 
 	/// <summary>
-	/// NAnt task logger for the migration mediator
+	/// MSBuild task logger for the migration mediator
 	/// </summary>
 	public class TaskLogger : ILog
 	{
-		/// <summary>
-		/// Таск NAnt, который работает с логгером
-		/// </summary>
-		private readonly Task task;
+		private readonly TaskLoggingHelper log;
 
-		/// <summary>
-		/// Инициализация
-		/// </summary>
-		/// <param name="task">Таск NAnt, который работает с логгером</param>
 		public TaskLogger(Task task)
 		{
-			Require.IsNotNull(task, "Не задан текущий task для NAnt");
-			this.task = task;
+			Require.IsNotNull(task, "Не задан task для msbuild");
+			Require.IsNotNull(task.Log, "Не задан log");
+			this.log = task.Log;
 		}
-
-		#region Implementation of ILoggerWrapper
-
-		public ILogger Logger
-		{
-			get { throw new NotImplementedException(); }
-		}
-
-		#endregion
 
 		#region Implementation of ILog
 
 		public void Debug(object message)
 		{
-			task.Log(Level.Debug, message.ToString());
+			log.LogMessage(message.ToString());
 		}
 
 		public void Debug(object message, Exception exception)
 		{
-			task.Log(Level.Debug, message.ToString());
+			log.LogMessage(message.ToString());
+			log.LogErrorFromException(exception);
 		}
 
 		public void DebugFormat(string format, params object[] args)
 		{
-			task.Log(Level.Debug, format, args);
+			log.LogMessage(format.FormatWith(args));
 		}
 
 		public void DebugFormat(IFormatProvider provider, string format, params object[] args)
 		{
-			task.Log(Level.Debug, format, args);
+			log.LogMessage(format.FormatWith(provider, args));
 		}
 
 		public void Info(object message)
 		{
-			throw new NotImplementedException();
+			log.LogMessage(message.ToString());
 		}
 
 		public void Info(object message, Exception exception)
 		{
-			throw new NotImplementedException();
+			log.LogMessage(message.ToString());
+			log.LogErrorFromException(exception);
 		}
 
 		public void InfoFormat(string format, params object[] args)
 		{
-			throw new NotImplementedException();
+			log.LogMessage(format.FormatWith(args));
 		}
 
 		public void InfoFormat(IFormatProvider provider, string format, params object[] args)
 		{
-			throw new NotImplementedException();
+			log.LogMessage(format.FormatWith(provider, args));
 		}
 
 		public void Warn(object message)
 		{
-			throw new NotImplementedException();
+			log.LogWarning(message.ToString());
 		}
 
 		public void Warn(object message, Exception exception)
 		{
-			throw new NotImplementedException();
+			log.LogWarning(message.ToString());
+			log.LogWarningFromException(exception);
 		}
 
 		public void WarnFormat(string format, params object[] args)
 		{
-			throw new NotImplementedException();
+			log.LogWarning(format.FormatWith(args));
 		}
 
 		public void WarnFormat(IFormatProvider provider, string format, params object[] args)
 		{
-			throw new NotImplementedException();
+			log.LogWarning(format.FormatWith(provider, args));
 		}
 
 		public void Error(object message)
 		{
-			throw new NotImplementedException();
+			log.LogError(message.ToString());
 		}
 
 		public void Error(object message, Exception exception)
 		{
-			throw new NotImplementedException();
+			log.LogError(message.ToString());
+			log.LogErrorFromException(exception);
 		}
 
 		public void ErrorFormat(string format, params object[] args)
 		{
-			throw new NotImplementedException();
+			log.LogError(format.FormatWith(args));
 		}
 
 		public void ErrorFormat(IFormatProvider provider, string format, params object[] args)
 		{
-			throw new NotImplementedException();
+			log.LogError(format.FormatWith(provider, args));
 		}
 
 		public void Fatal(object message)
 		{
-			throw new NotImplementedException();
+			log.LogError(message.ToString());
 		}
 
 		public void Fatal(object message, Exception exception)
 		{
-			throw new NotImplementedException();
+			log.LogError(message.ToString());
+			log.LogErrorFromException(exception);
 		}
 
 		public void FatalFormat(string format, params object[] args)
 		{
-			throw new NotImplementedException();
+			log.LogError(format.FormatWith(args));
 		}
 
 		public void FatalFormat(IFormatProvider provider, string format, params object[] args)
 		{
-			throw new NotImplementedException();
+			log.LogError(format.FormatWith(provider, args));
 		}
 
 		public bool IsDebugEnabled
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
+			get { return true; }
 		}
 
 		public bool IsInfoEnabled
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
+			get { return true; }
 		}
 
 		public bool IsWarnEnabled
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
+			get { return true; }
 		}
 
 		public bool IsErrorEnabled
 		{
-			get
-			{
-				throw new NotImplementedException();
-			}
+			get { return true; }
 		}
 
 		public bool IsFatalEnabled
+		{
+			get { return true; }
+		}
+
+		#endregion
+
+		#region Implementation of ILoggerWrapper
+
+		public ILogger Logger
 		{
 			get
 			{

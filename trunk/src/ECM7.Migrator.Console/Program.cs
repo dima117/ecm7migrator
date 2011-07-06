@@ -9,6 +9,8 @@ namespace ECM7.Migrator.Console
 	using ECM7.Migrator.Configuration;
 	using ECM7.Migrator.Framework;
 
+	using log4net;
+
 	/// <summary>
 	/// Console application
 	/// </summary>
@@ -23,17 +25,20 @@ namespace ECM7.Migrator.Console
 		{
 			try
 			{
+				// todo: инициализировать логирование
 				MigratorConsoleMode mode = GetConsoleMode(args);
 				MigratorConfiguration config = GetConfig(args);
+
+				ILog logger = GetLogger();
 
 				switch (mode)
 				{
 					case MigratorConsoleMode.Migrate:
 						long migrateTo = GetDestinationVersion(args);
-						Migrate(config, migrateTo);
+						Migrate(config, migrateTo, logger);
 						break;
 					case MigratorConsoleMode.List:
-						List(config);
+						List(config, logger);
 						break;
 					case MigratorConsoleMode.Help:
 						PrintUsage();
@@ -54,6 +59,11 @@ namespace ECM7.Migrator.Console
 				PrintUsage();
 				return -1;
 			}
+		}
+
+		private static ILog GetLogger()
+		{
+			throw new NotImplementedException("Инициализировать логгер для консоли");
 		}
 
 		#region parse arguments
@@ -178,9 +188,9 @@ namespace ECM7.Migrator.Console
 		/// <summary>
 		/// Runs the migrations.
 		/// </summary>
-		public static void Migrate(IMigratorConfiguration config, long migrateTo)
+		public static void Migrate(IMigratorConfiguration config, long migrateTo, ILog logger)
 		{
-			Migrator migrator = MigratorFactory.CreateMigrator(config);
+			Migrator migrator = MigratorFactory.CreateMigrator(config, logger);
 
 			migrator.Migrate(migrateTo);
 		}
@@ -188,9 +198,9 @@ namespace ECM7.Migrator.Console
 		/// <summary>
 		/// Выводит текущий список миграций
 		/// </summary>
-		public static void List(IMigratorConfiguration config)
+		public static void List(IMigratorConfiguration config, ILog logger)
 		{
-			Migrator mig = MigratorFactory.CreateMigrator(config);
+			Migrator mig = MigratorFactory.CreateMigrator(config, logger);
 			IList<long> appliedMigrations = mig.GetAppliedMigrations();
 
 			Console.WriteLine("Available migrations:");
@@ -210,7 +220,7 @@ namespace ECM7.Migrator.Console
 		/// </summary>
 		public static void PrintUsage()
 		{
-			const int tab = 17;
+			const int TAB = 17;
 
 			Version ver = Assembly.GetExecutingAssembly().GetName().Version;
 
@@ -218,16 +228,16 @@ namespace ECM7.Migrator.Console
 			Console.WriteLine();
 			Console.WriteLine("usage:\nECM7.Migrator.Console.exe dialect connectionString migrationsAssembly [options]");
 			Console.WriteLine();
-			Console.WriteLine("\t{0} {1}", "dialect".PadRight(tab), "Full name of dialect type (include assembly name)");
-			Console.WriteLine("\t{0} {1}", "connectionString".PadRight(tab), "Connection string to the database");
-			Console.WriteLine("\t{0} {1}", "migrationAssembly".PadRight(tab), "Path to the assembly containing the migrations");
+			Console.WriteLine("\t{0} {1}", "dialect".PadRight(TAB), "Full name of dialect type (include assembly name)");
+			Console.WriteLine("\t{0} {1}", "connectionString".PadRight(TAB), "Connection string to the database");
+			Console.WriteLine("\t{0} {1}", "migrationAssembly".PadRight(TAB), "Path to the assembly containing the migrations");
 			Console.WriteLine("Options:");
 			Console.WriteLine(
 				"\t-{0}{1}",
-				"version:NUM".PadRight(tab),
+				"version:NUM".PadRight(TAB),
 				"To specific version to migrate the database to (for migrae to latest version use -1)");
-			Console.WriteLine("\t-{0}{1}", "list".PadRight(tab), "List migrations");
-			Console.WriteLine("\t-{0}{1}", "help".PadRight(tab), "Show help");
+			Console.WriteLine("\t-{0}{1}", "list".PadRight(TAB), "List migrations");
+			Console.WriteLine("\t-{0}{1}", "help".PadRight(TAB), "Show help");
 			Console.WriteLine();
 		}
 	}

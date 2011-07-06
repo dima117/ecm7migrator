@@ -4,6 +4,8 @@
 	using System.Configuration;
 	using System.Reflection;
 
+	using log4net;
+
 	/// <summary>
 	/// Инициализация мигратора
 	/// </summary>
@@ -14,19 +16,19 @@
 		/// <summary>
 		/// Создание мигратора и его инициализация из конфига
 		/// </summary>
-		public static Migrator InitByConfigFile()
+		public static Migrator InitByConfigFile(ILog logger)
 		{
-			return InitByConfigFile("migrator");
+			return InitByConfigFile("migrator", logger);
 		}
 
 		/// <summary>
 		/// Создание мигратора и его инициализация из конфига
 		/// </summary>
-		public static Migrator InitByConfigFile(string configSectionName)
+		public static Migrator InitByConfigFile(string configSectionName, ILog logger)
 		{
 			Require.IsNotNullOrEmpty(configSectionName, true, "Не задана секция конфигурационногог файла");
 			var config = ConfigurationManager.GetSection(configSectionName) as MigratorConfigurationSection;
-			return CreateMigrator(config);
+			return CreateMigrator(config, logger);
 		}
 
 		#endregion
@@ -37,8 +39,10 @@
 		/// Создание экземпляра мигратора, инициализированного заданными настройками
 		/// </summary>
 		/// <param name="config">Конфигурация мигратора</param>
-		public static Migrator CreateMigrator(IMigratorConfiguration config)
+		/// <param name="logger">Логгер</param>
+		public static Migrator CreateMigrator(IMigratorConfiguration config, ILog logger)
 		{
+			Require.IsNotNull(logger, "Не задан логгер");
 			Require.IsNotNull(config, "Конфигурация не задана");
 			Require.IsNotNullOrEmpty(config.Dialect, "Не задан используемый диалект");
 
@@ -46,7 +50,7 @@
 
 			string connectionString = GetConnectionString(config);
 
-			return new Migrator(config.Dialect.Trim(), connectionString, assembly, null); // BUG НЕ РАБОТАЕТ!!!!!!
+			return new Migrator(config.Dialect.Trim(), connectionString, assembly, logger);
 		}
 
 		/// <summary>

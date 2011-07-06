@@ -7,6 +7,8 @@ using OracleConnection = Oracle.DataAccess.Client.OracleConnection;
 
 namespace ECM7.Migrator.Providers.Oracle
 {
+	using log4net;
+
 	/// <summary>
 	/// Провайдер трансформации для Oracle
 	/// </summary>
@@ -17,8 +19,9 @@ namespace ECM7.Migrator.Providers.Oracle
 		/// </summary>
 		/// <param name="dialect">Диалект</param>
 		/// <param name="connectionString">Строка подключения</param>
-		public OracleTransformationProvider(Dialect dialect, string connectionString)
-			: base(dialect, new OracleConnection(connectionString))
+		/// <param name="logger">Логгер</param>
+		public OracleTransformationProvider(Dialect dialect, string connectionString, ILog logger)
+			: base(dialect, new OracleConnection(connectionString), logger)
 		{
 		}
 
@@ -27,17 +30,17 @@ namespace ECM7.Migrator.Providers.Oracle
 		{
 			if (ConstraintExists(primaryTable, name))
 			{
-				Logger.Warn("Constraint {0} already exists", name);
+				Logger.WarnFormat("Constraint {0} already exists", name);
 				return;
 			}
 
-			List<string> command = new List<string>();
-			command.Add("ALTER TABLE {0}".FormatWith(primaryTable));
-			command.Add("ADD CONSTRAINT {0}".FormatWith(name));
-			command.Add("FOREIGN KEY ({0})"
-				.FormatWith(primaryColumns.ToCommaSeparatedString()));
-			command.Add("REFERENCES {0} ({1})"
-				.FormatWith(refTable, refColumns.ToCommaSeparatedString()));
+			List<string> command = new List<string>
+				{
+					"ALTER TABLE {0}".FormatWith(primaryTable),
+					"ADD CONSTRAINT {0}".FormatWith(name),
+					"FOREIGN KEY ({0})".FormatWith(primaryColumns.ToCommaSeparatedString()),
+					"REFERENCES {0} ({1})".FormatWith(refTable, refColumns.ToCommaSeparatedString())
+				};
 
 			switch (constraint)
 			{
@@ -70,12 +73,11 @@ namespace ECM7.Migrator.Providers.Oracle
 		{
 			if (!IndexExists(indexName, tableName))
 			{
-				Logger.Warn("Index {0} is not exists", indexName);
+				Logger.WarnFormat("Index {0} is not exists", indexName);
 				return;
 			}
 
-			string sql = "DROP INDEX {0}"
-				.FormatWith(Dialect.QuoteIfNeeded(indexName));
+			string sql = "DROP INDEX {0}".FormatWith(Dialect.QuoteIfNeeded(indexName));
 
 			ExecuteNonQuery(sql);
 		}
@@ -97,7 +99,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				string.Format(
 					"SELECT COUNT(constraint_name) FROM user_constraints WHERE lower(constraint_name) = '{0}' AND lower(table_name) = '{1}'",
 					name.ToLower(), table.ToLower());
-			Logger.Log(sql);
+			Logger.ExecuteSql(sql);
 			object scalar = ExecuteScalar(sql);
 			return Convert.ToInt32(scalar) == 1;
 		}
@@ -111,7 +113,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				string.Format(
 					"SELECT COUNT(column_name) FROM user_tab_columns WHERE lower(table_name) = '{0}' AND lower(column_name) = '{1}'",
 					table.ToLower(), column.ToLower());
-			Logger.Log(sql);
+			Logger.ExecuteSql(sql);
 			object scalar = ExecuteScalar(sql);
 			return Convert.ToInt32(scalar) == 1;
 		}
@@ -120,7 +122,7 @@ namespace ECM7.Migrator.Providers.Oracle
 		{
 			string sql = string.Format("SELECT COUNT(table_name) FROM user_tables WHERE lower(table_name) = '{0}'",
 									   table.ToLower());
-			Logger.Log(sql);
+			Logger.ExecuteSql(sql);
 			object count = ExecuteScalar(sql);
 			return Convert.ToInt32(count) == 1;
 		}
