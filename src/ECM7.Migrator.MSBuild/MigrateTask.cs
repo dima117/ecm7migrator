@@ -86,7 +86,7 @@ namespace ECM7.Migrator.MSBuild
 		/// </returns>
 		public override bool Execute()
 		{
-			Migrator migrator = MigratorFactory.CreateMigrator(this);
+			Migrator migrator = MigratorFactory.CreateMigrator(this, new TaskLogger(this));
 
 			migrator.Migrate(to);
 

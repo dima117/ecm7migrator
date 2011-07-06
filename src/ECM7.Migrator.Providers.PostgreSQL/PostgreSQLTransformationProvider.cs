@@ -7,6 +7,8 @@ using Npgsql;
 
 namespace ECM7.Migrator.Providers.PostgreSQL
 {
+	using log4net;
+
 	/// <summary>
 	/// Migration transformations provider for PostgreSQL
 	/// </summary>
@@ -17,8 +19,9 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		/// </summary>
 		/// <param name="dialect">Диалект</param>
 		/// <param name="connectionString">Строка подключения</param>
-		public PostgreSQLTransformationProvider(Dialect dialect, string connectionString)
-			: base(dialect, new NpgsqlConnection(connectionString))
+		/// <param name="logger">Логгер</param>
+		public PostgreSQLTransformationProvider(Dialect dialect, string connectionString, ILog logger)
+			: base(dialect, new NpgsqlConnection(connectionString), logger)
 		{
 		}
 
@@ -50,7 +53,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		{
 			if (!IndexExists(indexName, tableName))
 			{
-				Logger.Warn("Index {0} is not exists", indexName);
+				Logger.WarnFormat("Index {0} is not exists", indexName);
 				return;
 			}
 
@@ -95,7 +98,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		{
 			if (!ColumnExists(table, column.Name))
 			{
-				Logger.Warn("Column {0}.{1} does not exist", table, column.Name);
+				Logger.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
 				return;
 			}
 
@@ -144,11 +147,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		public override Column GetColumnByName(string table, string columnName)
 		{
 			// Duplicate because of the lower case issue
-			return Array.Find(GetColumns(table),
-							  delegate(Column column)
-							  {
-								  return column.Name == columnName.ToLower();
-							  });
+			return Array.Find(GetColumns(table), column => column.Name == columnName.ToLower());
 		}
 	}
 }

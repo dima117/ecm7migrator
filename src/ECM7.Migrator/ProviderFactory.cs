@@ -5,6 +5,8 @@ using ECM7.Migrator.Providers;
 
 namespace ECM7.Migrator
 {
+	using log4net;
+
 	/// <summary>
 	/// Диалект - задает специфические особенности СУБД
 	/// </summary>
@@ -71,26 +73,25 @@ namespace ECM7.Migrator
 
 		#region Create
 
-		public static TransformationProvider Create<TDialect>(
-			Type dialectType, string connectionString)
+		public static TransformationProvider Create<TDialect>(string connectionString, ILog logger)
 			where TDialect : Dialect, new()
 		{
-			return GetDialect<TDialect>().NewProviderForDialect(connectionString);
+			return GetDialect<TDialect>().NewProviderForDialect(connectionString, logger);
 		}
 
-		public static TransformationProvider Create(Type dialectType, string connectionString)
+		public static TransformationProvider Create(Type dialectType, string connectionString, ILog logger)
 		{
-			return GetDialect(dialectType).NewProviderForDialect(connectionString);
+			return GetDialect(dialectType).NewProviderForDialect(connectionString, logger);
 		}
 
-		public static TransformationProvider Create(string dialectName, string connectionString)
+		public static TransformationProvider Create(string dialectName, string connectionString, ILog logger)
 		{
 			string dialectTypeName = shortcuts.ContainsKey(dialectName)
 			                         	? shortcuts[dialectName]
 			                         	: dialectName;
 			Type dialectType = Type.GetType(dialectTypeName);
 			Require.IsNotNull(dialectType, "Не удалось загрузить диалект: {0}", dialectName.Nvl("null"));
-			return Create(dialectType, connectionString);
+			return Create(dialectType, connectionString, logger);
 		}
 
 		#endregion

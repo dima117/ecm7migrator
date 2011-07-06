@@ -6,6 +6,8 @@ using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers
 {
+	using log4net;
+
 	/// <summary>
 	/// Определяет реализацию деталей, специфических для конкретной СУБД.
 	/// </summary>
@@ -24,9 +26,9 @@ namespace ECM7.Migrator.Providers
 
 		public abstract Type TransformationProviderType { get; }
 
-		public TransformationProvider NewProviderForDialect(string connectionString)
+		public TransformationProvider NewProviderForDialect(string connectionString, ILog logger)
 		{
-			return Activator.CreateInstance(TransformationProviderType, this, connectionString) as TransformationProvider;
+			return Activator.CreateInstance(TransformationProviderType, this, connectionString, logger) as TransformationProvider;
 		}
 
 		/// <summary>

@@ -5,8 +5,11 @@ namespace ECM7.Migrator.Loader
 	using System.Collections.ObjectModel;
 	using System.Linq;
 	using System.Reflection;
+	using System.Text;
+
 	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Framework.Loggers;
+
+	using log4net;
 
 	/// <summary>
 	/// Класс для работы с миграциями в сборке
@@ -57,7 +60,7 @@ namespace ECM7.Migrator.Loader
 		/// </summary>
 		/// <param name="asm">Сборка с миграциями</param>
 		/// <param name="logger">Логгер для записи сообщений трассировки</param>
-		public MigrationAssembly(Assembly asm, ILogger logger)
+		public MigrationAssembly(Assembly asm, ILog logger)
 		{
 			Require.IsNotNull(asm, "Не задана сборка с миграциями");
 			Require.IsNotNull(logger, "Не инициализирован логгер");
@@ -73,7 +76,7 @@ namespace ECM7.Migrator.Loader
 			this.lastVersion = versions.IsEmpty() ? 0 : versions.Max();
 		}
 
-		public static MigrationAssembly Load(Assembly asm, ILogger logger)
+		public static MigrationAssembly Load(Assembly asm, ILog logger)
 		{
 			return new MigrationAssembly(asm, logger);
 		}
@@ -81,7 +84,7 @@ namespace ECM7.Migrator.Loader
 		/// <summary>
 		/// Получение ключа миграций для заданной сборки
 		/// </summary>
-		private static string GetAssemblyKey(Assembly assembly, ILogger logger)
+		private static string GetAssemblyKey(Assembly assembly, ILog logger)
 		{
 			MigrationAssemblyAttribute asmAttribute =
 				assembly.GetCustomAttribute<MigrationAssemblyAttribute>();
@@ -90,7 +93,7 @@ namespace ECM7.Migrator.Loader
 				? string.Empty
 				: asmAttribute.Key ?? string.Empty;
 
-			logger.Trace("Migration key: {0}", assemblyKey);
+			logger.DebugFormat("Migration key: {0}", assemblyKey);
 			return assemblyKey;
 		}
 
@@ -99,10 +102,12 @@ namespace ECM7.Migrator.Loader
 		/// </summary>
 		/// <param name="asm">The <c>Assembly</c> to browse.</param>
 		/// <param name="logger">Логгер</param>
-		private static List<MigrationInfo> GetMigrationInfoList(Assembly asm, ILogger logger)
+		private static List<MigrationInfo> GetMigrationInfoList(Assembly asm, ILog logger)
 		{
 			List<MigrationInfo> migrations = new List<MigrationInfo>();
-			logger.Trace("Loaded migrations:");
+
+			StringBuilder logMessageBuilder = new StringBuilder("Loaded migrations:");
+			
 
 			foreach (Type type in asm.GetExportedTypes())
 			{
@@ -114,9 +119,12 @@ namespace ECM7.Migrator.Loader
 				{
 					MigrationInfo mi = new MigrationInfo(type);
 					migrations.Add(mi);
-					logger.Trace("{0} {1}", mi.Version.ToString().PadLeft(5), StringUtils.ToHumanName(mi.Type.Name));
+					string msg = "{0} {1}".FormatWith(mi.Version.ToString().PadLeft(5), StringUtils.ToHumanName(mi.Type.Name));
+					logMessageBuilder.AppendLine(msg);
 				}
 			}
+
+			logger.DebugFormat(logMessageBuilder.ToString());
 
 			migrations.Sort(new MigrationInfoComparer(true));
 			return migrations;

@@ -20,20 +20,21 @@ using System.Reflection;
 
 using ECM7.Migrator.Compatibility;
 using ECM7.Migrator.Framework;
-using ECM7.Migrator.Framework.Loggers;
 
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Providers
 {
+	using log4net;
+
 	/// <summary>
 	/// Base class for every transformation providers.
 	/// A 'tranformation' is an operation that modifies the database.
 	/// </summary>
 	public abstract class TransformationProvider : ITransformationProvider
 	{
-		private const string SchemaInfoTable = "SchemaInfo";
-		private ILogger logger;
+		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
+		private readonly ILog logger;
 		protected IDbConnection connection;
 		private IDbTransaction transaction;
 
@@ -41,7 +42,7 @@ namespace ECM7.Migrator.Providers
 
 		private readonly ForeignKeyConstraintMapper constraintMapper = new ForeignKeyConstraintMapper();
 
-		protected TransformationProvider(Dialect dialect, IDbConnection connection)
+		protected TransformationProvider(Dialect dialect, IDbConnection connection, ILog logger)
 		{
 			Require.IsNotNull(dialect, "Не задан диалект");
 			this.dialect = dialect;
@@ -49,7 +50,8 @@ namespace ECM7.Migrator.Providers
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 			this.connection = connection;
 
-			logger = new Logger(false);
+			Require.IsNotNull(logger, "Не задан объект, реализующий интерфейс ILog");
+			this.logger = logger;
 		}
 
 		public bool TypeIsSupported(DbType type)
@@ -60,10 +62,9 @@ namespace ECM7.Migrator.Providers
 		/// <summary>
 		/// Returns the event logger
 		/// </summary>
-		public virtual ILogger Logger
+		public virtual ILog Logger
 		{
 			get { return logger; }
-			set { logger = value; }
 		}
 
 		public Dialect Dialect
@@ -174,7 +175,7 @@ namespace ECM7.Migrator.Providers
 
 			if (TableExists(name))
 			{
-				Logger.Warn("Table {0} already exists", name);
+				Logger.WarnFormat("Table {0} already exists", name);
 				return;
 			}
 
@@ -263,7 +264,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (!ColumnExists(table, column.Name))
 			{
-				Logger.Warn("Column {0}.{1} does not exist", table, column.Name);
+				Logger.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
 				return;
 			}
 
@@ -311,7 +312,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ColumnExists(table, column.Name))
 			{
-				Logger.Warn("Column {0}.{1} already exists", table, column.Name);
+				Logger.WarnFormat("Column {0}.{1} already exists", table, column.Name);
 				return;
 			}
 
@@ -346,7 +347,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ColumnExists(table, column))
 			{
-				Logger.Warn("Column {0}.{1} already exists", table, column);
+				Logger.WarnFormat("Column {0}.{1} already exists", table, column);
 				return;
 			}
 
@@ -386,7 +387,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ConstraintExists(table, name))
 			{
-				Logger.Warn("Primary key {0} already exists", name);
+				Logger.WarnFormat("Primary key {0} already exists", name);
 				return;
 			}
 			string sql = String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} PRIMARY KEY ({2}) ",
@@ -399,7 +400,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ConstraintExists(table, name))
 			{
-				Logger.Warn("Constraint {0} already exists", name);
+				Logger.WarnFormat("Constraint {0} already exists", name);
 				return;
 			}
 			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2}) ",
@@ -411,7 +412,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ConstraintExists(table, name))
 			{
-				Logger.Warn("Constraint {0} already exists", name);
+				Logger.WarnFormat("Constraint {0} already exists", name);
 				return;
 			}
 			string sql = "ALTER TABLE {0} ADD CONSTRAINT {1} CHECK ({2}) ".FormatWith(table, name, checkSql);
@@ -426,7 +427,7 @@ namespace ECM7.Migrator.Providers
 
 			if (IndexExists(name, table))
 			{
-				Logger.Warn("Index {0} already exists", name);
+				Logger.WarnFormat("Index {0} already exists", name);
 				return;
 			}
 
@@ -447,7 +448,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (!IndexExists(indexName, tableName))
 			{
-				Logger.Warn("Index {0} is not exists", indexName);
+				Logger.WarnFormat("Index {0} is not exists", indexName);
 				return;
 			}
 
@@ -473,7 +474,6 @@ namespace ECM7.Migrator.Providers
 
 		/// <summary>
 		/// Guesses the name of the foreign key and add it
-		/// </see>
 		/// </summary>
 		public virtual void GenerateForeignKey(string primaryTable, string[] primaryColumns, string refTable,
 											   string[] refColumns)
@@ -543,7 +543,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ConstraintExists(primaryTable, name))
 			{
-				Logger.Warn("Constraint {0} already exists", name);
+				Logger.WarnFormat("Constraint {0} already exists", name);
 				return;
 			}
 
@@ -573,8 +573,8 @@ namespace ECM7.Migrator.Providers
 
 		public int ExecuteNonQuery(string sql)
 		{
-			Logger.Trace(sql);
-			Logger.ApplyingDatabaseChange(sql);
+			Logger.ExecuteSql(sql);
+			Logger.ExecuteSql(sql);
 			IDbCommand cmd = BuildCommand(sql);
 			try
 			{
@@ -607,7 +607,7 @@ namespace ECM7.Migrator.Providers
 		/// <returns>A data iterator, <see cref="System.Data.IDataReader">IDataReader</see>.</returns>
 		public IDataReader ExecuteQuery(string sql)
 		{
-			Logger.Trace(sql);
+			Logger.ExecuteSql(sql);
 			IDbCommand cmd = BuildCommand(sql);
 			try
 			{
@@ -615,14 +615,14 @@ namespace ECM7.Migrator.Providers
 			}
 			catch
 			{
-				Logger.Warn("query failed: {0}", cmd.CommandText);
+				Logger.WarnFormat("query failed: {0}", cmd.CommandText);
 				throw;
 			}
 		}
 
 		public object ExecuteScalar(string sql)
 		{
-			Logger.Trace(sql);
+			Logger.ExecuteSql(sql);
 			IDbCommand cmd = BuildCommand(sql);
 			try
 			{
@@ -630,7 +630,7 @@ namespace ECM7.Migrator.Providers
 			}
 			catch
 			{
-				Logger.Warn("Query failed: {0}", cmd.CommandText);
+				Logger.WarnFormat("Query failed: {0}", cmd.CommandText);
 				throw;
 			}
 		}
@@ -830,7 +830,7 @@ namespace ECM7.Migrator.Providers
 			string where = string.Format("[key] = '{0}'", key.Replace("'", "''")); // TODO: проверить на других СУБД
 
 			// переделать на DataTable
-			using (IDataReader reader = Select("version", SchemaInfoTable, where))
+			using (IDataReader reader = Select("version", SCHEMA_INFO_TABLE, where))
 			{
 				while (reader.Read())
 				{
@@ -851,7 +851,7 @@ namespace ECM7.Migrator.Providers
 		public void MigrationApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
-			Insert(SchemaInfoTable, new[] { "version", "[key]" }, new[] { version.ToString(), key });
+			Insert(SCHEMA_INFO_TABLE, new[] { "version", "[key]" }, new[] { version.ToString(), key });
 		}
 
 		/// <summary>
@@ -862,24 +862,24 @@ namespace ECM7.Migrator.Providers
 		public void MigrationUnApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
-			Delete(SchemaInfoTable, new[] { "version", "[key]" }, new[] { version.ToString(), key });
+			Delete(SCHEMA_INFO_TABLE, new[] { "version", "[key]" }, new[] { version.ToString(), key });
 		}
 
 		protected void CreateSchemaInfoTable()
 		{
 			EnsureHasConnection();
 
-			if (!TableExists(SchemaInfoTable))
+			if (!TableExists(SCHEMA_INFO_TABLE))
 			{
 				AddTable(
-					SchemaInfoTable,
+					SCHEMA_INFO_TABLE,
 					new Column("Version", DbType.Int64, ColumnProperty.NotNull),
 					new Column("[Key]", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
-				AddPrimaryKey("PK_SchemaInfo", SchemaInfoTable, "Version", "[Key]");
+				AddPrimaryKey("PK_SchemaInfo", SCHEMA_INFO_TABLE, "Version", "[Key]");
 			}
 			else
 			{
-				if (!ColumnExists(SchemaInfoTable, "Key"))
+				if (!ColumnExists(SCHEMA_INFO_TABLE, "Key"))
 				{
 					// TODO: Удалить код совместимости для старой таблицы SchemaInfo в следующих версиях
 					UpdateSchemaInfo.Update(this);
@@ -935,12 +935,16 @@ namespace ECM7.Migrator.Providers
 		{
 			Require.IsNotNull(assembly, "Incorrect assembly");
 
-			Stream stream = assembly.GetManifestResourceStream(path);
-			Require.IsNotNull(stream, "Не удалось загрузить указанный файл ресурсов");
+			using (Stream stream = assembly.GetManifestResourceStream(path))
+			{
+				Require.IsNotNull(stream, "Не удалось загрузить указанный файл ресурсов");
 
-			StreamReader reader = new StreamReader(stream);
-			string sql = reader.ReadToEnd();
-			ExecuteNonQuery(sql);
+				using (StreamReader reader = new StreamReader(stream))
+				{
+					string sql = reader.ReadToEnd();
+					ExecuteNonQuery(sql);
+				}
+			}
 		}
 	}
 }
