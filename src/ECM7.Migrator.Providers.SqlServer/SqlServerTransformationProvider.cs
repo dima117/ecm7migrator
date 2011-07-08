@@ -6,20 +6,18 @@ using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers.SqlServer
 {
-	using log4net;
-
 	/// <summary>
 	/// Migration transformations provider for Microsoft SQL Server.
 	/// </summary>
 	public class SqlServerTransformationProvider : TransformationProvider
 	{
-		protected SqlServerTransformationProvider(Dialect dialect, IDbConnection connection, ILog logger)
-			: base(dialect, connection, logger)
+		protected SqlServerTransformationProvider(Dialect dialect, IDbConnection connection)
+			: base(dialect, connection)
 		{
 		}
 
-		public SqlServerTransformationProvider(Dialect dialect, string connectionString, ILog logger)
-			: base(dialect, new SqlConnection(connectionString), logger)
+		public SqlServerTransformationProvider(Dialect dialect, string connectionString)
+			: base(dialect, new SqlConnection(connectionString))
 		{
 		}
 

@@ -15,7 +15,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 			if (constr == null)
 				throw new ArgumentNullException("ConnectionString", "No config file");
 
-			provider = new PostgreSQLTransformationProvider(new PostgreSQLDialect(), constr);
+			provider = new PostgreSQLTransformationProvider(new PostgreSQLDialect(), constr, null);
 			provider.BeginTransaction();
             
 			AddDefaultTable();

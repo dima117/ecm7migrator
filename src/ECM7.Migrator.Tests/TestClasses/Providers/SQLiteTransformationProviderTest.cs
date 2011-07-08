@@ -1,7 +1,7 @@
 using System;
 using System.Configuration;
 using ECM7.Migrator.Providers.SQLite;
-using ECM7.Migrator.Tests.Providers;
+
 using NUnit.Framework;
 
 namespace ECM7.Migrator.Tests.TestClasses.Providers
@@ -18,7 +18,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 				throw new ArgumentNullException("SQLiteConnectionString", "No config file");
 			}
 
-			provider = new SQLiteTransformationProvider(new SQLiteDialect(), constr);
+			provider = new SQLiteTransformationProvider(new SQLiteDialect(), constr, null);
 			provider.BeginTransaction();
 
 			AddDefaultTable();

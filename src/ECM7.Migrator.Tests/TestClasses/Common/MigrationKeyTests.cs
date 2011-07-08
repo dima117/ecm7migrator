@@ -58,7 +58,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 
 		public ITransformationProvider CreateSqlServer2005Provider(string key)
 		{
-			var provider = new SqlServerTransformationProvider(new SqlServer2005Dialect(), ConnectionString);
+			var provider = new SqlServerTransformationProvider(new SqlServer2005Dialect(), ConnectionString, null);
 
 			return provider;
 		}

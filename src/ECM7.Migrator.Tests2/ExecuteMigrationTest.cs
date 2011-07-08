@@ -4,6 +4,7 @@
 	using System.Reflection;
 
 	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Framework.Logging;
 
 	using log4net;
 
@@ -24,10 +25,9 @@
 		public void CanMoveUp()
 		{
 			var provider = new Mock<ITransformationProvider>();
-			var logger = new Mock<ILog>();
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
 
-			var migrator = new Migrator(provider.Object, asm, logger.Object);
+			var migrator = new Migrator(provider.Object, asm);
 
 			migrator.ExecuteMigration(2, 1);
 
@@ -46,10 +46,9 @@
 		public void CanMoveDown()
 		{
 			var provider = new Mock<ITransformationProvider>();
-			var logger = new Mock<ILog>();
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
 
-			var migrator = new Migrator(provider.Object, asm, logger.Object);
+			var migrator = new Migrator(provider.Object, asm);
 
 			migrator.ExecuteMigration(2, 2);
 

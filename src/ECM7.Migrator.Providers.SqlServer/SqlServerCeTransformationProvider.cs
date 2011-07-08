@@ -18,15 +18,15 @@ using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers.SqlServer
 {
-	using log4net;
+	using ECM7.Migrator.Framework.Logging;
 
 	/// <summary>
 	/// Migration transformations provider for Microsoft SQL Server.
 	/// </summary>
 	public class SqlServerCeTransformationProvider : SqlServerTransformationProvider
 	{
-		public SqlServerCeTransformationProvider(Dialect dialect, string connectionString, ILog logger)
-			: base(dialect, new SqlCeConnection(connectionString), logger)
+		public SqlServerCeTransformationProvider(Dialect dialect, string connectionString)
+			: base(dialect, new SqlCeConnection(connectionString))
 		{
 		}
 
@@ -79,7 +79,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 		{
 			if (!IndexExists(indexName, tableName))
 			{
-				Logger.WarnFormat("Index {0} is not exists", indexName);
+				MigratorLogManager.Log.WarnFormat("Index {0} is not exists", indexName);
 				return;
 			}
 

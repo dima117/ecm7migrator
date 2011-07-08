@@ -1,11 +1,12 @@
-using System;
-using System.Data;
-using ECM7.Migrator.Framework;
-using ECM7.Migrator.Tests.TestClasses.Providers;
-using NUnit.Framework;
-
-namespace ECM7.Migrator.Tests.Providers
+namespace ECM7.Migrator.Tests.TestClasses.Providers
 {
+	using System;
+	using System.Data;
+
+	using ECM7.Migrator.Framework;
+
+	using NUnit.Framework;
+
 	/// <summary>
 	/// Base class for Provider tests for all non-constraint oriented tests.
 	/// </summary>
@@ -111,7 +112,7 @@ namespace ECM7.Migrator.Tests.Providers
 		{
 			foreach (string name in provider.GetTables())
 			{
-				provider.Logger.Log("Table: {0}", name);
+				provider.Logger.InfoFormat("Table: {0}", name);
 			}
 			Assert.AreEqual(1, provider.GetTables().Length);
 			AddTable();
@@ -315,22 +316,22 @@ namespace ECM7.Migrator.Tests.Providers
 		[Test]
 		public void AppliedMigrations()
 		{
-			string key = "mi mi mi";
+			const string KEY = "mi mi mi";
 			Assert.IsFalse(provider.TableExists("SchemaInfo"));
 
 			// Check that a "get" call works on the first run.
-			Assert.AreEqual(0, provider.GetAppliedMigrations(key).Count);
+			Assert.AreEqual(0, provider.GetAppliedMigrations(KEY).Count);
 			Assert.IsTrue(provider.TableExists("SchemaInfo"), "No SchemaInfo table created");
 
 			// Check that a "set" called after the first run works.
-			provider.MigrationApplied(1, key);
-			Assert.AreEqual(1, provider.GetAppliedMigrations(key)[0]);
+			provider.MigrationApplied(1, KEY);
+			Assert.AreEqual(1, provider.GetAppliedMigrations(KEY)[0]);
 
 			provider.RemoveTable("SchemaInfo");
 
 			// Check that a "set" call works on the first run.
-			provider.MigrationApplied(1, key);
-			Assert.AreEqual(1, provider.GetAppliedMigrations(key)[0]);
+			provider.MigrationApplied(1, KEY);
+			Assert.AreEqual(1, provider.GetAppliedMigrations(KEY)[0]);
 			Assert.IsTrue(provider.TableExists("SchemaInfo"), "No SchemaInfo table created");
 		}
 

@@ -16,7 +16,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 			string constr = ConfigurationManager.AppSettings["OracleConnectionString"];
 			if (constr == null)
 				throw new ArgumentNullException("OracleConnectionString", "No config file");
-			provider = new OracleTransformationProvider(new OracleDialect(), constr);
+			provider = new OracleTransformationProvider(new OracleDialect(), constr, null);
 			provider.BeginTransaction();
 
 			AddDefaultTable();
