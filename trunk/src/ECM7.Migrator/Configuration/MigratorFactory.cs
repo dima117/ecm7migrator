@@ -4,8 +4,6 @@
 	using System.Configuration;
 	using System.Reflection;
 
-	using log4net;
-
 	/// <summary>
 	/// Инициализация мигратора
 	/// </summary>
@@ -16,19 +14,11 @@
 		/// <summary>
 		/// Создание мигратора и его инициализация из конфига
 		/// </summary>
-		public static Migrator InitByConfigFile(ILog logger)
-		{
-			return InitByConfigFile("migrator", logger);
-		}
-
-		/// <summary>
-		/// Создание мигратора и его инициализация из конфига
-		/// </summary>
-		public static Migrator InitByConfigFile(string configSectionName, ILog logger)
+		public static Migrator InitByConfigFile(string configSectionName = "migrator")
 		{
 			Require.IsNotNullOrEmpty(configSectionName, true, "Не задана секция конфигурационногог файла");
 			var config = ConfigurationManager.GetSection(configSectionName) as MigratorConfigurationSection;
-			return CreateMigrator(config, logger);
+			return CreateMigrator(config);
 		}
 
 		#endregion
@@ -39,10 +29,8 @@
 		/// Создание экземпляра мигратора, инициализированного заданными настройками
 		/// </summary>
 		/// <param name="config">Конфигурация мигратора</param>
-		/// <param name="logger">Логгер</param>
-		public static Migrator CreateMigrator(IMigratorConfiguration config, ILog logger)
+		public static Migrator CreateMigrator(IMigratorConfiguration config)
 		{
-			Require.IsNotNull(logger, "Не задан логгер");
 			Require.IsNotNull(config, "Конфигурация не задана");
 			Require.IsNotNullOrEmpty(config.Dialect, "Не задан используемый диалект");
 
@@ -50,7 +38,7 @@
 
 			string connectionString = GetConnectionString(config);
 
-			return new Migrator(config.Dialect.Trim(), connectionString, assembly, logger);
+			return new Migrator(config.Dialect.Trim(), connectionString, assembly);
 		}
 
 		/// <summary>

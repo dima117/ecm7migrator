@@ -9,8 +9,6 @@ using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Providers
 {
-	using log4net;
-
 	/// <summary>
 	/// No Op (Null Object Pattern) implementation of the ITransformationProvider
 	/// </summary>
@@ -22,12 +20,6 @@ namespace ECM7.Migrator.Providers
 		private NoOpTransformationProvider()
 		{
 
-		}
-
-		public virtual ILog Logger
-		{
-			get { return null; }
-			set { }
 		}
 
 		public Dialect Dialect

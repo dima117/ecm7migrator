@@ -21,7 +21,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 
 			EnsureDatabase(constr);
 
-			provider = new SqlServerCeTransformationProvider(new SqlServerCeDialect(), constr);
+			provider = new SqlServerCeTransformationProvider(new SqlServerCeDialect(), constr, null);
 			provider.BeginTransaction();
 
 			AddDefaultTable();

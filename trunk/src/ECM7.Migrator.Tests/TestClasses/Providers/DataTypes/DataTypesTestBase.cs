@@ -25,7 +25,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers.DataTypes
 		public void TestFixtureSetup()
 		{
 			TDialect dialect = new TDialect();
-			Provider = dialect.NewProviderForDialect(ConnectionString);
+			Provider = dialect.NewProviderForDialect(ConnectionString, null);
 		}
 
 		#endregion

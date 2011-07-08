@@ -8,8 +8,7 @@ namespace ECM7.Migrator.Loader
 	using System.Text;
 
 	using ECM7.Migrator.Framework;
-
-	using log4net;
+	using ECM7.Migrator.Framework.Logging;
 
 	/// <summary>
 	/// Класс для работы с миграциями в сборке
@@ -59,15 +58,13 @@ namespace ECM7.Migrator.Loader
 		/// Инициализация
 		/// </summary>
 		/// <param name="asm">Сборка с миграциями</param>
-		/// <param name="logger">Логгер для записи сообщений трассировки</param>
-		public MigrationAssembly(Assembly asm, ILog logger)
+		public MigrationAssembly(Assembly asm)
 		{
 			Require.IsNotNull(asm, "Не задана сборка с миграциями");
-			Require.IsNotNull(logger, "Не инициализирован логгер");
 
-			this.key = GetAssemblyKey(asm, logger);
+			this.key = GetAssemblyKey(asm);
 
-			var mt = GetMigrationInfoList(asm, logger);
+			var mt = GetMigrationInfoList(asm);
 			var versions = mt.Select(info => info.Version);
 
 			CheckForDuplicatedVersion(versions);
@@ -76,15 +73,15 @@ namespace ECM7.Migrator.Loader
 			this.lastVersion = versions.IsEmpty() ? 0 : versions.Max();
 		}
 
-		public static MigrationAssembly Load(Assembly asm, ILog logger)
+		public static MigrationAssembly Load(Assembly asm)
 		{
-			return new MigrationAssembly(asm, logger);
+			return new MigrationAssembly(asm);
 		}
 
 		/// <summary>
 		/// Получение ключа миграций для заданной сборки
 		/// </summary>
-		private static string GetAssemblyKey(Assembly assembly, ILog logger)
+		private static string GetAssemblyKey(Assembly assembly)
 		{
 			MigrationAssemblyAttribute asmAttribute =
 				assembly.GetCustomAttribute<MigrationAssemblyAttribute>();
@@ -93,7 +90,7 @@ namespace ECM7.Migrator.Loader
 				? string.Empty
 				: asmAttribute.Key ?? string.Empty;
 
-			logger.DebugFormat("Migration key: {0}", assemblyKey);
+			MigratorLogManager.Log.DebugFormat("Migration key: {0}", assemblyKey);
 			return assemblyKey;
 		}
 
@@ -101,8 +98,7 @@ namespace ECM7.Migrator.Loader
 		/// Collect migrations in one <c>Assembly</c>.
 		/// </summary>
 		/// <param name="asm">The <c>Assembly</c> to browse.</param>
-		/// <param name="logger">Логгер</param>
-		private static List<MigrationInfo> GetMigrationInfoList(Assembly asm, ILog logger)
+		private static List<MigrationInfo> GetMigrationInfoList(Assembly asm)
 		{
 			List<MigrationInfo> migrations = new List<MigrationInfo>();
 
@@ -124,7 +120,7 @@ namespace ECM7.Migrator.Loader
 				}
 			}
 
-			logger.DebugFormat(logMessageBuilder.ToString());
+			MigratorLogManager.Log.DebugFormat(logMessageBuilder.ToString());
 
 			migrations.Sort(new MigrationInfoComparer(true));
 			return migrations;

@@ -7,7 +7,7 @@ using OracleConnection = Oracle.DataAccess.Client.OracleConnection;
 
 namespace ECM7.Migrator.Providers.Oracle
 {
-	using log4net;
+	using ECM7.Migrator.Framework.Logging;
 
 	/// <summary>
 	/// Провайдер трансформации для Oracle
@@ -19,9 +19,8 @@ namespace ECM7.Migrator.Providers.Oracle
 		/// </summary>
 		/// <param name="dialect">Диалект</param>
 		/// <param name="connectionString">Строка подключения</param>
-		/// <param name="logger">Логгер</param>
-		public OracleTransformationProvider(Dialect dialect, string connectionString, ILog logger)
-			: base(dialect, new OracleConnection(connectionString), logger)
+		public OracleTransformationProvider(Dialect dialect, string connectionString)
+			: base(dialect, new OracleConnection(connectionString))
 		{
 		}
 
@@ -30,7 +29,7 @@ namespace ECM7.Migrator.Providers.Oracle
 		{
 			if (ConstraintExists(primaryTable, name))
 			{
-				Logger.WarnFormat("Constraint {0} already exists", name);
+				MigratorLogManager.Log.WarnFormat("Constraint {0} already exists", name);
 				return;
 			}
 
@@ -73,7 +72,7 @@ namespace ECM7.Migrator.Providers.Oracle
 		{
 			if (!IndexExists(indexName, tableName))
 			{
-				Logger.WarnFormat("Index {0} is not exists", indexName);
+				MigratorLogManager.Log.WarnFormat("Index {0} is not exists", indexName);
 				return;
 			}
 
@@ -99,7 +98,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				string.Format(
 					"SELECT COUNT(constraint_name) FROM user_constraints WHERE lower(constraint_name) = '{0}' AND lower(table_name) = '{1}'",
 					name.ToLower(), table.ToLower());
-			Logger.ExecuteSql(sql);
+			MigratorLogManager.Log.ExecuteSql(sql);
 			object scalar = ExecuteScalar(sql);
 			return Convert.ToInt32(scalar) == 1;
 		}
@@ -113,7 +112,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				string.Format(
 					"SELECT COUNT(column_name) FROM user_tab_columns WHERE lower(table_name) = '{0}' AND lower(column_name) = '{1}'",
 					table.ToLower(), column.ToLower());
-			Logger.ExecuteSql(sql);
+			MigratorLogManager.Log.ExecuteSql(sql);
 			object scalar = ExecuteScalar(sql);
 			return Convert.ToInt32(scalar) == 1;
 		}
@@ -122,7 +121,7 @@ namespace ECM7.Migrator.Providers.Oracle
 		{
 			string sql = string.Format("SELECT COUNT(table_name) FROM user_tables WHERE lower(table_name) = '{0}'",
 									   table.ToLower());
-			Logger.ExecuteSql(sql);
+			MigratorLogManager.Log.ExecuteSql(sql);
 			object count = ExecuteScalar(sql);
 			return Convert.ToInt32(count) == 1;
 		}

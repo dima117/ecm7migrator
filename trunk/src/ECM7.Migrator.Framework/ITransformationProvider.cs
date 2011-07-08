@@ -5,8 +5,6 @@ using System.Reflection;
 
 namespace ECM7.Migrator.Framework
 {
-	using log4net;
-
 	/// <summary>
 	/// The main interface to use in Migrations to make changes on a database schema.
 	/// </summary>
@@ -16,9 +14,7 @@ namespace ECM7.Migrator.Framework
 		/// The list of Migrations currently applied to the database.
 		/// </summary>
 		List<long> GetAppliedMigrations(string key);
-
-		ILog Logger { get; }
-
+		
 		/// <summary>
 		/// Add a column to an existing table
 		/// </summary>

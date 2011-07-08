@@ -5,10 +5,11 @@ namespace ECM7.Migrator
 	using System.Collections.ObjectModel;
 	using System.Linq;
 	using System.Reflection;
+
+	using ECM7.Migrator.Framework.Logging;
+
 	using Framework;
 	using Loader;
-
-	using log4net;
 
 	/// <summary>
 	/// Migrations mediator.
@@ -24,12 +25,7 @@ namespace ECM7.Migrator
 		/// Загрузчик информации о миграциях
 		/// </summary>
 		private readonly MigrationAssembly migrationAssembly;
-
-		/// <summary>
-		/// Логгер
-		/// </summary>
-		private readonly ILog logger;
-
+		
 		/// <summary>
 		/// Ключ для фильтрации миграций
 		/// </summary>
@@ -43,24 +39,21 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string dialectTypeName, string connectionString, Assembly asm, ILog logger)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString, logger), asm, logger)
+		public Migrator(string dialectTypeName, string connectionString, Assembly asm)
+			: this(ProviderFactory.Create(dialectTypeName, connectionString), asm)
 		{
 		}
 
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(ITransformationProvider provider, Assembly asm, ILog logger)
+		public Migrator(ITransformationProvider provider, Assembly asm)
 		{
-			Require.IsNotNull(logger, "Не задан объект, реализующий интерфейс ILog");
-			this.logger = logger;
-
 			Require.IsNotNull(provider, "Не задан провайдер СУБД");
 			this.provider = provider;
 
 			Require.IsNotNull(asm, "Не задана сборка с миграциями");
-			this.migrationAssembly = new MigrationAssembly(asm, logger);
+			this.migrationAssembly = new MigrationAssembly(asm);
 		}
 
 		#endregion
@@ -79,14 +72,6 @@ namespace ECM7.Migrator
 		public IList<long> GetAppliedMigrations()
 		{
 			return provider.GetAppliedMigrations(Key);
-		}
-
-		/// <summary>
-		/// Get or set the event logger.
-		/// </summary>
-		public ILog Logger
-		{
-			get { return logger; }
 		}
 
 		/// <summary>
@@ -112,7 +97,7 @@ namespace ECM7.Migrator
 			MigrationPlan plan = BuildMigrationPlan(targetVersion, appliedMigrations, availableMigrations);
 
 			long currentDatabaseVersion = plan.StartVersion;
-			Logger.Started(currentDatabaseVersion, targetVersion);
+			MigratorLogManager.Log.Started(currentDatabaseVersion, targetVersion);
 
 			foreach (long currentExecutedVersion in plan)
 			{
@@ -138,13 +123,13 @@ namespace ECM7.Migrator
 
 				if (targetVersion <= currentDatabaseVersion)
 				{
-					this.logger.MigrateDown(targetVersion, migration.Name);
+					MigratorLogManager.Log.MigrateDown(targetVersion, migration.Name);
 					migration.Down();
 					this.provider.MigrationUnApplied(targetVersion, Key);
 				}
 				else
 				{
-					this.logger.MigrateUp(targetVersion, migration.Name);
+					MigratorLogManager.Log.MigrateUp(targetVersion, migration.Name);
 					migration.Up();
 					this.provider.MigrationApplied(targetVersion, Key);
 				}
@@ -153,11 +138,11 @@ namespace ECM7.Migrator
 			}
 			catch (Exception ex)
 			{
-				this.Logger.Exception(targetVersion, migration.Name, ex);
+				MigratorLogManager.Log.Exception(targetVersion, migration.Name, ex);
 
 				// при ошибке откатываем изменения
 				this.provider.Rollback();
-				this.Logger.RollingBack(currentDatabaseVersion);
+				MigratorLogManager.Log.RollingBack(currentDatabaseVersion);
 				throw;
 			}
 		}

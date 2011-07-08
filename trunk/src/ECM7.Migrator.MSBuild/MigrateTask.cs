@@ -86,7 +86,8 @@ namespace ECM7.Migrator.MSBuild
 		/// </returns>
 		public override bool Execute()
 		{
-			Migrator migrator = MigratorFactory.CreateMigrator(this, new TaskLogger(this));
+			// TODO: добавить аппендер
+			Migrator migrator = MigratorFactory.CreateMigrator(this);
 
 			migrator.Migrate(to);
 

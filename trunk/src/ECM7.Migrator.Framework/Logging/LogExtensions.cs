@@ -1,6 +1,7 @@
-﻿namespace ECM7.Migrator.Framework
+﻿namespace ECM7.Migrator.Framework.Logging
 {
 	using System;
+
 	using log4net;
 
 	/// <summary>

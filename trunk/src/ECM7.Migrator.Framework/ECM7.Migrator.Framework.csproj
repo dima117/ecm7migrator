@@ -56,7 +56,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\ECM7.Common.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.9.0, Culture=neutral, PublicKeyToken=b32731d11ce58905">
+    <Reference Include="log4net">
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -76,9 +76,10 @@
     <Compile Include="DbTypeExtensions.cs" />
     <Compile Include="ForeignKeyConstraint.cs" />
     <Compile Include="IColumn.cs" />
-    <Compile Include="LogExtensions.cs" />
+    <Compile Include="Logging\LogExtensions.cs" />
     <Compile Include="IMigration.cs" />
     <Compile Include="ITransformationProvider.cs" />
+    <Compile Include="Logging\MigratorLogManager.cs" />
     <Compile Include="Migration.cs" />
     <Compile Include="MigrationAssemblyAttribute.cs" />
     <Compile Include="MigrationAttribute.cs" />

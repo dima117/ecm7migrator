@@ -9,7 +9,9 @@ namespace ECM7.Migrator.Console
 	using ECM7.Migrator.Configuration;
 	using ECM7.Migrator.Framework;
 
-	using log4net;
+	using log4net.Appender;
+	using log4net.Core;
+	using log4net.Layout;
 
 	/// <summary>
 	/// Console application
@@ -25,20 +27,19 @@ namespace ECM7.Migrator.Console
 		{
 			try
 			{
-				// todo: инициализировать логирование
 				MigratorConsoleMode mode = GetConsoleMode(args);
 				MigratorConfiguration config = GetConfig(args);
 
-				ILog logger = GetLogger();
+				ConfigureLogging();
 
 				switch (mode)
 				{
 					case MigratorConsoleMode.Migrate:
 						long migrateTo = GetDestinationVersion(args);
-						Migrate(config, migrateTo, logger);
+						Migrate(config, migrateTo);
 						break;
 					case MigratorConsoleMode.List:
-						List(config, logger);
+						List(config);
 						break;
 					case MigratorConsoleMode.Help:
 						PrintUsage();
@@ -61,9 +62,15 @@ namespace ECM7.Migrator.Console
 			}
 		}
 
-		private static ILog GetLogger()
+		private static void ConfigureLogging()
 		{
-			throw new NotImplementedException("Инициализировать логгер для консоли");
+			ConsoleAppender consoleAppender = new ConsoleAppender
+				{
+					Layout = new SimpleLayout(),
+					Threshold = Level.Info
+				};
+
+			// TODO: добавить аппендер
 		}
 
 		#region parse arguments
@@ -188,9 +195,9 @@ namespace ECM7.Migrator.Console
 		/// <summary>
 		/// Runs the migrations.
 		/// </summary>
-		public static void Migrate(IMigratorConfiguration config, long migrateTo, ILog logger)
+		public static void Migrate(IMigratorConfiguration config, long migrateTo)
 		{
-			Migrator migrator = MigratorFactory.CreateMigrator(config, logger);
+			Migrator migrator = MigratorFactory.CreateMigrator(config);
 
 			migrator.Migrate(migrateTo);
 		}
@@ -198,9 +205,9 @@ namespace ECM7.Migrator.Console
 		/// <summary>
 		/// Выводит текущий список миграций
 		/// </summary>
-		public static void List(IMigratorConfiguration config, ILog logger)
+		public static void List(IMigratorConfiguration config)
 		{
-			Migrator mig = MigratorFactory.CreateMigrator(config, logger);
+			Migrator mig = MigratorFactory.CreateMigrator(config);
 			IList<long> appliedMigrations = mig.GetAppliedMigrations();
 
 			Console.WriteLine("Available migrations:");

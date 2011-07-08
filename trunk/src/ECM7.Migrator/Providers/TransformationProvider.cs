@@ -25,7 +25,7 @@ using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Providers
 {
-	using log4net;
+	using ECM7.Migrator.Framework.Logging;
 
 	/// <summary>
 	/// Base class for every transformation providers.
@@ -34,7 +34,6 @@ namespace ECM7.Migrator.Providers
 	public abstract class TransformationProvider : ITransformationProvider
 	{
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
-		private readonly ILog logger;
 		protected IDbConnection connection;
 		private IDbTransaction transaction;
 
@@ -42,29 +41,18 @@ namespace ECM7.Migrator.Providers
 
 		private readonly ForeignKeyConstraintMapper constraintMapper = new ForeignKeyConstraintMapper();
 
-		protected TransformationProvider(Dialect dialect, IDbConnection connection, ILog logger)
+		protected TransformationProvider(Dialect dialect, IDbConnection connection)
 		{
 			Require.IsNotNull(dialect, "Не задан диалект");
 			this.dialect = dialect;
 
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 			this.connection = connection;
-
-			Require.IsNotNull(logger, "Не задан объект, реализующий интерфейс ILog");
-			this.logger = logger;
 		}
 
 		public bool TypeIsSupported(DbType type)
 		{
 			return dialect.TypeIsRegistred(type);
-		}
-
-		/// <summary>
-		/// Returns the event logger
-		/// </summary>
-		public virtual ILog Logger
-		{
-			get { return logger; }
 		}
 
 		public Dialect Dialect
@@ -175,7 +163,7 @@ namespace ECM7.Migrator.Providers
 
 			if (TableExists(name))
 			{
-				Logger.WarnFormat("Table {0} already exists", name);
+				MigratorLogManager.Log.WarnFormat("Table {0} already exists", name);
 				return;
 			}
 
@@ -264,7 +252,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (!ColumnExists(table, column.Name))
 			{
-				Logger.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
+				MigratorLogManager.Log.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
 				return;
 			}
 
@@ -312,7 +300,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ColumnExists(table, column.Name))
 			{
-				Logger.WarnFormat("Column {0}.{1} already exists", table, column.Name);
+				MigratorLogManager.Log.WarnFormat("Column {0}.{1} already exists", table, column.Name);
 				return;
 			}
 
@@ -347,7 +335,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ColumnExists(table, column))
 			{
-				Logger.WarnFormat("Column {0}.{1} already exists", table, column);
+				MigratorLogManager.Log.WarnFormat("Column {0}.{1} already exists", table, column);
 				return;
 			}
 
@@ -387,7 +375,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ConstraintExists(table, name))
 			{
-				Logger.WarnFormat("Primary key {0} already exists", name);
+				MigratorLogManager.Log.WarnFormat("Primary key {0} already exists", name);
 				return;
 			}
 			string sql = String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} PRIMARY KEY ({2}) ",
@@ -400,7 +388,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ConstraintExists(table, name))
 			{
-				Logger.WarnFormat("Constraint {0} already exists", name);
+				MigratorLogManager.Log.WarnFormat("Constraint {0} already exists", name);
 				return;
 			}
 			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2}) ",
@@ -412,7 +400,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ConstraintExists(table, name))
 			{
-				Logger.WarnFormat("Constraint {0} already exists", name);
+				MigratorLogManager.Log.WarnFormat("Constraint {0} already exists", name);
 				return;
 			}
 			string sql = "ALTER TABLE {0} ADD CONSTRAINT {1} CHECK ({2}) ".FormatWith(table, name, checkSql);
@@ -427,7 +415,7 @@ namespace ECM7.Migrator.Providers
 
 			if (IndexExists(name, table))
 			{
-				Logger.WarnFormat("Index {0} already exists", name);
+				MigratorLogManager.Log.WarnFormat("Index {0} already exists", name);
 				return;
 			}
 
@@ -448,7 +436,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (!IndexExists(indexName, tableName))
 			{
-				Logger.WarnFormat("Index {0} is not exists", indexName);
+				MigratorLogManager.Log.WarnFormat("Index {0} is not exists", indexName);
 				return;
 			}
 
@@ -543,7 +531,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ConstraintExists(primaryTable, name))
 			{
-				Logger.WarnFormat("Constraint {0} already exists", name);
+				MigratorLogManager.Log.WarnFormat("Constraint {0} already exists", name);
 				return;
 			}
 
@@ -573,8 +561,8 @@ namespace ECM7.Migrator.Providers
 
 		public int ExecuteNonQuery(string sql)
 		{
-			Logger.ExecuteSql(sql);
-			Logger.ExecuteSql(sql);
+			MigratorLogManager.Log.ExecuteSql(sql);
+			MigratorLogManager.Log.ExecuteSql(sql);
 			IDbCommand cmd = BuildCommand(sql);
 			try
 			{
@@ -582,7 +570,7 @@ namespace ECM7.Migrator.Providers
 			}
 			catch (Exception ex)
 			{
-				Logger.Warn(ex.Message);
+				MigratorLogManager.Log.Warn(ex.Message, ex);
 				throw;
 			}
 		}
@@ -607,7 +595,7 @@ namespace ECM7.Migrator.Providers
 		/// <returns>A data iterator, <see cref="System.Data.IDataReader">IDataReader</see>.</returns>
 		public IDataReader ExecuteQuery(string sql)
 		{
-			Logger.ExecuteSql(sql);
+			MigratorLogManager.Log.ExecuteSql(sql);
 			IDbCommand cmd = BuildCommand(sql);
 			try
 			{
@@ -615,14 +603,14 @@ namespace ECM7.Migrator.Providers
 			}
 			catch
 			{
-				Logger.WarnFormat("query failed: {0}", cmd.CommandText);
+				MigratorLogManager.Log.WarnFormat("query failed: {0}", cmd.CommandText);
 				throw;
 			}
 		}
 
 		public object ExecuteScalar(string sql)
 		{
-			Logger.ExecuteSql(sql);
+			MigratorLogManager.Log.ExecuteSql(sql);
 			IDbCommand cmd = BuildCommand(sql);
 			try
 			{
@@ -630,7 +618,7 @@ namespace ECM7.Migrator.Providers
 			}
 			catch
 			{
-				Logger.WarnFormat("Query failed: {0}", cmd.CommandText);
+				MigratorLogManager.Log.WarnFormat("Query failed: {0}", cmd.CommandText);
 				throw;
 			}
 		}

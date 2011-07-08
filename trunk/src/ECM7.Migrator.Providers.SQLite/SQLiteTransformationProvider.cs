@@ -5,8 +5,7 @@ namespace ECM7.Migrator.Providers.SQLite
 	using System.Data;
 	using System.Linq;
 	using ECM7.Migrator.Framework;
-
-	using log4net;
+	using ECM7.Migrator.Framework.Logging;
 
 	using SqliteConnection = System.Data.SQLite.SQLiteConnection;
 
@@ -20,9 +19,8 @@ namespace ECM7.Migrator.Providers.SQLite
 		/// </summary>
 		/// <param name="dialect"></param>
 		/// <param name="connectionString"></param>
-		/// <param name="logger">Ëמדדונ</param>
-		public SQLiteTransformationProvider(Dialect dialect, string connectionString, ILog logger)
-			: base(dialect, new SqliteConnection(connectionString), logger)
+		public SQLiteTransformationProvider(Dialect dialect, string connectionString)
+			: base(dialect, new SqliteConnection(connectionString))
 		{
 		}
 
@@ -123,7 +121,7 @@ namespace ECM7.Migrator.Providers.SQLite
 		{
 			if (!ColumnExists(table, column.Name))
 			{
-				Logger.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
+				MigratorLogManager.Log.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
 				return;
 			}
 

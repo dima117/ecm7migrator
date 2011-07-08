@@ -1,6 +1,6 @@
 using System.Data;
 using ECM7.Migrator.Framework;
-using ECM7.Migrator.Tests.Providers;
+
 using NUnit.Framework;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 

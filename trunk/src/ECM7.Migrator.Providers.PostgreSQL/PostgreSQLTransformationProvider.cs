@@ -7,7 +7,7 @@ using Npgsql;
 
 namespace ECM7.Migrator.Providers.PostgreSQL
 {
-	using log4net;
+	using ECM7.Migrator.Framework.Logging;
 
 	/// <summary>
 	/// Migration transformations provider for PostgreSQL
@@ -19,9 +19,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		/// </summary>
 		/// <param name="dialect">Диалект</param>
 		/// <param name="connectionString">Строка подключения</param>
-		/// <param name="logger">Логгер</param>
-		public PostgreSQLTransformationProvider(Dialect dialect, string connectionString, ILog logger)
-			: base(dialect, new NpgsqlConnection(connectionString), logger)
+		public PostgreSQLTransformationProvider(Dialect dialect, string connectionString)
+			: base(dialect, new NpgsqlConnection(connectionString))
 		{
 		}
 
@@ -53,7 +52,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		{
 			if (!IndexExists(indexName, tableName))
 			{
-				Logger.WarnFormat("Index {0} is not exists", indexName);
+				MigratorLogManager.Log.WarnFormat("Index {0} is not exists", indexName);
 				return;
 			}
 
@@ -98,7 +97,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		{
 			if (!ColumnExists(table, column.Name))
 			{
-				Logger.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
+				MigratorLogManager.Log.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
 				return;
 			}
 
