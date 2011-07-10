@@ -2,9 +2,14 @@ namespace ECM7.Migrator.NAnt
 {
 	using System.IO;
 	using Configuration;
-	
+
+	using ECM7.Migrator.Framework.Logging;
+
 	using global::NAnt.Core;
 	using global::NAnt.Core.Attributes;
+
+	using log4net.Config;
+	using log4net.Layout;
 
 	/// <summary>
 	/// Runs migrations on a database
@@ -88,9 +93,25 @@ namespace ECM7.Migrator.NAnt
 		/// </summary>
 		protected override void ExecuteTask()
 		{
+			ConfigureLogging();
 			Migrator migrator = MigratorFactory.CreateMigrator(this);
 
 			migrator.Migrate(to);
+		}
+
+		private void ConfigureLogging()
+		{
+			NAntLogAppender appender = new NAntLogAppender(this)
+			{
+				Name = "ecm7migrator-nant-appender",
+				Layout = new SimpleLayout()
+			};
+
+			appender.ActivateOptions();
+
+			MigratorLogManager.SetLevel("ALL");
+			MigratorLogManager.AddAppender(appender);
+			BasicConfigurator.Configure();
 		}
 	}
 }
