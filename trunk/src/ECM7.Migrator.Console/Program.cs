@@ -8,8 +8,10 @@ namespace ECM7.Migrator.Console
 	using System.Text.RegularExpressions;
 	using ECM7.Migrator.Configuration;
 	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Framework.Logging;
 
 	using log4net.Appender;
+	using log4net.Config;
 	using log4net.Core;
 	using log4net.Layout;
 
@@ -64,13 +66,23 @@ namespace ECM7.Migrator.Console
 
 		private static void ConfigureLogging()
 		{
-			ConsoleAppender consoleAppender = new ConsoleAppender
+			PatternLayout layout = new PatternLayout
 				{
-					Layout = new SimpleLayout(),
-					Threshold = Level.Info
+					ConversionPattern = "%message%newline"
+				};
+			layout.ActivateOptions();
+
+			ConsoleAppender appender = new ConsoleAppender
+				{
+					Name = "ecm7migrator-console-appender",
+					Layout = layout
 				};
 
-			// TODO: добавить аппендер
+			appender.ActivateOptions();
+
+			MigratorLogManager.SetLevel("ALL");
+			MigratorLogManager.AddAppender(appender);
+			BasicConfigurator.Configure();
 		}
 
 		#region parse arguments

@@ -1,6 +1,12 @@
 namespace ECM7.Migrator.MSBuild
 {
 	using Configuration;
+
+	using ECM7.Migrator.Framework.Logging;
+
+	using log4net.Config;
+	using log4net.Layout;
+
 	using Microsoft.Build.Framework;
 	using Microsoft.Build.Utilities;
 
@@ -86,12 +92,28 @@ namespace ECM7.Migrator.MSBuild
 		/// </returns>
 		public override bool Execute()
 		{
-			// TODO: добавить аппендер
+			ConfigureLogging();
+
 			Migrator migrator = MigratorFactory.CreateMigrator(this);
 
 			migrator.Migrate(to);
 
 			return true;
+		}
+
+		private void ConfigureLogging()
+		{
+			MSBuildLogAppender appender = new MSBuildLogAppender(this.Log)
+			{
+				Name = "ecm7migrator-msbuild-appender",
+				Layout = new SimpleLayout()
+			};
+
+			appender.ActivateOptions();
+
+			MigratorLogManager.SetLevel("ALL");
+			MigratorLogManager.AddAppender(appender);
+			XmlConfigurator.Configure();
 		}
 	}
 }

@@ -75,8 +75,12 @@
     <Compile Include="MsBuildLogAppender.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="example-build.proj" />
-    <None Include="Migrator.Targets" />
+    <None Include="example-build.proj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Migrator.Targets">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator\ECM7.Migrator.csproj">

@@ -1,6 +1,8 @@
 ﻿namespace ECM7.Migrator.Framework.Logging
 {
 	using log4net;
+	using log4net.Appender;
+	using log4net.Repository.Hierarchy;
 
 	/// <summary>
 	/// Логирование
@@ -10,10 +12,46 @@
 		public const string LOGGER_NAME = "ecm7-migrator-logger";
 
 		private static readonly ILog log = LogManager.GetLogger(LOGGER_NAME);
-	
+
 		public static ILog Log
 		{
 			get { return log; }
+		}
+
+		public static void SetLevel(string levelName)
+		{
+			Logger l = Log.Logger as Logger;
+			if (l != null)
+			{
+				l.Level = l.Hierarchy.LevelMap[levelName];
+			}
+		}
+
+		public static void AddAppender(IAppender appender)
+		{
+			IAppender exists = FindAppender(appender.Name);
+			if (exists == null)
+			{
+				Logger l = Log.Logger as Logger;
+				
+				if (l != null)
+				{
+					l.AddAppender(appender);
+				}
+			}
+		}
+
+		private static IAppender FindAppender(string appenderName)
+		{
+			foreach (IAppender appender in LogManager.GetRepository().GetAppenders())
+			{
+				if (appender.Name == appenderName)
+				{
+					return appender;
+				}
+			}
+
+			return null;
 		}
 	}
 }

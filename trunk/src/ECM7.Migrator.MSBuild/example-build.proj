@@ -6,23 +6,30 @@
         <MigrationsProject>src\Migrations.csproj</MigrationsProject>
     </PropertyGroup>
 
-    <Import Project="$(MigratorTasksPath)\Migrator.Targets" />
+	<UsingTask AssemblyFile="ECM7.Migrator.MSBuild.dll" TaskName="ECM7.Migrator.MSBuild.Migrate" />
+
+	<!--<Import Project="Migrator.Targets" />
 
     <ItemGroup>
         <MigrationProjectReferences Include="$(MigrationsProject)" />
     </ItemGroup>
 
-    <Target Name="Build-Migrations">
+	<Target Name="ShowWellKnownMD">
+		<Message Text="moo moo moo" />
+	</Target>
+
+		<Target Name="Build-Migrations">
         <MSBuild Projects="@(MigrationProjectReferences)" Targets="Build">
             <Output TaskParameter="TargetOutputs" ItemName="MigrationAssemblies" />
         </MSBuild>
 
         <Message Text="Built: @(MigrationAssemblies)"/>
-    </Target>
+    </Target>-->
 
-    <Target name="Migrate" DependsOnTargets="Build-Migrations">
-        <Migrate Provider="SqlServer"
-            Connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
-            Migrations="@(MigrationAssemblies)"/>
+    <Target Name="Migrate">
+        <Migrate
+			Dialect="SqlServer2005"
+            Connectionstring="Data Source=.;Initial Catalog=ecm7test2;Integrated Security=SSPI;"
+            AssemblyFile="ECM7.Database.dll"/>
     </Target>
 </Project>
