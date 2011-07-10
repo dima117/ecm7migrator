@@ -75,7 +75,7 @@
     <Compile Include="MsBuildLogAppender.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="example-build.proj">
+    <None Include="example.proj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Migrator.Targets">

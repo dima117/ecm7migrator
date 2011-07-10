@@ -101,17 +101,22 @@ namespace ECM7.Migrator.NAnt
 
 		private void ConfigureLogging()
 		{
+			PatternLayout layout = new PatternLayout
+			{
+				ConversionPattern = "%message"
+			};
+			layout.ActivateOptions();
+
 			NAntLogAppender appender = new NAntLogAppender(this)
 			{
 				Name = "ecm7migrator-nant-appender",
-				Layout = new SimpleLayout()
+				Layout = layout
 			};
 
 			appender.ActivateOptions();
 
 			MigratorLogManager.SetLevel("ALL");
 			MigratorLogManager.AddAppender(appender);
-			BasicConfigurator.Configure();
 		}
 	}
 }

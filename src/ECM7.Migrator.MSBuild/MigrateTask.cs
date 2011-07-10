@@ -103,17 +103,22 @@ namespace ECM7.Migrator.MSBuild
 
 		private void ConfigureLogging()
 		{
-			MSBuildLogAppender appender = new MSBuildLogAppender(this.Log)
+			PatternLayout layout = new PatternLayout
+					{
+						ConversionPattern = "%message"
+					};
+			layout.ActivateOptions();
+
+			MSBuildLogAppender appender = new MSBuildLogAppender(Log)
 			{
 				Name = "ecm7migrator-msbuild-appender",
-				Layout = new SimpleLayout()
+				Layout = layout
 			};
 
 			appender.ActivateOptions();
 
 			MigratorLogManager.SetLevel("ALL");
 			MigratorLogManager.AddAppender(appender);
-			XmlConfigurator.Configure();
 		}
 	}
 }

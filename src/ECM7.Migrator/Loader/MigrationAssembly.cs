@@ -102,10 +102,9 @@ namespace ECM7.Migrator.Loader
 		{
 			List<MigrationInfo> migrations = new List<MigrationInfo>();
 
-			StringBuilder logMessageBuilder = new StringBuilder("Loaded migrations:");
-			
+			StringBuilder logMessageBuilder = new StringBuilder("Loaded migrations:").AppendLine();
 
-			foreach (Type type in asm.GetExportedTypes())
+			foreach (Type type in asm.GetExportedTypes().OrderBy(x => x.Name))
 			{
 				MigrationAttribute attribute = type.GetCustomAttribute<MigrationAttribute>();
 
