@@ -61,8 +61,6 @@ namespace ECM7.Migrator.Providers.Oracle
 				"and lower(TABLE_NAME) = '{1}'")
 				.FormatWith(indexName.ToLower(), tableName.ToLower());
 
-			// todo: исправить создание индекса при создании колонок таблицы со свойством ColumnProperty.Indexed
-
 			// todo: сделать методы, запускающие выполнение запроса, с параметрами
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
