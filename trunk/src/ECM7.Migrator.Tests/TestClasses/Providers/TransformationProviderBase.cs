@@ -4,6 +4,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 	using System.Data;
 
 	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Framework.Logging;
 
 	using NUnit.Framework;
 
@@ -112,7 +113,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		{
 			foreach (string name in provider.GetTables())
 			{
-				provider.Logger.InfoFormat("Table: {0}", name);
+				MigratorLogManager.Log.InfoFormat("Table: {0}", name);
 			}
 			Assert.AreEqual(1, provider.GetTables().Length);
 			AddTable();

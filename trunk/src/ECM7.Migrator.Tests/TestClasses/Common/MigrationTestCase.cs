@@ -18,7 +18,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		[SetUp]
 		public void SetUp()
 		{
-			this.migrator = new Migrator(TransformationProvider, MigrationAssembly, null);
+			this.migrator = new Migrator(TransformationProvider, MigrationAssembly);
 
 			Assert.IsTrue(this.migrator.AvailableMigrations.Count > 0, "No migrations in assembly " + MigrationAssembly.Location);
 

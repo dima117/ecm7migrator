@@ -21,13 +21,13 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 
 			EnsureDatabase(constr);
 
-			provider = new SqlServerCeTransformationProvider(new SqlServerCeDialect(), constr, null);
+			provider = new SqlServerCeTransformationProvider(new SqlServerCeDialect(), constr);
 			provider.BeginTransaction();
 
 			AddDefaultTable();
 		}
 
-		private void EnsureDatabase(string constr)
+		private static void EnsureDatabase(string constr)
 		{
 			SqlCeConnection connection = new SqlCeConnection(constr);
 			if (!File.Exists(connection.Database))

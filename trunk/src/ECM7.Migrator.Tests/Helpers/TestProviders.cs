@@ -24,7 +24,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQL_SERVER_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"], null);
+					SQL_SERVER_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"]);
 			}
 		}
 
@@ -33,7 +33,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQL_SERVER_2005_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"], null);
+					SQL_SERVER_2005_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"]);
 			}
 		}
 
@@ -42,7 +42,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQL_SERVER_CE_DIALECT, ConfigurationManager.AppSettings["SqlServerCeConnectionString"], null);
+					SQL_SERVER_CE_DIALECT, ConfigurationManager.AppSettings["SqlServerCeConnectionString"]);
 			}
 		}
 
@@ -51,7 +51,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					MYSQL_DIALECT, ConfigurationManager.AppSettings["MySqlConnectionString"], null);
+					MYSQL_DIALECT, ConfigurationManager.AppSettings["MySqlConnectionString"]);
 			}
 		}
 
@@ -60,7 +60,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					POSTGRE_SQL_DIALECT, ConfigurationManager.AppSettings["NpgsqlConnectionString"], null);
+					POSTGRE_SQL_DIALECT, ConfigurationManager.AppSettings["NpgsqlConnectionString"]);
 			}
 		}
 
@@ -69,7 +69,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					SQLITE_DIALECT, ConfigurationManager.AppSettings["SQLiteConnectionString"], null);
+					SQLITE_DIALECT, ConfigurationManager.AppSettings["SQLiteConnectionString"]);
 			}
 		}
 
@@ -78,7 +78,7 @@ namespace ECM7.Migrator.Tests.Helpers
 			get
 			{
 				return ProviderFactory.Create(
-					ORACLE_DIALECT, ConfigurationManager.AppSettings["OracleConnectionString"], null);
+					ORACLE_DIALECT, ConfigurationManager.AppSettings["OracleConnectionString"]);
 			}
 		}
 	}
