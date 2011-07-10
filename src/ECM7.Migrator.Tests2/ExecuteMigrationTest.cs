@@ -6,8 +6,6 @@
 	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Framework.Logging;
 
-	using log4net;
-
 	using Moq;
 
 	using NUnit.Framework;
@@ -35,8 +33,6 @@
 			provider.Verify(db => db.ExecuteNonQuery("up"));
 			provider.Verify(db => db.MigrationApplied(2, "test-key111"));
 			provider.Verify(db => db.Commit());
-
-			logger.Verify(log => log.MigrateUp(2, It.IsAny<string>()));
 		}
 
 		/// <summary>
@@ -56,8 +52,6 @@
 			provider.Verify(db => db.ExecuteNonQuery("down"));
 			provider.Verify(db => db.MigrationUnApplied(2, "test-key111"));
 			provider.Verify(db => db.Commit());
-
-			logger.Verify(log => log.MigrateDown(2, It.IsAny<string>()));
 		}
 
 		/// <summary>
@@ -69,17 +63,16 @@
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
 			var provider = new Mock<ITransformationProvider>();
 
-			var logger = new Mock<ILog>();
-			logger
-				.Setup(log => log.MigrateDown(It.IsAny<long>(), It.IsAny<string>()))
+			provider
+				.Setup(db => db.MigrationUnApplied(It.IsAny<long>(), It.IsAny<string>()))
 				.Throws<Exception>();
 
-			var migrator = new Migrator(provider.Object, asm, logger.Object);
+			var migrator = new Migrator(provider.Object, asm);
 
 			Assert.Throws<Exception>(() => migrator.ExecuteMigration(2, 2));
 
 			provider.Verify(db => db.BeginTransaction());
-			logger.Verify(log => log.MigrateDown(2, It.IsAny<string>()));
+			provider.Verify(db => db.MigrationUnApplied(2, It.IsAny<string>()));
 			provider.Verify(db => db.Rollback());
 		}
 	}
