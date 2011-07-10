@@ -240,8 +240,10 @@ namespace ECM7.Migrator.Providers
 
 		protected void AddSqlForIdentityWhichNotNeedsType(List<string> vals, Column column)
 		{
-			if (!IdentityNeedsType)// todo: исправить как унаследованные мэпперы
+			if (!IdentityNeedsType)
+			{
 				AddValueIfSelected(column, ColumnProperty.Identity, vals);
+			}
 		}
 
 		protected void AddUnsignedSql(List<string> vals, Column column)
@@ -263,8 +265,10 @@ namespace ECM7.Migrator.Providers
 
 		protected void AddSqlForIdentityWhichNeedsType(List<string> vals, Column column)
 		{
-			if (IdentityNeedsType)// todo: исправить как унаследованные мэпперы
+			if (IdentityNeedsType)
+			{
 				AddValueIfSelected(column, ColumnProperty.Identity, vals);
+			}
 		}
 
 		protected void AddForeignKeySql(List<string> vals, Column column)
