@@ -37,6 +37,7 @@
 				if (l != null)
 				{
 					l.AddAppender(appender);
+					l.Hierarchy.Configured = true;
 				}
 			}
 		}

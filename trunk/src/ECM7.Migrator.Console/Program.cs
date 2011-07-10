@@ -12,7 +12,6 @@ namespace ECM7.Migrator.Console
 
 	using log4net.Appender;
 	using log4net.Config;
-	using log4net.Core;
 	using log4net.Layout;
 
 	/// <summary>
@@ -29,6 +28,8 @@ namespace ECM7.Migrator.Console
 		{
 			try
 			{
+				WriteHeader();
+
 				MigratorConsoleMode mode = GetConsoleMode(args);
 				MigratorConfiguration config = GetConfig(args);
 
@@ -64,6 +65,13 @@ namespace ECM7.Migrator.Console
 			}
 		}
 
+		private static void WriteHeader()
+		{
+			Version ver = Assembly.GetExecutingAssembly().GetName().Version;
+			Console.WriteLine("Database migrator - v{0}.{1}.{2}", ver.Major, ver.Minor, ver.Revision);
+			Console.WriteLine();
+		}
+
 		private static void ConfigureLogging()
 		{
 			PatternLayout layout = new PatternLayout
@@ -72,7 +80,7 @@ namespace ECM7.Migrator.Console
 				};
 			layout.ActivateOptions();
 
-			ConsoleAppender appender = new ConsoleAppender
+			ColoredConsoleAppender appender = new ColoredConsoleAppender
 				{
 					Name = "ecm7migrator-console-appender",
 					Layout = layout
@@ -82,7 +90,6 @@ namespace ECM7.Migrator.Console
 
 			MigratorLogManager.SetLevel("ALL");
 			MigratorLogManager.AddAppender(appender);
-			BasicConfigurator.Configure();
 		}
 
 		#region parse arguments
@@ -241,10 +248,6 @@ namespace ECM7.Migrator.Console
 		{
 			const int TAB = 17;
 
-			Version ver = Assembly.GetExecutingAssembly().GetName().Version;
-
-			Console.WriteLine("Database migrator - v{0}.{1}.{2}", ver.Major, ver.Minor, ver.Revision);
-			Console.WriteLine();
 			Console.WriteLine("usage:\nECM7.Migrator.Console.exe dialect connectionString migrationsAssembly [options]");
 			Console.WriteLine();
 			Console.WriteLine("\t{0} {1}", "dialect".PadRight(TAB), "Full name of dialect type (include assembly name)");
