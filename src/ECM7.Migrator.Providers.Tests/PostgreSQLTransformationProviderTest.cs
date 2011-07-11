@@ -1,10 +1,12 @@
-using System;
-using System.Configuration;
-using ECM7.Migrator.Providers.PostgreSQL;
-using NUnit.Framework;
-
-namespace ECM7.Migrator.Tests.TestClasses.Providers
+namespace ECM7.Migrator.Providers.Tests
 {
+	using System;
+	using System.Configuration;
+
+	using ECM7.Migrator.Providers.PostgreSQL;
+
+	using NUnit.Framework;
+
 	[TestFixture, Category("Postgre")]
 	public class PostgreSQLTransformationProviderTest : TransformationProviderConstraintBase
 	{

@@ -562,7 +562,6 @@ namespace ECM7.Migrator.Providers
 		public int ExecuteNonQuery(string sql)
 		{
 			MigratorLogManager.Log.ExecuteSql(sql);
-			MigratorLogManager.Log.ExecuteSql(sql);
 			IDbCommand cmd = BuildCommand(sql);
 			try
 			{
@@ -814,7 +813,8 @@ namespace ECM7.Migrator.Providers
 			var appliedMigrations = new List<long>();
 
 			CreateSchemaInfoTable();
-
+			
+			// TODO:!!!!!!!!!!!!!!!!!!!!
 			string where = string.Format("[key] = '{0}'", key.Replace("'", "''")); // TODO: проверить на других СУБД
 
 			// переделать на DataTable
@@ -839,7 +839,8 @@ namespace ECM7.Migrator.Providers
 		public void MigrationApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
-			Insert(SCHEMA_INFO_TABLE, new[] { "version", "[key]" }, new[] { version.ToString(), key });
+			// TODO:!!!!!!!!!!!!!!!!!!!!
+			Insert(SCHEMA_INFO_TABLE, new[] { "version", "key" }, new[] { version.ToString(), key });
 		}
 
 		/// <summary>
@@ -850,7 +851,8 @@ namespace ECM7.Migrator.Providers
 		public void MigrationUnApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
-			Delete(SCHEMA_INFO_TABLE, new[] { "version", "[key]" }, new[] { version.ToString(), key });
+			// TODO:!!!!!!!!!!!!!!!!!!!!
+			Delete(SCHEMA_INFO_TABLE, new[] { "version", "key" }, new[] { version.ToString(), key });
 		}
 
 		protected void CreateSchemaInfoTable()
@@ -859,15 +861,17 @@ namespace ECM7.Migrator.Providers
 
 			if (!TableExists(SCHEMA_INFO_TABLE))
 			{
+				// TODO:!!!!!!!!!!!!!!!!!!!!
 				AddTable(
 					SCHEMA_INFO_TABLE,
-					new Column("Version", DbType.Int64, ColumnProperty.NotNull),
-					new Column("[Key]", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
-				AddPrimaryKey("PK_SchemaInfo", SCHEMA_INFO_TABLE, "Version", "[Key]");
+					new Column("version", DbType.Int64, ColumnProperty.NotNull),
+					new Column("key", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
+				AddPrimaryKey("PK_SchemaInfo", SCHEMA_INFO_TABLE, "version", "key");
 			}
 			else
 			{
-				if (!ColumnExists(SCHEMA_INFO_TABLE, "Key"))
+				// TODO:!!!!!!!!!!!!!!!!!!!!
+				if (!ColumnExists(SCHEMA_INFO_TABLE, "key"))
 				{
 					// TODO: Удалить код совместимости для старой таблицы SchemaInfo в следующих версиях
 					UpdateSchemaInfo.Update(this);

@@ -1,12 +1,14 @@
-using System;
-using System.Configuration;
-using System.Data;
-using ECM7.Migrator.Framework;
-using ECM7.Migrator.Providers.MySql;
-using NUnit.Framework;
-
-namespace ECM7.Migrator.Tests.TestClasses.Providers
+namespace ECM7.Migrator.Providers.Tests
 {
+	using System;
+	using System.Configuration;
+	using System.Data;
+
+	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Providers.MySql;
+
+	using NUnit.Framework;
+
 	[TestFixture, Category("MySql")]
 	public class MySqlTransformationProviderTest : TransformationProviderConstraintBase
 	{
@@ -33,8 +35,7 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		{
 			provider.AddTable("Test", "MyISAM",
 			                  new Column("Id", DbType.Int32, ColumnProperty.NotNull),
-			                  new Column("name", DbType.String, 50)
-				);
+			                  new Column("name", DbType.String, 50));
 		}
 
 		// [Test,Ignore("MySql doesn't support check constraints")]

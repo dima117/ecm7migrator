@@ -1,7 +1,8 @@
-namespace ECM7.Migrator.Tests.TestClasses.Providers
+namespace ECM7.Migrator.Providers.Tests
 {
 	using System;
 	using System.Data;
+	using System.Reflection;
 
 	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Framework.Logging;
@@ -55,19 +56,19 @@ namespace ECM7.Migrator.Tests.TestClasses.Providers
 		public void AddTableWithPrimaryKey()
 		{
 			provider.AddTable("Test",
-			new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
-			new Column("Title", DbType.String, 100, ColumnProperty.Null),
-			new Column("name", DbType.String, 50, ColumnProperty.NotNull),
-			new Column("blobVal", DbType.Binary),
-			new Column("boolVal", DbType.Boolean),
-			new Column("bigstring", DbType.String, 50000)
-			);
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("Title", DbType.String, 100, ColumnProperty.Null),
+				new Column("name", DbType.String, 50, ColumnProperty.NotNull),
+				new Column("blobVal", DbType.Binary),
+				new Column("boolVal", DbType.Boolean),
+				new Column("bigstring", DbType.String, 50000));
 		}
 
 		[Test]
 		public void CanExecuteScriptFromResources()
 		{
-			provider.ExecuteFromResource(GetType().Assembly, "ECM7.Migrator.Tests.Data.test.res.migration.sql");
+			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
+			provider.ExecuteFromResource(asm, "ECM7.Migrator.TestAssembly.Res.test.res.migration.sql");
 			object res = provider.SelectScalar("TestId", "TestTwo", "Id = 5555");
 
 			Assert.AreEqual(9999, Convert.ToInt32(res));

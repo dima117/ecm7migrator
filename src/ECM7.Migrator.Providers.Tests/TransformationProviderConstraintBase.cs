@@ -1,11 +1,13 @@
-using System.Data;
-using ECM7.Migrator.Framework;
-
-using NUnit.Framework;
-using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
-
-namespace ECM7.Migrator.Tests.TestClasses.Providers
+namespace ECM7.Migrator.Providers.Tests
 {
+	using System.Data;
+
+	using ECM7.Migrator.Framework;
+
+	using NUnit.Framework;
+
+	using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
+
 	/// <summary>
 	/// Base class for Provider tests for all tests including constraint oriented tests.
 	/// </summary>
