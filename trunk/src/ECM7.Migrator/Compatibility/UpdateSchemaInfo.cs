@@ -17,10 +17,12 @@ namespace ECM7.Migrator.Compatibility
 			provider.AddTable(
 				"SchemaTmp",
 				new Column("Version", DbType.Int64, ColumnProperty.NotNull),
+				// TODO:!!!!!!!!!!!!!!!!!!!!
 				new Column("[Key]", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
 			provider.ExecuteNonQuery("INSERT INTO SchemaTmp (Version) SELECT Version FROM SchemaInfo");
 			provider.RemoveTable("SchemaInfo");
 			provider.RenameTable("SchemaTmp", "SchemaInfo");
+			// TODO:!!!!!!!!!!!!!!!!!!!!
 			provider.AddPrimaryKey("PK_SchemaInfo", "SchemaInfo", "Version", "[Key]");
 		}
 	}

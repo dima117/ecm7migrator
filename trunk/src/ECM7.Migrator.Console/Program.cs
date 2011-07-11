@@ -80,7 +80,7 @@ namespace ECM7.Migrator.Console
 				};
 			layout.ActivateOptions();
 
-			ColoredConsoleAppender appender = new ColoredConsoleAppender
+			ConsoleAppender appender = new ConsoleAppender
 				{
 					Name = "ecm7migrator-console-appender",
 					Layout = layout

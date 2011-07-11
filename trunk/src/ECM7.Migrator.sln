@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.TestAssembly"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Tests2", "ECM7.Migrator.Tests2\ECM7.Migrator.Tests2.csproj", "{35B91E69-B674-4F93-BF2C-BA7B3DE25214}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Providers.Tests", "ECM7.Migrator.Providers.Tests\ECM7.Migrator.Providers.Tests.csproj", "{38DD03F5-9950-400C-8E58-F3B543ADD2F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -98,6 +100,10 @@ Global
 		{35B91E69-B674-4F93-BF2C-BA7B3DE25214}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35B91E69-B674-4F93-BF2C-BA7B3DE25214}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35B91E69-B674-4F93-BF2C-BA7B3DE25214}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38DD03F5-9950-400C-8E58-F3B543ADD2F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38DD03F5-9950-400C-8E58-F3B543ADD2F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38DD03F5-9950-400C-8E58-F3B543ADD2F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38DD03F5-9950-400C-8E58-F3B543ADD2F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

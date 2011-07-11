@@ -1,11 +1,13 @@
-using System;
-using ECM7.Migrator.Framework;
-using ECM7.Migrator.Providers;
-using ECM7.Migrator.Providers.SqlServer;
-using NUnit.Framework;
-
-namespace ECM7.Migrator.Tests.TestClasses.Providers
+namespace ECM7.Migrator.Providers.Tests
 {
+	using System;
+
+	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Providers;
+	using ECM7.Migrator.Providers.SqlServer;
+
+	using NUnit.Framework;
+
 	[TestFixture]
 	public class GenericProviderTests
 	{

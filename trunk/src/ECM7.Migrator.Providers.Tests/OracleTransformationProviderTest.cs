@@ -1,12 +1,14 @@
-using System;
-using System.Configuration;
-using System.Data;
-using ECM7.Migrator.Framework;
-using ECM7.Migrator.Providers.Oracle;
-using NUnit.Framework;
-
-namespace ECM7.Migrator.Tests.TestClasses.Providers
+namespace ECM7.Migrator.Providers.Tests
 {
+	using System;
+	using System.Configuration;
+	using System.Data;
+
+	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Providers.Oracle;
+
+	using NUnit.Framework;
+
 	[TestFixture, Category("Oracle")]
 	public class OracleTransformationProviderTest : TransformationProviderConstraintBase
 	{

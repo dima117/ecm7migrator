@@ -1,11 +1,12 @@
-using System;
-using System.Configuration;
-using ECM7.Migrator.Providers.SQLite;
-
-using NUnit.Framework;
-
-namespace ECM7.Migrator.Tests.TestClasses.Providers
+namespace ECM7.Migrator.Providers.Tests
 {
+	using System;
+	using System.Configuration;
+
+	using ECM7.Migrator.Providers.SQLite;
+
+	using NUnit.Framework;
+
 	[TestFixture, Category("SQLite")]
 	public class SQLiteTransformationProviderTest : TransformationProviderBase
 	{
