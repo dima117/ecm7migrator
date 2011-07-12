@@ -74,7 +74,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				return;
 			}
 
-			string sql = "DROP INDEX {0}".FormatWith(Dialect.QuoteIfNeeded(indexName));
+			string sql = "DROP INDEX {0}".FormatWith(Dialect.QuoteNameIfNeeded(indexName));
 
 			ExecuteNonQuery(sql);
 		}

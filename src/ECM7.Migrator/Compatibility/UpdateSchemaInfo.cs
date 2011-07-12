@@ -3,6 +3,8 @@ using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Compatibility
 {
+	using System;
+
 	public class UpdateSchemaInfo
 	{
 		/// <summary>
@@ -17,13 +19,17 @@ namespace ECM7.Migrator.Compatibility
 			provider.AddTable(
 				"SchemaTmp",
 				new Column("Version", DbType.Int64, ColumnProperty.NotNull),
-				// TODO:!!!!!!!!!!!!!!!!!!!!
-				new Column("[Key]", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
-			provider.ExecuteNonQuery("INSERT INTO SchemaTmp (Version) SELECT Version FROM SchemaInfo");
+				new Column("Key", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
+
+			string sql = "INSERT INTO {0} ({1}) SELECT {1} FROM {2}".FormatWith(
+				provider.QuoteName("SchemaTmp"),
+				provider.QuoteName("Version"),
+				provider.QuoteName("SchemaInfo"));
+			provider.ExecuteNonQuery(sql);
+			
 			provider.RemoveTable("SchemaInfo");
 			provider.RenameTable("SchemaTmp", "SchemaInfo");
-			// TODO:!!!!!!!!!!!!!!!!!!!!
-			provider.AddPrimaryKey("PK_SchemaInfo", "SchemaInfo", "Version", "[Key]");
+			provider.AddPrimaryKey("PK_SchemaInfo", "SchemaInfo", "Version", "Key");
 		}
 	}
 }

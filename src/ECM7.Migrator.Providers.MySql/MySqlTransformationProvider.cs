@@ -25,8 +25,10 @@ namespace ECM7.Migrator.Providers.MySql
         {
             if (ConstraintExists(table, name))
             {
-                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP FOREIGN KEY {1}", table, dialect.Quote(name)));
-                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP KEY {1}", table, dialect.Quote(name)));
+            	string keyName = this.dialect.QuoteNameIfNeeded(name);
+				string tableName = this.dialect.QuoteNameIfNeeded(table);
+				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP FOREIGN KEY {1}", tableName, keyName));
+				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP KEY {1}", tableName, keyName));
             }
         }
         
@@ -34,7 +36,7 @@ namespace ECM7.Migrator.Providers.MySql
         {
             if (ConstraintExists(table, name))
             {
-                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP KEY {1}", table, dialect.Quote(name)));
+                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP KEY {1}", table, dialect.QuoteNameIfNeeded(name)));
             }
         }
 
@@ -43,7 +45,7 @@ namespace ECM7.Migrator.Providers.MySql
 			if (!TableExists(tableName))
 				return false;
 
-			string sql = string.Format("SHOW INDEXES FROM {0}", Dialect.QuoteIfNeeded(tableName));
+			string sql = string.Format("SHOW INDEXES FROM {0}", Dialect.QuoteNameIfNeeded(tableName));
 
 			using (IDataReader reader = ExecuteQuery(sql))
 			{
@@ -64,7 +66,7 @@ namespace ECM7.Migrator.Providers.MySql
             if (!TableExists(table)) 
             return false;
 
-            string sqlConstraint = string.Format("SHOW KEYS FROM {0}", table);
+            string sqlConstraint = string.Format("SHOW KEYS FROM {0}", dialect.QuoteNameIfNeeded(table));
 
             using (IDataReader reader = ExecuteQuery(sqlConstraint))
             {
@@ -124,7 +126,8 @@ namespace ECM7.Migrator.Providers.MySql
 
         public override void ChangeColumn(string table, string sqlColumn)
         {
-            ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY {1}", table, sqlColumn));
+			string tableName = dialect.QuoteNameIfNeeded(table);
+            ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY {1}", tableName, sqlColumn));
         }
 
         public override void AddTable(string name, params Column[] columns)
@@ -134,7 +137,8 @@ namespace ECM7.Migrator.Providers.MySql
 
         public override void AddTable(string name, string engine, string columns)
         {
-            string sqlCreate = string.Format("CREATE TABLE {0} ({1}) ENGINE = {2}", name, columns, engine);
+        	string tableName = dialect.QuoteNameIfNeeded(name);
+        	string sqlCreate = string.Format("CREATE TABLE {0} ({1}) ENGINE = {2}", tableName, columns, engine);
             ExecuteNonQuery(sqlCreate);
         }
         

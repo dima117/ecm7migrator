@@ -12,7 +12,8 @@ namespace ECM7.Migrator.Providers.Tests
 	/// <summary>
 	/// Base class for Provider tests for all non-constraint oriented tests.
 	/// </summary>
-	public class TransformationProviderBase
+	//[TestFixture(Ignore = true, IgnoreReason = "")]
+	public abstract class TransformationProviderBase
 	{
 		protected ITransformationProvider provider;
 

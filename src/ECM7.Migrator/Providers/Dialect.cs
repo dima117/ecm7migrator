@@ -29,6 +29,8 @@ namespace ECM7.Migrator.Providers
 			return Activator.CreateInstance(TransformationProviderType, this, connectionString) as TransformationProvider;
 		}
 
+		#region мэппинг типов
+
 		/// <summary>
 		/// Проверка, что заданный тип зарегистрирован
 		/// </summary>
@@ -38,7 +40,6 @@ namespace ECM7.Migrator.Providers
 		{
 			return typeNames.HasType(type);
 		}
-
 
 		/// <summary>
 		/// Регистрирует название типа БД, которое будет использовано для
@@ -70,7 +71,6 @@ namespace ECM7.Migrator.Providers
 		{
 			typeNames.Put(code, capacity, name, defaultScale);
 		}
-
 
 		/// <summary>
 		/// Регистрирует название типа БД, которое будет использовано для
@@ -122,6 +122,8 @@ namespace ECM7.Migrator.Providers
 
 		#endregion
 
+		#endregion
+
 		public void RegisterProperty(ColumnProperty property, string sql)
 		{
 			if (!propertyMap.ContainsKey(property))
@@ -140,21 +142,6 @@ namespace ECM7.Migrator.Providers
 			return String.Empty;
 		}
 
-		public virtual bool NamesNeedsQuote
-		{
-			get { return false; }
-		}
-
-		public virtual bool TableNameNeedsQuote
-		{
-			get { return false; }
-		}
-
-		public virtual bool ConstraintNameNeedsQuote
-		{
-			get { return false; }
-		}
-
 		public virtual bool IdentityNeedsType
 		{
 			get { return true; }
@@ -170,22 +157,31 @@ namespace ECM7.Migrator.Providers
 			get { return true; }
 		}
 
-		public virtual string Quote(string value)
+		#region Кавычки для имен
+
+		public virtual bool NamesNeedsQuote
 		{
-			return String.Format(QuoteTemplate, value);
+			get { return false; }
 		}
 
-		public virtual string QuoteIfNeeded(string columnName)
-		{
-			return NamesNeedsQuote
-				? String.Format(QuoteTemplate, columnName)
-				: columnName;
-		}
-
-		public virtual string QuoteTemplate
+		public virtual string NamesQuoteTemplate
 		{
 			get { return "\"{0}\""; }
 		}
+
+		public virtual string QuoteName(string name)
+		{
+			return String.Format(NamesQuoteTemplate, name);
+		}
+
+		public virtual string QuoteNameIfNeeded(string name)
+		{
+			return NamesNeedsQuote 
+				? String.Format(NamesQuoteTemplate, name) 
+				: name;
+		}
+
+		#endregion
 
 		public virtual string Default(object defaultValue)
 		{
@@ -226,7 +222,8 @@ namespace ECM7.Migrator.Providers
 
 		protected void AddColumnName(List<string> vals, Column column)
 		{
-			vals.Add(NamesNeedsQuote ? Quote(column.Name) : column.Name);
+			var columnName = this.QuoteNameIfNeeded(column.Name);
+			vals.Add(columnName);
 		}
 
 		protected void AddColumnType(List<string> vals, Column column)

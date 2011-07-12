@@ -278,7 +278,7 @@ namespace ECM7.Migrator.Providers.SQLite
 
 		public bool ColumnMatch(string column, string columnDef)
 		{
-			return columnDef.StartsWith(column + " ") || columnDef.StartsWith(dialect.Quote(column));
+			return columnDef.StartsWith(column + " ") || columnDef.StartsWith(dialect.QuoteName(column));
 		}
 	}
 }

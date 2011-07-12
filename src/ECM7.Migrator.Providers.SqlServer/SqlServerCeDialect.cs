@@ -20,7 +20,9 @@ namespace ECM7.Migrator.Providers.SqlServer
 			
         }
 
-        public override Type TransformationProviderType { get { return typeof (SqlServerCeTransformationProvider); } }
-
+    	public override Type TransformationProviderType
+    	{
+    		get { return typeof (SqlServerCeTransformationProvider); }
+    	}
     }
 }

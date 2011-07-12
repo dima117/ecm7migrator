@@ -353,6 +353,11 @@ namespace ECM7.Migrator.Providers
 
 		}
 
+		public string QuoteName(string name)
+		{
+			return name;
+		}
+
 		#endregion
 
 		/// <summary>
