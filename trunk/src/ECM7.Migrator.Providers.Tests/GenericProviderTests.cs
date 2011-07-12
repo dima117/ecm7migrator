@@ -1,10 +1,13 @@
 namespace ECM7.Migrator.Providers.Tests
 {
 	using System;
+	using System.Data;
 
 	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Providers;
 	using ECM7.Migrator.Providers.SqlServer;
+
+	using Moq;
 
 	using NUnit.Framework;
 
@@ -15,7 +18,9 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void InstanceForProvider()
 		{
-			ITransformationProvider provider = new GenericTransformationProvider();
+			Mock<IDbConnection> conn = new Mock<IDbConnection>();
+			ITransformationProvider provider = new GenericTransformationProvider(conn.Object);
+
 			ITransformationProvider localProv = provider.For<GenericDialect>();
 			Assert.That(localProv is GenericTransformationProvider);
 
@@ -26,8 +31,11 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void ExecuteActionsForProvider()
 		{
+			// TODO:!!!!! проверить везде, что имена таблиц и колонок оборачиваются кавычками;
 			int i = 0;
-			ITransformationProvider provider = new GenericTransformationProvider();
+
+			Mock<IDbConnection> conn = new Mock<IDbConnection>();
+			ITransformationProvider provider = new GenericTransformationProvider(conn.Object);
 
 			provider.For<GenericDialect>(database => i = 5);
 			Assert.AreEqual(5, i);
@@ -39,7 +47,9 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanJoinColumnsAndValues()
 		{
-			GenericTransformationProvider provider = new GenericTransformationProvider();
+			Mock<IDbConnection> conn = new Mock<IDbConnection>();
+
+			GenericTransformationProvider provider = new GenericTransformationProvider(conn.Object);
 			string result = provider.JoinColumnsAndValues(new[] { "foo", "bar" }, new[] { "123", "456" });
 
 			Assert.AreEqual("foo='123' , bar='456'", result);
@@ -57,8 +67,8 @@ namespace ECM7.Migrator.Providers.Tests
 
 	public class GenericTransformationProvider : TransformationProvider
 	{
-		public GenericTransformationProvider()
-			: base(new GenericDialect(), null)
+		public GenericTransformationProvider(IDbConnection conn)
+			: base(new GenericDialect(), conn)
 		{
 		}
 

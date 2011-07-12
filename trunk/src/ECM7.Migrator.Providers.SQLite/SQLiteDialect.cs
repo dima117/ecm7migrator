@@ -35,7 +35,10 @@ namespace ECM7.Migrator.Providers.SQLite
             RegisterProperty(ColumnProperty.Identity, "AUTOINCREMENT");
         }
 
-        public override Type TransformationProviderType { get { return typeof(SQLiteTransformationProvider); } }
+		public override Type TransformationProviderType
+		{
+			get { return typeof(SQLiteTransformationProvider); }
+		}
         
         public override bool NeedsNotNullForIdentity
         {

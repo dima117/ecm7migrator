@@ -48,9 +48,17 @@ namespace ECM7.Migrator.Providers.MySql
             RegisterProperty(ColumnProperty.Identity, "AUTO_INCREMENT");
         }
 
-        public override Type TransformationProviderType { get { return typeof(MySqlTransformationProvider); } }
+		public override Type TransformationProviderType
+		{
+			get { return typeof(MySqlTransformationProvider); }
+		}
 
-        public override string QuoteTemplate
+		public override bool NamesNeedsQuote
+		{
+			get { return true; }
+		}
+
+        public override string NamesQuoteTemplate
         {
             get { return "`{0}`"; }
         }

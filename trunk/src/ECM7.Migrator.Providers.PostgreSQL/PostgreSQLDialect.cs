@@ -42,12 +42,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			get { return typeof(PostgreSQLTransformationProvider); }
 		}
 
-		public override bool TableNameNeedsQuote
-		{
-			get { return false; }
-		}
-
-		public override bool ConstraintNameNeedsQuote
+		public override bool  NamesNeedsQuote
 		{
 			get { return false; }
 		}

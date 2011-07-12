@@ -30,7 +30,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void QuoteCreatesProperFormat()
 		{
 			Dialect dialect = new SqlServerDialect();
-			Assert.AreEqual("[foo]", dialect.Quote("foo"));
+			Assert.AreEqual("[foo]", dialect.QuoteName("foo"));
 		}
         
 		[Test]

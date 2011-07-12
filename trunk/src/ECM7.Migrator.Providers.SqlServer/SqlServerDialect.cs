@@ -49,14 +49,10 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		public override bool NamesNeedsQuote
 		{
-			get
-			{
-				return false;
-			}
+			get { return true; }
 		}
 
-
-		public override string QuoteTemplate
+		public override string NamesQuoteTemplate
 		{
 			get { return "[{0}]"; }
 		}
@@ -67,6 +63,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 			{
 				defaultValue = ((bool)defaultValue) ? 1 : 0;
 			}
+
 			return String.Format("DEFAULT {0}", defaultValue);
 		}
 	}

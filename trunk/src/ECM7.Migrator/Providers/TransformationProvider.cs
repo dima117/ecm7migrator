@@ -110,15 +110,15 @@ namespace ECM7.Migrator.Providers
 		{
 			if (TableExists(table) && ConstraintExists(table, name))
 			{
-				table = dialect.TableNameNeedsQuote ? dialect.Quote(table) : table;
-				name = dialect.ConstraintNameNeedsQuote ? dialect.Quote(name) : name;
+				table = dialect.QuoteNameIfNeeded(table);
+				name = dialect.QuoteNameIfNeeded(name);
 				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP CONSTRAINT {1}", table, name));
 			}
 		}
 
 		public virtual void AddTable(string table, string engine, string columns)
 		{
-			table = dialect.TableNameNeedsQuote ? dialect.Quote(table) : table;
+			table = dialect.QuoteNameIfNeeded(table);
 			string sqlCreate = String.Format("CREATE TABLE {0} ({1})", table, columns);
 			ExecuteNonQuery(sqlCreate);
 		}
@@ -224,14 +224,17 @@ namespace ECM7.Migrator.Providers
 
 		public virtual void AddColumn(string table, string sqlColumn)
 		{
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD COLUMN {1}", table, sqlColumn));
+			string tableName = this.QuoteName(table);
+			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD COLUMN {1}", tableName, sqlColumn));
 		}
 
 		public virtual void RemoveColumn(string table, string column)
 		{
 			if (ColumnExists(table, column))
 			{
-				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP COLUMN {1} ", table, column));
+				string columnName = this.QuoteName(column);
+				string tableName = this.QuoteName(table);
+				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP COLUMN {1} ", tableName, columnName));
 			}
 		}
 
@@ -239,13 +242,20 @@ namespace ECM7.Migrator.Providers
 		{
 			try
 			{
-				ExecuteNonQuery(String.Format("SELECT {0} FROM {1}", column, table));
+				string columnName = this.QuoteName(column);
+				string tableName = this.QuoteName(table);
+				ExecuteNonQuery(String.Format("SELECT {0} FROM {1}", columnName, tableName));
 				return true;
 			}
 			catch (Exception)
 			{
 				return false;
 			}
+		}
+
+		public virtual string QuoteName(string name)
+		{
+			return dialect.QuoteName(name);
 		}
 
 		public virtual void ChangeColumn(string table, Column column)
@@ -262,14 +272,15 @@ namespace ECM7.Migrator.Providers
 
 		public virtual void ChangeColumn(string table, string sqlColumn)
 		{
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} ALTER COLUMN {1}", table, sqlColumn));
+			ExecuteNonQuery(String.Format(
+				"ALTER TABLE {0} ALTER COLUMN {1}", dialect.QuoteNameIfNeeded(table), sqlColumn));
 		}
 
 		public virtual bool TableExists(string table)
 		{
 			try
 			{
-				ExecuteNonQuery("SELECT COUNT(*) FROM " + table);
+				ExecuteNonQuery("SELECT COUNT(*) FROM " + dialect.QuoteNameIfNeeded(table));
 				return true;
 			}
 			catch (Exception)
@@ -380,7 +391,7 @@ namespace ECM7.Migrator.Providers
 			}
 			string sql = String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} PRIMARY KEY ({2}) ",
 							table, name,
-							columns.Select(col => Dialect.QuoteIfNeeded(col)).ToCommaSeparatedString());
+							columns.Select(col => Dialect.QuoteNameIfNeeded(col)).ToCommaSeparatedString());
 			ExecuteNonQuery(sql);
 		}
 
@@ -393,7 +404,7 @@ namespace ECM7.Migrator.Providers
 			}
 			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2}) ",
 				table, name,
-				columns.Select(col => Dialect.QuoteIfNeeded(col)).ToCommaSeparatedString()));
+				columns.Select(col => Dialect.QuoteNameIfNeeded(col)).ToCommaSeparatedString()));
 		}
 
 		public virtual void AddCheckConstraint(string name, string table, string checkSql)
@@ -423,9 +434,9 @@ namespace ECM7.Migrator.Providers
 			string sql = "CREATE {0} INDEX {1} ON {2} ({3})"
 				.FormatWith(
 					uniqueString,
-					Dialect.QuoteIfNeeded(name),
-					Dialect.QuoteIfNeeded(table),
-					columns.Select(column => Dialect.QuoteIfNeeded(column)).ToCommaSeparatedString());
+					Dialect.QuoteNameIfNeeded(name),
+					Dialect.QuoteNameIfNeeded(table),
+					columns.Select(column => Dialect.QuoteNameIfNeeded(column)).ToCommaSeparatedString());
 
 			ExecuteNonQuery(sql);
 		}
@@ -442,8 +453,8 @@ namespace ECM7.Migrator.Providers
 
 			string sql = "DROP INDEX {0} ON {1}"
 				.FormatWith(
-					Dialect.QuoteIfNeeded(indexName),
-					Dialect.QuoteIfNeeded(tableName));
+					Dialect.QuoteNameIfNeeded(indexName),
+					Dialect.QuoteNameIfNeeded(tableName));
 
 			ExecuteNonQuery(sql);
 		}
@@ -814,11 +825,11 @@ namespace ECM7.Migrator.Providers
 
 			CreateSchemaInfoTable();
 			
-			// TODO:!!!!!!!!!!!!!!!!!!!!
-			string where = string.Format("[key] = '{0}'", key.Replace("'", "''")); // TODO: проверить на других СУБД
+			string keyColumnName = dialect.QuoteName("Key");
+			string where = string.Format("{0} = '{1}'", keyColumnName, key.Replace("'", "''")); // TODO: проверить на других СУБД
 
 			// переделать на DataTable
-			using (IDataReader reader = Select("version", SCHEMA_INFO_TABLE, where))
+			using (IDataReader reader = Select("Version", SCHEMA_INFO_TABLE, where))
 			{
 				while (reader.Read())
 				{
@@ -839,8 +850,7 @@ namespace ECM7.Migrator.Providers
 		public void MigrationApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
-			// TODO:!!!!!!!!!!!!!!!!!!!!
-			Insert(SCHEMA_INFO_TABLE, new[] { "version", "key" }, new[] { version.ToString(), key });
+			Insert(SCHEMA_INFO_TABLE, new[] { dialect.QuoteName("Version"), dialect.QuoteName("Key") }, new[] { version.ToString(), key });
 		}
 
 		/// <summary>
@@ -852,7 +862,7 @@ namespace ECM7.Migrator.Providers
 		{
 			CreateSchemaInfoTable();
 			// TODO:!!!!!!!!!!!!!!!!!!!!
-			Delete(SCHEMA_INFO_TABLE, new[] { "version", "key" }, new[] { version.ToString(), key });
+			Delete(SCHEMA_INFO_TABLE, new[] { "Version", "Key" }, new[] { version.ToString(), key });
 		}
 
 		protected void CreateSchemaInfoTable()
@@ -861,17 +871,15 @@ namespace ECM7.Migrator.Providers
 
 			if (!TableExists(SCHEMA_INFO_TABLE))
 			{
-				// TODO:!!!!!!!!!!!!!!!!!!!!
 				AddTable(
 					SCHEMA_INFO_TABLE,
-					new Column("version", DbType.Int64, ColumnProperty.NotNull),
-					new Column("key", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
-				AddPrimaryKey("PK_SchemaInfo", SCHEMA_INFO_TABLE, "version", "key");
+					new Column("Version", DbType.Int64, ColumnProperty.NotNull),
+					new Column("Key", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
+				AddPrimaryKey("PK_SchemaInfo", SCHEMA_INFO_TABLE, "Version", "Key");
 			}
 			else
 			{
-				// TODO:!!!!!!!!!!!!!!!!!!!!
-				if (!ColumnExists(SCHEMA_INFO_TABLE, "key"))
+				if (!ColumnExists(SCHEMA_INFO_TABLE, "Key"))
 				{
 					// TODO: Удалить код совместимости для старой таблицы SchemaInfo в следующих версиях
 					UpdateSchemaInfo.Update(this);

@@ -68,8 +68,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 		public override bool IndexExists(string indexName, string tableName)
 		{
 			string sql = string.Format(
-				"select count(*) from INFORMATION_SCHEMA.INDEXES where lower(TABLE_NAME) = '{0}' and lower(INDEX_NAME) = '{1}'",
-				Dialect.QuoteIfNeeded(tableName), Dialect.QuoteIfNeeded(indexName));
+				"select count(*) from INFORMATION_SCHEMA.INDEXES where lower(TABLE_NAME) = '{0}' and lower(INDEX_NAME) = '{1}'", tableName, indexName);
 
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
@@ -84,8 +83,8 @@ namespace ECM7.Migrator.Providers.SqlServer
 			}
 
 			string sql = string.Format("DROP INDEX {0}.{1}",
-					Dialect.QuoteIfNeeded(tableName),
-					Dialect.QuoteIfNeeded(indexName));
+					Dialect.QuoteNameIfNeeded(tableName),
+					Dialect.QuoteNameIfNeeded(indexName));
 
 			ExecuteNonQuery(sql);
 

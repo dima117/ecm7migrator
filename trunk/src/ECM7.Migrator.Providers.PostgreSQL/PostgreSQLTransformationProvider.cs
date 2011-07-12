@@ -57,7 +57,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 
 			string sql = string.Format("DROP INDEX {0}",
-					Dialect.QuoteIfNeeded(indexName));
+					Dialect.QuoteNameIfNeeded(indexName));
 
 			ExecuteNonQuery(sql);
 		}
