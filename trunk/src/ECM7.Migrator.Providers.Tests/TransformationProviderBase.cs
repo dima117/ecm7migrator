@@ -7,6 +7,8 @@ namespace ECM7.Migrator.Providers.Tests
 	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Framework.Logging;
 
+	using log4net.Config;
+
 	using NUnit.Framework;
 
 	/// <summary>
@@ -16,6 +18,18 @@ namespace ECM7.Migrator.Providers.Tests
 	public abstract class TransformationProviderBase
 	{
 		protected ITransformationProvider provider;
+
+		public static bool isInitialized = false;
+
+		[SetUp]
+		public void SetUp()
+		{
+			if (!isInitialized)
+			{
+				BasicConfigurator.Configure();
+				isInitialized = true;
+			}
+		}
 
 		[TearDown]
 		public virtual void TearDown()

@@ -170,7 +170,7 @@ namespace ECM7.Migrator.Providers
 			List<string> pks = GetPrimaryKeys(columns);
 			bool compoundPrimaryKey = pks.Count > 1;
 
-			List<string> listColumnsSql = new List<string>(columns.Length);
+			List<string> listQuerySections = new List<string>(columns.Length);
 			foreach (Column column in columns)
 			{
 				// Remove the primary key notation if compound primary key because we'll add it back later
@@ -178,16 +178,27 @@ namespace ECM7.Migrator.Providers
 					column.ColumnProperty |= ColumnProperty.NotNull;
 
 				string columnSql = dialect.GetColumnSql(column, compoundPrimaryKey);
-				listColumnsSql.Add(columnSql);
+				listQuerySections.Add(columnSql);
 			}
-
-			string strColumnsSql = listColumnsSql.ToCommaSeparatedString();
-			AddTable(name, engine, strColumnsSql);
 
 			if (compoundPrimaryKey)
 			{
-				AddPrimaryKey(String.Format("PK_{0}", name), name, pks.ToArray());
+				string primaryKeyQuerySection = BuildPrimaryKeyQuerySection(name, pks);
+				listQuerySections.Add(primaryKeyQuerySection);
 			}
+
+			string sectionsSql = listQuerySections.ToCommaSeparatedString();
+			AddTable(name, engine, sectionsSql);
+		}
+
+		protected virtual string BuildPrimaryKeyQuerySection(string tableName, List<string> primaryKeyColumns)
+		{
+			string pkName = this.QuoteName("PK_" + tableName);
+			string columnNames = primaryKeyColumns.Select(QuoteName).ToCommaSeparatedString();
+
+			string sql = "CONSTRAINT {0} PRIMARY KEY ({1})".FormatWith(pkName, columnNames);
+			
+			return sql;
 		}
 
 		public List<string> GetPrimaryKeys(IEnumerable<Column> columns)
@@ -389,9 +400,12 @@ namespace ECM7.Migrator.Providers
 				MigratorLogManager.Log.WarnFormat("Primary key {0} already exists", name);
 				return;
 			}
+			string sqlTableName = QuoteName(table);
+			string sqlConstraintName = QuoteName(name);
 			string sql = String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} PRIMARY KEY ({2}) ",
-							table, name,
+							sqlTableName, sqlConstraintName,
 							columns.Select(col => Dialect.QuoteNameIfNeeded(col)).ToCommaSeparatedString());
+
 			ExecuteNonQuery(sql);
 		}
 
@@ -873,9 +887,9 @@ namespace ECM7.Migrator.Providers
 			{
 				AddTable(
 					SCHEMA_INFO_TABLE,
-					new Column("Version", DbType.Int64, ColumnProperty.NotNull),
-					new Column("Key", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
-				AddPrimaryKey("PK_SchemaInfo", SCHEMA_INFO_TABLE, "Version", "Key");
+					new Column("Version", DbType.Int64, ColumnProperty.PrimaryKey),
+					new Column("Key", DbType.String.WithSize(200), ColumnProperty.PrimaryKey, "''"));
+				// AddPrimaryKey("PK_SchemaInfo", SCHEMA_INFO_TABLE, "Version", "Key");
 			}
 			else
 			{
