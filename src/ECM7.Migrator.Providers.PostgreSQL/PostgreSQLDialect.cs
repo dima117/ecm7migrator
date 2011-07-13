@@ -42,9 +42,14 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			get { return typeof(PostgreSQLTransformationProvider); }
 		}
 
+		public override string NamesQuoteTemplate
+		{
+			get { return "\"{0}\""; }
+		}
+
 		public override bool  NamesNeedsQuote
 		{
-			get { return false; }
+			get { return true; }
 		}
 
 		public override bool IdentityNeedsType

@@ -26,7 +26,9 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override void RemoveTable(string name)
 		{
-			ExecuteNonQuery(String.Format("DROP TABLE IF EXISTS {0} CASCADE", name));
+			string tableName = QuoteName(name);
+			string sql = String.Format("DROP TABLE IF EXISTS {0} CASCADE", tableName);
+			ExecuteNonQuery(sql);
 		}
 
 		public override bool IndexExists(string indexName, string tableName)
@@ -41,8 +43,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			builder.Append("WHERE c.relkind = 'i' ");
 			builder.Append("AND n.nspname NOT IN ('pg_catalog', 'pg_toast') ");
 			builder.Append("AND pg_table_is_visible(c.oid) ");
-			builder.AppendFormat("and lower(c.relname) = '{0}' ", indexName.ToLower());
-			builder.AppendFormat("and lower(c2.relname) = '{0}' ", tableName.ToLower());
+			builder.AppendFormat("and c.relname = '{0}' ", indexName);
+			builder.AppendFormat("and c2.relname = '{0}' ", tableName);
 
 			int count = Convert.ToInt32(ExecuteScalar(builder.ToString()));
 			return count > 0;
@@ -65,7 +67,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		public override bool ConstraintExists(string table, string name)
 		{
 			using (IDataReader reader =
-				ExecuteQuery(string.Format("SELECT constraint_name FROM information_schema.table_constraints WHERE table_schema = 'public' AND constraint_name = lower('{0}')", name)))
+				ExecuteQuery(string.Format("SELECT \"constraint_name\" FROM \"information_schema\".\"table_constraints\" WHERE \"table_schema\" = 'public' AND \"constraint_name\" = '{0}'", name)))
 			{
 				return reader.Read();
 			}
@@ -77,7 +79,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 				return false;
 
 			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = lower('{0}') AND column_name = lower('{1}')", table, column)))
+				ExecuteQuery(String.Format("SELECT \"column_name\" FROM \"information_schema\".\"columns\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}' AND \"column_name\" = '{1}'", table, column)))
 			{
 				return reader.Read();
 			}
@@ -87,7 +89,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		{
 
 			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = lower('{0}')", table)))
+				ExecuteQuery(String.Format("SELECT \"table_name\" FROM \"information_schema\".\"tables\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}'", table)))
 			{
 				return reader.Read();
 			}
