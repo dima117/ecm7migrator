@@ -127,10 +127,10 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		public override Column[] GetColumns(string table)
 		{
 			List<Column> columns = new List<Column>();
-			using (
-				IDataReader reader =
-					ExecuteQuery(
-						String.Format("select COLUMN_NAME, IS_NULLABLE from information_schema.columns where table_schema = 'public' AND table_name = lower('{0}');", table)))
+			string sql = String.Format(
+				"select COLUMN_NAME, IS_NULLABLE from information_schema.columns where table_schema = 'public' AND table_name = '{0}';", table);
+			
+			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				// FIXME: Mostly duplicated code from the Transformation provider just to support stupid case-insensitivty of Postgre
 				while (reader.Read())
@@ -144,12 +144,6 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 
 			return columns.ToArray();
-		}
-
-		public override Column GetColumnByName(string table, string columnName)
-		{
-			// Duplicate because of the lower case issue
-			return Array.Find(GetColumns(table), column => column.Name == columnName.ToLower());
 		}
 	}
 }

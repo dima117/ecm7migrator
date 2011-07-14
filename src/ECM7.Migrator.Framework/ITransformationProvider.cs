@@ -357,19 +357,9 @@ namespace ECM7.Migrator.Framework
 		/// Delete data from a table
 		/// </summary>
 		/// <param name="table">The table that will have the data deleted</param>
-		/// <param name="columns">The names of the columns used in a where clause</param>
-		/// <param name="values">The values in the same order as the columns</param>
+		/// <param name="whereSql">Condition for select deleting rows</param>
 		/// <returns></returns>
-		int Delete(string table, string[] columns, string[] values);
-
-		/// <summary>
-		/// Delete data from a table
-		/// </summary>
-		/// <param name="table">The table that will have the data deleted</param>
-		/// <param name="whereColumn">The name of the column used in a where clause</param>
-		/// <param name="whereValue">The value for the where clause</param>
-		/// <returns></returns>
-		int Delete(string table, string whereColumn, string whereValue);
+		int Delete(string table, string whereSql = null);
 
 		/// <summary>
 		/// Marks a Migration version number as having been applied
@@ -431,40 +421,6 @@ namespace ECM7.Migrator.Framework
 		/// Rollback the currently running transaction.
 		/// </summary>
 		void Rollback();
-
-		/// <summary>
-		/// Get values from a table
-		/// </summary>
-		/// <param name="what">The columns to select</param>
-		/// <param name="from">The table to select from</param>
-		/// <param name="where">The where clause to limit the selection</param>
-		/// <returns></returns>
-		IDataReader Select(string what, string from, string where);
-
-		/// <summary>
-		/// Get values from a table
-		/// </summary>
-		/// <param name="what">The columns to select</param>
-		/// <param name="from">The table to select from</param>
-		/// <returns></returns>
-		IDataReader Select(string what, string from);
-
-		/// <summary>
-		/// Get a single value from a table
-		/// </summary>
-		/// <param name="what">The columns to select</param>
-		/// <param name="from">The table to select from</param>
-		/// <param name="where"></param>
-		/// <returns></returns>
-		object SelectScalar(string what, string from, string where);
-
-		/// <summary>
-		/// Get a single value from a table
-		/// </summary>
-		/// <param name="what">The columns to select</param>
-		/// <param name="from">The table to select from</param>
-		/// <returns></returns>
-		object SelectScalar(string what, string from);
 
 		/// <summary>
 		/// Check if a table already exists
