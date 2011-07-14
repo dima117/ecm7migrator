@@ -40,6 +40,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			get { return typeof(SQLiteTransformationProvider); }
 		}
 
+		// todo: сделать обязательным экранирование названий
 		public override bool NamesNeedsQuote
 		{
 			get { return true; }

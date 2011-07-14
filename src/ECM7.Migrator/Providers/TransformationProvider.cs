@@ -221,7 +221,10 @@ namespace ECM7.Migrator.Providers
 				throw new MigrationException(String.Format("Table with name '{0}' already exists", newName));
 
 			if (TableExists(oldName))
-				ExecuteNonQuery(String.Format("ALTER TABLE {0} RENAME TO {1}", oldName, newName));
+			{
+				string sql = String.Format("ALTER TABLE {0} RENAME TO {1}", QuoteName(oldName), QuoteName(newName));
+				this.ExecuteNonQuery(sql);
+			}
 		}
 
 		public virtual void RenameColumn(string tableName, string oldColumnName, string newColumnName)
@@ -230,7 +233,11 @@ namespace ECM7.Migrator.Providers
 				throw new MigrationException(String.Format("Table '{0}' has column named '{1}' already", tableName, newColumnName));
 
 			if (ColumnExists(tableName, oldColumnName))
-				ExecuteNonQuery(String.Format("ALTER TABLE {0} RENAME COLUMN {1} TO {2}", tableName, oldColumnName, newColumnName));
+			{
+				string sql = String.Format("ALTER TABLE {0} RENAME COLUMN {1} TO {2}", 
+					QuoteName(tableName), QuoteName(oldColumnName), QuoteName(newColumnName));
+				ExecuteNonQuery(sql);
+			}
 		}
 
 		public virtual void AddColumn(string table, string sqlColumn)
@@ -674,6 +681,7 @@ namespace ECM7.Migrator.Providers
 
 		public virtual int Update(string table, string[] columns, string[] values, string where)
 		{
+			string sqlTableName = QuoteName(table);
 			string namesAndValues = JoinColumnsAndValues(columns, values);
 
 			string query = "UPDATE {0} SET {1}";
@@ -682,12 +690,18 @@ namespace ECM7.Migrator.Providers
 				query += " WHERE " + where;
 			}
 
-			return ExecuteNonQuery(String.Format(query, table, namesAndValues));
+			return ExecuteNonQuery(String.Format(query, sqlTableName, namesAndValues));
 		}
 
 		public virtual int Insert(string table, string[] columns, string[] values)
 		{
-			return ExecuteNonQuery(String.Format("INSERT INTO {0} ({1}) VALUES ({2})", table, String.Join(", ", columns), String.Join(", ", QuoteValues(values))));
+			string tableName = QuoteName(table);
+			string columnsSql = columns.Select(QuoteName).ToCommaSeparatedString();
+			string valuesSql = QuoteValues(values).ToCommaSeparatedString();
+
+			string sql = "INSERT INTO {0} ({1}) VALUES ({2})".FormatWith(tableName, columnsSql, valuesSql);
+			
+			return ExecuteNonQuery(sql);
 		}
 
 		public virtual int Delete(string table)
@@ -705,7 +719,11 @@ namespace ECM7.Migrator.Providers
 
 		public virtual int Delete(string table, string wherecolumn, string wherevalue)
 		{
-			return ExecuteNonQuery(String.Format("DELETE FROM {0} WHERE {1} = {2}", table, wherecolumn, QuoteValues(wherevalue)));
+			string tableName = QuoteName(table);
+			string columnName = QuoteName(wherecolumn);
+			string quotedValue = this.QuoteValue(wherevalue);
+			string sql = String.Format("DELETE FROM {0} WHERE {1} = {2}", tableName, columnName, quotedValue);
+			return ExecuteNonQuery(sql);
 		}
 
 		/// <summary>
@@ -840,10 +858,13 @@ namespace ECM7.Migrator.Providers
 			CreateSchemaInfoTable();
 			
 			string keyColumnName = dialect.QuoteName("Key");
-			string where = string.Format("{0} = '{1}'", keyColumnName, key.Replace("'", "''")); // TODO: проверить на других СУБД
+			string where = string.Format("{0} = '{1}'", keyColumnName, key.Replace("'", "''"));
 
 			// переделать на DataTable
-			using (IDataReader reader = Select("Version", SCHEMA_INFO_TABLE, where))
+			using (IDataReader reader = Select(
+				dialect.QuoteName("Version"),
+				dialect.QuoteName(SCHEMA_INFO_TABLE),
+				where))
 			{
 				while (reader.Read())
 				{
@@ -864,7 +885,7 @@ namespace ECM7.Migrator.Providers
 		public void MigrationApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
-			Insert(SCHEMA_INFO_TABLE, new[] { dialect.QuoteName("Version"), dialect.QuoteName("Key") }, new[] { version.ToString(), key });
+			Insert(SCHEMA_INFO_TABLE, new[] { "Version", "Key" }, new[] { version.ToString(), key });
 		}
 
 		/// <summary>
@@ -875,7 +896,6 @@ namespace ECM7.Migrator.Providers
 		public void MigrationUnApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
-			// TODO:!!!!!!!!!!!!!!!!!!!!
 			Delete(SCHEMA_INFO_TABLE, new[] { "Version", "Key" }, new[] { version.ToString(), key });
 		}
 
@@ -916,7 +936,7 @@ namespace ECM7.Migrator.Providers
 			return BuildCommand(null);
 		}
 
-		public virtual string QuoteValues(string values)
+		public virtual string QuoteValue(string values)
 		{
 			return QuoteValues(new[] { values })[0];
 		}
@@ -939,8 +959,9 @@ namespace ECM7.Migrator.Providers
 			string processedSeparator = " " + separator.Trim() + " ";
 
 			string[] quotedValues = QuoteValues(values);
-			string[] namesAndValues = columns.Select((str, i) =>
-				"{0}={1}".FormatWith(str, quotedValues[i])).ToArray();
+			string[] namesAndValues = columns
+				.Select((col, i) => "{0}={1}".FormatWith(QuoteName(col), quotedValues[i]))
+				.ToArray();
 
 			return string.Join(processedSeparator, namesAndValues);
 		}

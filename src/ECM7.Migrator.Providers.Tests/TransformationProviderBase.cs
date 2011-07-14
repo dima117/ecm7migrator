@@ -369,7 +369,7 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
 			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
-			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
+			using (IDataReader reader = provider.Select(provider.QuoteName("TestId"), provider.QuoteName("TestTwo")))
 			{
 				int[] vals = GetVals(reader);
 
@@ -384,7 +384,7 @@ namespace ECM7.Migrator.Providers.Tests
 			AddTable();
 			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "foo" });
 			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "2", null });
-			using (IDataReader reader = provider.Select("Title", "Test"))
+			using (IDataReader reader = provider.Select(provider.QuoteName("Title"), provider.QuoteName("Test")))
 			{
 				string[] vals = GetStringVals(reader);
 
@@ -398,7 +398,7 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			AddTable();
 			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "Muad'Dib" });
-			using (IDataReader reader = provider.Select("Title", "Test"))
+			using (IDataReader reader = provider.Select(provider.QuoteName("Title"), provider.QuoteName("Test")))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual("Muad'Dib", reader.GetString(0));
@@ -412,7 +412,7 @@ namespace ECM7.Migrator.Providers.Tests
 			InsertData();
 			provider.Delete("TestTwo", "TestId", "1");
 
-			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
+			using (IDataReader reader = provider.Select(provider.QuoteName("TestId"), provider.QuoteName("TestTwo")))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual(2, Convert.ToInt32(reader[0]));
@@ -426,7 +426,7 @@ namespace ECM7.Migrator.Providers.Tests
 			InsertData();
 			provider.Delete("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
 
-			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
+			using (IDataReader reader = provider.Select(provider.QuoteName("TestId"), provider.QuoteName("TestTwo")))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual(2, Convert.ToInt32(reader[0]));
@@ -461,7 +461,7 @@ namespace ECM7.Migrator.Providers.Tests
 
 			provider.Update("Test", new[] { "Title" }, new string[] { null });
 
-			using (IDataReader reader = provider.Select("Title", "Test"))
+			using (IDataReader reader = provider.Select(provider.QuoteName("Title"), provider.QuoteName("Test")))
 			{
 				string[] vals = GetStringVals(reader);
 
