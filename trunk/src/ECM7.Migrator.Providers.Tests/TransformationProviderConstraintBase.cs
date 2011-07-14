@@ -1,5 +1,6 @@
 namespace ECM7.Migrator.Providers.Tests
 {
+	using System;
 	using System.Data;
 
 	using ECM7.Migrator.Framework;
@@ -51,12 +52,13 @@ namespace ECM7.Migrator.Providers.Tests
 
 		public void AddCheckConstraint()
 		{
-			provider.AddCheckConstraint("CK_TestTwo_TestId", "TestTwo", "TestId>5");
+			provider.AddCheckConstraint("CK_TestTwo_TestId", "TestTwo", provider.QuoteName("TestId") + " > 5");
 		}
 
 		[Test]
 		public void CanAddPrimaryKey()
 		{
+			// todo: сделать IFormatProvider для экранирования названий объектов БД
 			AddPrimaryKey();
 			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"));
 		}
@@ -210,8 +212,12 @@ namespace ECM7.Migrator.Providers.Tests
 
 			provider.Insert("Test", new[] { "Id", "Name" }, new[] { "42", "aaa" });
 			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "42" });
-			provider.Delete("Test", "Id", "42");
-			object count = provider.SelectScalar("count(*)", "TestTwo", "TestId = 42");
+			provider.Delete("Test", provider.QuoteName("Id") + " = 42");
+
+			string sql = "SELECT count(*) FROM {0} WHERE {1} = {2}".FormatWith(
+				provider.QuoteName("TestTwo"), provider.QuoteName("TestId"), 42);
+
+			object count = provider.ExecuteScalar(sql);
 			Assert.AreEqual(0, count);
 		}
 

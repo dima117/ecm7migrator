@@ -35,7 +35,7 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			provider.ChangeColumn("TestTwo", new Column("TestId", DbType.String, 50, ColumnProperty.Null));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestId"));
-			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new string[] { "0", "Not an Int val." });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "0", "Not an Int val." });
 		}
 
 		[Test]
@@ -43,7 +43,11 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
 			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
-			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
+
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
 				int[] vals = GetVals(reader);
 
@@ -55,18 +59,22 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public override void UpdateData()
 		{
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "1", "1" });
-			provider.Insert("TestTwo", new string[] { "Id", "TestId" }, new string[] { "2", "2" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
+			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
 
-			provider.Update("TestTwo", new string[] { "TestId" }, new string[] { "3" });
+			provider.Update("TestTwo", new[] { "TestId" }, new[] { "3" });
 
-			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
+
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
 				int[] vals = GetVals(reader);
 
-				Assert.IsTrue(Array.Exists(vals, delegate(int val) { return val == 3; }));
-				Assert.IsFalse(Array.Exists(vals, delegate(int val) { return val == 1; }));
-				Assert.IsFalse(Array.Exists(vals, delegate(int val) { return val == 2; }));
+				Assert.IsTrue(Array.Exists(vals, val => val == 3));
+				Assert.IsFalse(Array.Exists(vals, val => val == 1));
+				Assert.IsFalse(Array.Exists(vals, val => val == 2));
 			}
 		}
 
@@ -74,12 +82,16 @@ namespace ECM7.Migrator.Providers.Tests
 		public override void CanUpdateWithNullData()
 		{
 			AddTable();
-			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "1", "foo" });
-			provider.Insert("Test", new string[] { "Id", "Title" }, new string[] { "2", null });
+			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "foo" });
+			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "2", null });
 
-			provider.Update("Test", new string[] { "Title" }, new string[] { null });
+			provider.Update("Test", new[] { "Title" }, new string[] { null });
 
-			using (IDataReader reader = provider.Select("Title", "Test"))
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("Title"), provider.QuoteName("Test"));
+
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
 				string[] vals = GetStringVals(reader);
 

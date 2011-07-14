@@ -22,11 +22,6 @@ namespace ECM7.Migrator.Providers
 
 		}
 
-		public Dialect Dialect
-		{
-			get { return null; }
-		}
-
 		public string[] GetTables()
 		{
 			return null;
@@ -73,11 +68,6 @@ namespace ECM7.Migrator.Providers
 		}
 
 		public void RenameColumn(string tableName, string oldColumnName, string newColumnName)
-		{
-			// No Op
-		}
-
-		public void AddColumn(string table, string sqlColumn)
 		{
 			// No Op
 		}
@@ -236,26 +226,6 @@ namespace ECM7.Migrator.Providers
 			return null;
 		}
 
-		public IDataReader Select(string what, string from)
-		{
-			return null;
-		}
-
-		public IDataReader Select(string what, string from, string where)
-		{
-			return null;
-		}
-
-		public object SelectScalar(string what, string from)
-		{
-			return null;
-		}
-
-		public object SelectScalar(string what, string from, string where)
-		{
-			return null;
-		}
-
 		public int Update(string table, string[] columns, string[] columnValues)
 		{
 			return 0;
@@ -271,12 +241,7 @@ namespace ECM7.Migrator.Providers
 			return 0;
 		}
 
-		public int Delete(string table, string[] columns, string[] columnValues)
-		{
-			return 0;
-		}
-
-		public int Delete(string table, string column, string value)
+		public int Delete(string table, string whereSql)
 		{
 			return 0;
 		}
@@ -368,11 +333,6 @@ namespace ECM7.Migrator.Providers
 			return new List<long>();
 		}
 
-		protected void CreateSchemaInfoTable()
-		{
-			// No Op
-		}
-
 		/// <summary>
 		/// Add a column to an existing table
 		/// </summary>
@@ -411,7 +371,5 @@ namespace ECM7.Migrator.Providers
 		{
 			return false;
 		}
-
-		public string Key { get; set; }
 	}
 }

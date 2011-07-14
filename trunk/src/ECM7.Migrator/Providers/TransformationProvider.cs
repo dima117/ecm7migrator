@@ -197,7 +197,7 @@ namespace ECM7.Migrator.Providers
 			string columnNames = primaryKeyColumns.Select(QuoteName).ToCommaSeparatedString();
 
 			string sql = "CONSTRAINT {0} PRIMARY KEY ({1})".FormatWith(pkName, columnNames);
-			
+
 			return sql;
 		}
 
@@ -234,7 +234,7 @@ namespace ECM7.Migrator.Providers
 
 			if (ColumnExists(tableName, oldColumnName))
 			{
-				string sql = String.Format("ALTER TABLE {0} RENAME COLUMN {1} TO {2}", 
+				string sql = String.Format("ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
 					QuoteName(tableName), QuoteName(oldColumnName), QuoteName(newColumnName));
 				ExecuteNonQuery(sql);
 			}
@@ -423,9 +423,15 @@ namespace ECM7.Migrator.Providers
 				MigratorLogManager.Log.WarnFormat("Constraint {0} already exists", name);
 				return;
 			}
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2}) ",
-				table, name,
-				columns.Select(col => Dialect.QuoteNameIfNeeded(col)).ToCommaSeparatedString()));
+
+			string tableName = QuoteName(table);
+			string constraintName = QuoteName(name);
+			string columnsSql = columns.Select(this.QuoteName).ToCommaSeparatedString();
+
+			string sql = String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2})",
+				tableName, constraintName, columnsSql);
+
+			ExecuteNonQuery(sql);
 		}
 
 		public virtual void AddCheckConstraint(string name, string table, string checkSql)
@@ -435,7 +441,11 @@ namespace ECM7.Migrator.Providers
 				MigratorLogManager.Log.WarnFormat("Constraint {0} already exists", name);
 				return;
 			}
-			string sql = "ALTER TABLE {0} ADD CONSTRAINT {1} CHECK ({2}) ".FormatWith(table, name, checkSql);
+
+			string tableName = QuoteName(table);
+			string constraintName = QuoteName(name);
+
+			string sql = "ALTER TABLE {0} ADD CONSTRAINT {1} CHECK ({2}) ".FormatWith(tableName, constraintName, checkSql);
 			ExecuteNonQuery(sql);
 		}
 
@@ -567,13 +577,20 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
+			string primaryTableName = QuoteName(primaryTable);
+			string constraintName = QuoteName(name);
+			string primaryColumnsSql = primaryColumns.Select(QuoteName).ToCommaSeparatedString();
+			string refTableName = QuoteName(refTable);
+			string refColumnsSql = refColumns.Select(QuoteName).ToCommaSeparatedString();
+
 			string onDeleteConstraintResolved = constraintMapper.SqlForConstraint(onDeleteConstraint);
 			string onUpdateConstraintResolved = constraintMapper.SqlForConstraint(onUpdateConstraint);
-			ExecuteNonQuery(
-				String.Format(
-					"ALTER TABLE {0} ADD CONSTRAINT {1} FOREIGN KEY ({2}) REFERENCES {3} ({4}) ON UPDATE {5} ON DELETE {6}",
-					primaryTable, name, String.Join(",", primaryColumns),
-					refTable, String.Join(",", refColumns), onUpdateConstraintResolved, onDeleteConstraintResolved));
+			
+			string sql = String.Format(
+				"ALTER TABLE {0} ADD CONSTRAINT {1} FOREIGN KEY ({2}) REFERENCES {3} ({4}) ON UPDATE {5} ON DELETE {6}",
+				primaryTableName, constraintName, primaryColumnsSql, refTableName, refColumnsSql, onUpdateConstraintResolved, onDeleteConstraintResolved);
+			
+			ExecuteNonQuery(sql);
 		}
 
 		#endregion
@@ -654,26 +671,6 @@ namespace ECM7.Migrator.Providers
 			}
 		}
 
-		public IDataReader Select(string what, string from)
-		{
-			return Select(what, from, "1=1");
-		}
-
-		public virtual IDataReader Select(string what, string from, string where)
-		{
-			return ExecuteQuery(String.Format("SELECT {0} FROM {1} WHERE {2}", what, from, where));
-		}
-
-		public object SelectScalar(string what, string from)
-		{
-			return SelectScalar(what, from, "1=1");
-		}
-
-		public virtual object SelectScalar(string what, string from, string where)
-		{
-			return ExecuteScalar(String.Format("SELECT {0} FROM {1} WHERE {2}", what, from, where));
-		}
-
 		public virtual int Update(string table, string[] columns, string[] values)
 		{
 			return Update(table, columns, values, null);
@@ -700,29 +697,20 @@ namespace ECM7.Migrator.Providers
 			string valuesSql = QuoteValues(values).ToCommaSeparatedString();
 
 			string sql = "INSERT INTO {0} ({1}) VALUES ({2})".FormatWith(tableName, columnsSql, valuesSql);
-			
+
 			return ExecuteNonQuery(sql);
 		}
 
-		public virtual int Delete(string table)
-		{
-			return Delete(table, (string[])null, null);
-		}
-
-		public virtual int Delete(string table, string[] columns, string[] values)
-		{
-			return null == columns || null == values ?
-					ExecuteNonQuery(String.Format("DELETE FROM {0}", table)) :
-					ExecuteNonQuery(String.Format("DELETE FROM {0} WHERE ({1})",
-						table, JoinColumnsAndValues(columns, values, "and")));
-		}
-
-		public virtual int Delete(string table, string wherecolumn, string wherevalue)
+		public virtual int Delete(string table, string whereSql = null)
 		{
 			string tableName = QuoteName(table);
-			string columnName = QuoteName(wherecolumn);
-			string quotedValue = this.QuoteValue(wherevalue);
-			string sql = String.Format("DELETE FROM {0} WHERE {1} = {2}", tableName, columnName, quotedValue);
+			string sql = String.Format("DELETE FROM {0}", tableName);
+
+			if (!whereSql.IsNullOrEmpty(true))
+			{
+				sql += " WHERE {0}".FormatWith(whereSql);
+			}
+
 			return ExecuteNonQuery(sql);
 		}
 
@@ -856,15 +844,11 @@ namespace ECM7.Migrator.Providers
 			var appliedMigrations = new List<long>();
 
 			CreateSchemaInfoTable();
-			
-			string keyColumnName = dialect.QuoteName("Key");
-			string where = string.Format("{0} = '{1}'", keyColumnName, key.Replace("'", "''"));
 
-			// переделать на DataTable
-			using (IDataReader reader = Select(
-				dialect.QuoteName("Version"),
-				dialect.QuoteName(SCHEMA_INFO_TABLE),
-				where))
+			string sql = "SELECT {0} FROM {1} WHERE {2} = '{3}'".FormatWith(
+				QuoteName("Version"), QuoteName(SCHEMA_INFO_TABLE), QuoteName("Key"), key.Replace("'", "''"));
+			
+			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				while (reader.Read())
 				{
@@ -896,7 +880,11 @@ namespace ECM7.Migrator.Providers
 		public void MigrationUnApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
-			Delete(SCHEMA_INFO_TABLE, new[] { "Version", "Key" }, new[] { version.ToString(), key });
+
+			string whereSql = "{0} = {1} AND {2} = '{3}'".FormatWith(
+				QuoteName("Version"), version, QuoteName("Key"), key);
+
+			Delete(SCHEMA_INFO_TABLE, whereSql);
 		}
 
 		protected void CreateSchemaInfoTable()

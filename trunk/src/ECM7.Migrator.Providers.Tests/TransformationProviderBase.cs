@@ -19,7 +19,7 @@ namespace ECM7.Migrator.Providers.Tests
 	{
 		protected ITransformationProvider provider;
 
-		public static bool isInitialized = false;
+		public static bool isInitialized;
 
 		[SetUp]
 		public void SetUp()
@@ -59,13 +59,12 @@ namespace ECM7.Migrator.Providers.Tests
 		public void AddTable()
 		{
 			provider.AddTable("Test",
-			new Column("Id", DbType.Int32, ColumnProperty.NotNull),
-			new Column("Title", DbType.String, 100, ColumnProperty.Null),
-			new Column("name", DbType.String, 50, ColumnProperty.Null),
-			new Column("blobVal", DbType.Binary, ColumnProperty.Null),
-			new Column("boolVal", DbType.Boolean, ColumnProperty.Null),
-			new Column("bigstring", DbType.String, 50000, ColumnProperty.Null)
-			);
+				new Column("Id", DbType.Int32, ColumnProperty.NotNull),
+				new Column("Title", DbType.String, 100, ColumnProperty.Null),
+				new Column("name", DbType.String, 50, ColumnProperty.Null),
+				new Column("blobVal", DbType.Binary, ColumnProperty.Null),
+				new Column("boolVal", DbType.Boolean, ColumnProperty.Null),
+				new Column("bigstring", DbType.String, 50000, ColumnProperty.Null));
 		}
 
 		public void AddTableWithPrimaryKey()
@@ -73,7 +72,7 @@ namespace ECM7.Migrator.Providers.Tests
 			provider.AddTable("Test",
 				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("Title", DbType.String, 100, ColumnProperty.Null),
-				new Column("name", DbType.String, 50, ColumnProperty.NotNull),
+				new Column("Name", DbType.String, 50, ColumnProperty.NotNull),
 				new Column("blobVal", DbType.Binary),
 				new Column("boolVal", DbType.Boolean),
 				new Column("bigstring", DbType.String, 50000));
@@ -84,7 +83,13 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
 			provider.ExecuteFromResource(asm, "ECM7.Migrator.TestAssembly.Res.test.res.migration.sql");
-			object res = provider.SelectScalar("TestId", "TestTwo", "Id = 5555");
+
+			string sql = "SELECT {0} FROM {1} WHERE {2} = {3}".FormatWith(
+				provider.QuoteName("TestId"),
+				provider.QuoteName("TestTwo"),
+				provider.QuoteName("Id"), 5555);
+
+			object res = provider.ExecuteScalar(sql);
 
 			Assert.AreEqual(9999, Convert.ToInt32(res));
 		}
@@ -369,7 +374,11 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
 			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
-			using (IDataReader reader = provider.Select(provider.QuoteName("TestId"), provider.QuoteName("TestTwo")))
+
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
 				int[] vals = GetVals(reader);
 
@@ -384,7 +393,11 @@ namespace ECM7.Migrator.Providers.Tests
 			AddTable();
 			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "foo" });
 			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "2", null });
-			using (IDataReader reader = provider.Select(provider.QuoteName("Title"), provider.QuoteName("Test")))
+
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("Title"), provider.QuoteName("Test"));
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
 				string[] vals = GetStringVals(reader);
 
@@ -398,7 +411,11 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			AddTable();
 			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "Muad'Dib" });
-			using (IDataReader reader = provider.Select(provider.QuoteName("Title"), provider.QuoteName("Test")))
+
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("Title"), provider.QuoteName("Test"));
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual("Muad'Dib", reader.GetString(0));
@@ -410,9 +427,12 @@ namespace ECM7.Migrator.Providers.Tests
 		public void DeleteData()
 		{
 			InsertData();
-			provider.Delete("TestTwo", "TestId", "1");
+			provider.Delete("TestTwo", provider.QuoteName("TestId") + " = 1");
 
-			using (IDataReader reader = provider.Select(provider.QuoteName("TestId"), provider.QuoteName("TestTwo")))
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual(2, Convert.ToInt32(reader[0]));
@@ -421,15 +441,16 @@ namespace ECM7.Migrator.Providers.Tests
 		}
 
 		[Test]
-		public void DeleteDataWithArrays()
+		public void DeleteAllData()
 		{
 			InsertData();
-			provider.Delete("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
+			provider.Delete("TestTwo");
 
-			using (IDataReader reader = provider.Select(provider.QuoteName("TestId"), provider.QuoteName("TestTwo")))
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
-				Assert.IsTrue(reader.Read());
-				Assert.AreEqual(2, Convert.ToInt32(reader[0]));
 				Assert.IsFalse(reader.Read());
 			}
 		}
@@ -442,7 +463,10 @@ namespace ECM7.Migrator.Providers.Tests
 
 			provider.Update("TestTwo", new[] { "TestId" }, new[] { "3" });
 
-			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
 				int[] vals = GetVals(reader);
 
@@ -461,7 +485,10 @@ namespace ECM7.Migrator.Providers.Tests
 
 			provider.Update("Test", new[] { "Title" }, new string[] { null });
 
-			using (IDataReader reader = provider.Select(provider.QuoteName("Title"), provider.QuoteName("Test")))
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("Title"), provider.QuoteName("Test"));
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
 				string[] vals = GetStringVals(reader);
 
@@ -476,9 +503,12 @@ namespace ECM7.Migrator.Providers.Tests
 			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
 			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
 
-			provider.Update("TestTwo", new[] { "TestId" }, new[] { "3" }, "TestId='1'");
+			provider.Update("TestTwo", new[] { "TestId" }, new[] { "3" }, provider.QuoteName("TestId") + " = '1'");
 
-			using (IDataReader reader = provider.Select("TestId", "TestTwo"))
+			string sql = "SELECT {0} FROM {1}".FormatWith(
+				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
+
+			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
 				int[] vals = GetVals(reader);
 
