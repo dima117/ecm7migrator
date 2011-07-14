@@ -106,7 +106,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			string tempColumn = "temp_" + column.Name;
 			RenameColumn(table, column.Name, tempColumn);
 			AddColumn(table, column);
-			ExecuteQuery(String.Format("UPDATE {0} SET {1}={2}", table, column.Name, tempColumn));
+
+			ExecuteQuery(String.Format("UPDATE {0} SET {1}={2}", QuoteName(table), QuoteName(column.Name), QuoteName(tempColumn)));
 			RemoveColumn(table, tempColumn);
 		}
 
