@@ -88,6 +88,7 @@
     <Compile Include="Providers\Dialect.cs" />
     <Compile Include="Providers\ForeignKeyConstraintMapper.cs" />
     <Compile Include="Providers\NoOpTransformationProvider.cs" />
+    <Compile Include="Providers\SqlFormatter.cs" />
     <Compile Include="Providers\TransformationProvider.cs" />
     <Compile Include="Providers\TypeNames.cs" />
     <Compile Include="VersionException.cs" />

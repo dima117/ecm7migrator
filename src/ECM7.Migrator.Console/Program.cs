@@ -11,7 +11,6 @@ namespace ECM7.Migrator.Console
 	using ECM7.Migrator.Framework.Logging;
 
 	using log4net.Appender;
-	using log4net.Config;
 	using log4net.Layout;
 
 	/// <summary>

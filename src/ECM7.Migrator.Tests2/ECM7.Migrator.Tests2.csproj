@@ -55,6 +55,7 @@
     <Compile Include="ExecuteMigrationTest.cs" />
     <Compile Include="MigrationAssemblyTest.cs" />
     <Compile Include="MigratorPlanTest.cs" />
+    <Compile Include="SqlFormatterTest.cs" />
     <Compile Include="Providers\TypeNamesTest.cs" />
   </ItemGroup>
   <ItemGroup>
