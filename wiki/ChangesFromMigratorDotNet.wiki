@@ -1,8 +1,0 @@
-#summary One-sentence summary of this page.
-
-= Introduction =
-
-  * удален синтаксис фильтрации провайдера Database["SqlServer"], вместо этого
-следует использовать метод For. Напрмиер, 
-
-`Database.For<SqlServerDialect>().ExecuteNonQuery(sql);`
