@@ -1,0 +1,15 @@
+#summary Экранирование зарезервированных слов в идентификаторов
+
+Теперь при генерации SQL все идентификаторы обрамляются соответствующими символами для экранирования зарезервированных слов и символов, не являющихся буквами и цифрами (например, пробелов). В связи с этим нужно внимательно относится к идентификаторам в СУБД, в которых важен регистр букв (например, PostgreSQL и Oracle).
+
+= Introduction =
+
+Add your content here.
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
