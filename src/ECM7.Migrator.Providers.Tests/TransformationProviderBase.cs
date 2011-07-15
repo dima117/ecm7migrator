@@ -19,7 +19,12 @@ namespace ECM7.Migrator.Providers.Tests
 	{
 		protected ITransformationProvider provider;
 
-		public static bool isInitialized;
+		protected static bool isInitialized;
+
+		protected virtual string ResourceSql
+		{
+			get { return "ECM7.Migrator.TestAssembly.Res.test.res.migration.sql"; }
+		}
 
 		[SetUp]
 		public void SetUp()
@@ -82,7 +87,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanExecuteScriptFromResources()
 		{
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
-			provider.ExecuteFromResource(asm, "ECM7.Migrator.TestAssembly.Res.test.res.migration.sql");
+			provider.ExecuteFromResource(asm, ResourceSql);
 
 			string sql = "SELECT {0} FROM {1} WHERE {2} = {3}".FormatWith(
 				provider.QuoteName("TestId"),

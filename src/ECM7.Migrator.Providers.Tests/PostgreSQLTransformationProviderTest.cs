@@ -3,13 +3,18 @@ namespace ECM7.Migrator.Providers.Tests
 	using System;
 	using System.Configuration;
 
-	using ECM7.Migrator.Providers.PostgreSQL;
+	using PostgreSQL;
 
 	using NUnit.Framework;
 
 	[TestFixture, Category("Postgre")]
 	public class PostgreSQLTransformationProviderTest : TransformationProviderConstraintBase
 	{
+		protected override string ResourceSql
+		{
+			get { return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.test.res.migration.sql"; }
+		}
+
 		[SetUp]
 		public void SetUp()
 		{

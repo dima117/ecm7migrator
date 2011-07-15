@@ -55,6 +55,7 @@
     <Compile Include="ExecuteMigrationTest.cs" />
     <Compile Include="MigrationAssemblyTest.cs" />
     <Compile Include="MigratorPlanTest.cs" />
+    <Compile Include="Providers\TypeNamesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">

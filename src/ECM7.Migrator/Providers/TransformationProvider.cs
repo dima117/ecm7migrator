@@ -212,7 +212,7 @@ namespace ECM7.Migrator.Providers
 		public virtual void RemoveTable(string name)
 		{
 			if (TableExists(name))
-				ExecuteNonQuery(String.Format("DROP TABLE {0}", name));
+				ExecuteNonQuery(String.Format("DROP TABLE {0}", QuoteName(name)));
 		}
 
 		public virtual void RenameTable(string oldName, string newName)

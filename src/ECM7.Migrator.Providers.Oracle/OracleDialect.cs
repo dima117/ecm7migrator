@@ -46,8 +46,10 @@ namespace ECM7.Migrator.Providers.Oracle
 		public override string Default(object defaultValue)
 		{
 			// convert boolean to number (1, 0)
-			if (defaultValue.GetType() == typeof(bool))
-				defaultValue = (bool)defaultValue ? 1 : 0;
+			if (defaultValue is bool)
+			{
+			    defaultValue = (bool)defaultValue ? 1 : 0;
+			}
 
 			return base.Default(defaultValue);
 		}
@@ -64,5 +66,14 @@ namespace ECM7.Migrator.Providers.Oracle
 			AddUniqueSql(vals, column);
 		}
 
+        public override bool NamesNeedsQuote
+        {
+            get { return true; }
+        }
+
+        public override string NamesQuoteTemplate
+        {
+            get { return "\"{0}\""; }
+        }
 	}
 }

@@ -52,7 +52,8 @@ namespace ECM7.Migrator.Providers.Tests
 			GenericTransformationProvider provider = new GenericTransformationProvider(conn.Object);
 			string result = provider.JoinColumnsAndValues(new[] { "foo", "bar" }, new[] { "123", "456" });
 
-			Assert.AreEqual("foo='123' , bar='456'", result);
+			string expected = "{0}='123' , {1}='456'".FormatWith(provider.QuoteName("foo"), provider.QuoteName("bar"));
+			Assert.AreEqual(expected, result);
 		}
 
 	}

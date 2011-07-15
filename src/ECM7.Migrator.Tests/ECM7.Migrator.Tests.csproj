@@ -97,13 +97,6 @@
     <Compile Include="TestClasses\Common\MigrationTypeComparerTest.cs" />
     <Compile Include="TestClasses\Common\ProviderFactoryTest.cs" />
     <Compile Include="TestClasses\ConfigurationTest.cs" />
-    <Compile Include="TestClasses\Providers\Common\TypeNamesTest.cs" />
-    <Compile Include="TestClasses\Providers\DataTypes\DataTypesTestBase.cs" />
-    <Compile Include="TestClasses\Providers\DataTypes\MySqlDataTypesTest.cs" />
-    <Compile Include="TestClasses\Providers\DataTypes\OracleDataTypesTest.cs" />
-    <Compile Include="TestClasses\Providers\DataTypes\PostgreSQLDataTypesTest.cs" />
-    <Compile Include="TestClasses\Providers\DataTypes\SQLiteDataTypesTest.cs" />
-    <Compile Include="TestClasses\Providers\DataTypes\SqlServerDataTypesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />

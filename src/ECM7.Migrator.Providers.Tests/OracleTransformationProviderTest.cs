@@ -4,14 +4,19 @@ namespace ECM7.Migrator.Providers.Tests
 	using System.Configuration;
 	using System.Data;
 
-	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Providers.Oracle;
+	using Framework;
+	using Oracle;
 
 	using NUnit.Framework;
 
 	[TestFixture, Category("Oracle")]
 	public class OracleTransformationProviderTest : TransformationProviderConstraintBase
 	{
+		protected override string ResourceSql
+		{
+			get { return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.test.res.migration.sql"; }
+		}
+
 		[SetUp]
 		public void SetUp()
 		{
