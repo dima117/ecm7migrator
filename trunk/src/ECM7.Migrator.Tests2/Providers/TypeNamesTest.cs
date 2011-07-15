@@ -3,7 +3,7 @@ using ECM7.Migrator.Framework;
 using ECM7.Migrator.Providers;
 using NUnit.Framework;
 
-namespace ECM7.Migrator.Tests.TestClasses.Providers.Common
+namespace ECM7.Migrator.Tests2.Providers
 {
 	[TestFixture]
 	public class TypeNamesTest

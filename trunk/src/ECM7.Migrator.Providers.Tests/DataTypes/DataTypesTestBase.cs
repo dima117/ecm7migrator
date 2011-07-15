@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Data;
 using ECM7.Migrator.Framework;
-using ECM7.Migrator.Providers;
 using NUnit.Framework;
 
-namespace ECM7.Migrator.Tests.TestClasses.Providers.DataTypes
+namespace ECM7.Migrator.Providers.Tests.DataTypes
 {
 	public abstract class DataTypesTestBase<TDialect> where TDialect : Dialect, new()
 	{

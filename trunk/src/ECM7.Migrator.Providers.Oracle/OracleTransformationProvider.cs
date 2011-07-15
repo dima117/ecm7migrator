@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using ECM7.Migrator.Framework;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 using OracleConnection = Oracle.DataAccess.Client.OracleConnection;
 
 namespace ECM7.Migrator.Providers.Oracle
 {
-	using ECM7.Migrator.Framework.Logging;
+	using Framework.Logging;
 
 	/// <summary>
 	/// ѕровайдер трансформации дл€ Oracle
@@ -35,10 +36,10 @@ namespace ECM7.Migrator.Providers.Oracle
 
 			List<string> command = new List<string>
 				{
-					"ALTER TABLE {0}".FormatWith(primaryTable),
-					"ADD CONSTRAINT {0}".FormatWith(name),
-					"FOREIGN KEY ({0})".FormatWith(primaryColumns.ToCommaSeparatedString()),
-					"REFERENCES {0} ({1})".FormatWith(refTable, refColumns.ToCommaSeparatedString())
+					"ALTER TABLE {0}".FormatWith(QuoteName(primaryTable)),
+					"ADD CONSTRAINT {0}".FormatWith(QuoteName(name)),
+					"FOREIGN KEY ({0})".FormatWith(primaryColumns.Select(QuoteName).ToCommaSeparatedString()),
+					"REFERENCES {0} ({1})".FormatWith(QuoteName(refTable), refColumns.Select(QuoteName).ToCommaSeparatedString())
 				};
 
 			switch (constraint)
@@ -57,11 +58,10 @@ namespace ECM7.Migrator.Providers.Oracle
 		{
 			string sql =
 				("select count(*) from user_indexes " +
-				"where lower(INDEX_NAME) = '{0}' " +
-				"and lower(TABLE_NAME) = '{1}'")
-				.FormatWith(indexName.ToLower(), tableName.ToLower());
+				"where INDEX_NAME = '{0}' " +
+				"and TABLE_NAME = '{1}'")
+				.FormatWith(indexName, tableName);
 
-			// todo: сделать методы, запускающие выполнение запроса, с параметрами
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
 		}
@@ -74,7 +74,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				return;
 			}
 
-			string sql = "DROP INDEX {0}".FormatWith(Dialect.QuoteNameIfNeeded(indexName));
+            string sql = "DROP INDEX {0}".FormatWith(QuoteName(indexName));
 
 			ExecuteNonQuery(sql);
 		}
@@ -87,15 +87,16 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override void AddColumn(string table, string sqlColumn)
 		{
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD ({1})", table, sqlColumn));
+			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD ({1})", QuoteName(table), sqlColumn));
 		}
 
 		public override bool ConstraintExists(string table, string name)
 		{
 			string sql =
 				string.Format(
-					"SELECT COUNT(constraint_name) FROM user_constraints WHERE lower(constraint_name) = '{0}' AND lower(table_name) = '{1}'",
-					name.ToLower(), table.ToLower());
+					"SELECT COUNT(constraint_name) FROM user_constraints WHERE constraint_name = '{0}' AND table_name = '{1}'",
+					name, table);
+
 			MigratorLogManager.Log.ExecuteSql(sql);
 			object scalar = ExecuteScalar(sql);
 			return Convert.ToInt32(scalar) == 1;
@@ -108,8 +109,9 @@ namespace ECM7.Migrator.Providers.Oracle
 
 			string sql =
 				string.Format(
-					"SELECT COUNT(column_name) FROM user_tab_columns WHERE lower(table_name) = '{0}' AND lower(column_name) = '{1}'",
-					table.ToLower(), column.ToLower());
+					"SELECT COUNT(column_name) FROM user_tab_columns WHERE table_name = '{0}' AND column_name = '{1}'",
+					table, column);
+
 			MigratorLogManager.Log.ExecuteSql(sql);
 			object scalar = ExecuteScalar(sql);
 			return Convert.ToInt32(scalar) == 1;
@@ -117,8 +119,8 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override bool TableExists(string table)
 		{
-			string sql = string.Format("SELECT COUNT(table_name) FROM user_tables WHERE lower(table_name) = '{0}'",
-									   table.ToLower());
+			string sql = string.Format(
+                "SELECT COUNT(table_name) FROM user_tables WHERE table_name = '{0}'", table);
 			MigratorLogManager.Log.ExecuteSql(sql);
 			object count = ExecuteScalar(sql);
 			return Convert.ToInt32(count) == 1;
@@ -149,8 +151,8 @@ namespace ECM7.Migrator.Providers.Oracle
 				IDataReader reader =
 					ExecuteQuery(
 						string.Format(
-							"select column_name, data_type, data_length, data_precision, data_scale, nullable FROM USER_TAB_COLUMNS WHERE lower(table_name) = '{0}'",
-							table.ToLower())))
+							"select column_name, data_type, data_length, data_precision, data_scale, nullable FROM USER_TAB_COLUMNS WHERE table_name = '{0}'",
+							table)))
 			{
 				while (reader.Read())
 				{
@@ -190,7 +192,7 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override void ChangeColumn(string table, string sqlColumn)
 		{
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY ({1})", table, sqlColumn));
+			ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY ({1})", QuoteName(table), sqlColumn));
 		}
 	}
 }

@@ -61,6 +61,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataTypes\DataTypesTestBase.cs" />
+    <Compile Include="DataTypes\MySqlDataTypesTest.cs" />
+    <Compile Include="DataTypes\OracleDataTypesTest.cs" />
+    <Compile Include="DataTypes\PostgreSQLDataTypesTest.cs" />
+    <Compile Include="DataTypes\SQLiteDataTypesTest.cs" />
+    <Compile Include="DataTypes\SqlServerDataTypesTest.cs" />
     <Compile Include="GenericProviderTests.cs" />
     <Compile Include="MySqlTransformationProviderTest.cs" />
     <Compile Include="OracleTransformationProviderTest.cs" />
@@ -113,6 +119,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

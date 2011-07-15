@@ -2,7 +2,7 @@
 using ECM7.Migrator.Providers.PostgreSQL;
 using NUnit.Framework;
 
-namespace ECM7.Migrator.Tests.TestClasses.Providers.DataTypes
+namespace ECM7.Migrator.Providers.Tests.DataTypes
 {
 	[TestFixture]
 	public class PostgreSQLDataTypesTest : DataTypesTestBase<PostgreSQLDialect>
