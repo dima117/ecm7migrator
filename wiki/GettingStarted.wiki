@@ -1,4 +1,4 @@
-#summary Начало работы с ECM7 Migrator
+#summary "Быстрое" начало работы с ECM7 Migrator
 
 == Использование ECM7 Migrator в Visual Studio ==
 
