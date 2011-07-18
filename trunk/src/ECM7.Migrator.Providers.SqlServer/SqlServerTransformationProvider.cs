@@ -39,9 +39,9 @@ namespace ECM7.Migrator.Providers.SqlServer
 			}
 		}
 
-		public override void AddColumn(string table, string sqlColumn)
+		public override void AddColumn(string table, string columnSql)
 		{
-			ExecuteNonQuery(string.Format("ALTER TABLE {0} ADD {1}", table, sqlColumn));
+			ExecuteNonQuery(string.Format("ALTER TABLE {0} ADD {1}", table, columnSql));
 		}
 
 		public override bool ColumnExists(string table, string column)

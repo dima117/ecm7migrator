@@ -1,16 +1,3 @@
-#region License
-
-//The contents of this file are subject to the Mozilla Public License
-//Version 1.1 (the "License"); you may not use this file except in
-//compliance with the License. You may obtain a copy of the License at
-//http://www.mozilla.org/MPL/
-//Software distributed under the License is distributed on an "AS IS"
-//basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-//License for the specific language governing rights and limitations
-//under the License.
-
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -37,18 +24,37 @@ namespace ECM7.Migrator.Providers
 		protected IDbConnection connection;
 		private IDbTransaction transaction;
 
-		protected Dialect dialect;
+		protected readonly Dialect dialect;
 
+		protected readonly IFormatProvider sqlFormatProvider;
+		
 		private readonly ForeignKeyConstraintMapper constraintMapper = new ForeignKeyConstraintMapper();
 
 		protected TransformationProvider(Dialect dialect, IDbConnection connection)
 		{
 			Require.IsNotNull(dialect, "Не задан диалект");
 			this.dialect = dialect;
+			sqlFormatProvider = new SqlFormatter(obj => dialect.QuoteName(obj.ToString()));
+
 
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 			this.connection = connection;
 		}
+
+		#region format sql
+
+		public virtual string QuoteName(string name)
+		{
+			return dialect.QuoteName(name);
+		}
+
+		public string FormatSql(string format, params object[] args)
+		{
+			// TODO: написать тесты
+			return string.Format(sqlFormatProvider, format, args);
+		}
+
+		#endregion
 
 		public bool TypeIsSupported(DbType type)
 		{
@@ -63,15 +69,15 @@ namespace ECM7.Migrator.Providers
 		public virtual Column[] GetColumns(string table)
 		{
 			List<Column> columns = new List<Column>();
-			using (
-				IDataReader reader =
-					ExecuteQuery(
-						String.Format("select COLUMN_NAME, IS_NULLABLE from information_schema.columns where table_name = '{0}'", table)))
+
+			string sql = FormatSql("select {0:NAME}, {1:NAME} from {2:NAME}.{3:NAME} where {4:NAME} = '{5}'",
+							"column_name", "is_nullable", "information_schema", "columns", "table_name", table);
+			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				while (reader.Read())
 				{
 					Column column = new Column(reader.GetString(0), DbType.String);
-					string nullableStr = reader.GetString(1);
+					string nullableStr = reader.GetString(1).ToUpper();
 					bool isNullable = nullableStr == "YES";
 					column.ColumnProperty |= isNullable ? ColumnProperty.Null : ColumnProperty.NotNull;
 
@@ -91,7 +97,10 @@ namespace ECM7.Migrator.Providers
 		public virtual string[] GetTables()
 		{
 			List<string> tables = new List<string>();
-			using (IDataReader reader = ExecuteQuery("SELECT table_name FROM information_schema.tables"))
+			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}.{2:NAME}",
+				"table_name", "information_schema", "tables");
+
+			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				while (reader.Read())
 				{
@@ -110,16 +119,14 @@ namespace ECM7.Migrator.Providers
 		{
 			if (TableExists(table) && ConstraintExists(table, name))
 			{
-				table = dialect.QuoteNameIfNeeded(table);
-				name = dialect.QuoteNameIfNeeded(name);
-				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP CONSTRAINT {1}", table, name));
+				string format = this.FormatSql("ALTER TABLE {0:NAME} DROP CONSTRAINT {1:NAME}", table, name);
+				ExecuteNonQuery(format);
 			}
 		}
 
-		public virtual void AddTable(string table, string engine, string columns)
+		public virtual void AddTable(string table, string engine, string columnsSql)
 		{
-			table = dialect.QuoteNameIfNeeded(table);
-			string sqlCreate = String.Format("CREATE TABLE {0} ({1})", table, columns);
+			string sqlCreate = this.FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
 			ExecuteNonQuery(sqlCreate);
 		}
 
@@ -193,12 +200,10 @@ namespace ECM7.Migrator.Providers
 
 		protected virtual string BuildPrimaryKeyQuerySection(string tableName, List<string> primaryKeyColumns)
 		{
-			string pkName = this.QuoteName("PK_" + tableName);
-			string columnNames = primaryKeyColumns.Select(QuoteName).ToCommaSeparatedString();
+			string pkName = "PK_" + tableName;
 
-			string sql = "CONSTRAINT {0} PRIMARY KEY ({1})".FormatWith(pkName, columnNames);
+			return FormatSql("CONSTRAINT {0:NAME} PRIMARY KEY ({1:COLS})", pkName, primaryKeyColumns);
 
-			return sql;
 		}
 
 		public List<string> GetPrimaryKeys(IEnumerable<Column> columns)
@@ -212,17 +217,21 @@ namespace ECM7.Migrator.Providers
 		public virtual void RemoveTable(string name)
 		{
 			if (TableExists(name))
-				ExecuteNonQuery(String.Format("DROP TABLE {0}", QuoteName(name)));
+			{
+				ExecuteNonQuery(FormatSql("DROP TABLE {0:NAME}", name));
+			}
 		}
 
 		public virtual void RenameTable(string oldName, string newName)
 		{
 			if (TableExists(newName))
+			{
 				throw new MigrationException(String.Format("Table with name '{0}' already exists", newName));
+			}
 
 			if (TableExists(oldName))
 			{
-				string sql = String.Format("ALTER TABLE {0} RENAME TO {1}", QuoteName(oldName), QuoteName(newName));
+				string sql = FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", oldName, newName);
 				this.ExecuteNonQuery(sql);
 			}
 		}
@@ -234,25 +243,24 @@ namespace ECM7.Migrator.Providers
 
 			if (ColumnExists(tableName, oldColumnName))
 			{
-				string sql = String.Format("ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
-					QuoteName(tableName), QuoteName(oldColumnName), QuoteName(newColumnName));
+				string sql = FormatSql("ALTER TABLE {0:NAME} RENAME COLUMN {1:NAME} TO {2:NAME}",
+					tableName, oldColumnName, newColumnName);
 				ExecuteNonQuery(sql);
 			}
 		}
 
-		public virtual void AddColumn(string table, string sqlColumn)
+		public virtual void AddColumn(string table, string columnSql)
 		{
-			string tableName = this.QuoteName(table);
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD COLUMN {1}", tableName, sqlColumn));
+			string sql = FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
+			ExecuteNonQuery(sql);
 		}
 
 		public virtual void RemoveColumn(string table, string column)
 		{
 			if (ColumnExists(table, column))
 			{
-				string columnName = this.QuoteName(column);
-				string tableName = this.QuoteName(table);
-				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP COLUMN {1} ", tableName, columnName));
+				string sql = this.FormatSql("ALTER TABLE {0:NAME} DROP COLUMN {1:NAME} ", table, column);
+				ExecuteNonQuery(sql);
 			}
 		}
 
@@ -260,20 +268,14 @@ namespace ECM7.Migrator.Providers
 		{
 			try
 			{
-				string columnName = this.QuoteName(column);
-				string tableName = this.QuoteName(table);
-				ExecuteNonQuery(String.Format("SELECT {0} FROM {1}", columnName, tableName));
+				string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}", column, table);
+				ExecuteNonQuery(sql);
 				return true;
 			}
 			catch (Exception)
 			{
 				return false;
 			}
-		}
-
-		public virtual string QuoteName(string name)
-		{
-			return dialect.QuoteName(name);
 		}
 
 		public virtual void ChangeColumn(string table, Column column)
@@ -288,17 +290,18 @@ namespace ECM7.Migrator.Providers
 			ChangeColumn(table, columnSql);
 		}
 
-		public virtual void ChangeColumn(string table, string sqlColumn)
+		public virtual void ChangeColumn(string table, string columnSql)
 		{
-			ExecuteNonQuery(String.Format(
-				"ALTER TABLE {0} ALTER COLUMN {1}", dialect.QuoteNameIfNeeded(table), sqlColumn));
+			string sql = FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1}", table, columnSql);
+			ExecuteNonQuery(sql);
 		}
 
 		public virtual bool TableExists(string table)
 		{
 			try
 			{
-				ExecuteNonQuery("SELECT COUNT(*) FROM " + dialect.QuoteNameIfNeeded(table));
+				string sql = FormatSql("SELECT COUNT(*) FROM {0:NAME}", table);
+				ExecuteNonQuery(sql);
 				return true;
 			}
 			catch (Exception)
@@ -307,6 +310,8 @@ namespace ECM7.Migrator.Providers
 			}
 		}
 
+		// TODO!!!!!!!!!!!!!!!!!!: проверить все методы ниже этой записи на экранирование зарезервированных слов через FormatSql
+		// TODO:!!!!!!!!!!!!!!!!!! проверить все остальные провайдеры
 		#region AddColumn
 
 		/// <summary>
