@@ -31,7 +31,6 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void ExecuteActionsForProvider()
 		{
-			// TODO:!!!!! проверить везде, что имена таблиц и колонок оборачиваются кавычками;
 			int i = 0;
 
 			Mock<IDbConnection> conn = new Mock<IDbConnection>();

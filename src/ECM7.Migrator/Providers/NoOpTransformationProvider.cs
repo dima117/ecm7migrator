@@ -323,6 +323,11 @@ namespace ECM7.Migrator.Providers
 			return name;
 		}
 
+		public string FormatSql(string format, params object[] args)
+		{
+			return format;
+		}
+
 		#endregion
 
 		/// <summary>

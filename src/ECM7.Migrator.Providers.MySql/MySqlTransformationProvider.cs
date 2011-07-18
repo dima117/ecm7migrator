@@ -124,10 +124,10 @@ namespace ECM7.Migrator.Providers.MySql
             return tables.ToArray();
         }
 
-        public override void ChangeColumn(string table, string sqlColumn)
+        public override void ChangeColumn(string table, string columnSql)
         {
 			string tableName = dialect.QuoteNameIfNeeded(table);
-            ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY {1}", tableName, sqlColumn));
+            ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY {1}", tableName, columnSql));
         }
 
         public override void AddTable(string name, params Column[] columns)
@@ -135,10 +135,9 @@ namespace ECM7.Migrator.Providers.MySql
             AddTable(name, "INNODB", columns);
         }
 
-        public override void AddTable(string name, string engine, string columns)
+        public override void AddTable(string name, string engine, string columnsSql)
         {
-        	string tableName = dialect.QuoteNameIfNeeded(name);
-        	string sqlCreate = string.Format("CREATE TABLE {0} ({1}) ENGINE = {2}", tableName, columns, engine);
+        	string sqlCreate = this.FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", name, columnsSql, engine);
             ExecuteNonQuery(sqlCreate);
         }
         

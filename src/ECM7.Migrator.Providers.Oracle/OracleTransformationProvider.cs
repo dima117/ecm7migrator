@@ -85,9 +85,9 @@ namespace ECM7.Migrator.Providers.Oracle
 			throw new NotSupportedException("Oracle не поддерживает каскадное обновление");
 		}
 
-		public override void AddColumn(string table, string sqlColumn)
+		public override void AddColumn(string table, string columnSql)
 		{
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD ({1})", QuoteName(table), sqlColumn));
+			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD ({1})", QuoteName(table), columnSql));
 		}
 
 		public override bool ConstraintExists(string table, string name)
@@ -190,9 +190,9 @@ namespace ECM7.Migrator.Providers.Oracle
 			return columns.ToArray();
 		}
 
-		public override void ChangeColumn(string table, string sqlColumn)
+		public override void ChangeColumn(string table, string columnSql)
 		{
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY ({1})", QuoteName(table), sqlColumn));
+			ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY ({1})", QuoteName(table), columnSql));
 		}
 	}
 }
