@@ -25,10 +25,8 @@ namespace ECM7.Migrator.Providers.MySql
         {
             if (ConstraintExists(table, name))
             {
-            	string keyName = this.dialect.QuoteNameIfNeeded(name);
-				string tableName = this.dialect.QuoteNameIfNeeded(table);
-				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP FOREIGN KEY {1}", tableName, keyName));
-				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP KEY {1}", tableName, keyName));
+				ExecuteNonQuery(FormatSql("ALTER TABLE {0:NAME} DROP FOREIGN KEY {1:NAME}", table, name));
+				ExecuteNonQuery(FormatSql("ALTER TABLE {0:NAME} DROP KEY {1:NAME}", table, name));
             }
         }
         
@@ -36,7 +34,8 @@ namespace ECM7.Migrator.Providers.MySql
         {
             if (ConstraintExists(table, name))
             {
-                ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP KEY {1}", table, dialect.QuoteNameIfNeeded(name)));
+            	string sql = FormatSql("ALTER TABLE {0:NAME} DROP KEY {1:NAME}", table, name);
+            	ExecuteNonQuery(sql);
             }
         }
 
@@ -45,13 +44,13 @@ namespace ECM7.Migrator.Providers.MySql
 			if (!TableExists(tableName))
 				return false;
 
-			string sql = string.Format("SHOW INDEXES FROM {0}", Dialect.QuoteNameIfNeeded(tableName));
+			string sql = FormatSql("SHOW INDEXES FROM {0:NAME}", tableName);
 
 			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				while (reader.Read())
 				{
-					if (reader["Key_name"].ToString().ToLower() == indexName.ToLower())
+					if (reader["Key_name"].ToString() == indexName)
 					{
 						return true;
 					}
@@ -60,6 +59,8 @@ namespace ECM7.Migrator.Providers.MySql
 
 			return false;
     	}
+
+		// TODO: !!!!!!!!!!!!!!!!!!!!! проверить экранирование идентификаторов ниже этой строчки и в остальных провайдерах
 
     	public override bool ConstraintExists(string table, string name)
         {

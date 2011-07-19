@@ -27,7 +27,7 @@ namespace ECM7.Migrator.Providers
 		protected readonly Dialect dialect;
 
 		protected readonly IFormatProvider sqlFormatProvider;
-		
+
 		private readonly ForeignKeyConstraintMapper constraintMapper = new ForeignKeyConstraintMapper();
 
 		protected TransformationProvider(Dialect dialect, IDbConnection connection)
@@ -249,12 +249,6 @@ namespace ECM7.Migrator.Providers
 			}
 		}
 
-		public virtual void AddColumn(string table, string columnSql)
-		{
-			string sql = FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
-			ExecuteNonQuery(sql);
-		}
-
 		public virtual void RemoveColumn(string table, string column)
 		{
 			if (ColumnExists(table, column))
@@ -310,9 +304,26 @@ namespace ECM7.Migrator.Providers
 			}
 		}
 
-		// TODO!!!!!!!!!!!!!!!!!!: проверить все методы ниже этой записи на экранирование зарезервированных слов через FormatSql
-		// TODO:!!!!!!!!!!!!!!!!!! проверить все остальные провайдеры
 		#region AddColumn
+
+		public virtual void AddColumn(string table, string columnSql)
+		{
+			string sql = FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
+			ExecuteNonQuery(sql);
+		}
+
+		public void AddColumn(string table, Column column)
+		{
+			if (ColumnExists(table, column.Name))
+			{
+				MigratorLogManager.Log.WarnFormat("Column {0}.{1} already exists", table, column.Name);
+				return;
+			}
+
+			string columnSql = dialect.GetColumnSql(column, false);
+
+			AddColumn(table, columnSql);
+		}
 
 		/// <summary>
 		/// Add a new column to an existing table.
@@ -328,19 +339,6 @@ namespace ECM7.Migrator.Providers
 		{
 			Column column = new Column(columnName, type, size, property, defaultValue);
 			AddColumn(table, column);
-		}
-
-		public void AddColumn(string table, Column column)
-		{
-			if (ColumnExists(table, column.Name))
-			{
-				MigratorLogManager.Log.WarnFormat("Column {0}.{1} already exists", table, column.Name);
-				return;
-			}
-
-			string columnSql = dialect.GetColumnSql(column, false);
-
-			AddColumn(table, columnSql);
 		}
 
 		public void AddColumn(string table, string columnName, ColumnType type, ColumnProperty property, object defaultValue)
@@ -395,8 +393,6 @@ namespace ECM7.Migrator.Providers
 			AddColumn(table, column, type, size, property, null);
 		}
 
-		// todo: проверить, чтобы все имена колонок и таблиц заключались в кавычки, если необходимо
-
 		#endregion
 
 		/// <summary>
@@ -412,11 +408,9 @@ namespace ECM7.Migrator.Providers
 				MigratorLogManager.Log.WarnFormat("Primary key {0} already exists", name);
 				return;
 			}
-			string sqlTableName = QuoteName(table);
-			string sqlConstraintName = QuoteName(name);
-			string sql = String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} PRIMARY KEY ({2}) ",
-							sqlTableName, sqlConstraintName,
-							columns.Select(col => Dialect.QuoteNameIfNeeded(col)).ToCommaSeparatedString());
+			string sql = FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} PRIMARY KEY ({2:COLS}) ",
+				table, name, columns);
 
 			ExecuteNonQuery(sql);
 		}
@@ -429,12 +423,9 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			string tableName = QuoteName(table);
-			string constraintName = QuoteName(name);
-			string columnsSql = columns.Select(this.QuoteName).ToCommaSeparatedString();
-
-			string sql = String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2})",
-				tableName, constraintName, columnsSql);
+			string sql = FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} UNIQUE({2:COLS})",
+				table, name, columns);
 
 			ExecuteNonQuery(sql);
 		}
@@ -447,10 +438,7 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			string tableName = QuoteName(table);
-			string constraintName = QuoteName(name);
-
-			string sql = "ALTER TABLE {0} ADD CONSTRAINT {1} CHECK ({2}) ".FormatWith(tableName, constraintName, checkSql);
+			string sql = FormatSql("ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} CHECK ({2}) ", table, name, checkSql);
 			ExecuteNonQuery(sql);
 		}
 
@@ -467,12 +455,8 @@ namespace ECM7.Migrator.Providers
 			}
 
 			string uniqueString = unique ? "UNIQUE" : string.Empty;
-			string sql = "CREATE {0} INDEX {1} ON {2} ({3})"
-				.FormatWith(
-					uniqueString,
-					Dialect.QuoteNameIfNeeded(name),
-					Dialect.QuoteNameIfNeeded(table),
-					columns.Select(column => Dialect.QuoteNameIfNeeded(column)).ToCommaSeparatedString());
+			string sql = FormatSql("CREATE {0} INDEX {1:NAME} ON {2:NAME} ({3:COLS})",
+				uniqueString, name, table, columns);
 
 			ExecuteNonQuery(sql);
 		}
@@ -487,11 +471,7 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			string sql = "DROP INDEX {0} ON {1}"
-				.FormatWith(
-					Dialect.QuoteNameIfNeeded(indexName),
-					Dialect.QuoteNameIfNeeded(tableName));
-
+			string sql = FormatSql("DROP INDEX {0:NAME} ON {1:NAME}", indexName, tableName);
 			ExecuteNonQuery(sql);
 		}
 
@@ -499,12 +479,23 @@ namespace ECM7.Migrator.Providers
 
 		#region ForeignKeys
 
+		public void GenerateForeignKey(string primaryTable, string refTable)
+		{
+			GenerateForeignKey(primaryTable, refTable, ForeignKeyConstraint.NoAction);
+		}
+
+		public void GenerateForeignKey(string primaryTable, string refTable, ForeignKeyConstraint constraint)
+		{
+			GenerateForeignKey(primaryTable, refTable + "Id", refTable, "Id", constraint);
+		}
+
 		/// <summary>
 		/// Guesses the name of the foreign key and add it
 		/// </summary>
 		public virtual void GenerateForeignKey(string primaryTable, string primaryColumn, string refTable, string refColumn)
 		{
-			AddForeignKey("FK_" + primaryTable + "_" + refTable, primaryTable, primaryColumn, refTable, refColumn);
+			string fkName = "FK_" + primaryTable + "_" + refTable;
+			AddForeignKey(fkName, primaryTable, primaryColumn, refTable, refColumn);
 		}
 
 		/// <summary>
@@ -513,7 +504,8 @@ namespace ECM7.Migrator.Providers
 		public virtual void GenerateForeignKey(string primaryTable, string[] primaryColumns, string refTable,
 											   string[] refColumns)
 		{
-			AddForeignKey("FK_" + primaryTable + "_" + refTable, primaryTable, primaryColumns, refTable, refColumns);
+			string fkName = "FK_" + primaryTable + "_" + refTable;
+			AddForeignKey(fkName, primaryTable, primaryColumns, refTable, refColumns);
 		}
 
 		/// <summary>
@@ -522,8 +514,8 @@ namespace ECM7.Migrator.Providers
 		public virtual void GenerateForeignKey(string primaryTable, string primaryColumn, string refTable,
 											   string refColumn, ForeignKeyConstraint constraint)
 		{
-			AddForeignKey("FK_" + primaryTable + "_" + refTable, primaryTable, primaryColumn, refTable, refColumn,
-						  constraint);
+			string fkName = "FK_" + primaryTable + "_" + refTable;
+			AddForeignKey(fkName, primaryTable, primaryColumn, refTable, refColumn, constraint);
 		}
 
 		/// <summary>
@@ -532,8 +524,8 @@ namespace ECM7.Migrator.Providers
 		public virtual void GenerateForeignKey(string primaryTable, string[] primaryColumns, string refTable,
 											   string[] refColumns, ForeignKeyConstraint constraint)
 		{
-			AddForeignKey("FK_" + primaryTable + "_" + refTable, primaryTable, primaryColumns, refTable, refColumns,
-						  constraint);
+			string fkName = "FK_" + primaryTable + "_" + refTable;
+			AddForeignKey(fkName, primaryTable, primaryColumns, refTable, refColumns, constraint);
 		}
 
 		/// <summary>
@@ -563,8 +555,7 @@ namespace ECM7.Migrator.Providers
 
 		public virtual void AddForeignKey(string name, string primaryTable, string primaryColumn, string refTable, string refColumn, ForeignKeyConstraint constraint)
 		{
-			AddForeignKey(name, primaryTable, new[] { primaryColumn }, refTable, new[] { refColumn },
-						  constraint);
+			AddForeignKey(name, primaryTable, new[] { primaryColumn }, refTable, new[] { refColumn }, constraint);
 		}
 
 		public virtual void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
@@ -582,19 +573,13 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			string primaryTableName = QuoteName(primaryTable);
-			string constraintName = QuoteName(name);
-			string primaryColumnsSql = primaryColumns.Select(QuoteName).ToCommaSeparatedString();
-			string refTableName = QuoteName(refTable);
-			string refColumnsSql = refColumns.Select(QuoteName).ToCommaSeparatedString();
-
 			string onDeleteConstraintResolved = constraintMapper.SqlForConstraint(onDeleteConstraint);
 			string onUpdateConstraintResolved = constraintMapper.SqlForConstraint(onUpdateConstraint);
-			
-			string sql = String.Format(
-				"ALTER TABLE {0} ADD CONSTRAINT {1} FOREIGN KEY ({2}) REFERENCES {3} ({4}) ON UPDATE {5} ON DELETE {6}",
-				primaryTableName, constraintName, primaryColumnsSql, refTableName, refColumnsSql, onUpdateConstraintResolved, onDeleteConstraintResolved);
-			
+
+			string sql = FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} FOREIGN KEY ({2:COLS}) REFERENCES {3:NAME} ({4:COLS}) ON UPDATE {5} ON DELETE {6}",
+				primaryTable, name, primaryColumns, refTable, refColumns, onUpdateConstraintResolved, onDeleteConstraintResolved);
+
 			ExecuteNonQuery(sql);
 		}
 
@@ -683,38 +668,31 @@ namespace ECM7.Migrator.Providers
 
 		public virtual int Update(string table, string[] columns, string[] values, string where)
 		{
-			string sqlTableName = QuoteName(table);
 			string namesAndValues = JoinColumnsAndValues(columns, values);
 
-			string query = "UPDATE {0} SET {1}";
-			if (!String.IsNullOrEmpty(where))
-			{
-				query += " WHERE " + where;
-			}
+			string query = where.IsNullOrEmpty(true)
+								? "UPDATE {0:NAME} SET {1}"
+								: "UPDATE {0:NAME} SET {1} WHERE {2}";
 
-			return ExecuteNonQuery(String.Format(query, sqlTableName, namesAndValues));
+			string sql = FormatSql(query, table, namesAndValues, where);
+			return ExecuteNonQuery(sql);
 		}
 
 		public virtual int Insert(string table, string[] columns, string[] values)
 		{
-			string tableName = QuoteName(table);
-			string columnsSql = columns.Select(QuoteName).ToCommaSeparatedString();
-			string valuesSql = QuoteValues(values).ToCommaSeparatedString();
-
-			string sql = "INSERT INTO {0} ({1}) VALUES ({2})".FormatWith(tableName, columnsSql, valuesSql);
+			string sql = FormatSql("INSERT INTO {0:NAME} ({1:COLS}) VALUES ({2})",
+				table, columns, QuoteValues(values).ToCommaSeparatedString());
 
 			return ExecuteNonQuery(sql);
 		}
 
 		public virtual int Delete(string table, string whereSql = null)
 		{
-			string tableName = QuoteName(table);
-			string sql = String.Format("DELETE FROM {0}", tableName);
+			string format = whereSql.IsNullOrEmpty(true)
+								? "DELETE FROM {0:NAME}"
+								: "DELETE FROM {0:NAME} WHERE {1}";
 
-			if (!whereSql.IsNullOrEmpty(true))
-			{
-				sql += " WHERE {0}".FormatWith(whereSql);
-			}
+			string sql = FormatSql(format, table, whereSql);
 
 			return ExecuteNonQuery(sql);
 		}
@@ -850,9 +828,9 @@ namespace ECM7.Migrator.Providers
 
 			CreateSchemaInfoTable();
 
-			string sql = "SELECT {0} FROM {1} WHERE {2} = '{3}'".FormatWith(
-				QuoteName("Version"), QuoteName(SCHEMA_INFO_TABLE), QuoteName("Key"), key.Replace("'", "''"));
-			
+			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME} WHERE {2:NAME} = '{3}'",
+				"Version", SCHEMA_INFO_TABLE, "Key", key.Replace("'", "''"));
+
 			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				while (reader.Read())
@@ -886,8 +864,8 @@ namespace ECM7.Migrator.Providers
 		{
 			CreateSchemaInfoTable();
 
-			string whereSql = "{0} = {1} AND {2} = '{3}'".FormatWith(
-				QuoteName("Version"), version, QuoteName("Key"), key);
+			string whereSql = FormatSql("{0:NAME} = {1} AND {2:NAME} = '{3}'",
+				"Version", version, "Key", key);
 
 			Delete(SCHEMA_INFO_TABLE, whereSql);
 		}
@@ -902,7 +880,6 @@ namespace ECM7.Migrator.Providers
 					SCHEMA_INFO_TABLE,
 					new Column("Version", DbType.Int64, ColumnProperty.PrimaryKey),
 					new Column("Key", DbType.String.WithSize(200), ColumnProperty.PrimaryKey, "''"));
-				// AddPrimaryKey("PK_SchemaInfo", SCHEMA_INFO_TABLE, "Version", "Key");
 			}
 			else
 			{
@@ -912,16 +889,6 @@ namespace ECM7.Migrator.Providers
 					UpdateSchemaInfo.Update(this);
 				}
 			}
-		}
-
-		public void GenerateForeignKey(string primaryTable, string refTable)
-		{
-			GenerateForeignKey(primaryTable, refTable, ForeignKeyConstraint.NoAction);
-		}
-
-		public void GenerateForeignKey(string primaryTable, string refTable, ForeignKeyConstraint constraint)
-		{
-			GenerateForeignKey(primaryTable, refTable + "Id", refTable, "Id", constraint);
 		}
 
 		public IDbCommand GetCommand()
@@ -953,7 +920,7 @@ namespace ECM7.Migrator.Providers
 
 			string[] quotedValues = QuoteValues(values);
 			string[] namesAndValues = columns
-				.Select((col, i) => "{0}={1}".FormatWith(QuoteName(col), quotedValues[i]))
+				.Select((col, i) => FormatSql("{0:NAME}={1}", col, quotedValues[i]))
 				.ToArray();
 
 			return string.Join(processedSeparator, namesAndValues);
@@ -967,11 +934,13 @@ namespace ECM7.Migrator.Providers
 			{
 				Require.IsNotNull(stream, "Не удалось загрузить указанный файл ресурсов");
 
+				// ReSharper disable AssignNullToNotNullAttribute
 				using (StreamReader reader = new StreamReader(stream))
 				{
 					string sql = reader.ReadToEnd();
 					ExecuteNonQuery(sql);
 				}
+				// ReSharper restore AssignNullToNotNullAttribute
 			}
 		}
 	}
