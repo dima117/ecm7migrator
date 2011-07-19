@@ -26,8 +26,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override void RemoveTable(string name)
 		{
-			string tableName = QuoteName(name);
-			string sql = String.Format("DROP TABLE IF EXISTS {0} CASCADE", tableName);
+			string sql = FormatSql("DROP TABLE IF EXISTS {0:NAME} CASCADE", name);
 			ExecuteNonQuery(sql);
 		}
 
@@ -58,16 +57,16 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 				return;
 			}
 
-			string sql = string.Format("DROP INDEX {0}",
-					Dialect.QuoteNameIfNeeded(indexName));
+			string sql = FormatSql("DROP INDEX {0:NAME}", indexName);
 
 			ExecuteNonQuery(sql);
 		}
 
 		public override bool ConstraintExists(string table, string name)
 		{
-			using (IDataReader reader =
-				ExecuteQuery(string.Format("SELECT \"constraint_name\" FROM \"information_schema\".\"table_constraints\" WHERE \"table_schema\" = 'public' AND \"constraint_name\" = '{0}'", name)))
+			string sql = string.Format("SELECT \"constraint_name\" FROM \"information_schema\".\"table_constraints\" WHERE \"table_schema\" = 'public' AND \"constraint_name\" = '{0}'", name);
+			
+			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				return reader.Read();
 			}
@@ -76,10 +75,13 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		public override bool ColumnExists(string table, string column)
 		{
 			if (!TableExists(table))
+			{
 				return false;
+			}
 
-			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT \"column_name\" FROM \"information_schema\".\"columns\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}' AND \"column_name\" = '{1}'", table, column)))
+			string sql = String.Format("SELECT \"column_name\" FROM \"information_schema\".\"columns\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}' AND \"column_name\" = '{1}'", table, column);
+			
+			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				return reader.Read();
 			}
@@ -87,9 +89,9 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override bool TableExists(string table)
 		{
-
-			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT \"table_name\" FROM \"information_schema\".\"tables\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}'", table)))
+			string sql = String.Format("SELECT \"table_name\" FROM \"information_schema\".\"tables\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}'", table);
+			
+			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				return reader.Read();
 			}
@@ -107,7 +109,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			RenameColumn(table, column.Name, tempColumn);
 			AddColumn(table, column);
 
-			ExecuteQuery(String.Format("UPDATE {0} SET {1}={2}", QuoteName(table), QuoteName(column.Name), QuoteName(tempColumn)));
+			string sql = FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", table, column.Name, tempColumn);
+			ExecuteQuery(sql);
 			RemoveColumn(table, tempColumn);
 		}
 

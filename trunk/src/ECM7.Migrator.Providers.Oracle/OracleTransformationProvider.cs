@@ -23,6 +23,7 @@ namespace ECM7.Migrator.Providers.Oracle
 		public OracleTransformationProvider(Dialect dialect, string connectionString)
 			: base(dialect, new OracleConnection(connectionString))
 		{
+			// todo:!!!!! проверить провайдеры oracle и mssql!!!!!!!!!!!!!
 		}
 
 		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
@@ -74,7 +75,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				return;
 			}
 
-            string sql = "DROP INDEX {0}".FormatWith(QuoteName(indexName));
+			string sql = "DROP INDEX {0}".FormatWith(QuoteName(indexName));
 
 			ExecuteNonQuery(sql);
 		}
@@ -120,7 +121,7 @@ namespace ECM7.Migrator.Providers.Oracle
 		public override bool TableExists(string table)
 		{
 			string sql = string.Format(
-                "SELECT COUNT(table_name) FROM user_tables WHERE table_name = '{0}'", table);
+				"SELECT COUNT(table_name) FROM user_tables WHERE table_name = '{0}'", table);
 			MigratorLogManager.Log.ExecuteSql(sql);
 			object count = ExecuteScalar(sql);
 			return Convert.ToInt32(count) == 1;

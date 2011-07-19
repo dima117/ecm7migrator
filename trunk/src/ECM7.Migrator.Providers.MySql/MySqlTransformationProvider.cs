@@ -60,20 +60,18 @@ namespace ECM7.Migrator.Providers.MySql
 			return false;
     	}
 
-		// TODO: !!!!!!!!!!!!!!!!!!!!! проверить экранирование идентификаторов ниже этой строчки и в остальных провайдерах
-
     	public override bool ConstraintExists(string table, string name)
         {
             if (!TableExists(table)) 
             return false;
 
-            string sqlConstraint = string.Format("SHOW KEYS FROM {0}", dialect.QuoteNameIfNeeded(table));
+            string sqlConstraint = FormatSql("SHOW KEYS FROM {0:NAME}", table);
 
             using (IDataReader reader = ExecuteQuery(sqlConstraint))
             {
                 while (reader.Read())
                 {
-                    if (reader["Key_name"].ToString().ToLower() == name.ToLower())
+                    if (reader["Key_name"].ToString() == name)
                     {
                         return true;
                     }
@@ -94,13 +92,12 @@ namespace ECM7.Migrator.Providers.MySql
             List<Column> columns = new List<Column>();
             using (
                 IDataReader reader =
-                    ExecuteQuery(
-                        String.Format("SHOW COLUMNS FROM {0}", table)))
+                    ExecuteQuery(FormatSql("SHOW COLUMNS FROM {0:NAME}", table)))
             {
                 while (reader.Read())
                 {
                     Column column = new Column(reader.GetString(0), DbType.String);
-                    string nullableStr = reader.GetString(2);
+                    string nullableStr = reader.GetString(2).ToUpper();
                     bool isNullable = nullableStr == "YES";
                     column.ColumnProperty |= isNullable ? ColumnProperty.Null : ColumnProperty.NotNull;
 
@@ -127,8 +124,7 @@ namespace ECM7.Migrator.Providers.MySql
 
         public override void ChangeColumn(string table, string columnSql)
         {
-			string tableName = dialect.QuoteNameIfNeeded(table);
-            ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY {1}", tableName, columnSql));
+			ExecuteNonQuery(FormatSql("ALTER TABLE {0:NAME} MODIFY {1}", table, columnSql));
         }
 
         public override void AddTable(string name, params Column[] columns)
@@ -138,7 +134,7 @@ namespace ECM7.Migrator.Providers.MySql
 
         public override void AddTable(string name, string engine, string columnsSql)
         {
-        	string sqlCreate = this.FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", name, columnsSql, engine);
+        	string sqlCreate = FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", name, columnsSql, engine);
             ExecuteNonQuery(sqlCreate);
         }
         
@@ -150,7 +146,8 @@ namespace ECM7.Migrator.Providers.MySql
             if (ColumnExists(tableName, oldColumnName)) 
             {
                 string definition = null;
-                using (IDataReader reader = ExecuteQuery(String.Format("SHOW COLUMNS FROM {0} WHERE Field='{1}'", tableName, oldColumnName))) 
+            	string sql = FormatSql("SHOW COLUMNS FROM {0:NAME} WHERE Field='{1}'", tableName, oldColumnName);
+            	using (IDataReader reader = ExecuteQuery(sql)) 
                 {
                     if (reader.Read()) 
                     {
@@ -183,7 +180,7 @@ namespace ECM7.Migrator.Providers.MySql
                 
                 if (!String.IsNullOrEmpty(definition)) 
                 {
-                    ExecuteNonQuery(String.Format("ALTER TABLE {0} CHANGE {1} {2} {3}", tableName, oldColumnName, newColumnName, definition));
+					ExecuteNonQuery(FormatSql("ALTER TABLE {0:NAME} CHANGE {1:NAME} {2:NAME} {3}", tableName, oldColumnName, newColumnName, definition));
                 }
             }
         }

@@ -79,10 +79,12 @@ namespace ECM7.Migrator.Providers.SQLite
 			string[] colNames = ParseSqlForColumnNames(newColDefs);
 			string colNamesSql = String.Join(",", colNames);
 
-			AddTable(table + "_temp", null, colDefsSql);
-			ExecuteQuery(String.Format("INSERT INTO {0}_temp SELECT {1} FROM {0}", table, colNamesSql));
+			string tmpTable = table + "_temp";
+
+			AddTable(tmpTable, null, colDefsSql);
+			ExecuteQuery(FormatSql("INSERT INTO {0:NAME} SELECT {1} FROM {2:NAME}", tmpTable, colNamesSql, table));
 			RemoveTable(table);
-			ExecuteQuery(String.Format("ALTER TABLE {0}_temp RENAME TO {0}", table));
+			ExecuteQuery(FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", tmpTable, table));
 		}
 
 		/// <summary>
@@ -106,7 +108,7 @@ namespace ECM7.Migrator.Providers.SQLite
 				string newColumnDef = columnDef.Replace(oldColumnName, newColumnName);
 
 				AddColumn(tableName, newColumnDef);
-				ExecuteQuery(String.Format("UPDATE {0} SET {1}={2}", tableName, newColumnName, oldColumnName));
+				ExecuteQuery(FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", tableName, newColumnName, oldColumnName));
 				RemoveColumn(tableName, oldColumnName);
 			}
 		}
@@ -128,7 +130,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			string tempColumn = "temp_" + column.Name;
 			RenameColumn(table, column.Name, tempColumn);
 			AddColumn(table, column);
-			ExecuteQuery(String.Format("UPDATE {0} SET {1}={2}", table, column.Name, tempColumn));
+			ExecuteQuery(FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", table, column.Name, tempColumn));
 			RemoveColumn(table, tempColumn);
 		}
 
@@ -139,7 +141,7 @@ namespace ECM7.Migrator.Providers.SQLite
 		public override bool TableExists(string table)
 		{
 			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT name FROM sqlite_master WHERE type='table' and name='{0}'", table)))
+				ExecuteQuery(String.Format("SELECT [name] FROM [sqlite_master] WHERE [type]='table' and [name]='{0}'", table)))
 			{
 				return reader.Read();
 			}
@@ -164,7 +166,8 @@ namespace ECM7.Migrator.Providers.SQLite
 		{
 			List<string> tables = new List<string>();
 
-			using (IDataReader reader = ExecuteQuery("SELECT name FROM sqlite_master WHERE type='table' AND name <> 'sqlite_sequence' ORDER BY name"))
+			string sql = "SELECT [name] FROM [sqlite_master] WHERE [type]='table' AND [name] <> 'sqlite_sequence' ORDER BY [name]";
+			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				while (reader.Read())
 				{
@@ -193,7 +196,7 @@ namespace ECM7.Migrator.Providers.SQLite
 		public string GetSqlDefString(string table)
 		{
 			string sqldef = null;
-			using (IDataReader reader = ExecuteQuery(String.Format("SELECT sql FROM sqlite_master WHERE type='table' AND name='{0}'", table)))
+			using (IDataReader reader = ExecuteQuery(String.Format("SELECT [sql] FROM [sqlite_master] WHERE [type]='table' AND [name]='{0}'", table)))
 			{
 				if (reader.Read())
 				{
