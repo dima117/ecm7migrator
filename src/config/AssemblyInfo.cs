@@ -8,10 +8,4 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version
-//      Build Number
-//      Revision
-[assembly: AssemblyVersion("2.0.0.4444")]
+[assembly: AssemblyVersion("2.0.0.0")]
