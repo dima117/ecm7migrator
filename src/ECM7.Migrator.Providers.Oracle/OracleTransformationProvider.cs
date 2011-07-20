@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
+
 using ECM7.Migrator.Framework;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 using OracleConnection = Oracle.DataAccess.Client.OracleConnection;
@@ -23,7 +23,6 @@ namespace ECM7.Migrator.Providers.Oracle
 		public OracleTransformationProvider(Dialect dialect, string connectionString)
 			: base(dialect, new OracleConnection(connectionString))
 		{
-			// todo:!!!!! проверить провайдеры oracle и mssql!!!!!!!!!!!!!
 		}
 
 		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
@@ -37,10 +36,10 @@ namespace ECM7.Migrator.Providers.Oracle
 
 			List<string> command = new List<string>
 				{
-					"ALTER TABLE {0}".FormatWith(QuoteName(primaryTable)),
-					"ADD CONSTRAINT {0}".FormatWith(QuoteName(name)),
-					"FOREIGN KEY ({0})".FormatWith(primaryColumns.Select(QuoteName).ToCommaSeparatedString()),
-					"REFERENCES {0} ({1})".FormatWith(QuoteName(refTable), refColumns.Select(QuoteName).ToCommaSeparatedString())
+					FormatSql("ALTER TABLE {0:NAME}", primaryTable),
+					FormatSql("ADD CONSTRAINT {0:NAME}", name),
+					FormatSql("FOREIGN KEY ({0:COLS})", primaryColumns),
+					FormatSql("REFERENCES {0:NAME} ({1:COLS})", refTable, refColumns)
 				};
 
 			switch (constraint)
@@ -48,7 +47,6 @@ namespace ECM7.Migrator.Providers.Oracle
 				case ForeignKeyConstraint.Cascade:
 					command.Add("ON DELETE CASCADE");
 					break;
-				//command.Add("NOVALIDATE");
 			}
 
 			string commandText = command.ToSeparatedString(" ");
@@ -75,7 +73,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				return;
 			}
 
-			string sql = "DROP INDEX {0}".FormatWith(QuoteName(indexName));
+			string sql = FormatSql("DROP INDEX {0:NAME}", indexName);
 
 			ExecuteNonQuery(sql);
 		}
@@ -88,7 +86,8 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override void AddColumn(string table, string columnSql)
 		{
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD ({1})", QuoteName(table), columnSql));
+			string sql = FormatSql("ALTER TABLE {0:NAME} ADD ({1})", table, columnSql);
+			ExecuteNonQuery(sql);
 		}
 
 		public override bool ConstraintExists(string table, string name)
@@ -193,7 +192,8 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override void ChangeColumn(string table, string columnSql)
 		{
-			ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY ({1})", QuoteName(table), columnSql));
+			string sql = FormatSql("ALTER TABLE {0:NAME} MODIFY ({1})", table, columnSql);
+			ExecuteNonQuery(sql);
 		}
 	}
 }

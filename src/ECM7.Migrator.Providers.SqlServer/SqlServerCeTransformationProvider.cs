@@ -32,8 +32,8 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		public override bool ConstraintExists(string table, string name)
 		{
-			using (IDataReader reader =
-				ExecuteQuery(string.Format("SELECT cont.constraint_name FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS cont WHERE cont.Constraint_Name='{0}'", name)))
+			string sql = string.Format("SELECT [cont].[constraint_name] FROM [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS] [cont] WHERE [cont].[Constraint_Name]='{0}'", name);
+			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				return reader.Read();
 			}
@@ -49,7 +49,10 @@ namespace ECM7.Migrator.Providers.SqlServer
 				Column column = GetColumnByName(tableName, oldColumnName);
 
 				AddColumn(tableName, new Column(newColumnName, column.ColumnType, column.ColumnProperty, column.DefaultValue));
-				ExecuteNonQuery(string.Format("UPDATE {0} SET {1}={2}", tableName, newColumnName, oldColumnName));
+				
+				string sql = this.FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", tableName, newColumnName, oldColumnName);
+				ExecuteNonQuery(sql);
+				
 				RemoveColumn(tableName, oldColumnName);
 			}
 		}
@@ -68,7 +71,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 		public override bool IndexExists(string indexName, string tableName)
 		{
 			string sql = string.Format(
-				"select count(*) from INFORMATION_SCHEMA.INDEXES where lower(TABLE_NAME) = '{0}' and lower(INDEX_NAME) = '{1}'", tableName, indexName);
+				"select count(*) from [INFORMATION_SCHEMA].[INDEXES] where [TABLE_NAME] = '{0}' and [INDEX_NAME] = '{1}'", tableName, indexName);
 
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
@@ -82,9 +85,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 				return;
 			}
 
-			string sql = string.Format("DROP INDEX {0}.{1}",
-					Dialect.QuoteNameIfNeeded(tableName),
-					Dialect.QuoteNameIfNeeded(indexName));
+			string sql = FormatSql("DROP INDEX {0:NAME}.{1:NAME}", tableName, indexName);
 
 			ExecuteNonQuery(sql);
 
@@ -93,9 +94,8 @@ namespace ECM7.Migrator.Providers.SqlServer
 		protected override string FindConstraints(string table, string column)
 		{
 			return
-				string.Format("SELECT cont.constraint_name FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE cont "
-					+ "WHERE cont.Table_Name='{0}' AND cont.column_name = '{1}'",
-					table, column);
+				string.Format("SELECT [cont].[constraint_name] FROM [INFORMATION_SCHEMA].[KEY_COLUMN_USAGE] [cont] "
+					+ "WHERE [cont].[Table_Name]='{0}' AND [cont].[column_name] = '{1}'", table, column);
 		}
 	}
 }

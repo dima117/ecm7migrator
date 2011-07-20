@@ -25,7 +25,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 		// so that it would be usable by all the SQL Server implementations
 		public override bool IndexExists(string indexName, string tableName)
 		{
-			string sql = string.Format("SELECT COUNT(*) FROM sysindexes WHERE lower(name) = '{0}'", indexName.ToLower());
+			string sql = string.Format("SELECT COUNT(*) FROM [sysindexes] WHERE [name] = '{0}'", indexName.ToLower());
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
 		}
@@ -33,7 +33,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 		public override bool ConstraintExists(string table, string name)
 		{
 			using (IDataReader reader =
-				ExecuteQuery(string.Format("SELECT TOP 1 * FROM sysobjects WHERE id = object_id('{0}')", name)))
+				ExecuteQuery(string.Format("SELECT TOP 1 * FROM [sysobjects] WHERE [id] = object_id('{0}')", name)))
 			{
 				return reader.Read();
 			}
@@ -41,7 +41,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		public override void AddColumn(string table, string columnSql)
 		{
-			ExecuteNonQuery(string.Format("ALTER TABLE {0} ADD {1}", table, columnSql));
+			ExecuteNonQuery(FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql));
 		}
 
 		public override bool ColumnExists(string table, string column)
@@ -50,7 +50,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 				return false;
 
 			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='{0}' AND COLUMN_NAME='{1}'", table, column)))
+				ExecuteQuery(String.Format("SELECT * FROM [INFORMATION_SCHEMA].[COLUMNS] WHERE [TABLE_NAME]='{0}' AND [COLUMN_NAME]='{1}'", table, column)))
 			{
 				return reader.Read();
 			}
@@ -59,7 +59,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 		public override bool TableExists(string table)
 		{
 			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='{0}'", table)))
+				ExecuteQuery(String.Format("SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME]='{0}'", table)))
 			{
 				return reader.Read();
 			}
@@ -86,7 +86,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 				throw new MigrationException(String.Format("Table with name '{0}' already exists", newName));
 
 			if (TableExists(oldName))
-				ExecuteNonQuery(String.Format("EXEC sp_rename {0}, {1}", oldName, newName));
+				ExecuteNonQuery(String.Format("EXEC sp_rename '{0}', '{1}'", oldName, newName));
 		}
 
 		// Deletes all constraints linked to a column. Sql Server
@@ -114,9 +114,9 @@ namespace ECM7.Migrator.Providers.SqlServer
 		protected virtual string FindConstraints(string table, string column)
 		{
 			return string.Format(
-				"SELECT cont.name FROM SYSOBJECTS cont, SYSCOLUMNS col, SYSCONSTRAINTS cnt  "
-				+ "WHERE cont.parent_obj = col.id AND cnt.constid = cont.id AND cnt.colid=col.colid "
-				+ "AND col.name = '{1}' AND col.id = object_id('{0}')",
+				"SELECT [cont].[name] FROM [SYSOBJECTS] [cont], [SYSCOLUMNS] [col], [SYSCONSTRAINTS] [cnt]  "
+				+ "WHERE [cont].[parent_obj] = [col].[id] AND [cnt].[constid] = [cont].[id] AND [cnt].[colid]=[col].[colid] "
+				+ "AND [col].[name] = '{1}' AND [col].[id] = object_id('{0}')",
 				table, column);
 		}
 	}

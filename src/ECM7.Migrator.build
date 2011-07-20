@@ -1,14 +1,14 @@
 <?xml version="1.0" ?>
 <project name="ecm7" default="build" xmlns="http://nant.sf.net/release/0.86-beta1/nant.xsd">
-	
+
 	<!-- Settings -->
 	<property name="nant.settings.currentframework" value="net-4.0" />
 
 	<property name="build.dir" value="..\build\Release"/>
-	<property name="web.dist.dir" value="web.dist"/>
+	<property name="nuget.source.dir" value="..\nuget.package"/>
 
 	<property name="zip.filename" value="..\ecm7.migrator-last.zip" />
-	
+
 	<!-- Tasks -->
 	<target name="compile" description="Compile all projects with using the Release Configuration">
 		<msbuild project="ECM7.Migrator.sln">
@@ -18,19 +18,35 @@
 	</target>
 
 	<target name="pack" depends="compile">
-	
+
 		<zip zipfile="${zip.filename}">
 			<fileset basedir="${build.dir}">
-        <include name="**\*.dll" />
-        <include name="**\*.exe" />
-        <exclude name="**\*.Tests.dll" />
+				<include name="**\*.dll" />
+				<include name="**\*.exe" />
+				<exclude name="**\*.Tests.dll" />
 			</fileset>
 		</zip>
-		
+
 	</target>
 
-	<target name="build" depends="compile, pack"	
+	<target name="build" depends="compile, pack"
 		description="Compiles and produces distributions" />
+
+	<target name="nuget" depends="compile" description="Build nuget package">
+
+		<echo message="Prepare files for deploy package" />
+		<delete dir="${nuget.source.dir}" if="${directory::exists(nuget.source.dir)}"/>
+		<mkdir dir="${nuget.source.dir}" />
+		<mkdir dir="${path::combine(nuget.source.dir, 'lib')}" />
+		<mkdir dir="${path::combine(nuget.source.dir, 'tools')}" />
+
+		<copy todir="${path::combine(nuget.source.dir, 'lib')}" >
+			<fileset basedir="${build.dir}">
+				<include name="ECM7.Migrator.Framework.dll"/>
+			</fileset>
+		</copy>
+
+	</target>
 
 </project>
 
