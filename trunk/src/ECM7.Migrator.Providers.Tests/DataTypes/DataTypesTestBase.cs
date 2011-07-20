@@ -59,7 +59,7 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 		private void SelectTest(string tableName)
 		{
 			IDbCommand command = Provider.GetCommand();
-			command.CommandText = "select testcolumn from {0} test".FormatWith(tableName);
+			command.CommandText = Provider.FormatSql("select testcolumn from {0:NAME} test", tableName);
 
 			command.ExecuteScalar();
 			//Assert.AreEqual(value, loadedValue);
@@ -68,7 +68,7 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 		private void InsertTest(string tableName, ColumnType type, object testValue)
 		{
 			IDbCommand command = Provider.GetCommand();
-			command.CommandText = "insert into {0} (testcolumn) values ({1})".FormatWith(tableName, ParameterName);
+			command.CommandText = Provider.FormatSql("insert into {0:NAME} (testcolumn) values ({1})", tableName, ParameterName);
 
 			var parameter = command.CreateParameter();
 			parameter.ParameterName = ParameterName;
