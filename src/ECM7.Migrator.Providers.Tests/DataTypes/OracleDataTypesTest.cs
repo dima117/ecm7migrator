@@ -30,7 +30,5 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 		{
 			get { return ":value"; }
 		}
-
-
 	}
 }

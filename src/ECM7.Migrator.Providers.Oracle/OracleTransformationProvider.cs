@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Data;
 
@@ -38,7 +39,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				{
 					FormatSql("ALTER TABLE {0:NAME}", primaryTable),
 					FormatSql("ADD CONSTRAINT {0:NAME}", name),
-					FormatSql("FOREIGN KEY ({0:COLS})", primaryColumns),
+					FormatSql("FOREIGN KEY ({0:COLS})", primaryColumns.ToList()),
 					FormatSql("REFERENCES {0:NAME} ({1:COLS})", refTable, refColumns)
 				};
 
