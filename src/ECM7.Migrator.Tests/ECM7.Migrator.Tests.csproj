@@ -174,10 +174,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\References\DataAccess\sqlite3.dll">
-      <Link>sqlite3.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="testdb.sdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

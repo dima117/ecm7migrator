@@ -38,9 +38,12 @@
 		<delete dir="${nuget.source.dir}" if="${directory::exists(nuget.source.dir)}"/>
 		<mkdir dir="${nuget.source.dir}" />
 		<mkdir dir="${path::combine(nuget.source.dir, 'lib')}" />
+		<mkdir dir="${path::combine(nuget.source.dir, 'lib\net40')}" />
 		<mkdir dir="${path::combine(nuget.source.dir, 'tools')}" />
 
-		<copy todir="${path::combine(nuget.source.dir, 'lib')}" >
+		<copy todir="${nuget.source.dir}" file="ECM7Migrator.2.0.nuspec" />
+
+		<copy todir="${path::combine(nuget.source.dir, 'lib\net40')}" >
 			<fileset basedir="${build.dir}">
 				<include name="ECM7.Migrator.Framework.dll"/>
 			</fileset>
