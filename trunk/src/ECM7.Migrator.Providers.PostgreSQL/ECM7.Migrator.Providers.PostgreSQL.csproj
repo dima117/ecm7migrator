@@ -56,10 +56,6 @@
     <Reference Include="log4net">
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Security, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\DataAccess\Mono.Security.dll</HintPath>
-    </Reference>
     <Reference Include="Npgsql, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\DataAccess\Npgsql.dll</HintPath>
