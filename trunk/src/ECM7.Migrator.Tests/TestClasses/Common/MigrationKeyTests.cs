@@ -29,7 +29,6 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 
 			Assert.AreEqual(0, provider.GetAppliedMigrations(string.Empty).Count);
 
-			// TODO:!!!!!!!!!!!!!!!!!!!!
 			using (IDataReader reader = provider.ExecuteQuery("SELECT [Key], Version FROM SchemaInfo"))
 			{
 				reader.Read();

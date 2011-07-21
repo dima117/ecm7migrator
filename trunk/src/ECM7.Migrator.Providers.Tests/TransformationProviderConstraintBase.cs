@@ -58,7 +58,6 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanAddPrimaryKey()
 		{
-			// todo: сделать IFormatProvider для экранирования названий объектов БД
 			AddPrimaryKey();
 			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"));
 		}
