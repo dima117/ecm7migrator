@@ -61,7 +61,7 @@ namespace ECM7.Migrator.Providers.Tests
 			);
 		}
 
-		public void AddTable()
+		public void AddTableWithoutPrimaryKey()
 		{
 			provider.AddTable("Test",
 				new Column("Id", DbType.Int32, ColumnProperty.NotNull),
@@ -77,7 +77,7 @@ namespace ECM7.Migrator.Providers.Tests
 			provider.AddTable("Test",
 				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("Title", DbType.String, 100, ColumnProperty.Null),
-				new Column("Name", DbType.String, 50, ColumnProperty.NotNull),
+				new Column("Name", DbType.String, 50, ColumnProperty.NotNull, "''"),
 				new Column("blobVal", DbType.Binary),
 				new Column("boolVal", DbType.Boolean),
 				new Column("bigstring", DbType.String, 50000));
@@ -130,7 +130,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void TableCanBeAdded()
 		{
-			AddTable();
+			AddTableWithPrimaryKey();
 			Assert.IsTrue(provider.TableExists("Test"));
 		}
 
@@ -142,14 +142,14 @@ namespace ECM7.Migrator.Providers.Tests
 				MigratorLogManager.Log.InfoFormat("Table: {0}", name);
 			}
 			Assert.AreEqual(1, provider.GetTables().Length);
-			AddTable();
+			AddTableWithPrimaryKey();
 			Assert.AreEqual(2, provider.GetTables().Length);
 		}
 
 		[Test]
 		public void GetColumnsReturnsProperCount()
 		{
-			AddTable();
+			AddTableWithPrimaryKey();
 			Column[] cols = provider.GetColumns("Test");
 			Assert.IsNotNull(cols);
 			Assert.AreEqual(6, cols.Length);
@@ -180,7 +180,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void RemoveTable()
 		{
-			AddTable();
+			AddTableWithPrimaryKey();
 			provider.RemoveTable("Test");
 			Assert.IsFalse(provider.TableExists("Test"));
 		}
@@ -188,7 +188,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public virtual void RenameTableThatExists()
 		{
-			AddTable();
+			AddTableWithPrimaryKey();
 			provider.RenameTable("Test", "Test_Rename");
 
 			Assert.IsTrue(provider.TableExists("Test_Rename"));
@@ -199,26 +199,26 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test, ExpectedException(typeof(MigrationException))]
 		public void RenameTableToExistingTable()
 		{
-			AddTable();
+			AddTableWithPrimaryKey();
 			provider.RenameTable("Test", "TestTwo");
 
 		}
 
 		[Test]
-		public void RenameColumnThatExists()
+		public virtual void RenameColumnThatExists()
 		{
-			AddTable();
-			provider.RenameColumn("Test", "name", "name_rename");
+			AddTableWithPrimaryKey();
+			provider.RenameColumn("Test", "Name", "name_rename");
 
 			Assert.IsTrue(provider.ColumnExists("Test", "name_rename"));
-			Assert.IsFalse(provider.ColumnExists("Test", "name"));
+			Assert.IsFalse(provider.ColumnExists("Test", "Name"));
 		}
 
 		[Test, ExpectedException(typeof(MigrationException))]
 		public void RenameColumnToExistingColumn()
 		{
-			AddTable();
-			provider.RenameColumn("Test", "Title", "name");
+			AddTableWithPrimaryKey();
+			provider.RenameColumn("Test", "Title", "Name");
 		}
 
 		[Test]
@@ -318,7 +318,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void RemoveBoolColumn()
 		{
-			AddTable();
+			AddTableWithPrimaryKey();
 			provider.AddColumn("Test", "Inactif", DbType.Boolean);
 			Assert.IsTrue(provider.ColumnExists("Test", "Inactif"));
 
@@ -395,9 +395,9 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanInsertNullData()
 		{
-			AddTable();
-			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "foo" });
-			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "2", null });
+			AddTableWithPrimaryKey();
+			provider.Insert("Test", new[] { "Id", "Title", "Name" }, new[] { "1", "foo", "moo" });
+			provider.Insert("Test", new[] { "Id", "Title", "Name" }, new[] { "2", null, "mi mi" });
 
 			string sql = "SELECT {0} FROM {1}".FormatWith(
 				provider.QuoteName("Title"), provider.QuoteName("Test"));
@@ -414,11 +414,11 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanInsertDataWithSingleQuotes()
 		{
-			AddTable();
-			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "Muad'Dib" });
+			AddTableWithPrimaryKey();
+			provider.Insert("Test", new[] { "Id", "Name" }, new[] { "1", "Muad'Dib" });
 
 			string sql = "SELECT {0} FROM {1}".FormatWith(
-				provider.QuoteName("Title"), provider.QuoteName("Test"));
+				provider.QuoteName("Name"), provider.QuoteName("Test"));
 
 			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
@@ -484,9 +484,9 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public virtual void CanUpdateWithNullData()
 		{
-			AddTable();
-			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "foo" });
-			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "2", null });
+			AddTableWithPrimaryKey();
+			provider.Insert("Test", new[] { "Id", "Title", "Name" }, new[] { "1", "foo", "moo" });
+			provider.Insert("Test", new[] { "Id", "Title", "Name" }, new[] { "2", null, "mi mi" });
 
 			provider.Update("Test", new[] { "Title" }, new string[] { null });
 

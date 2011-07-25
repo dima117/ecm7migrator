@@ -86,7 +86,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public override void CanUpdateWithNullData()
 		{
-			AddTable();
+			AddTableWithPrimaryKey();
 			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "1", "foo" });
 			provider.Insert("Test", new[] { "Id", "Title" }, new[] { "2", null });
 

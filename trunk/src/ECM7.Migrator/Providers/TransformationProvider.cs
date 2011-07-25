@@ -91,7 +91,7 @@ namespace ECM7.Migrator.Providers
 		public virtual Column GetColumnByName(string table, string columnName)
 		{
 			return Array.Find(GetColumns(table),
-				column => column.Name.ToLower() == columnName.ToLower());
+				column => column.Name == columnName);
 		}
 
 		public virtual string[] GetTables()

@@ -41,26 +41,18 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
-			if (ColumnExists(tableName, newColumnName))
-				throw new MigrationException(String.Format("Table '{0}' has column named '{1}' already", tableName, newColumnName));
-
-			if (ColumnExists(tableName, oldColumnName))
-			{
-				Column column = GetColumnByName(tableName, oldColumnName);
-
-				AddColumn(tableName, new Column(newColumnName, column.ColumnType, column.ColumnProperty, column.DefaultValue));
-				
-				string sql = this.FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", tableName, newColumnName, oldColumnName);
-				ExecuteNonQuery(sql);
-				
-				RemoveColumn(tableName, oldColumnName);
-			}
+			throw new MigrationException("SqlServerCe doesn't support column renaming");
 		}
 
-		// Not supported by SQLCe when we have a better schemadumper which gives the exact sql construction including constraints we may use it to insert into a new table and then drop the old table...but this solution is dangerous for big tables.
 		public override void RenameTable(string oldName, string newName)
 		{
-			throw new MigrationException("SqlServerCe doesn't support table renaming");
+			if (TableExists(newName))
+			{
+				throw new MigrationException("The specified table already exists");
+			}
+
+			string sql = FormatSql("exec sp_rename '{0}', '{1}'", oldName, newName);
+			ExecuteNonQuery(sql);
 		}
 
 		public override void AddCheckConstraint(string name, string table, string checkSql)
