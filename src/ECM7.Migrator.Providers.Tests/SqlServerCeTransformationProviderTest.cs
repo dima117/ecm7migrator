@@ -52,10 +52,9 @@ namespace ECM7.Migrator.Providers.Tests
 		}
 
 		[Test, ExpectedException(typeof(MigrationException))]
-		// see: http://www.pocketpcdn.com/articles/articles.php?&atb.set(c_id)=74&atb.set(a_id)=8145&atb.perform(details)=&
-		public override void RenameTableThatExists()
+		public override void RenameColumnThatExists()
 		{
-			base.RenameTableThatExists();
+			base.RenameColumnThatExists();
 		}
 	}
 }

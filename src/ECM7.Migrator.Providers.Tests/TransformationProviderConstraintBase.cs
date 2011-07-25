@@ -34,12 +34,6 @@ namespace ECM7.Migrator.Providers.Tests
 								   ForeignKeyConstraint.Cascade, ForeignKeyConstraint.NoAction);
 		}
 
-		public void AddPrimaryKey()
-		{
-			AddTable();
-			provider.AddPrimaryKey("PK_Test", "Test", "Id");
-		}
-
 		public void AddUniqueConstraint()
 		{
 			provider.AddUniqueConstraint("UN_Test_TestTwo", "TestTwo", "TestId");
@@ -58,7 +52,8 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanAddPrimaryKey()
 		{
-			AddPrimaryKey();
+			AddTableWithoutPrimaryKey();
+			provider.AddPrimaryKey("PK_Test", "Test", "Id");
 			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"));
 		}
 
@@ -67,7 +62,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanAddIndex()
 		{
-			AddTable();
+			AddTableWithPrimaryKey();
 			provider.AddIndex("ix_moo", false, "Test", new[] { "Id" });
 			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
 
@@ -78,7 +73,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanAddUniqueIndex()
 		{
-			AddTable();
+			AddTableWithPrimaryKey();
 			provider.AddIndex("ix_moo", true, "Test", new[] { "Id" });
 			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
 
@@ -90,7 +85,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanAddComplexIndex()
 		{
-			AddTable();
+			AddTableWithPrimaryKey();
 			provider.AddIndex("ix_moo", false, "Test", new[] { "Id", "Title" });
 			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
 
