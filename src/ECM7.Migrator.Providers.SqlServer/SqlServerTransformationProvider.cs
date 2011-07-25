@@ -6,6 +6,8 @@ using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers.SqlServer
 {
+	using System.Text;
+
 	/// <summary>
 	/// Migration transformations provider for Microsoft SQL Server.
 	/// </summary>
@@ -25,15 +27,24 @@ namespace ECM7.Migrator.Providers.SqlServer
 		// so that it would be usable by all the SQL Server implementations
 		public override bool IndexExists(string indexName, string tableName)
 		{
-			string sql = string.Format("SELECT COUNT(*) FROM [sysindexes] WHERE [name] = '{0}'", indexName.ToLower());
+			string sql = string.Format("SELECT COUNT(*) FROM [sys].[indexes] WHERE [name] = '{0}'", indexName);
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
 		}
 
 		public override bool ConstraintExists(string table, string name)
 		{
-			using (IDataReader reader =
-				ExecuteQuery(string.Format("SELECT TOP 1 * FROM [sysobjects] WHERE [id] = object_id('{0}')", name)))
+			string sql = string.Format(
+				"SELECT TOP 1 [name] FROM [sys].[objects] " +
+				"WHERE [parent_object_id] = object_id('{0}') " +
+				"AND [object_id] = object_id('{1}') " +
+				"AND [type] IN ('D', 'F', 'PK', 'UQ')" +
+				"UNION ALL " +
+				"select [CONSTRAINT_NAME] AS [name] " +
+				"from [INFORMATION_SCHEMA].[CHECK_CONSTRAINTS]" +
+				"WHERE [CONSTRAINT_NAME] = '{1}'", table, name);
+
+			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				return reader.Read();
 			}
@@ -113,11 +124,20 @@ namespace ECM7.Migrator.Providers.SqlServer
 		// so that it would be usable by all the SQL Server implementations
 		protected virtual string FindConstraints(string table, string column)
 		{
-			return string.Format(
-				"SELECT [cont].[name] FROM [SYSOBJECTS] [cont], [SYSCOLUMNS] [col], [SYSCONSTRAINTS] [cnt]  "
-				+ "WHERE [cont].[parent_obj] = [col].[id] AND [cnt].[constid] = [cont].[id] AND [cnt].[colid]=[col].[colid] "
-				+ "AND [col].[name] = '{1}' AND [col].[id] = object_id('{0}')",
-				table, column);
+			StringBuilder sqlBuilder = new StringBuilder();
+
+			sqlBuilder.Append("SELECT [CONSTRAINT_NAME] ");
+			sqlBuilder.Append("FROM [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE] ");
+			sqlBuilder.AppendFormat("WHERE [TABLE_NAME] = '{0}' and [COLUMN_NAME] = '{1}' ", table, column);
+			
+			sqlBuilder.Append("UNION ALL ");
+			sqlBuilder.Append("SELECT [dobj].[name] as [CONSTRAINT_NAME] ");
+			sqlBuilder.Append("FROM [sys].[columns] [col] ");
+			sqlBuilder.Append("INNER JOIN [sys].[objects] [dobj] ");
+			sqlBuilder.Append("ON [dobj].[object_id] = [col].[default_object_id] AND [dobj].[type] = 'D' ");
+			sqlBuilder.AppendFormat("WHERE [col].[object_id] = object_id(N'{0}') AND [col].[name] = '{1}'", table, column);
+
+			return sqlBuilder.ToString();
 		}
 	}
 }
