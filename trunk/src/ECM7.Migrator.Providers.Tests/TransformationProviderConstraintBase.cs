@@ -63,7 +63,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanAddIndex()
 		{
 			AddTableWithPrimaryKey();
-			provider.AddIndex("ix_moo", false, "Test", new[] { "Id" });
+			provider.AddIndex("ix_moo", false, "Test", new[] { "Name" });
 			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
 
 			provider.RemoveIndex("ix_moo", "Test");
@@ -74,7 +74,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanAddUniqueIndex()
 		{
 			AddTableWithPrimaryKey();
-			provider.AddIndex("ix_moo", true, "Test", new[] { "Id" });
+			provider.AddIndex("ix_moo", true, "Test", new[] { "Name" });
 			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
 
 			provider.RemoveIndex("ix_moo", "Test");
