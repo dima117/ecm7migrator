@@ -23,12 +23,6 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			Assert.IsNotNull(TestProviders.SqlServerCe);
 		}
 
-		[Test, Category("SqlServer2005")]
-		public void CanLoadSqlServer2005Provider()
-		{
-			Assert.IsNotNull(TestProviders.SqlServer2005);
-		}
-
 		[Test, Category("MySql")]
 		public void CanLoadMySqlProvider()
 		{
@@ -76,15 +70,6 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 				"SqlServer", ConfigurationManager.AppSettings["SqlServerConnectionString"]);
 			Assert.That(tp is ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider);
 			Assert.That(tp.Dialect is ECM7.Migrator.Providers.SqlServer.SqlServerDialect);
-		}
-
-		[Test]
-		public void SqlServer2005ShortcutTest()
-		{
-			TransformationProvider tp = ProviderFactory.Create(
-				"SqlServer2005", ConfigurationManager.AppSettings["SqlServerConnectionString"]);
-			Assert.That(tp is ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider);
-			Assert.That(tp.Dialect is ECM7.Migrator.Providers.SqlServer.SqlServer2005Dialect);
 		}
 
 		[Test]

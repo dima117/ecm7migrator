@@ -10,7 +10,7 @@
 
 		<property name="version" value="-1" overwrite="false" />
 		<migrate
-		  dialect="SqlServer2005"
+		  dialect="SqlServer"
 		  connection-string="Data Source=.;Initial Catalog=ecm7test2;Integrated Security=SSPI;"
 		  assembly-file="ECM7.Database.dll"
 		  to="-1" />

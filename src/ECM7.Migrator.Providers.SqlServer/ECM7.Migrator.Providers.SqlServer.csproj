@@ -77,7 +77,6 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="SqlServer2005Dialect.cs" />
     <Compile Include="SqlServerCeDialect.cs" />
     <Compile Include="SqlServerCeTransformationProvider.cs" />
     <Compile Include="SqlServerDialect.cs" />

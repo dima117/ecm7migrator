@@ -7,16 +7,19 @@ namespace ECM7.Migrator.Providers.SqlServer
 {
 	public class SqlServerDialect : Dialect
 	{
+		// todo: отладить работу с azure
+		// todo: сделать выполнение пакетов
+		// todo: сделать сортировку миграций при отображении списка
 		public SqlServerDialect()
 		{
 			RegisterColumnType(DbType.AnsiStringFixedLength, "CHAR(255)");
 			RegisterColumnType(DbType.AnsiStringFixedLength, 8000, "CHAR($l)");
 			RegisterColumnType(DbType.AnsiString, "VARCHAR(255)");
 			RegisterColumnType(DbType.AnsiString, 8000, "VARCHAR($l)");
-			RegisterColumnType(DbType.AnsiString, int.MaxValue, "TEXT");
+			RegisterColumnType(DbType.AnsiString, int.MaxValue, "VARCHAR(MAX)");
 			RegisterColumnType(DbType.Binary, "VARBINARY(8000)");
 			RegisterColumnType(DbType.Binary, 8000, "VARBINARY($l)");
-			RegisterColumnType(DbType.Binary, 2147483647, "IMAGE");
+			RegisterColumnType(DbType.Binary, int.MaxValue, "VARBINARY(MAX)");
 			RegisterColumnType(DbType.Boolean, "BIT");
 			RegisterColumnType(DbType.Byte, "TINYINT");
 			RegisterColumnType(DbType.Currency, "MONEY");
@@ -34,8 +37,9 @@ namespace ECM7.Migrator.Providers.SqlServer
 			RegisterColumnType(DbType.StringFixedLength, 4000, "NCHAR($l)");
 			RegisterColumnType(DbType.String, "NVARCHAR(255)");
 			RegisterColumnType(DbType.String, 4000, "NVARCHAR($l)");
-			RegisterColumnType(DbType.String, 1073741823, "NTEXT");
+			RegisterColumnType(DbType.String, int.MaxValue, "NVARCHAR(MAX)");
 			RegisterColumnType(DbType.Time, "DATETIME");
+			RegisterColumnType(DbType.Xml, "XML");
 
 			RegisterProperty(ColumnProperty.Identity, "IDENTITY");
 		}
