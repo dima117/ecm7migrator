@@ -9,14 +9,14 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Tests.TestClasses.Common
 {
-	[TestFixture, Category("SqlServer2005")]
+	[TestFixture, Category("SqlServer")]
 	public class MigrationKeyTests
 	{
 		[Test]
 		public void UpdateOldStyleSchemaInfo()
 		{
 			// TODO: проверить получение списка выполненных миграций по ключу
-			var provider = CreateSqlServer2005Provider("some key");
+			var provider = this.CreateSqlServerProvider("some key");
 			if (provider.TableExists("SchemaInfo"))
 			{
 				provider.RemoveTable("SchemaInfo");
@@ -46,19 +46,19 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 		{
 			get
 			{
-				string constr = ConfigurationManager.AppSettings["SqlServer2005ConnectionString"];
+				string constr = ConfigurationManager.AppSettings["SqlServerConnectionString"];
 				if (constr == null)
 				{
-					throw new ArgumentNullException("SqlServer2005ConnectionString", "No config file");
+					throw new ArgumentNullException("SqlServerConnectionString", "No config file");
 				}
 
 				return constr;
 			}
 		}
 
-		public ITransformationProvider CreateSqlServer2005Provider(string key)
+		public ITransformationProvider CreateSqlServerProvider(string key)
 		{
-			var provider = new SqlServerTransformationProvider(new SqlServer2005Dialect(), ConnectionString);
+			var provider = new SqlServerTransformationProvider(new SqlServerDialect(), ConnectionString);
 
 			return provider;
 		}

@@ -75,7 +75,6 @@
     <Compile Include="OracleTransformationProviderTest.cs" />
     <Compile Include="PostgreSQLTransformationProviderTest.cs" />
     <Compile Include="SQLiteTransformationProviderTest.cs" />
-    <Compile Include="SqlServer2005TransformationProviderTest.cs" />
     <Compile Include="SqlServerCeTransformationProviderTest.cs" />
     <Compile Include="SqlServerTransformationProviderTest.cs" />
     <Compile Include="TransformationProviderBase.cs" />

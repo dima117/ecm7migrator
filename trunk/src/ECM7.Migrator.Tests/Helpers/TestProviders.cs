@@ -14,7 +14,6 @@ namespace ECM7.Migrator.Tests.Helpers
 		private const string POSTGRE_SQL_DIALECT = "ECM7.Migrator.Providers.PostgreSQL.PostgreSQLDialect, ECM7.Migrator.Providers.PostgreSQL";
 
 		private const string SQL_SERVER_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer";
-		private const string SQL_SERVER_2005_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServer2005Dialect, ECM7.Migrator.Providers.SqlServer";
 		private const string SQL_SERVER_CE_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServerCeDialect, ECM7.Migrator.Providers.SqlServer";
 
 		#endregion
@@ -25,15 +24,6 @@ namespace ECM7.Migrator.Tests.Helpers
 			{
 				return ProviderFactory.Create(
 					SQL_SERVER_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"]);
-			}
-		}
-
-		public static ITransformationProvider SqlServer2005
-		{
-			get
-			{
-				return ProviderFactory.Create(
-					SQL_SERVER_2005_DIALECT, ConfigurationManager.AppSettings["SqlServerConnectionString"]);
 			}
 		}
 

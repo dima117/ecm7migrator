@@ -28,7 +28,7 @@
 
     <Target Name="Migrate">
         <Migrate
-			Dialect="SqlServer2005"
+			Dialect="SqlServer"
             Connectionstring="Data Source=.;Initial Catalog=ecm7test2;Integrated Security=SSPI;"
             AssemblyFile="ECM7.Database.dll"/>
     </Target>
