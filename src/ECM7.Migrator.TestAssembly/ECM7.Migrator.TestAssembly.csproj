@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="FirstTestMigration.cs" />
+    <Compile Include="FourTestMigration.cs" />
     <Compile Include="SecondTestMigration.cs" />
     <Compile Include="ThirdTestMigration.cs" />
   </ItemGroup>

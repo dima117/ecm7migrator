@@ -10,13 +10,13 @@ namespace ECM7.Migrator.Loader
 		/// <summary>
 		/// ѕризнак, что проводитс€ сортировка по возрастанию
 		/// </summary>
-		private readonly bool ascending = true;
+		private readonly bool ascending;
 
 		/// <summary>
 		/// »нициализаци€
 		/// </summary>
 		/// <param name="ascending">ѕор€док сортировки (true = по возрастанию, false = по убыванию)</param>
-		public MigrationInfoComparer(bool ascending)
+		public MigrationInfoComparer(bool ascending = true)
 		{
 			this.ascending = ascending;
 		}

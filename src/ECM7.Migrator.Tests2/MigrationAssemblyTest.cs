@@ -6,8 +6,11 @@ namespace ECM7.Migrator.Tests2
 
 	using ECM7.Common.Utils.Exceptions;
 	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Framework.Logging;
 	using ECM7.Migrator.Loader;
 	using ECM7.Migrator.TestAssembly;
+
+	using log4net.Appender;
 
 	using Moq;
 
@@ -121,6 +124,26 @@ namespace ECM7.Migrator.Tests2
 			Assert.IsNotNull(migration);
 			Assert.That(migration is SecondTestMigration);
 			Assert.AreSame(provider.Object, migration.Database);
+		}
+
+		[Test]
+		public void MigrationsMustBeSortedByNumber()
+		{
+			MemoryAppender appender = new MemoryAppender();
+			MigratorLogManager.AddAppender(appender);
+
+			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
+			new MigrationAssembly(assembly);
+
+			var list = appender
+				.GetEvents()
+				.Where(e => e.MessageObject.ToString().StartsWith("Loaded migrations:"))
+				.ToList();
+
+			Assert.AreEqual(1, list.Count);
+			Assert.AreEqual(
+				"Loaded migrations:\r\n    1 First test migration\r\n    2 Second test migration\r\n    4 Four test migration\r\n",
+				list[0].MessageObject.ToString());
 		}
 	}
 }

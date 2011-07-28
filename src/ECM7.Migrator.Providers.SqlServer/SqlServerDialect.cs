@@ -7,9 +7,6 @@ namespace ECM7.Migrator.Providers.SqlServer
 {
 	public class SqlServerDialect : Dialect
 	{
-		// todo: отладить работу с azure
-		// todo: сделать выполнение пакетов
-		// todo: сделать сортировку миграций при отображении списка
 		public SqlServerDialect()
 		{
 			RegisterColumnType(DbType.AnsiStringFixedLength, "CHAR(255)");
@@ -51,14 +48,14 @@ namespace ECM7.Migrator.Providers.SqlServer
 			get { return false; }
 		}
 
-		public override bool NamesNeedsQuote
-		{
-			get { return true; }
-		}
-
 		public override string NamesQuoteTemplate
 		{
 			get { return "[{0}]"; }
+		}
+
+		public override string BatchSeparator
+		{
+			get { return "GO"; }
 		}
 
 		public override string Default(object defaultValue)

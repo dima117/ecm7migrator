@@ -157,28 +157,32 @@ namespace ECM7.Migrator.Providers
 			get { return true; }
 		}
 
-		#region Кавычки для имен
-
-		public virtual bool NamesNeedsQuote
+		/// <summary>
+		/// Разделитель для пакетов запросов
+		/// </summary>
+		public virtual string BatchSeparator
 		{
-			get { return false; }
+			get { return null; }
 		}
 
+		#region Кавычки для имен
+
+		/// <summary>
+		/// Шаблон кавычек для идентификаторов
+		/// </summary>
 		public virtual string NamesQuoteTemplate
 		{
 			get { return "\"{0}\""; }
 		}
 
+		/// <summary>
+		/// Обертывание идентификаторов в кавычки
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
 		public virtual string QuoteName(string name)
 		{
 			return String.Format(NamesQuoteTemplate, name);
-		}
-
-		public virtual string QuoteNameIfNeeded(string name)
-		{
-			return NamesNeedsQuote 
-				? String.Format(NamesQuoteTemplate, name) 
-				: name;
 		}
 
 		#endregion
@@ -222,7 +226,7 @@ namespace ECM7.Migrator.Providers
 
 		protected void AddColumnName(List<string> vals, Column column)
 		{
-			var columnName = this.QuoteNameIfNeeded(column.Name);
+			var columnName = QuoteName(column.Name);
 			vals.Add(columnName);
 		}
 

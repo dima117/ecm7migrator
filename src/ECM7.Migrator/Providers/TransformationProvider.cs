@@ -12,6 +12,8 @@ using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Providers
 {
+	using System.Text;
+
 	using ECM7.Migrator.Framework.Logging;
 
 	/// <summary>
@@ -600,17 +602,50 @@ namespace ECM7.Migrator.Providers
 
 		public int ExecuteNonQuery(string sql)
 		{
-			MigratorLogManager.Log.ExecuteSql(sql);
-			IDbCommand cmd = BuildCommand(sql);
+			int result = 0;
+
 			try
 			{
-				return cmd.ExecuteNonQuery();
+				if (dialect.BatchSeparator.IsNullOrEmpty(true))
+				{
+					MigratorLogManager.Log.ExecuteSql(sql);
+					IDbCommand cmd = BuildCommand(sql);
+					result = cmd.ExecuteNonQuery();
+				}
+				else
+				{
+					// если задан разделитель пакетов запросов, запускаем пакеты по очереди
+					sql += "\n" + dialect.BatchSeparator.Trim();   // make sure last batch is executed.
+					string[] lines = sql.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+					StringBuilder sqlBatch = new StringBuilder();
+
+					foreach (string line in lines)
+					{
+						if (line.ToUpperInvariant().Trim() == dialect.BatchSeparator.ToUpperInvariant())
+						{
+							string query = sqlBatch.ToString();
+							if (!query.IsNullOrEmpty(true))
+							{
+								MigratorLogManager.Log.ExecuteSql(query);
+								IDbCommand cmd = BuildCommand(query);
+								result = cmd.ExecuteNonQuery();
+							}
+							sqlBatch.Clear();
+						}
+						else
+						{
+							sqlBatch.AppendLine(line.Trim());
+						}
+					}
+				}
 			}
 			catch (Exception ex)
 			{
 				MigratorLogManager.Log.Warn(ex.Message, ex);
 				throw;
 			}
+
+			return result;
 		}
 
 		private IDbCommand BuildCommand(string sql)

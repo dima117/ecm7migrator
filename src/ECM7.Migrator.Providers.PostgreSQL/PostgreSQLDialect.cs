@@ -47,11 +47,6 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			get { return "\"{0}\""; }
 		}
 
-		public override bool  NamesNeedsQuote
-		{
-			get { return true; }
-		}
-
 		public override bool IdentityNeedsType
 		{
 			get { return false; }
