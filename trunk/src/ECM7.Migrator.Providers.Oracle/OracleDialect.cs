@@ -66,11 +66,6 @@ namespace ECM7.Migrator.Providers.Oracle
 			AddUniqueSql(vals, column);
 		}
 
-        public override bool NamesNeedsQuote
-        {
-            get { return true; }
-        }
-
         public override string NamesQuoteTemplate
         {
             get { return "\"{0}\""; }

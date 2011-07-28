@@ -102,9 +102,7 @@ namespace ECM7.Migrator.Loader
 		{
 			List<MigrationInfo> migrations = new List<MigrationInfo>();
 
-			StringBuilder logMessageBuilder = new StringBuilder("Loaded migrations:").AppendLine();
-
-			foreach (Type type in asm.GetExportedTypes().OrderBy(x => x.Name))
+			foreach (Type type in asm.GetExportedTypes())
 			{
 				MigrationAttribute attribute = type.GetCustomAttribute<MigrationAttribute>();
 
@@ -114,14 +112,23 @@ namespace ECM7.Migrator.Loader
 				{
 					MigrationInfo mi = new MigrationInfo(type);
 					migrations.Add(mi);
-					string msg = "{0} {1}".FormatWith(mi.Version.ToString().PadLeft(5), StringUtils.ToHumanName(mi.Type.Name));
-					logMessageBuilder.AppendLine(msg);
 				}
+			}
+
+			migrations.Sort(new MigrationInfoComparer());
+
+			// пишем в лог список загруженных миграций
+			StringBuilder logMessageBuilder = new StringBuilder("Loaded migrations:").AppendLine();
+
+			foreach (MigrationInfo mi in migrations)
+			{
+				string msg = "{0} {1}".FormatWith(mi.Version.ToString().PadLeft(5), StringUtils.ToHumanName(mi.Type.Name));
+				logMessageBuilder.AppendLine(msg);
 			}
 
 			MigratorLogManager.Log.DebugFormat(logMessageBuilder.ToString());
 
-			migrations.Sort(new MigrationInfoComparer(true));
+
 			return migrations;
 		}
 

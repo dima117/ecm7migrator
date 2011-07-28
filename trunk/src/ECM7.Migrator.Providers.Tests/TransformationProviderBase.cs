@@ -26,6 +26,14 @@ namespace ECM7.Migrator.Providers.Tests
 			get { return "ECM7.Migrator.TestAssembly.Res.test.res.migration.sql"; }
 		}
 
+		protected virtual string BatchSql
+		{
+			get
+			{
+				throw new Exception("переопределите SQL для проверки пакетов запросов");
+			}
+		}
+
 		[SetUp]
 		public void SetUp()
 		{
@@ -84,15 +92,31 @@ namespace ECM7.Migrator.Providers.Tests
 		}
 
 		[Test]
+		public void CanExecuteBatches()
+		{
+			provider.ExecuteNonQuery(BatchSql);
+
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME} ORDER BY {2:NAME}", "TestId", "TestTwo", "Id");
+
+			using (var reader = provider.ExecuteQuery(sql))
+			{
+				for (int i = 1; i <= 5; i++)
+				{
+					Assert.IsTrue(reader.Read());
+					Assert.AreEqual(111 * i, reader.GetInt32(0));
+				}
+				Assert.IsFalse(reader.Read());
+			}
+		}
+
+		[Test]
 		public void CanExecuteScriptFromResources()
 		{
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
 			provider.ExecuteFromResource(asm, ResourceSql);
 
-			string sql = "SELECT {0} FROM {1} WHERE {2} = {3}".FormatWith(
-				provider.QuoteName("TestId"),
-				provider.QuoteName("TestTwo"),
-				provider.QuoteName("Id"), 5555);
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME} WHERE {2:NAME} = {3}",
+				"TestId", "TestTwo", "Id", 5555);
 
 			object res = provider.ExecuteScalar(sql);
 
