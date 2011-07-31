@@ -606,28 +606,23 @@ namespace ECM7.Migrator.Providers
 
 			try
 			{
-				if (dialect.BatchSeparator.IsNullOrEmpty(true))
-				{
-					MigratorLogManager.Log.ExecuteSql(sql);
-					IDbCommand cmd = BuildCommand(sql);
-					result = cmd.ExecuteNonQuery();
-				}
-				else
+				if (!dialect.BatchSeparator.IsNullOrEmpty(true) &&
+					sql.ToLower().Contains(dialect.BatchSeparator.ToLower()))
 				{
 					// если задан разделитель пакетов запросов, запускаем пакеты по очереди
-					sql += "\n" + dialect.BatchSeparator.Trim();   // make sure last batch is executed.
+					sql += "\n" + this.dialect.BatchSeparator.Trim(); // make sure last batch is executed.
 					string[] lines = sql.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
 					StringBuilder sqlBatch = new StringBuilder();
 
 					foreach (string line in lines)
 					{
-						if (line.ToUpperInvariant().Trim() == dialect.BatchSeparator.ToUpperInvariant())
+						if (line.ToUpperInvariant().Trim() == this.dialect.BatchSeparator.ToUpperInvariant())
 						{
 							string query = sqlBatch.ToString();
 							if (!query.IsNullOrEmpty(true))
 							{
 								MigratorLogManager.Log.ExecuteSql(query);
-								IDbCommand cmd = BuildCommand(query);
+								IDbCommand cmd = this.BuildCommand(query);
 								result = cmd.ExecuteNonQuery();
 							}
 							sqlBatch.Clear();
@@ -637,6 +632,12 @@ namespace ECM7.Migrator.Providers
 							sqlBatch.AppendLine(line.Trim());
 						}
 					}
+				}
+				else
+				{
+					MigratorLogManager.Log.ExecuteSql(sql);
+					IDbCommand cmd = this.BuildCommand(sql);
+					result = cmd.ExecuteNonQuery();
 				}
 			}
 			catch (Exception ex)
