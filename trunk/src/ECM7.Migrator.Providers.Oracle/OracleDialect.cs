@@ -43,6 +43,14 @@ namespace ECM7.Migrator.Providers.Oracle
 			RegisterProperty(ColumnProperty.Null, String.Empty);
 		}
 
+		public override string BatchSeparator
+		{
+			get
+			{
+				return "/";
+			}
+		}
+
 		public override string Default(object defaultValue)
 		{
 			// convert boolean to number (1, 0)
