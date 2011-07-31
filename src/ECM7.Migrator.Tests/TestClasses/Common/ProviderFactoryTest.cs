@@ -41,13 +41,19 @@ namespace ECM7.Migrator.Tests.TestClasses.Common
 			Assert.IsNotNull(TestProviders.SQLite);
 		}
 
-		[Test, Category("Oracle")]
-		public void CanLoadOracleProvider()
-		{
-			Assert.IsNotNull(TestProviders.Oracle);
-		}
+        [Test, Category("Oracle")]
+        public void CanLoadOracleProvider()
+        {
+            Assert.IsNotNull(TestProviders.Oracle);
+        }
 
-		[Test, Category("Некорректные диалекты"), ExpectedException(typeof(RequirementNotCompliedException))]
+        [Test, Category("Firebird")]
+        public void CanLoadFirebirdProvider()
+        {
+            Assert.IsNotNull(TestProviders.Firebird);
+        }
+
+        [Test, Category("Некорректные диалекты"), ExpectedException(typeof(RequirementNotCompliedException))]
 		public void CantLoadNotExistsDialect()
 		{
 			ProviderFactory.Create("NotExistsDialect", string.Empty);
