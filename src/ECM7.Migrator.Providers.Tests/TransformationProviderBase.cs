@@ -30,7 +30,7 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			get
 			{
-				throw new Exception("переопределите SQL для проверки пакетов запросов");
+				return "переопределите SQL для проверки пакетов запросов";
 			}
 		}
 
@@ -103,7 +103,7 @@ namespace ECM7.Migrator.Providers.Tests
 				for (int i = 1; i <= 5; i++)
 				{
 					Assert.IsTrue(reader.Read());
-					Assert.AreEqual(111 * i, reader.GetInt32(0));
+					Assert.AreEqual(111 * i, Convert.ToInt32(reader[0]));
 				}
 				Assert.IsFalse(reader.Read());
 			}
