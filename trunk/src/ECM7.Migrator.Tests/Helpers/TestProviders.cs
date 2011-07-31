@@ -11,7 +11,8 @@ namespace ECM7.Migrator.Tests.Helpers
 		private const string MYSQL_DIALECT = "ECM7.Migrator.Providers.MySql.MySqlDialect, ECM7.Migrator.Providers.MySql";
 		private const string ORACLE_DIALECT = "ECM7.Migrator.Providers.Oracle.OracleDialect, ECM7.Migrator.Providers.Oracle";
 		private const string SQLITE_DIALECT = "ECM7.Migrator.Providers.SQLite.SQLiteDialect, ECM7.Migrator.Providers.SQLite";
-		private const string POSTGRE_SQL_DIALECT = "ECM7.Migrator.Providers.PostgreSQL.PostgreSQLDialect, ECM7.Migrator.Providers.PostgreSQL";
+        private const string POSTGRE_SQL_DIALECT = "ECM7.Migrator.Providers.PostgreSQL.PostgreSQLDialect, ECM7.Migrator.Providers.PostgreSQL";
+        private const string FIREBIRD_DIALECT = "ECM7.Migrator.Providers.Firebird.FirebirdDialect, ECM7.Migrator.Providers.Firebird";
 
 		private const string SQL_SERVER_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer";
 		private const string SQL_SERVER_CE_DIALECT = "ECM7.Migrator.Providers.SqlServer.SqlServerCeDialect, ECM7.Migrator.Providers.SqlServer";
@@ -71,5 +72,14 @@ namespace ECM7.Migrator.Tests.Helpers
 					ORACLE_DIALECT, ConfigurationManager.AppSettings["OracleConnectionString"]);
 			}
 		}
-	}
+
+        public static ITransformationProvider Firebird
+        {
+            get
+            {
+                return ProviderFactory.Create(
+                    FIREBIRD_DIALECT, ConfigurationManager.AppSettings["FirebirdConnectionString"]);
+            }
+        }
+    }
 }
