@@ -45,6 +45,7 @@
       <HintPath>..\References\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -52,9 +53,14 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ColumnPropertyMappingTest.cs" />
+    <Compile Include="ConfigurationTest.cs" />
     <Compile Include="ExecuteMigrationTest.cs" />
     <Compile Include="MigrationAssemblyTest.cs" />
+    <Compile Include="MigrationKeyTests.cs" />
+    <Compile Include="MigrationTypeComparerTest.cs" />
     <Compile Include="MigratorPlanTest.cs" />
+    <Compile Include="ProviderFactoryTest.cs" />
     <Compile Include="SqlFormatterTest.cs" />
     <Compile Include="Providers\TypeNamesTest.cs" />
   </ItemGroup>
@@ -62,6 +68,30 @@
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">
       <Project>{5270F048-E580-486C-B14C-E5B9F6E539D4}</Project>
       <Name>ECM7.Migrator.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.Firebird\ECM7.Migrator.Providers.Firebird.csproj">
+      <Project>{251120F2-33B8-4B54-8B88-7917C42535EB}</Project>
+      <Name>ECM7.Migrator.Providers.Firebird</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.MySql\ECM7.Migrator.Providers.MySql.csproj">
+      <Project>{86CC1CD8-981F-42DA-AA2E-FE51576557AB}</Project>
+      <Name>ECM7.Migrator.Providers.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.Oracle\ECM7.Migrator.Providers.Oracle.csproj">
+      <Project>{CBA55443-9437-4396-AF4C-9A2A9A7628E5}</Project>
+      <Name>ECM7.Migrator.Providers.Oracle</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.PostgreSQL\ECM7.Migrator.Providers.PostgreSQL.csproj">
+      <Project>{FFE9E6C3-E4F6-465B-AEC0-7EC35E293072}</Project>
+      <Name>ECM7.Migrator.Providers.PostgreSQL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.SQLite\ECM7.Migrator.Providers.SQLite.csproj">
+      <Project>{F67D8D5F-7ADE-484B-9B3C-F7026F292EA8}</Project>
+      <Name>ECM7.Migrator.Providers.SQLite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.SqlServer\ECM7.Migrator.Providers.SqlServer.csproj">
+      <Project>{6ADF67EC-6865-4A44-8E41-2BAF236B9792}</Project>
+      <Name>ECM7.Migrator.Providers.SqlServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\ECM7.Migrator.TestAssembly\ECM7.Migrator.TestAssembly.csproj">
       <Project>{C7EBEAE4-50AD-49B1-89BB-2D9035E8117D}</Project>
@@ -74,6 +104,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\config\app.config">
+      <Link>app.config</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -35,11 +35,10 @@ namespace ECM7.Migrator.Tests2
 
 			Assert.AreEqual("test-key111", migrationAssembly.Key);
 
-			Assert.AreEqual(2, list.Count);
+			Assert.AreEqual(3, list.Count);
 			Assert.IsTrue(list.Contains(1));
 			Assert.IsTrue(list.Contains(2));
-
-			Assert.AreEqual(2, migrationAssembly.LastVersion);
+			Assert.IsTrue(list.Contains(4));
 		}
 
 		/// <summary>
@@ -77,7 +76,7 @@ namespace ECM7.Migrator.Tests2
 		{
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
 			MigrationAssembly migrationAssembly = new MigrationAssembly(assembly);
-			Assert.AreEqual(2, migrationAssembly.LastVersion);
+			Assert.AreEqual(4, migrationAssembly.LastVersion);
 		}
 
 		/// <summary>

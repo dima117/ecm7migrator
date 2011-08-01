@@ -26,8 +26,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.MSBuild", "EC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.NAnt", "ECM7.Migrator.NAnt\ECM7.Migrator.NAnt.csproj", "{CDD39DB7-C9C0-4ECA-AD36-1B4D0BF59101}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Tests", "ECM7.Migrator.Tests\ECM7.Migrator.Tests.csproj", "{882B6A93-67B8-45BF-8636-5796B1B1CBF8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Providers.MySql", "ECM7.Migrator.Providers.MySql\ECM7.Migrator.Providers.MySql.csproj", "{86CC1CD8-981F-42DA-AA2E-FE51576557AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator.Providers.Oracle", "ECM7.Migrator.Providers.Oracle\ECM7.Migrator.Providers.Oracle.csproj", "{CBA55443-9437-4396-AF4C-9A2A9A7628E5}"
@@ -72,10 +70,6 @@ Global
 		{CDD39DB7-C9C0-4ECA-AD36-1B4D0BF59101}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDD39DB7-C9C0-4ECA-AD36-1B4D0BF59101}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDD39DB7-C9C0-4ECA-AD36-1B4D0BF59101}.Release|Any CPU.Build.0 = Release|Any CPU
-		{882B6A93-67B8-45BF-8636-5796B1B1CBF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{882B6A93-67B8-45BF-8636-5796B1B1CBF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{882B6A93-67B8-45BF-8636-5796B1B1CBF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{882B6A93-67B8-45BF-8636-5796B1B1CBF8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{86CC1CD8-981F-42DA-AA2E-FE51576557AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{86CC1CD8-981F-42DA-AA2E-FE51576557AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86CC1CD8-981F-42DA-AA2E-FE51576557AB}.Release|Any CPU.ActiveCfg = Release|Any CPU

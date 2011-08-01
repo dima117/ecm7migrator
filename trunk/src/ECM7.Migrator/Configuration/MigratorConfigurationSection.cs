@@ -46,10 +46,10 @@
 		/// <summary>
 		/// Путь к файлу с миграциями
 		/// </summary>
-		[ConfigurationProperty("assembly-file")]
+		[ConfigurationProperty("assemblyFile")]
 		public string AssemblyFile
 		{
-			get { return (string)base["assembly-file"]; }
+			get { return (string)base["assemblyFile"]; }
 		}
 
 		/// <summary>

@@ -1,9 +1,8 @@
 ﻿using System.Data;
-using ECM7.Migrator.Providers;
+
 namespace ECM7.Migrator.Providers.Firebird
 {
-    using System.Data.SqlClient;
-    using FirebirdSql.Data.FirebirdClient;
+	using FirebirdSql.Data.FirebirdClient;
 
     public class FirebirdTransformationProvider : TransformationProvider
     {

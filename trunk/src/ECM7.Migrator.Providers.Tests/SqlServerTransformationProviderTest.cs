@@ -18,7 +18,9 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			string constr = ConfigurationManager.AppSettings["SqlServerConnectionString"];
 			if (constr == null)
+			{
 				throw new ArgumentNullException("SqlServerConnectionString", "No config file");
+			}
 
 			provider = new SqlServerTransformationProvider(new SqlServerDialect(), constr);
 			provider.BeginTransaction();

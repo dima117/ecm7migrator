@@ -2,9 +2,8 @@
 {
     using System;
     using System.Data;
-    using ECM7.Migrator.Framework;
 
-    public class FirebirdDialect : Dialect
+	public class FirebirdDialect : Dialect
     {
         public FirebirdDialect()
         {
@@ -31,9 +30,7 @@
             RegisterColumnType(DbType.String, "VARCHAR(255) CHARACTER SET UNICODE_FSS");
             RegisterColumnType(DbType.String, 4000, "VARCHAR($l) CHARACTER SET UNICODE_FSS");
             RegisterColumnType(DbType.Time, "TIMESTAMP");
-
-            //RegisterProperty(ColumnProperty.Identity, "IDENTITY");
-    
+			
         }
 
         public override Type TransformationProviderType
