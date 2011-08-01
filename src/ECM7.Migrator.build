@@ -7,7 +7,7 @@
 	<property name="build.dir" value="..\build\Release"/>
 	<property name="nuget.source.dir" value="..\nuget.package"/>
 
-	<property name="zip.filename" value="..\ecm7.migrator-last.zip" />
+	<property name="zip.path" value=".." />
 
 	<!-- Tasks -->
 	<target name="compile" description="Compile all projects with using the Release Configuration">
@@ -19,7 +19,12 @@
 
 	<target name="pack" depends="compile">
 
-		<zip zipfile="${zip.filename}">
+		<property name="zip.version" value="${assemblyname::get-version(assemblyname::get-assembly-name(path::combine(build.dir, 'ECM7.Migrator.dll')))}"/>
+		<property name="zip.file" value="${path::combine(zip.path, 'ecm7.migrator-' + zip.version + '.zip')}"/>
+
+		<echo message="Archive filename: ${zip.file}" /> 
+
+		<zip zipfile="${zip.file}">
 			<fileset basedir="${build.dir}">
 				<include name="**\*.dll" />
 				<include name="**\*.exe" />
@@ -33,6 +38,8 @@
 		description="Compiles and produces distributions" />
 
 	<target name="nuget" depends="compile" description="Build nuget package">
+
+		
 
 		<echo message="Prepare files for deploy package" />
 		<delete dir="${nuget.source.dir}" if="${directory::exists(nuget.source.dir)}"/>
