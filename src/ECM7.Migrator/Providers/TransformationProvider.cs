@@ -607,7 +607,7 @@ namespace ECM7.Migrator.Providers
 			try
 			{
 				if (!dialect.BatchSeparator.IsNullOrEmpty(true) &&
-					sql.ToLower().Contains(dialect.BatchSeparator.ToLower()))
+					sql.IndexOf(dialect.BatchSeparator, StringComparison.CurrentCultureIgnoreCase) >= 0)
 				{
 					// если задан разделитель пакетов запросов, запускаем пакеты по очереди
 					sql += "\n" + this.dialect.BatchSeparator.Trim(); // make sure last batch is executed.
@@ -857,7 +857,7 @@ namespace ECM7.Migrator.Providers
 		/// <summary>
 		/// The list of Migrations currently applied to the database.
 		/// </summary>
-		public List<long> GetAppliedMigrations(string key)
+		public List<long> GetAppliedMigrations(string key = "")
 		{
 			Require.IsNotNull(key, "Ќе указан ключ миграциий");
 			var appliedMigrations = new List<long>();

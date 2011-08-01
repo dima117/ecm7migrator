@@ -2,10 +2,8 @@
 {
     using System;
     using System.Configuration;
-    using System.Data;
+
     using ECM7.Migrator.Providers.Firebird;
-    using Framework;
-    using Oracle;
 
     using NUnit.Framework;
 
@@ -17,7 +15,10 @@
         {
             string constr = ConfigurationManager.AppSettings["FirebirdConnectionString"];
             if (constr == null)
-                throw new ArgumentNullException("FirebirdConnectionString", "No config file");
+            {
+            	throw new ArgumentNullException("FirebirdConnectionString", "No config file");
+            }
+
             provider = new FirebirdTransformationProvider(new FirebirdDialect(), constr);
             provider.BeginTransaction();
 
