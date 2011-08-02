@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using ECM7.Migrator.Providers;
 
 namespace ECM7.Migrator
 {
-	/// <summary>
-	/// Диалект - задает специфические особенности СУБД
-	/// </summary>
+	using ECM7.Migrator.Framework;
+
 	public class ProviderFactory
 	{
 		#region Shortcuts
 
+		// todo: поменять шорткаты
 		private static readonly Dictionary<string, string> shortcuts = new Dictionary<string, string>
 		{
 			{ "SqlServer",		"ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer" },
@@ -24,71 +23,45 @@ namespace ECM7.Migrator
 
 		#endregion
 
-		#region GetDialect
+		#region Create
 
-		private static readonly Dictionary<Type, Dialect> dialects = new Dictionary<Type, Dialect>();
-
-		public static Dialect GetDialect<TDialect>()
-			where TDialect : Dialect, new()
+		public static ITransformationProvider Create<TProvider>(string connectionString)
+			where TProvider : ITransformationProvider
 		{
-			Type type = typeof(TDialect);
-			if (!dialects.ContainsKey(type) || dialects[type] == null)
-				dialects[type] = new TDialect();
-
-			Require.IsNotNull(dialects[type], "Не удалось инициализировать диалект");
-			return dialects[type];
+			return Create(typeof(TProvider), connectionString);
 		}
 
-		public static Dialect GetDialect(Type dialectType)
+		public static ITransformationProvider Create(string providerName, string connectionString)
 		{
-			ValidateDialectType(dialectType);
-
-			if (!dialects.ContainsKey(dialectType) || dialects[dialectType] == null)
-				dialects[dialectType] = Activator.CreateInstance(dialectType, null) as Dialect;
-
-			Require.IsNotNull(dialects[dialectType], "Не удалось инициализировать диалект");
-			return dialects[dialectType];
+			string providerTypeName = shortcuts.ContainsKey(providerName)
+										? shortcuts[providerName]
+										: providerName;
+			Type providerType = Type.GetType(providerTypeName);
+			Require.IsNotNull(providerType, "Не удалось загрузить диалект: {0}", providerName.Nvl("null"));
+			return Create(providerType, connectionString);
 		}
 
+		public static ITransformationProvider Create(Type providerType, string connectionString)
+		{
+			ValidateProviderType(providerType);
+			return Activator.CreateInstance(providerType, connectionString) as ITransformationProvider;
+		}
+
+		// todo: поменять валидацию типа
 		/// <summary>
 		/// Проверка, что:
-		/// <para>- параметр dialectType не равен null;</para>
+		/// <para>- параметр providerType не равен null;</para>
 		/// <para>- класс унаследован от Dialect;</para>
 		/// <para>- класс имеет открытый конструктор без параметров;</para>
 		/// </summary>
-		/// <param name="dialectType">Класс диалекта</param>
-		internal static void ValidateDialectType(Type dialectType)
+		/// <param name="providerType">Класс диалекта</param>
+		internal static void ValidateProviderType(Type providerType)
 		{
-			Require.IsNotNull(dialectType, "Не задан диалект");
-			Require.That(dialectType.IsSubclassOf(typeof(Dialect)), "Класс диалекта должен быть унаследован от Dialect");
+			Require.IsNotNull(providerType, "Не задан диалект");
+			Require.That(providerType .IsSubclassOf(typeof(ITransformationProvider)), "Класс диалекта должен быть унаследован от Dialect");
 
-			ConstructorInfo constructor = dialectType.GetConstructor(Type.EmptyTypes);
+			ConstructorInfo constructor = providerType.GetConstructor(Type.EmptyTypes);
 			Require.IsNotNull(constructor, "Класс диалекта должен иметь открытый конструктор без параметров");
-		}
-
-		#endregion
-
-		#region Create
-
-		public static TransformationProvider Create<TDialect>(string connectionString)
-			where TDialect : Dialect, new()
-		{
-			return GetDialect<TDialect>().NewProviderForDialect(connectionString);
-		}
-
-		public static TransformationProvider Create(Type dialectType, string connectionString)
-		{
-			return GetDialect(dialectType).NewProviderForDialect(connectionString);
-		}
-
-		public static TransformationProvider Create(string dialectName, string connectionString)
-		{
-			string dialectTypeName = shortcuts.ContainsKey(dialectName)
-			                         	? shortcuts[dialectName]
-			                         	: dialectName;
-			Type dialectType = Type.GetType(dialectTypeName);
-			Require.IsNotNull(dialectType, "Не удалось загрузить диалект: {0}", dialectName.Nvl("null"));
-			return Create(dialectType, connectionString);
 		}
 
 		#endregion

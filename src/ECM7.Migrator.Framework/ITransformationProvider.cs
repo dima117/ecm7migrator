@@ -462,12 +462,12 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
 		/// </summary>
-		ITransformationProvider For(Type dialectType);
+		ITransformationProvider For(Type providerType);
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'dialectTypeName'.
+		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'providerTypeName'.
 		/// </summary>
-		ITransformationProvider For(string dialectTypeName);
+		ITransformationProvider For(string providerTypeName);
 
 		/// <summary>
 		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
@@ -477,12 +477,12 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
 		/// </summary>
-		void For(Type dialectType, Action<ITransformationProvider> actions);
+		void For(Type providerType, Action<ITransformationProvider> actions);
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'dialectTypeName'.
+		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'providerTypeName'.
 		/// </summary>
-		void For(string dialectTypeName, Action<ITransformationProvider> actions); 
+		void For(string providerTypeName, Action<ITransformationProvider> actions); 
 		#endregion
 
 		void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,

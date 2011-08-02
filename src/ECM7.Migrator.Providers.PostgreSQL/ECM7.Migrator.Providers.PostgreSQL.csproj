@@ -76,7 +76,6 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="PostgreSQLDialect.cs" />
     <Compile Include="PostgreSQLTransformationProvider.cs" />
   </ItemGroup>
   <ItemGroup>

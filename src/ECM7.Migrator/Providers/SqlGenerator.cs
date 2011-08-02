@@ -1,52 +1,87 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
-using System.Data;
-
-using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers
 {
-	/// <summary>
-	/// Определяет реализацию деталей, специфических для конкретной СУБД.
-	/// </summary>
-	public abstract class Dialect
+	using System.Data;
+
+	using ECM7.Migrator.Framework;
+
+	using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
+
+	public abstract class SqlGenerator
 	{
+		protected readonly IFormatProvider sqlFormatProvider;
 		private readonly Dictionary<ColumnProperty, string> propertyMap = new Dictionary<ColumnProperty, string>();
 		private readonly TypeNames typeNames = new TypeNames();
 
-		protected Dialect()
+		protected SqlGenerator()
 		{
-			RegisterProperty(ColumnProperty.Null, "NULL");
-			RegisterProperty(ColumnProperty.NotNull, "NOT NULL");
-			RegisterProperty(ColumnProperty.Unique, "UNIQUE");
-			RegisterProperty(ColumnProperty.PrimaryKey, "PRIMARY KEY");
+			sqlFormatProvider = new SqlFormatter(obj => QuoteName(obj.ToString()));
 		}
 
-		public abstract Type TransformationProviderType { get; }
 
-		public TransformationProvider NewProviderForDialect(string connectionString)
-		{
-			return Activator.CreateInstance(TransformationProviderType, this, connectionString) as TransformationProvider;
-		}
+		#region Р­РєСЂР°РЅРёСЂРѕРІР°РЅРёРµ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅС‹С… СЃР»РѕРІ РІ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°С…
 
-		#region мэппинг типов
 
 		/// <summary>
-		/// Проверка, что заданный тип зарегистрирован
+		/// РћР±РµСЂС‚С‹РІР°РЅРёРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ РІ РєР°РІС‹С‡РєРё
 		/// </summary>
-		/// <param name="type">Проверяемый тип</param>
-		/// <returns>Возвращает true, если заданный тип зарегистрирован, иначе возвращает false.</returns>
-		public bool TypeIsRegistred(DbType type)
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public virtual string QuoteName(string name)
+		{
+			return String.Format(NamesQuoteTemplate, name);
+		}
+
+		public string FormatSql(string format, params object[] args)
+		{
+			return string.Format(sqlFormatProvider, format, args);
+		}
+
+		#endregion
+
+		public virtual string Default(object defaultValue)
+		{
+			return String.Format("DEFAULT {0}", defaultValue);
+		}
+
+		public string SqlForConstraint(ForeignKeyConstraint constraint)
+		{
+			switch (constraint)
+			{
+				case ForeignKeyConstraint.Cascade:
+					return "CASCADE";
+				case ForeignKeyConstraint.Restrict:
+					return "RESTRICT";
+				case ForeignKeyConstraint.SetDefault:
+					return "SET DEFAULT";
+				case ForeignKeyConstraint.SetNull:
+					return "SET NULL";
+				default:
+					return "NO ACTION";
+			}
+		}
+
+
+		#region РјСЌРїРїРёРЅРі С‚РёРїРѕРІ
+
+		/// <summary>
+		/// РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ Р·Р°РґР°РЅРЅС‹Р№ С‚РёРї Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ
+		/// </summary>
+		/// <param name="type">РџСЂРѕРІРµСЂСЏРµРјС‹Р№ С‚РёРї</param>
+		/// <returns>Р’РѕР·РІСЂР°С‰Р°РµС‚ true, РµСЃР»Рё Р·Р°РґР°РЅРЅС‹Р№ С‚РёРї Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ, РёРЅР°С‡Рµ РІРѕР·РІСЂР°С‰Р°РµС‚ false.</returns>
+		public bool TypeIsSupported(DbType type)
 		{
 			return typeNames.HasType(type);
 		}
 
 		/// <summary>
-		/// Регистрирует название типа БД, которое будет использовано для
-		/// конкретного значения DbType, указанного в "миграциях".
-		/// <para><c>$l</c> - будет заменено на конкретное значение длины</para>
-		/// <para><c>$s</c> - будет заменено на конкретное значение, показывающее 
-		/// количество знаков после запятой для вещественных чисел</para>м
+		/// Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ РЅР°Р·РІР°РЅРёРµ С‚РёРїР° Р‘Р”, РєРѕС‚РѕСЂРѕРµ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РґР»СЏ
+		/// РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ DbType, СѓРєР°Р·Р°РЅРЅРѕРіРѕ РІ "РјРёРіСЂР°С†РёСЏС…".
+		/// <para><c>$l</c> - Р±СѓРґРµС‚ Р·Р°РјРµРЅРµРЅРѕ РЅР° РєРѕРЅРєСЂРµС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»РёРЅС‹</para>
+		/// <para><c>$s</c> - Р±СѓРґРµС‚ Р·Р°РјРµРЅРµРЅРѕ РЅР° РєРѕРЅРєСЂРµС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, РїРѕРєР°Р·С‹РІР°СЋС‰РµРµ 
+		/// РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РЅР°РєРѕРІ РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№ РґР»СЏ РІРµС‰РµСЃС‚РІРµРЅРЅС‹С… С‡РёСЃРµР»</para>Рј
 		/// </summary>
 		/// <param name="code">The typecode</param>
 		/// <param name="capacity">Maximum length of database type</param>
@@ -57,30 +92,30 @@ namespace ECM7.Migrator.Providers
 		}
 
 		/// <summary>
-		/// Регистрирует название типа БД, которое будет использовано для
-		/// конкретного значения DbType, указанного в "миграциях".
-		/// <para><c>$l</c> - будет заменено на конкретное значение длины</para>
-		/// <para><c>$s</c> - будет заменено на конкретное значение, показывающее 
-		/// количество знаков после запятой для вещественных чисел</para>
+		/// Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ РЅР°Р·РІР°РЅРёРµ С‚РёРїР° Р‘Р”, РєРѕС‚РѕСЂРѕРµ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РґР»СЏ
+		/// РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ DbType, СѓРєР°Р·Р°РЅРЅРѕРіРѕ РІ "РјРёРіСЂР°С†РёСЏС…".
+		/// <para><c>$l</c> - Р±СѓРґРµС‚ Р·Р°РјРµРЅРµРЅРѕ РЅР° РєРѕРЅРєСЂРµС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»РёРЅС‹</para>
+		/// <para><c>$s</c> - Р±СѓРґРµС‚ Р·Р°РјРµРЅРµРЅРѕ РЅР° РєРѕРЅРєСЂРµС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, РїРѕРєР°Р·С‹РІР°СЋС‰РµРµ 
+		/// РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РЅР°РєРѕРІ РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№ РґР»СЏ РІРµС‰РµСЃС‚РІРµРЅРЅС‹С… С‡РёСЃРµР»</para>
 		/// </summary>
-		/// <param name="code">Тип</param>
-		/// <param name="capacity">Максимальная длина</param>
-		/// <param name="name">Название типа БД</param>
-		/// <param name="defaultScale">Значение по-умолчанию: количество знаков после запятой для вещественных чисел</param>
+		/// <param name="code">РўРёРї</param>
+		/// <param name="capacity">РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР°</param>
+		/// <param name="name">РќР°Р·РІР°РЅРёРµ С‚РёРїР° Р‘Р”</param>
+		/// <param name="defaultScale">Р—РЅР°С‡РµРЅРёРµ РїРѕ-СѓРјРѕР»С‡Р°РЅРёСЋ: РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РЅР°РєРѕРІ РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№ РґР»СЏ РІРµС‰РµСЃС‚РІРµРЅРЅС‹С… С‡РёСЃРµР»</param>
 		protected void RegisterColumnType(DbType code, int capacity, string name, int defaultScale)
 		{
 			typeNames.Put(code, capacity, name, defaultScale);
 		}
 
 		/// <summary>
-		/// Регистрирует название типа БД, которое будет использовано для
-		/// конкретного значения DbType, указанного в "миграциях".
+		/// Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ РЅР°Р·РІР°РЅРёРµ С‚РёРїР° Р‘Р”, РєРѕС‚РѕСЂРѕРµ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РґР»СЏ
+		/// РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ DbType, СѓРєР°Р·Р°РЅРЅРѕРіРѕ РІ "РјРёРіСЂР°С†РёСЏС…".
 		/// </summary>
-		/// <para><c>$l</c> - будет заменено на конкретное значение длины</para>
-		/// <para><c>$s</c> - будет заменено на конкретное значение, показывающее 
-		/// количество знаков после запятой для вещественных чисел</para>
-		/// <param name="code">Тип</param>
-		/// <param name="name">Название типа БД</param>
+		/// <para><c>$l</c> - Р±СѓРґРµС‚ Р·Р°РјРµРЅРµРЅРѕ РЅР° РєРѕРЅРєСЂРµС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»РёРЅС‹</para>
+		/// <para><c>$s</c> - Р±СѓРґРµС‚ Р·Р°РјРµРЅРµРЅРѕ РЅР° РєРѕРЅРєСЂРµС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, РїРѕРєР°Р·С‹РІР°СЋС‰РµРµ 
+		/// РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РЅР°РєРѕРІ РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№ РґР»СЏ РІРµС‰РµСЃС‚РІРµРЅРЅС‹С… С‡РёСЃРµР»</para>
+		/// <param name="code">РўРёРї</param>
+		/// <param name="name">РќР°Р·РІР°РЅРёРµ С‚РёРїР° Р‘Р”</param>
 		protected void RegisterColumnType(DbType code, string name)
 		{
 			typeNames.Put(code, name);
@@ -124,6 +159,8 @@ namespace ECM7.Migrator.Providers
 
 		#endregion
 
+		#region РЎРІРѕР№СЃС‚РІР° РєРѕР»РѕРЅРѕРє
+
 		public void RegisterProperty(ColumnProperty property, string sql)
 		{
 			if (!propertyMap.ContainsKey(property))
@@ -142,59 +179,21 @@ namespace ECM7.Migrator.Providers
 			return String.Empty;
 		}
 
-		public virtual bool IdentityNeedsType
+		protected void AddValueIfSelected(Column column, ColumnProperty property, ICollection<string> vals)
 		{
-			get { return true; }
-		}
-
-		public virtual bool NeedsNotNullForIdentity
-		{
-			get { return true; }
-		}
-
-		public virtual bool SupportsIndex
-		{
-			get { return true; }
-		}
-
-		/// <summary>
-		/// Разделитель для пакетов запросов
-		/// </summary>
-		public virtual string BatchSeparator
-		{
-			get { return null; }
-		}
-
-		#region Кавычки для имен
-
-		/// <summary>
-		/// Шаблон кавычек для идентификаторов
-		/// </summary>
-		public virtual string NamesQuoteTemplate
-		{
-			get { return "\"{0}\""; }
-		}
-
-		/// <summary>
-		/// Обертывание идентификаторов в кавычки
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		public virtual string QuoteName(string name)
-		{
-			return String.Format(NamesQuoteTemplate, name);
+			if (column.ColumnProperty.HasProperty(property))
+			{
+				vals.Add(SqlForProperty(property));
+			}
 		}
 
 		#endregion
 
-		public virtual string Default(object defaultValue)
-		{
-			return String.Format("DEFAULT {0}", defaultValue);
-		}
+		#region Р“РµРЅРµСЂР°С†РёСЏ SQL РґР»СЏ РєРѕР»РѕРЅРѕРє
 
 		public virtual string GetColumnSql(Column column, bool compoundPrimaryKey)
 		{
-			Require.IsNotNull(column, "Не задан обрабатываемый столбец");
+			Require.IsNotNull(column, "РќРµ Р·Р°РґР°РЅ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјС‹Р№ СЃС‚РѕР»Р±РµС†");
 
 			List<string> vals = new List<string>();
 			BuildColumnSql(vals, column, compoundPrimaryKey);
@@ -203,26 +202,23 @@ namespace ECM7.Migrator.Providers
 			return columnSql;
 		}
 
-
-		#region Генерация SQL для колонок
-
 		protected virtual void BuildColumnSql(List<string> vals, Column column, bool compoundPrimaryKey)
 		{
 			AddColumnName(vals, column);
 			AddColumnType(vals, column);
-			// identity не нуждается в типе
+			// identity РЅРµ РЅСѓР¶РґР°РµС‚СЃСЏ РІ С‚РёРїРµ
 			AddSqlForIdentityWhichNotNeedsType(vals, column);
 			AddUnsignedSql(vals, column);
 			AddNotNullSql(vals, column);
 			AddPrimaryKeySql(vals, column, compoundPrimaryKey);
-			// identity нуждается в типе
+			// identity РЅСѓР¶РґР°РµС‚СЃСЏ РІ С‚РёРїРµ
 			AddSqlForIdentityWhichNeedsType(vals, column);
 			AddUniqueSql(vals, column);
 			AddForeignKeySql(vals, column);
 			AddDefaultValueSql(vals, column);
 		}
 
-		#region добавление элементов команды SQL для колонки
+		// РґРѕР±Р°РІР»РµРЅРёРµ СЌР»РµРјРµРЅС‚РѕРІ РєРѕРјР°РЅРґС‹ SQL РґР»СЏ РєРѕР»РѕРЅРєРё
 
 		protected void AddColumnName(List<string> vals, Column column)
 		{
@@ -290,17 +286,24 @@ namespace ECM7.Migrator.Providers
 
 		#endregion
 
-		#region Helpers
+		#region РћСЃРѕР±РµРЅРЅРѕСЃС‚Рё РЎРЈР‘Р”
 
-		protected void AddValueIfSelected(Column column, ColumnProperty property, ICollection<string> vals)
-		{
-			if (column.ColumnProperty.HasProperty(property))
-				vals.Add(SqlForProperty(property));
-		}
+		public abstract bool IdentityNeedsType { get; }
+
+		public abstract bool NeedsNotNullForIdentity { get; }
+
+		public abstract bool SupportsIndex { get; }
+
+		/// <summary>
+		/// РЁР°Р±Р»РѕРЅ РєР°РІС‹С‡РµРє РґР»СЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ
+		/// </summary>
+		public abstract string NamesQuoteTemplate { get; }
+
+		/// <summary>
+		/// Р Р°Р·РґРµР»РёС‚РµР»СЊ РґР»СЏ РїР°РєРµС‚РѕРІ Р·Р°РїСЂРѕСЃРѕРІ
+		/// </summary>
+		public abstract string BatchSeparator { get; }
 
 		#endregion
-
-		#endregion
-
 	}
 }

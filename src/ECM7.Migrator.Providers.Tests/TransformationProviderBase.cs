@@ -9,6 +9,8 @@ namespace ECM7.Migrator.Providers.Tests
 
 	using log4net.Config;
 
+	using Npgsql;
+
 	using NUnit.Framework;
 
 	/// <summary>
@@ -141,14 +143,15 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanExecuteBadSqlForNonCurrentProvider()
 		{
-			provider.For<GenericDialect>()
+			provider.For<GenericTransformationProvider<NpgsqlConnection>>()
 				.ExecuteNonQuery("select foo from bar 123");
 		}
 
 		[Test]
 		public void CanExecuteBadSqlInDelegateForNonCurrentProvider()
 		{
-			provider.For<GenericDialect>(database => database.ExecuteNonQuery("select foo from bar 123"));
+			provider.For<GenericTransformationProvider<NpgsqlConnection>>(
+				database => database.ExecuteNonQuery("select foo from bar 123"));
 		}
 
 		[Test]
