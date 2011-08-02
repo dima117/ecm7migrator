@@ -22,7 +22,7 @@
 		<property name="zip.version" value="${assemblyname::get-version(assemblyname::get-assembly-name(path::combine(build.dir, 'ECM7.Migrator.dll')))}"/>
 		<property name="zip.file" value="${path::combine(zip.path, 'ecm7.migrator-' + zip.version + '.zip')}"/>
 
-		<echo message="Archive filename: ${zip.file}" /> 
+		<echo message="Archive filename: ${zip.file}" />
 
 		<zip zipfile="${zip.file}">
 			<fileset basedir="${build.dir}">
@@ -39,7 +39,8 @@
 
 	<target name="nuget" depends="compile" description="Build nuget package">
 
-		
+		<property name="nuget.package.version" value="${assemblyname::get-version(assemblyname::get-assembly-name(path::combine(build.dir, 'ECM7.Migrator.dll')))}"/>
+
 
 		<echo message="Prepare files for deploy package" />
 		<delete dir="${nuget.source.dir}" if="${directory::exists(nuget.source.dir)}"/>
@@ -49,6 +50,12 @@
 		<mkdir dir="${path::combine(nuget.source.dir, 'tools')}" />
 
 		<copy todir="${nuget.source.dir}" file="ECM7Migrator.2.0.nuspec" />
+
+		<xmlpoke
+			file="${path::combine(nuget.source.dir, 'ECM7Migrator.2.0.nuspec')}"
+			xpath="/package/metadata/version"
+			verbose="true"
+			value="${nuget.package.version}" />
 
 		<copy todir="${path::combine(nuget.source.dir, 'lib\net40')}" >
 			<fileset basedir="${build.dir}">
