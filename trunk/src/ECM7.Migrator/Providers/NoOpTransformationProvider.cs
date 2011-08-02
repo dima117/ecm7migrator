@@ -288,12 +288,12 @@ namespace ECM7.Migrator.Providers
 			return this;
 		}
 
-		public ITransformationProvider For(Type dialectType)
+		public ITransformationProvider For(Type providerType)
 		{
 			return this;
 		}
 
-		public ITransformationProvider For(string dialectTypeName)
+		public ITransformationProvider For(string providerTypeName)
 		{
 			return this;
 		}
@@ -302,10 +302,10 @@ namespace ECM7.Migrator.Providers
 		{
 		}
 
-		public void For(Type dialectType, Action<ITransformationProvider> actions)
+		public void For(Type providerType, Action<ITransformationProvider> actions)
 		{
 		}
-		public void For(string dialectTypeName, Action<ITransformationProvider> actions)
+		public void For(string providerTypeName, Action<ITransformationProvider> actions)
 		{
 		}
 

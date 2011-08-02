@@ -12,17 +12,56 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 	/// <summary>
 	/// Migration transformations provider for PostgreSQL
 	/// </summary>
-	public class PostgreSQLTransformationProvider : TransformationProvider
+	public class PostgreSQLTransformationProvider : TransformationProvider<NpgsqlConnection>
 	{
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		/// <param name="dialect">Диалект</param>
 		/// <param name="connectionString">Строка подключения</param>
-		public PostgreSQLTransformationProvider(Dialect dialect, string connectionString)
-			: base(dialect, new NpgsqlConnection(connectionString))
+		public PostgreSQLTransformationProvider(string connectionString)
+			: base(new NpgsqlConnection(connectionString))
 		{
+			Init();
 		}
+
+		public PostgreSQLTransformationProvider(NpgsqlConnection connection)
+			: base(connection)
+		{
+			Init();
+		}
+
+		private void Init()
+		{
+			this.RegisterColumnType(DbType.AnsiStringFixedLength, "char(255)");
+			this.RegisterColumnType(DbType.AnsiStringFixedLength, 8000, "char($l)");
+			this.RegisterColumnType(DbType.AnsiString, "varchar(255)");
+			this.RegisterColumnType(DbType.AnsiString, 8000, "varchar($l)");
+			this.RegisterColumnType(DbType.AnsiString, 2147483647, "text");
+			this.RegisterColumnType(DbType.Binary, "bytea");
+			this.RegisterColumnType(DbType.Binary, 2147483647, "bytea");
+			this.RegisterColumnType(DbType.Boolean, "boolean");
+			this.RegisterColumnType(DbType.Byte, "int2");
+			this.RegisterColumnType(DbType.Currency, "decimal(16,4)");
+			this.RegisterColumnType(DbType.Date, "date");
+			this.RegisterColumnType(DbType.DateTime, "timestamp");
+			this.RegisterColumnType(DbType.Decimal, "decimal(19,5)");
+			this.RegisterColumnType(DbType.Decimal, 19, "decimal(18, $l)");
+			this.RegisterColumnType(DbType.Double, "float8");
+			this.RegisterColumnType(DbType.Int16, "int2");
+			this.RegisterColumnType(DbType.Int32, "int4");
+			this.RegisterColumnType(DbType.Int64, "int8");
+			this.RegisterColumnType(DbType.Single, "float4");
+			this.RegisterColumnType(DbType.StringFixedLength, "char(255)");
+			this.RegisterColumnType(DbType.StringFixedLength, 4000, "char($l)");
+			this.RegisterColumnType(DbType.String, "varchar(255)");
+			this.RegisterColumnType(DbType.String, 4000, "varchar($l)");
+			this.RegisterColumnType(DbType.String, 1073741823, "text");
+			this.RegisterColumnType(DbType.Time, "time");
+
+			this.RegisterProperty(ColumnProperty.Identity, "serial");
+		}
+
+		#region custom sql
 
 		public override void RemoveTable(string name)
 		{
@@ -65,7 +104,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		public override bool ConstraintExists(string table, string name)
 		{
 			string sql = string.Format("SELECT \"constraint_name\" FROM \"information_schema\".\"table_constraints\" WHERE \"table_schema\" = 'public' AND \"constraint_name\" = '{0}'", name);
-			
+
 			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				return reader.Read();
@@ -80,7 +119,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 
 			string sql = String.Format("SELECT \"column_name\" FROM \"information_schema\".\"columns\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}' AND \"column_name\" = '{1}'", table, column);
-			
+
 			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				return reader.Read();
@@ -90,7 +129,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		public override bool TableExists(string table)
 		{
 			string sql = String.Format("SELECT \"table_name\" FROM \"information_schema\".\"tables\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}'", table);
-			
+
 			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				return reader.Read();
@@ -132,7 +171,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			List<Column> columns = new List<Column>();
 			string sql = String.Format(
 				"select COLUMN_NAME, IS_NULLABLE from information_schema.columns where table_schema = 'public' AND table_name = '{0}';", table);
-			
+
 			using (IDataReader reader = ExecuteQuery(sql))
 			{
 				// FIXME: Mostly duplicated code from the Transformation provider just to support stupid case-insensitivty of Postgre
@@ -147,6 +186,37 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 
 			return columns.ToArray();
+		} 
+
+		#endregion
+
+		#region Overrides of SqlGenerator
+
+		public override bool IdentityNeedsType
+		{
+			get { return false; }
 		}
+
+		public override bool NeedsNotNullForIdentity
+		{
+			get { return true; }
+		}
+
+		public override bool SupportsIndex
+		{
+			get { return true; }
+		}
+
+		public override string NamesQuoteTemplate
+		{
+			get { return "\"{0}\""; }
+		}
+
+		public override string BatchSeparator
+		{
+			get { return null; }
+		}
+
+		#endregion
 	}
 }

@@ -20,52 +20,27 @@ namespace ECM7.Migrator.Providers
 	/// Base class for every transformation providers.
 	/// A 'tranformation' is an operation that modifies the database.
 	/// </summary>
-	public abstract class TransformationProvider : ITransformationProvider
+	public abstract class TransformationProvider<TConnection> : SqlGenerator, ITransformationProvider
+		where TConnection : IDbConnection, new()
 	{
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
 		protected IDbConnection connection;
 		private IDbTransaction transaction;
 
-		protected readonly Dialect dialect;
-
-		protected readonly IFormatProvider sqlFormatProvider;
-
-		private readonly ForeignKeyConstraintMapper constraintMapper = new ForeignKeyConstraintMapper();
-
-		protected TransformationProvider(Dialect dialect, IDbConnection connection)
+		protected TransformationProvider(string connectionString)
+			: this(new TConnection { ConnectionString = connectionString })
 		{
-			Require.IsNotNull(dialect, "Не задан диалект");
-			this.dialect = dialect;
-			sqlFormatProvider = new SqlFormatter(obj => dialect.QuoteName(obj.ToString()));
+		}
 
-
+		protected TransformationProvider(TConnection connection)
+		{
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 			this.connection = connection;
-		}
 
-		#region format sql
-
-		public virtual string QuoteName(string name)
-		{
-			return dialect.QuoteName(name);
-		}
-
-		public string FormatSql(string format, params object[] args)
-		{
-			// TODO: написать тесты
-			return string.Format(sqlFormatProvider, format, args);
-		}
-
-		#endregion
-
-		public bool TypeIsSupported(DbType type)
-		{
-			return dialect.TypeIsRegistred(type);
-		}
-
-		public Dialect Dialect
-		{
-			get { return dialect; }
+			RegisterProperty(ColumnProperty.Null, "NULL");
+			RegisterProperty(ColumnProperty.NotNull, "NOT NULL");
+			RegisterProperty(ColumnProperty.Unique, "UNIQUE");
+			RegisterProperty(ColumnProperty.PrimaryKey, "PRIMARY KEY");
 		}
 
 		public virtual Column[] GetColumns(string table)
@@ -186,7 +161,7 @@ namespace ECM7.Migrator.Providers
 				if (compoundPrimaryKey && column.IsPrimaryKey)
 					column.ColumnProperty |= ColumnProperty.NotNull;
 
-				string columnSql = dialect.GetColumnSql(column, compoundPrimaryKey);
+				string columnSql = GetColumnSql(column, compoundPrimaryKey);
 				listQuerySections.Add(columnSql);
 			}
 
@@ -282,7 +257,7 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			string columnSql = dialect.GetColumnSql(column, false);
+			string columnSql = GetColumnSql(column, false);
 			ChangeColumn(table, columnSql);
 		}
 
@@ -322,7 +297,7 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			string columnSql = dialect.GetColumnSql(column, false);
+			string columnSql = GetColumnSql(column, false);
 
 			AddColumn(table, columnSql);
 		}
@@ -575,8 +550,8 @@ namespace ECM7.Migrator.Providers
 				return;
 			}
 
-			string onDeleteConstraintResolved = constraintMapper.SqlForConstraint(onDeleteConstraint);
-			string onUpdateConstraintResolved = constraintMapper.SqlForConstraint(onUpdateConstraint);
+			string onDeleteConstraintResolved = SqlForConstraint(onDeleteConstraint);
+			string onUpdateConstraintResolved = SqlForConstraint(onUpdateConstraint);
 
 			string sql = FormatSql(
 				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} FOREIGN KEY ({2:COLS}) REFERENCES {3:NAME} ({4:COLS}) ON UPDATE {5} ON DELETE {6}",
@@ -606,17 +581,17 @@ namespace ECM7.Migrator.Providers
 
 			try
 			{
-				if (!dialect.BatchSeparator.IsNullOrEmpty(true) &&
-					sql.IndexOf(dialect.BatchSeparator, StringComparison.CurrentCultureIgnoreCase) >= 0)
+				if (!BatchSeparator.IsNullOrEmpty(true) &&
+					sql.IndexOf(BatchSeparator, StringComparison.CurrentCultureIgnoreCase) >= 0)
 				{
 					// если задан разделитель пакетов запросов, запускаем пакеты по очереди
-					sql += "\n" + this.dialect.BatchSeparator.Trim(); // make sure last batch is executed.
+					sql += "\n" + BatchSeparator.Trim(); // make sure last batch is executed.
 					string[] lines = sql.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
 					StringBuilder sqlBatch = new StringBuilder();
 
 					foreach (string line in lines)
 					{
-						if (line.ToUpperInvariant().Trim() == this.dialect.BatchSeparator.ToUpperInvariant())
+						if (line.ToUpperInvariant().Trim() == BatchSeparator.ToUpperInvariant())
 						{
 							string query = sqlBatch.ToString();
 							if (!query.IsNullOrEmpty(true))
@@ -794,37 +769,37 @@ namespace ECM7.Migrator.Providers
 		#region For
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
 		/// </summary>
-		public ITransformationProvider For<TDialect>()
+		public ITransformationProvider For<TTargetProvider>()
 		{
-			return For(typeof(TDialect));
+			return For(typeof(TTargetProvider));
 		}
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
 		/// </summary>
-		public ITransformationProvider For(Type dialectType)
+		public ITransformationProvider For(Type providerType)
 		{
-			ProviderFactory.ValidateDialectType(dialectType);
-			if (Dialect.GetType() == dialectType)
+			ProviderFactory.ValidateProviderType(providerType);
+			if (GetType() == providerType)
 				return this;
 
 			return NoOpTransformationProvider.Instance;
 		}
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
 		/// </summary>
-		public ITransformationProvider For(string dialectTypeName)
+		public ITransformationProvider For(string providerTypeName)
 		{
-			Type dialectType = Type.GetType(dialectTypeName);
-			Require.IsNotNull(dialectType, "Не удалось загрузить тип диалекта: {0}".FormatWith(dialectTypeName.Nvl("null")));
+			Type dialectType = Type.GetType(providerTypeName);
+			Require.IsNotNull(dialectType, "Не удалось загрузить тип диалекта: {0}".FormatWith(providerTypeName.Nvl("null")));
 			return For(dialectType);
 		}
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
 		/// </summary>
 		public void For<TDialect>(Action<ITransformationProvider> actions)
 		{
@@ -832,26 +807,24 @@ namespace ECM7.Migrator.Providers
 		}
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
 		/// </summary>
-		public void For(Type dialectType, Action<ITransformationProvider> actions)
+		public void For(Type providerType, Action<ITransformationProvider> actions)
 		{
-			ProviderFactory.ValidateDialectType(dialectType);
-			if (Dialect.GetType() == dialectType)
+			ProviderFactory.ValidateProviderType(providerType);
+			if (GetType() == providerType)
 				actions(this);
 		}
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'dialectTypeName'.
+		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'providerTypeName'.
 		/// </summary>
-		public void For(string dialectTypeName, Action<ITransformationProvider> actions)
+		public void For(string providerTypeName, Action<ITransformationProvider> actions)
 		{
-			Type dialectType = Type.GetType(dialectTypeName);
-			Require.IsNotNull(dialectType, "Не удалось загрузить тип диалекта: {0}".FormatWith(dialectTypeName.Nvl("null")));
-			For(dialectType, actions);
+			Type providerType = Type.GetType(providerTypeName);
+			Require.IsNotNull(providerType, "Не удалось загрузить тип провайдера: {0}".FormatWith(providerTypeName.Nvl("null")));
+			For(providerType, actions);
 		}
-
-
 
 		#endregion
 		/// <summary>
@@ -932,23 +905,13 @@ namespace ECM7.Migrator.Providers
 			return BuildCommand(null);
 		}
 
-		public virtual string QuoteValue(string values)
-		{
-			return QuoteValues(new[] { values })[0];
-		}
-
-		public virtual string[] QuoteValues(string[] values)
+		public virtual string[] QuoteValues(params string[] values)
 		{
 			return Array.ConvertAll(values,
 				val => null == val ? "null" : String.Format("'{0}'", val.Replace("'", "''")));
 		}
 
-		public string JoinColumnsAndValues(string[] columns, string[] values)
-		{
-			return JoinColumnsAndValues(columns, values, ",");
-		}
-
-		public string JoinColumnsAndValues(string[] columns, string[] values, string separator)
+		public string JoinColumnsAndValues(string[] columns, string[] values, string separator = ",")
 		{
 			Require.IsNotNull(separator, "Не задан разделитель");
 

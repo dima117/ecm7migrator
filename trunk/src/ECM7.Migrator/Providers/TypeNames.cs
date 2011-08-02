@@ -46,8 +46,6 @@ namespace ECM7.Migrator.Providers
 	/// </remarks>
 	public class TypeNames
 	{
-
-
 		#region Private
 
 		private readonly TypesDictionary typeMapping = new TypesDictionary();

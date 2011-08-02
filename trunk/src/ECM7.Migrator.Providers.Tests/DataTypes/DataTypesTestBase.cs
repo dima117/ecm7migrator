@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.DataTypes
 {
-	public abstract class DataTypesTestBase<TDialect> where TDialect : Dialect, new()
+	public abstract class DataTypesTestBase<TProvider> where TProvider : ITransformationProvider
 	{
 		#region Base
 
@@ -23,8 +23,7 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 		[SetUp]
 		public void TestFixtureSetup()
 		{
-			TDialect dialect = new TDialect();
-			Provider = dialect.NewProviderForDialect(ConnectionString);
+			Provider = ProviderFactory.Create<TProvider>(ConnectionString);
 		}
 
 		#endregion
