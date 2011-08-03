@@ -23,7 +23,7 @@
 		public MySqlTransformationProvider CreateProvider(string connectionString)
 		{
 			MySqlConnection connection = new MySqlConnection(connectionString);
-			return this.CreateProvider(connection);
+			return CreateProvider(connection);
 		}
 
 		#endregion
