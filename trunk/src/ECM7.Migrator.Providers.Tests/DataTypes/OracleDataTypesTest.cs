@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace ECM7.Migrator.Providers.Tests.DataTypes
 {
 	[TestFixture]
-	public class OracleDataTypesTest : DataTypesTestBase<OracleDialect>
+	public class OracleDataTypesTest : DataTypesTestBase<OracleTransformationProviderFactory>
 	{
 		public override string ConnectionString
 		{

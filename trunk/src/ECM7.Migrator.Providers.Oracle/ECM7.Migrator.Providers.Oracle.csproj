@@ -81,8 +81,8 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="OracleDialect.cs" />
     <Compile Include="OracleTransformationProvider.cs" />
+    <Compile Include="OracleTransformationProviderFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">

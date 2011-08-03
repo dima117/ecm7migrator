@@ -1,3 +1,7 @@
+using System.Data.SqlClient;
+using ECM7.Migrator.Providers;
+using Oracle.DataAccess.Client;
+
 namespace ECM7.Migrator.Tests2
 {
 	using System.Data;
@@ -11,8 +15,13 @@ namespace ECM7.Migrator.Tests2
 	[TestFixture]
 	public class ColumnPropertyMappingTest
 	{
-		private readonly OracleDialect oracleDialect = new OracleDialect();
-		private readonly SqlServerDialect sqlServerDialect = new SqlServerDialect();
+		private readonly OracleTransformationProvider oracleDialect = ProviderFactoryBuilder
+			.CreateProviderFactory<OracleTransformationProviderFactory>()
+			.CreateProvider(new OracleConnection());
+
+		private readonly SqlServerTransformationProvider sqlServerDialect = ProviderFactoryBuilder
+			.CreateProviderFactory<SqlServerTransformationProviderFactory>()
+			.CreateProvider(new SqlConnection());
 
 		[Test]
 		public void OracleCreatesSql()

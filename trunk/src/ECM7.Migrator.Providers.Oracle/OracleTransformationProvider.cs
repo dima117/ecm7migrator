@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Data;
 
 using ECM7.Migrator.Framework;
+using Oracle.DataAccess.Client;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
-using OracleConnection = Oracle.DataAccess.Client.OracleConnection;
 
 namespace ECM7.Migrator.Providers.Oracle
 {
@@ -14,17 +14,84 @@ namespace ECM7.Migrator.Providers.Oracle
 	/// <summary>
 	/// Провайдер трансформации для Oracle
 	/// </summary>
-	public class OracleTransformationProvider : TransformationProvider
+	public class OracleTransformationProvider : TransformationProvider<OracleConnection>
 	{
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		/// <param name="dialect">Диалект</param>
-		/// <param name="connectionString">Строка подключения</param>
-		public OracleTransformationProvider(Dialect dialect, string connectionString)
-			: base(dialect, new OracleConnection(connectionString))
+		/// <param name="connection">Подключение к БД</param>
+		public OracleTransformationProvider(OracleConnection connection)
+			: base(connection)
 		{
+			RegisterColumnType(DbType.AnsiStringFixedLength, "CHAR(255)");
+			RegisterColumnType(DbType.AnsiStringFixedLength, 2000, "CHAR($l)");
+			RegisterColumnType(DbType.AnsiString, "VARCHAR2(255)");
+			RegisterColumnType(DbType.AnsiString, 2000, "VARCHAR2($l)");
+			RegisterColumnType(DbType.AnsiString, 2147483647, "CLOB"); // should use the IType.ClobType
+			RegisterColumnType(DbType.Binary, "RAW(2000)");
+			RegisterColumnType(DbType.Binary, 2000, "RAW($l)");
+			RegisterColumnType(DbType.Binary, 2147483647, "BLOB");
+			RegisterColumnType(DbType.Boolean, "NUMBER(1,0)");
+			RegisterColumnType(DbType.Byte, "NUMBER(3,0)");
+			RegisterColumnType(DbType.Currency, "NUMBER(19,1)");
+			RegisterColumnType(DbType.Date, "DATE");
+			RegisterColumnType(DbType.DateTime, "TIMESTAMP(4)");
+			RegisterColumnType(DbType.Decimal, "NUMBER");
+			RegisterColumnType(DbType.Decimal, 38, "NUMBER($l, $s)", 2);
+			// having problems with both ODP and OracleClient from MS not being able
+			// to read values out of a field that is DOUBLE PRECISION
+			RegisterColumnType(DbType.Double, "BINARY_DOUBLE");
+			RegisterColumnType(DbType.Guid, "RAW(16)");
+			RegisterColumnType(DbType.Int16, "NUMBER(5,0)");
+			RegisterColumnType(DbType.Int32, "NUMBER(10,0)");
+			RegisterColumnType(DbType.Int64, "NUMBER(18,0)");
+			RegisterColumnType(DbType.Single, "FLOAT(24)");
+			RegisterColumnType(DbType.StringFixedLength, "NCHAR(255)");
+			RegisterColumnType(DbType.StringFixedLength, 2000, "NCHAR($l)");
+			RegisterColumnType(DbType.String, "NVARCHAR2(255)");
+			RegisterColumnType(DbType.String, 2000, "NVARCHAR2($l)");
+			RegisterColumnType(DbType.String, 1073741823, "NCLOB");
+			RegisterColumnType(DbType.Time, "DATE");
+
+			RegisterProperty(ColumnProperty.Null, String.Empty);
 		}
+
+		#region Overrides of SqlGenerator
+
+		public override string NamesQuoteTemplate
+		{
+			get { return "\"{0}\""; }
+		}
+
+		public override string BatchSeparator
+		{
+			get { return "/"; }
+		}
+
+		public override string Default(object defaultValue)
+		{
+			// convert boolean to number (1, 0)
+			if (defaultValue is bool)
+			{
+				defaultValue = (bool)defaultValue ? 1 : 0;
+			}
+
+			return base.Default(defaultValue);
+		}
+
+		protected override void BuildColumnSql(List<string> vals, Column column, bool compoundPrimaryKey)
+		{
+			AddColumnName(vals, column);
+			AddColumnType(vals, column);
+			AddDefaultValueSql(vals, column);
+			AddNotNullSql(vals, column);
+			AddPrimaryKeySql(vals, column, compoundPrimaryKey);
+			AddUniqueSql(vals, column);
+		}
+
+		#endregion
+
+		#region custom sql
 
 		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
 										  string[] refColumns, ForeignKeyConstraint constraint)
@@ -196,5 +263,7 @@ namespace ECM7.Migrator.Providers.Oracle
 			string sql = FormatSql("ALTER TABLE {0:NAME} MODIFY ({1})", table, columnSql);
 			ExecuteNonQuery(sql);
 		}
+
+		#endregion
 	}
 }

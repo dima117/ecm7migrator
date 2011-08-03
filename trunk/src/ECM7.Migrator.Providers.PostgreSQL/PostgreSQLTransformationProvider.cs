@@ -18,7 +18,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		/// Инициализация
 		/// </summary>
 		/// <param name="connection"></param>
-		public PostgreSQLTransformationProvider(NpgsqlConnection connection) : base(connection)
+		public PostgreSQLTransformationProvider(NpgsqlConnection connection)
+			: base(connection)
 		{
 			RegisterColumnType(DbType.AnsiStringFixedLength, "char(255)");
 			RegisterColumnType(DbType.AnsiStringFixedLength, 8000, "char($l)");
@@ -48,6 +49,35 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 			RegisterProperty(ColumnProperty.Identity, "serial");
 		}
+
+		#region Overrides of SqlGenerator
+
+		public override bool IdentityNeedsType
+		{
+			get { return false; }
+		}
+
+		public override bool NeedsNotNullForIdentity
+		{
+			get { return true; }
+		}
+
+		public override bool SupportsIndex
+		{
+			get { return true; }
+		}
+
+		public override string NamesQuoteTemplate
+		{
+			get { return "\"{0}\""; }
+		}
+
+		public override string BatchSeparator
+		{
+			get { return null; }
+		}
+
+		#endregion
 
 		#region custom sql
 
@@ -174,35 +204,6 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 
 			return columns.ToArray();
-		} 
-
-		#endregion
-
-		#region Overrides of SqlGenerator
-
-		public override bool IdentityNeedsType
-		{
-			get { return false; }
-		}
-
-		public override bool NeedsNotNullForIdentity
-		{
-			get { return true; }
-		}
-
-		public override bool SupportsIndex
-		{
-			get { return true; }
-		}
-
-		public override string NamesQuoteTemplate
-		{
-			get { return "\"{0}\""; }
-		}
-
-		public override string BatchSeparator
-		{
-			get { return null; }
 		}
 
 		#endregion

@@ -23,7 +23,7 @@
 		public PostgreSQLTransformationProvider CreateProvider(string connectionString)
 		{
 			NpgsqlConnection connection = new NpgsqlConnection(connectionString);
-			return this.CreateProvider(connection);
+			return CreateProvider(connection);
 		}
 
 		#endregion
