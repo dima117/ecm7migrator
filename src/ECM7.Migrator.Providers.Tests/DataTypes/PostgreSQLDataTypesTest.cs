@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace ECM7.Migrator.Providers.Tests.DataTypes
 {
 	[TestFixture]
-	public class PostgreSQLDataTypesTest : DataTypesTestBase<PostgreSQLTransformationProvider>
+	public class PostgreSQLDataTypesTest : DataTypesTestBase<PostgreSQLTransformationProviderFactory>
 	{
 		public override string ConnectionString
 		{

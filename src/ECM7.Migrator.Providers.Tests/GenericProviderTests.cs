@@ -1,14 +1,11 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System;
 	using System.Data;
 
 	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Providers;
 
 	using Moq;
-
-	using Npgsql;
 
 	using NUnit.Framework;
 
@@ -20,22 +17,24 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			int i = 0;
 
-			Mock<NpgsqlConnection> conn = new Mock<NpgsqlConnection>();
-			ITransformationProvider provider = new GenericTransformationProvider<NpgsqlConnection>(conn.Object);
+			Mock<IDbConnection> conn = new Mock<IDbConnection>();
+			ITransformationProvider provider = new GenericTransformationProvider<IDbConnection>(conn.Object);
 
-			provider.For<GenericTransformationProvider<NpgsqlConnection>>(database => i = 5);
+			// передаем реальный класс провайдера
+			provider.For<GenericTransformationProvider<IDbConnection>>(database => i = 5);
 			Assert.AreEqual(5, i);
 
-			provider.For<PostgreSQLTransformationProviderTest>(database => i = 15);
-			Assert.AreNotEqual(5, i);
+			// передаем левый класс
+			provider.For<GenericProviderTests>(database => i = 15);
+			Assert.AreEqual(5, i);
 		}
 
 		[Test]
 		public void CanJoinColumnsAndValues()
 		{
-			Mock<NpgsqlConnection> conn = new Mock<NpgsqlConnection>();
+			Mock<IDbConnection> conn = new Mock<IDbConnection>();
 
-			var provider = new GenericTransformationProvider<NpgsqlConnection>(conn.Object);
+			var provider = new GenericTransformationProvider<IDbConnection>(conn.Object);
 			string result = provider.JoinColumnsAndValues(new[] { "foo", "bar" }, new[] { "123", "456" });
 
 			string expected = provider.FormatSql("{0:NAME}='123' , {1:NAME}='456'", "foo", "bar");
@@ -45,7 +44,7 @@ namespace ECM7.Migrator.Providers.Tests
 	}
 
 	public class GenericTransformationProvider<TConnection> : TransformationProvider<TConnection>
-		where TConnection : IDbConnection, new()
+		where TConnection : IDbConnection
 	{
 		public GenericTransformationProvider(TConnection conn) : base(conn)
 		{
@@ -60,34 +59,5 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			return false;
 		}
-
-		#region Overrides of SqlGenerator
-
-		public override bool IdentityNeedsType
-		{
-			get { throw new NotImplementedException(); }
-		}
-
-		public override bool NeedsNotNullForIdentity
-		{
-			get { throw new NotImplementedException(); }
-		}
-
-		public override bool SupportsIndex
-		{
-			get { throw new NotImplementedException(); }
-		}
-
-		public override string NamesQuoteTemplate
-		{
-			get { throw new NotImplementedException(); }
-		}
-
-		public override string BatchSeparator
-		{
-			get { throw new NotImplementedException(); }
-		}
-
-		#endregion
 	}
 }

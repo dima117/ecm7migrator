@@ -38,12 +38,14 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 
 			string constr = ConfigurationManager.AppSettings["SqlServerCeConnectionString"];
-			if (constr == null)
-				throw new ArgumentNullException("SqlServerCeConnectionString", "No config file");
+			Require.IsNotNullOrEmpty(constr, "Connection string \"SqlServerCeConnectionString\" is not exist");
 
 			EnsureDatabase(constr);
 
-			provider = new SqlServerCeTransformationProvider(new SqlServerCeDialect(), constr);
+			provider = ProviderFactoryBuilder
+				.CreateProviderFactory<SqlServerCeTransformationProviderFactory>()
+				.CreateProvider(constr);
+
 			provider.BeginTransaction();
 
 			AddDefaultTable();

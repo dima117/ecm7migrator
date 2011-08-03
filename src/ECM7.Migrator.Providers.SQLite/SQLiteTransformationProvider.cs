@@ -3,26 +3,69 @@ namespace ECM7.Migrator.Providers.SQLite
 	using System;
 	using System.Collections.Generic;
 	using System.Data;
+	using System.Data.SQLite;
 	using System.Linq;
 	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Framework.Logging;
 
-	using SqliteConnection = System.Data.SQLite.SQLiteConnection;
-
 	/// <summary>
 	/// Summary description for SQLiteTransformationProvider.
 	/// </summary>
-	public class SQLiteTransformationProvider : TransformationProvider
+	public class SQLiteTransformationProvider : TransformationProvider<SQLiteConnection>
 	{
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		/// <param name="dialect"></param>
-		/// <param name="connectionString"></param>
-		public SQLiteTransformationProvider(Dialect dialect, string connectionString)
-			: base(dialect, new SqliteConnection(connectionString))
+		/// <param name="connection">Подключение к БД</param>
+		public SQLiteTransformationProvider(SQLiteConnection connection)
+			: base(connection)
 		{
+			RegisterColumnType(DbType.Binary, "BLOB");
+			RegisterColumnType(DbType.Byte, "INTEGER");
+			RegisterColumnType(DbType.Int16, "INTEGER");
+			RegisterColumnType(DbType.Int32, "INTEGER");
+			RegisterColumnType(DbType.Int64, "INTEGER");
+			RegisterColumnType(DbType.SByte, "INTEGER");
+			RegisterColumnType(DbType.UInt16, "INTEGER");
+			RegisterColumnType(DbType.UInt32, "INTEGER");
+			RegisterColumnType(DbType.UInt64, "INTEGER");
+			RegisterColumnType(DbType.Currency, "NUMERIC");
+			RegisterColumnType(DbType.Decimal, "NUMERIC");
+			RegisterColumnType(DbType.Double, "NUMERIC");
+			RegisterColumnType(DbType.Single, "NUMERIC");
+			RegisterColumnType(DbType.VarNumeric, "NUMERIC");
+			RegisterColumnType(DbType.String, "TEXT");
+			RegisterColumnType(DbType.AnsiString, "TEXT");
+			RegisterColumnType(DbType.AnsiStringFixedLength, "TEXT");
+			RegisterColumnType(DbType.StringFixedLength, "TEXT");
+			RegisterColumnType(DbType.DateTime, "DATETIME");
+			RegisterColumnType(DbType.Time, "DATETIME");
+			RegisterColumnType(DbType.Boolean, "INTEGER");
+			RegisterColumnType(DbType.Guid, "UNIQUEIDENTIFIER");
+
+			RegisterProperty(ColumnProperty.Identity, "AUTOINCREMENT");
 		}
+
+		#region Overrides of SqlGenerator
+
+		public override bool NeedsNotNullForIdentity
+		{
+			get { return false; }
+		}
+
+		public override string NamesQuoteTemplate
+		{
+			get { return "[{0}]"; }
+		}
+
+		public override string BatchSeparator
+		{
+			get { return "GO"; }
+		}
+
+		#endregion
+
+		#region custom sql
 
 		/// <summary>
 		/// Check that the index with the specified name already exists
@@ -45,9 +88,9 @@ namespace ECM7.Migrator.Providers.SQLite
 			ECM7.Migrator.Framework.ForeignKeyConstraint onUpdateConstraint)
 		{
 			// todo: написать тесты на отсутствие поддержки внешних ключей в SQLite
+			// todo: проверить, что при отдельном добавлении внешнего ключа генерируется исключение
 			throw new NotSupportedException("SQLite не поддерживает внешние ключи");
 		}
-
 
 		/// <summary>
 		/// Remove an existing foreign key constraint
@@ -166,8 +209,8 @@ namespace ECM7.Migrator.Providers.SQLite
 		{
 			List<string> tables = new List<string>();
 
-			string sql = "SELECT [name] FROM [sqlite_master] WHERE [type]='table' AND [name] <> 'sqlite_sequence' ORDER BY [name]";
-			using (IDataReader reader = ExecuteQuery(sql))
+			const string SQL = "SELECT [name] FROM [sqlite_master] WHERE [type]='table' AND [name] <> 'sqlite_sequence' ORDER BY [name]";
+			using (IDataReader reader = ExecuteQuery(SQL))
 			{
 				while (reader.Read())
 				{
@@ -281,7 +324,9 @@ namespace ECM7.Migrator.Providers.SQLite
 
 		public bool ColumnMatch(string column, string columnDef)
 		{
-			return columnDef.StartsWith(column + " ") || columnDef.StartsWith(dialect.QuoteName(column));
+			return columnDef.StartsWith(column + " ") || columnDef.StartsWith(QuoteName(column));
 		}
+
+		#endregion
 	}
 }

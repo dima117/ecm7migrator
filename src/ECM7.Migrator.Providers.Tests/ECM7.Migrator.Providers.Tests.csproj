@@ -67,9 +67,16 @@
       <Link>AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DataTypes\DataTypesTestBase.cs" />
+    <Compile Include="DataTypes\MySqlDataTypesTest.cs" />
     <Compile Include="DataTypes\PostgreSQLDataTypesTest.cs" />
+    <Compile Include="DataTypes\SQLiteDataTypesTest.cs" />
+    <Compile Include="DataTypes\SqlServerDataTypesTest.cs" />
     <Compile Include="GenericProviderTests.cs" />
+    <Compile Include="MySqlTransformationProviderTest.cs" />
     <Compile Include="PostgreSQLTransformationProviderTest.cs" />
+    <Compile Include="SQLiteTransformationProviderTest.cs" />
+    <Compile Include="SqlServerCeTransformationProviderTest.cs" />
+    <Compile Include="SqlServerTransformationProviderTest.cs" />
     <Compile Include="TransformationProviderBase.cs" />
     <Compile Include="TransformationProviderConstraintBase.cs" />
   </ItemGroup>
@@ -78,9 +85,21 @@
       <Project>{5270F048-E580-486C-B14C-E5B9F6E539D4}</Project>
       <Name>ECM7.Migrator.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.MySql\ECM7.Migrator.Providers.MySql.csproj">
+      <Project>{86CC1CD8-981F-42DA-AA2E-FE51576557AB}</Project>
+      <Name>ECM7.Migrator.Providers.MySql</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ECM7.Migrator.Providers.PostgreSQL\ECM7.Migrator.Providers.PostgreSQL.csproj">
       <Project>{FFE9E6C3-E4F6-465B-AEC0-7EC35E293072}</Project>
       <Name>ECM7.Migrator.Providers.PostgreSQL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.SQLite\ECM7.Migrator.Providers.SQLite.csproj">
+      <Project>{F67D8D5F-7ADE-484B-9B3C-F7026F292EA8}</Project>
+      <Name>ECM7.Migrator.Providers.SQLite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.SqlServer\ECM7.Migrator.Providers.SqlServer.csproj">
+      <Project>{6ADF67EC-6865-4A44-8E41-2BAF236B9792}</Project>
+      <Name>ECM7.Migrator.Providers.SqlServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\ECM7.Migrator.TestAssembly\ECM7.Migrator.TestAssembly.csproj">
       <Project>{C7EBEAE4-50AD-49B1-89BB-2D9035E8117D}</Project>

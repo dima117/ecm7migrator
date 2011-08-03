@@ -1,6 +1,5 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System;
 	using System.Configuration;
 	using System.Data;
 
@@ -17,12 +16,11 @@ namespace ECM7.Migrator.Providers.Tests
 		public void SetUp()
 		{
 			string constr = ConfigurationManager.AppSettings["SqlServerConnectionString"];
-			if (constr == null)
-			{
-				throw new ArgumentNullException("SqlServerConnectionString", "No config file");
-			}
+			Require.IsNotNullOrEmpty(constr, "Connection string \"SqlServerConnectionString\" is not exist");
 
-			provider = new SqlServerTransformationProvider(new SqlServerDialect(), constr);
+			provider = ProviderFactoryBuilder
+				.CreateProviderFactory<SqlServerTransformationProviderFactory>()
+				.CreateProvider(constr);
 			provider.BeginTransaction();
 
 			AddDefaultTable();
@@ -50,8 +48,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void QuoteCreatesProperFormat()
 		{
-			Dialect dialect = new SqlServerDialect();
-			Assert.AreEqual("[foo]", dialect.QuoteName("foo"));
+			Assert.AreEqual("[foo]", provider.QuoteName("foo"));
 		}
         
 		[Test]

@@ -30,10 +30,11 @@ namespace ECM7.Migrator.Providers.Tests
 		public void SetUp()
 		{
 			string constr = ConfigurationManager.AppSettings["MySqlConnectionString"];
-			if (constr == null)
-				throw new ArgumentNullException("MySqlConnectionString", "No config file");
-			provider = new MySqlTransformationProvider(new MySqlDialect(), constr);
-			// provider.Logger = new Logger(true, new ConsoleWriter());
+			Require.IsNotNullOrEmpty(constr, "Connection string \"MySqlConnectionString\" is not exist");
+
+			provider = ProviderFactoryBuilder
+				.CreateProviderFactory<MySqlTransformationProviderFactory>()
+				.CreateProvider(constr);
 
 			AddDefaultTable();
 		}

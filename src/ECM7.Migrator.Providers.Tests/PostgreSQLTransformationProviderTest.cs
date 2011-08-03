@@ -37,10 +37,12 @@ namespace ECM7.Migrator.Providers.Tests
 		public void SetUp()
 		{
 			string constr = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
-			if (constr == null)
-				throw new ArgumentNullException("ConnectionString", "No config file");
+			Require.IsNotNullOrEmpty(constr, "Connection string \"NpgsqlConnectionString\" is not exist");
 
-			provider = new PostgreSQLTransformationProvider(constr);
+			provider = ProviderFactoryBuilder
+				.CreateProviderFactory<PostgreSQLTransformationProviderFactory>()
+				.CreateProvider(constr);
+
 			provider.BeginTransaction();
             
 			AddDefaultTable();

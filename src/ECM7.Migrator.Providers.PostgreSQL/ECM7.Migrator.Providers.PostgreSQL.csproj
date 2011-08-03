@@ -53,6 +53,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ECM7.Common, Version=0.11.0.1001, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="log4net">
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>
@@ -77,6 +78,7 @@
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="PostgreSQLTransformationProvider.cs" />
+    <Compile Include="PostgreSQLTransformationProviderFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">

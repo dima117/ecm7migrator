@@ -17,48 +17,36 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		/// <param name="connectionString">Строка подключения</param>
-		public PostgreSQLTransformationProvider(string connectionString)
-			: base(new NpgsqlConnection(connectionString))
+		/// <param name="connection"></param>
+		public PostgreSQLTransformationProvider(NpgsqlConnection connection) : base(connection)
 		{
-			Init();
-		}
+			RegisterColumnType(DbType.AnsiStringFixedLength, "char(255)");
+			RegisterColumnType(DbType.AnsiStringFixedLength, 8000, "char($l)");
+			RegisterColumnType(DbType.AnsiString, "varchar(255)");
+			RegisterColumnType(DbType.AnsiString, 8000, "varchar($l)");
+			RegisterColumnType(DbType.AnsiString, 2147483647, "text");
+			RegisterColumnType(DbType.Binary, "bytea");
+			RegisterColumnType(DbType.Binary, 2147483647, "bytea");
+			RegisterColumnType(DbType.Boolean, "boolean");
+			RegisterColumnType(DbType.Byte, "int2");
+			RegisterColumnType(DbType.Currency, "decimal(16,4)");
+			RegisterColumnType(DbType.Date, "date");
+			RegisterColumnType(DbType.DateTime, "timestamp");
+			RegisterColumnType(DbType.Decimal, "decimal(19,5)");
+			RegisterColumnType(DbType.Decimal, 19, "decimal(18, $l)");
+			RegisterColumnType(DbType.Double, "float8");
+			RegisterColumnType(DbType.Int16, "int2");
+			RegisterColumnType(DbType.Int32, "int4");
+			RegisterColumnType(DbType.Int64, "int8");
+			RegisterColumnType(DbType.Single, "float4");
+			RegisterColumnType(DbType.StringFixedLength, "char(255)");
+			RegisterColumnType(DbType.StringFixedLength, 4000, "char($l)");
+			RegisterColumnType(DbType.String, "varchar(255)");
+			RegisterColumnType(DbType.String, 4000, "varchar($l)");
+			RegisterColumnType(DbType.String, 1073741823, "text");
+			RegisterColumnType(DbType.Time, "time");
 
-		public PostgreSQLTransformationProvider(NpgsqlConnection connection)
-			: base(connection)
-		{
-			Init();
-		}
-
-		private void Init()
-		{
-			this.RegisterColumnType(DbType.AnsiStringFixedLength, "char(255)");
-			this.RegisterColumnType(DbType.AnsiStringFixedLength, 8000, "char($l)");
-			this.RegisterColumnType(DbType.AnsiString, "varchar(255)");
-			this.RegisterColumnType(DbType.AnsiString, 8000, "varchar($l)");
-			this.RegisterColumnType(DbType.AnsiString, 2147483647, "text");
-			this.RegisterColumnType(DbType.Binary, "bytea");
-			this.RegisterColumnType(DbType.Binary, 2147483647, "bytea");
-			this.RegisterColumnType(DbType.Boolean, "boolean");
-			this.RegisterColumnType(DbType.Byte, "int2");
-			this.RegisterColumnType(DbType.Currency, "decimal(16,4)");
-			this.RegisterColumnType(DbType.Date, "date");
-			this.RegisterColumnType(DbType.DateTime, "timestamp");
-			this.RegisterColumnType(DbType.Decimal, "decimal(19,5)");
-			this.RegisterColumnType(DbType.Decimal, 19, "decimal(18, $l)");
-			this.RegisterColumnType(DbType.Double, "float8");
-			this.RegisterColumnType(DbType.Int16, "int2");
-			this.RegisterColumnType(DbType.Int32, "int4");
-			this.RegisterColumnType(DbType.Int64, "int8");
-			this.RegisterColumnType(DbType.Single, "float4");
-			this.RegisterColumnType(DbType.StringFixedLength, "char(255)");
-			this.RegisterColumnType(DbType.StringFixedLength, 4000, "char($l)");
-			this.RegisterColumnType(DbType.String, "varchar(255)");
-			this.RegisterColumnType(DbType.String, 4000, "varchar($l)");
-			this.RegisterColumnType(DbType.String, 1073741823, "text");
-			this.RegisterColumnType(DbType.Time, "time");
-
-			this.RegisterProperty(ColumnProperty.Identity, "serial");
+			RegisterProperty(ColumnProperty.Identity, "serial");
 		}
 
 		#region custom sql

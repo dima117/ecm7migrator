@@ -1,6 +1,5 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System;
 	using System.Configuration;
 
 	using ECM7.Migrator.Providers.SQLite;
@@ -33,12 +32,12 @@ namespace ECM7.Migrator.Providers.Tests
 		public void SetUp()
 		{
 			string constr = ConfigurationManager.AppSettings["SQLiteConnectionString"];
-			if (constr == null)
-			{
-				throw new ArgumentNullException("SQLiteConnectionString", "No config file");
-			}
+			Require.IsNotNullOrEmpty(constr, "Connection string \"SQLiteConnectionString\" is not exist");
 
-			provider = new SQLiteTransformationProvider(new SQLiteDialect(), constr);
+			provider = ProviderFactoryBuilder
+				.CreateProviderFactory<SQLiteTransformationProviderFactory>()
+				.CreateProvider(constr);
+
 			provider.BeginTransaction();
 
 			AddDefaultTable();
@@ -47,8 +46,8 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanParseSqlDefinitions() 
 		{
-			const string testSql = "CREATE TABLE bar ( id INTEGER PRIMARY KEY AUTOINCREMENT, bar TEXT, baz INTEGER NOT NULL )";
-			string[] columns = ((SQLiteTransformationProvider) provider).ParseSqlColumnDefs(testSql);
+			const string TEST_SQL = "CREATE TABLE bar ( id INTEGER PRIMARY KEY AUTOINCREMENT, bar TEXT, baz INTEGER NOT NULL )";
+			string[] columns = ((SQLiteTransformationProvider) provider).ParseSqlColumnDefs(TEST_SQL);
 			Assert.IsNotNull(columns);
 			Assert.AreEqual(3, columns.Length);
 			Assert.AreEqual("id INTEGER PRIMARY KEY AUTOINCREMENT", columns[0]);
@@ -59,8 +58,8 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanParseSqlDefinitionsForColumnNames() 
 		{
-			const string testSql = "CREATE TABLE bar ( id INTEGER PRIMARY KEY AUTOINCREMENT, bar TEXT, baz INTEGER NOT NULL )";
-			string[] columns = ((SQLiteTransformationProvider) provider).ParseSqlForColumnNames(testSql);
+			const string TEST_SQL = "CREATE TABLE bar ( id INTEGER PRIMARY KEY AUTOINCREMENT, bar TEXT, baz INTEGER NOT NULL )";
+			string[] columns = ((SQLiteTransformationProvider) provider).ParseSqlForColumnNames(TEST_SQL);
 			Assert.IsNotNull(columns);
 			Assert.AreEqual(3, columns.Length);
 			Assert.AreEqual("id", columns[0]);
@@ -71,19 +70,19 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanParseColumnDefForNotNull()
 		{
-			const string nullString = "bar TEXT";
-			const string notNullString = "baz INTEGER NOT NULL";
-			Assert.IsTrue(((SQLiteTransformationProvider)provider).IsNullable(nullString));
-			Assert.IsFalse(((SQLiteTransformationProvider)provider).IsNullable(notNullString));
+			const string NULL_STRING = "bar TEXT";
+			const string NOT_NULL_STRING = "baz INTEGER NOT NULL";
+			Assert.IsTrue(((SQLiteTransformationProvider)provider).IsNullable(NULL_STRING));
+			Assert.IsFalse(((SQLiteTransformationProvider)provider).IsNullable(NOT_NULL_STRING));
 		}
 
 		[Test]
 		public void CanParseColumnDefForName()
 		{
-			const string nullString = "bar TEXT";
-			const string notNullString = "baz INTEGER NOT NULL";
-			Assert.AreEqual("bar", ((SQLiteTransformationProvider)provider).ExtractNameFromColumnDef(nullString));
-			Assert.AreEqual("baz", ((SQLiteTransformationProvider)provider).ExtractNameFromColumnDef(notNullString));
+			const string NULL_STRING = "bar TEXT";
+			const string NOT_NULL_STRING = "baz INTEGER NOT NULL";
+			Assert.AreEqual("bar", ((SQLiteTransformationProvider)provider).ExtractNameFromColumnDef(NULL_STRING));
+			Assert.AreEqual("baz", ((SQLiteTransformationProvider)provider).ExtractNameFromColumnDef(NOT_NULL_STRING));
 		}
 	}
 }

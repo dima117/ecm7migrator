@@ -7,6 +7,7 @@ namespace ECM7.Migrator
 	using System.Reflection;
 
 	using ECM7.Migrator.Framework.Logging;
+	using ECM7.Migrator.Providers;
 
 	using Framework;
 	using Loader;
@@ -39,18 +40,12 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string dialectTypeName, string connectionString, Assembly asm)
-			: this(ProviderFactory.Create(dialectTypeName, connectionString), asm)
+		public Migrator(string factoryTypeName, string connectionString, Assembly asm)
 		{
-		}
-
-		/// <summary>
-		/// Инициализация
-		/// </summary>
-		public Migrator(ITransformationProvider provider, Assembly asm)
-		{
-			Require.IsNotNull(provider, "Не задан провайдер СУБД");
-			this.provider = provider;
+			var factory = ProviderFactoryBuilder.CreateProviderFactory(factoryTypeName);
+			Require.IsNotNull(factory, "Не удалось создать фабрику провайдеров");
+			
+			this.provider = factory.CreateProvider(connectionString);
 
 			Require.IsNotNull(asm, "Не задана сборка с миграциями");
 			this.migrationAssembly = new MigrationAssembly(asm);
