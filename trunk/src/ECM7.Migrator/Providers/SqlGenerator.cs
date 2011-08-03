@@ -288,21 +288,30 @@ namespace ECM7.Migrator.Providers
 
 		#region Особенности СУБД
 
-		public abstract bool IdentityNeedsType { get; }
+		public virtual bool IdentityNeedsType
+		{
+			get { return true; }
+		}
 
-		public abstract bool NeedsNotNullForIdentity { get; }
+		public virtual bool NeedsNotNullForIdentity
+		{
+			get { return true; }
+		}
 
-		public abstract bool SupportsIndex { get; }
+		public virtual bool SupportsIndex
+		{
+			get { return true; }
+		}
 
-		/// <summary>
-		/// Шаблон кавычек для идентификаторов
-		/// </summary>
-		public abstract string NamesQuoteTemplate { get; }
+		public virtual string NamesQuoteTemplate
+		{
+			get { return "\"{0}\""; }
+		}
 
-		/// <summary>
-		/// Разделитель для пакетов запросов
-		/// </summary>
-		public abstract string BatchSeparator { get; }
+		public virtual string BatchSeparator
+		{
+			get { return null; }
+		}
 
 		#endregion
 	}

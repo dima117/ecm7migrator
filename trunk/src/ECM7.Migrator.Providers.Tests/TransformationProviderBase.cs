@@ -143,8 +143,8 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanExecuteBadSqlForNonCurrentProvider()
 		{
-			provider.For<GenericTransformationProvider<NpgsqlConnection>>()
-				.ExecuteNonQuery("select foo from bar 123");
+			provider.For<GenericTransformationProvider<NpgsqlConnection>>(
+				database => database.ExecuteNonQuery("select foo from bar 123"));
 		}
 
 		[Test]

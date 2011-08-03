@@ -53,6 +53,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ECM7.Common, Version=0.11.0.1001, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="log4net">
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>
@@ -77,10 +78,11 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="SqlServerCeDialect.cs" />
     <Compile Include="SqlServerCeTransformationProvider.cs" />
-    <Compile Include="SqlServerDialect.cs" />
+    <Compile Include="BaseSqlServerTransformationProvider.cs" />
+    <Compile Include="SqlServerCeTransformationProviderFactory.cs" />
     <Compile Include="SqlServerTransformationProvider.cs" />
+    <Compile Include="SqlServerTransformationProviderFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">

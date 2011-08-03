@@ -457,21 +457,6 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
 		/// </summary>
-		ITransformationProvider For<TDialect>();
-
-		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
-		/// </summary>
-		ITransformationProvider For(Type providerType);
-
-		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'providerTypeName'.
-		/// </summary>
-		ITransformationProvider For(string providerTypeName);
-
-		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
-		/// </summary>
 		void For<TDialect>(Action<ITransformationProvider> actions);
 
 		/// <summary>

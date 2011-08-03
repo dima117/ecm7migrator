@@ -1,16 +1,3 @@
-#region License
-
-//The contents of this file are subject to the Mozilla Public License
-//Version 1.1 (the "License"); you may not use this file except in
-//compliance with the License. You may obtain a copy of the License at
-//http://www.mozilla.org/MPL/
-//Software distributed under the License is distributed on an "AS IS"
-//basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
-//License for the specific language governing rights and limitations
-//under the License.
-
-#endregion
-
 using System;
 using System.Data;
 using System.Data.SqlServerCe;
@@ -23,11 +10,30 @@ namespace ECM7.Migrator.Providers.SqlServer
 	/// <summary>
 	/// Migration transformations provider for Microsoft SQL Server.
 	/// </summary>
-	public class SqlServerCeTransformationProvider : SqlServerTransformationProvider
+	public class SqlServerCeTransformationProvider : BaseSqlServerTransformationProvider<SqlCeConnection>
 	{
-		public SqlServerCeTransformationProvider(Dialect dialect, string connectionString)
-			: base(dialect, new SqlCeConnection(connectionString))
+		// todo: написать для всех провайдеров тесты на типы данных
+		
+		#region custom sql
+
+		public SqlServerCeTransformationProvider(SqlCeConnection connection)
+			: base(connection)
 		{
+			RegisterColumnType(DbType.AnsiStringFixedLength, "NCHAR(255)");
+			RegisterColumnType(DbType.AnsiStringFixedLength, 4000, "NCHAR($l)");
+			RegisterColumnType(DbType.AnsiString, "VARCHAR(255)");
+			RegisterColumnType(DbType.AnsiString, 4000, "VARCHAR($l)");
+			RegisterColumnType(DbType.AnsiString, int.MaxValue, "TEXT");
+
+			RegisterColumnType(DbType.String, "NVARCHAR(255)");
+			RegisterColumnType(DbType.String, 4000, "NVARCHAR($l)");
+			RegisterColumnType(DbType.String, int.MaxValue, "NTEXT");
+
+			RegisterColumnType(DbType.Binary, int.MaxValue, "IMAGE");
+
+			RegisterColumnType(DbType.Decimal, "NUMERIC(19,5)");
+			RegisterColumnType(DbType.Decimal, 19, "NUMERIC(19, $l)");
+			RegisterColumnType(DbType.Double, "FLOAT");
 		}
 
 		public override bool ConstraintExists(string table, string name)
@@ -89,5 +95,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 				string.Format("SELECT [cont].[constraint_name] FROM [INFORMATION_SCHEMA].[KEY_COLUMN_USAGE] [cont] "
 					+ "WHERE [cont].[Table_Name]='{0}' AND [cont].[column_name] = '{1}'", table, column);
 		}
+
+		#endregion
 	}
 }

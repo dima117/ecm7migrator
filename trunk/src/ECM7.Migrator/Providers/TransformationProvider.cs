@@ -21,16 +21,11 @@ namespace ECM7.Migrator.Providers
 	/// A 'tranformation' is an operation that modifies the database.
 	/// </summary>
 	public abstract class TransformationProvider<TConnection> : SqlGenerator, ITransformationProvider
-		where TConnection : IDbConnection, new()
+		where TConnection : IDbConnection
 	{
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
 		protected IDbConnection connection;
 		private IDbTransaction transaction;
-
-		protected TransformationProvider(string connectionString)
-			: this(new TConnection { ConnectionString = connectionString })
-		{
-		}
 
 		protected TransformationProvider(TConnection connection)
 		{
@@ -771,36 +766,6 @@ namespace ECM7.Migrator.Providers
 		/// <summary>
 		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
 		/// </summary>
-		public ITransformationProvider For<TTargetProvider>()
-		{
-			return For(typeof(TTargetProvider));
-		}
-
-		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
-		/// </summary>
-		public ITransformationProvider For(Type providerType)
-		{
-			ProviderFactory.ValidateProviderType(providerType);
-			if (GetType() == providerType)
-				return this;
-
-			return NoOpTransformationProvider.Instance;
-		}
-
-		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
-		/// </summary>
-		public ITransformationProvider For(string providerTypeName)
-		{
-			Type dialectType = Type.GetType(providerTypeName);
-			Require.IsNotNull(dialectType, "Не удалось загрузить тип диалекта: {0}".FormatWith(providerTypeName.Nvl("null")));
-			return For(dialectType);
-		}
-
-		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
-		/// </summary>
 		public void For<TDialect>(Action<ITransformationProvider> actions)
 		{
 			For(typeof(TDialect), actions);
@@ -811,7 +776,6 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		public void For(Type providerType, Action<ITransformationProvider> actions)
 		{
-			ProviderFactory.ValidateProviderType(providerType);
 			if (GetType() == providerType)
 				actions(this);
 		}
