@@ -1,7 +1,6 @@
 ﻿namespace ECM7.Migrator.Providers.Tests
 {
-    using System;
-    using System.Configuration;
+	using System.Configuration;
 
     using ECM7.Migrator.Providers.Firebird;
 
@@ -14,14 +13,12 @@
         public void SetUp()
         {
             string constr = ConfigurationManager.AppSettings["FirebirdConnectionString"];
-            if (constr == null)
-            {
-            	throw new ArgumentNullException("FirebirdConnectionString", "No config file");
-            }
+			Require.IsNotNullOrEmpty(constr, "Connection string \"FirebirdConnectionString\" is not exist");
 
-            provider = new FirebirdTransformationProvider(new FirebirdDialect(), constr);
-            provider.BeginTransaction();
-
+			provider = ProviderFactoryBuilder
+				.CreateProviderFactory<FirebirdTransformationProviderFactory>()
+				.CreateProvider(constr);
+			
             AddDefaultTable();
         }
 
