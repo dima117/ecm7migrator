@@ -3,6 +3,7 @@ namespace ECM7.Migrator
 	using System;
 	using System.Collections.Generic;
 	using System.Collections.ObjectModel;
+	using System.Data;
 	using System.Linq;
 	using System.Reflection;
 
@@ -22,6 +23,11 @@ namespace ECM7.Migrator
 		/// </summary>
 		private readonly ITransformationProvider provider;
 
+		public ITransformationProvider Provider
+		{
+			get { return provider; }
+		}
+
 		/// <summary>
 		/// Загрузчик информации о миграциях
 		/// </summary>
@@ -40,15 +46,29 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string factoryTypeName, string connectionString, Assembly asm)
+		public Migrator(string factoryTypeName, IDbConnection connection, Assembly asm)
+			: this(ProviderFactoryBuilder.CreateProviderFactory(factoryTypeName).CreateProvider(connection), asm)
 		{
-			var factory = ProviderFactoryBuilder.CreateProviderFactory(factoryTypeName);
-			Require.IsNotNull(factory, "Не удалось создать фабрику провайдеров");
-			
-			this.provider = factory.CreateProvider(connectionString);
+		}
+
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		public Migrator(string factoryTypeName, string connectionString, Assembly asm)
+			:this(ProviderFactoryBuilder.CreateProviderFactory(factoryTypeName).CreateProvider(connectionString), asm)
+		{
+		}
+
+		/// <summary>
+		/// Инициализация
+		/// </summary>
+		public Migrator(ITransformationProvider provider, Assembly asm)
+		{
+			Require.IsNotNull(provider, "Не задан провайдер трансформации");
+			this.provider = provider;
 
 			Require.IsNotNull(asm, "Не задана сборка с миграциями");
-			this.migrationAssembly = new MigrationAssembly(asm);
+			migrationAssembly = new MigrationAssembly(asm);
 		}
 
 		#endregion

@@ -78,6 +78,7 @@
     <Compile Include="MySqlTransformationProviderTest.cs" />
     <Compile Include="OracleTransformationProviderTest.cs" />
     <Compile Include="PostgreSQLTransformationProviderTest.cs" />
+    <Compile Include="ProviderFactoryTest.cs" />
     <Compile Include="SQLiteTransformationProviderTest.cs" />
     <Compile Include="SqlServerCeTransformationProviderTest.cs" />
     <Compile Include="SqlServerTransformationProviderTest.cs" />
@@ -128,7 +129,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
-    <None Include="TESTDB.GDB">
+    <None Include="TEST.FDB">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
