@@ -4,7 +4,6 @@
 	using System.Reflection;
 
 	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Framework.Logging;
 
 	using Moq;
 

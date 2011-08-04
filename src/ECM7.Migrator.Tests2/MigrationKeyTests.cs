@@ -5,6 +5,7 @@
 	using System.Data;
 
 	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Providers;
 	using ECM7.Migrator.Providers.SqlServer;
 
 	using NUnit.Framework;
@@ -17,13 +18,13 @@
 		{
 			// строка подключения
 			string constr = ConfigurationManager.AppSettings["SqlServerConnectionString"];
-			if (constr == null)
-			{
-				throw new ArgumentNullException("SqlServerConnectionString", "No config file");
-			}
+			Require.IsNotNullOrEmpty(constr, "Connection string \"SqlServerConnectionString\" is not exist");
+
 
 			// провайдер
-			var provider = new SqlServerTransformationProvider(new SqlServerDialect(), constr); 
+			var provider = ProviderFactoryBuilder
+				.CreateProviderFactory<SqlServerTransformationProviderFactory>()
+				.CreateProvider(constr); 
 			
 			if (provider.TableExists("SchemaInfo"))
 			{
