@@ -330,6 +330,11 @@ namespace ECM7.Migrator.Providers
 
 		#endregion
 
+		public IDbConnection Connection
+		{
+			get { return null; }
+		}
+
 		/// <summary>
 		/// The list of Migrations currently applied to the database.
 		/// </summary>

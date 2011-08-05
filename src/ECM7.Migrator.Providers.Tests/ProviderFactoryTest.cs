@@ -1,6 +1,7 @@
 namespace ECM7.Migrator.Providers.Tests
 {
 	using System.Configuration;
+	using System.Data.SqlClient;
 
 	using ECM7.Common.Utils.Exceptions;
 	using ECM7.Migrator.Providers;
@@ -239,6 +240,47 @@ namespace ECM7.Migrator.Providers.Tests
 				TransformationProviderFactory.GetConnectionType(typeof(PostgreSQLTransformationProvider)));
 		}
 
+		[Test]
+		public void CanCreateProvider()
+		{
+			var provider = TransformationProviderFactory.Create(
+				typeof(PostgreSQLTransformationProvider), new NpgsqlConnection());
+
+			Assert.IsNotNull(provider);
+			Assert.AreEqual(typeof(PostgreSQLTransformationProvider), provider.GetType());
+		}
+
+		[Test]
+		public void CanCreateProviderWithInvalidConnection()
+		{
+			Assert.Throws<System.MissingMethodException>(() =>
+			TransformationProviderFactory.Create(
+				typeof(PostgreSQLTransformationProvider), new SqlConnection()));
+		}
+
+		[Test]
+		public void CanCreateProviderUsingConnectionString()
+		{
+			string cstring = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
+			ITransformationProvider provider = TransformationProviderFactory.Create(
+				typeof(PostgreSQLTransformationProvider), cstring);
+
+			// проверка типа провайдера
+			Assert.IsNotNull(provider);
+			Assert.AreEqual(typeof(PostgreSQLTransformationProvider), provider.GetType());
+
+			// проверка типа подключения
+			Assert.IsNotNull(provider.Connection);
+			Assert.AreEqual(typeof(NpgsqlConnection), provider.Connection .GetType());
+
+			// проверка строки подключнеия у созданного провайдера
+			NpgsqlConnectionStringBuilder sb1 = new NpgsqlConnectionStringBuilder(cstring);
+			NpgsqlConnectionStringBuilder sb2 = new NpgsqlConnectionStringBuilder(provider.Connection.ConnectionString);
+
+			Assert.AreEqual(sb1.Host, sb2.Host);
+			Assert.AreEqual(sb1.Database, sb2.Database);
+			Assert.AreEqual(sb1.UserName, sb2.UserName);
+		}
 		#endregion
 	}
 }
