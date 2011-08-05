@@ -25,6 +25,12 @@ namespace ECM7.Migrator.Providers
 	{
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
 		protected IDbConnection connection;
+
+		public IDbConnection Connection
+		{
+			get { return connection;}
+		}
+
 		private IDbTransaction transaction;
 
 		protected TransformationProvider(TConnection connection)
