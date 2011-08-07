@@ -42,9 +42,8 @@ namespace ECM7.Migrator.Providers.Tests
 
 			EnsureDatabase(constr);
 
-			provider = ProviderFactoryBuilder
-				.CreateProviderFactory<SqlServerCeTransformationProviderFactory>()
-				.CreateProvider(constr);
+			provider = TransformationProviderFactory
+				.Create<SqlServerCeTransformationProvider>(constr);
 
 			provider.BeginTransaction();
 

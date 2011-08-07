@@ -15,7 +15,7 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// The list of Migrations currently applied to the database.
 		/// </summary>
-		List<long> GetAppliedMigrations(string key);
+		List<long> GetAppliedMigrations(string key = "");
 		
 		/// <summary>
 		/// Add a column to an existing table

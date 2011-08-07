@@ -5,8 +5,8 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.DataTypes
 {
-	public abstract class DataTypesTestBase<TProviderFactory> where TProviderFactory 
-		: ITransformationProviderFactory<ITransformationProvider>, new()
+	public abstract class DataTypesTestBase<TProvider> 
+		where TProvider : ITransformationProvider
 	{
 		#region Base
 
@@ -24,9 +24,7 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 		[SetUp]
 		public void TestFixtureSetup()
 		{
-			Provider = ProviderFactoryBuilder
-				.CreateProviderFactory<TProviderFactory>()
-				.CreateProvider(ConnectionString);
+			Provider = TransformationProviderFactory.Create<TProvider>(ConnectionString);
 		}
 
 		#endregion

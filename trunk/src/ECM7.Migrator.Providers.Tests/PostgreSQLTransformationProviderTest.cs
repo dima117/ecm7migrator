@@ -39,9 +39,8 @@ namespace ECM7.Migrator.Providers.Tests
 			string constr = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
 			Require.IsNotNullOrEmpty(constr, "Connection string \"NpgsqlConnectionString\" is not exist");
 
-			provider = ProviderFactoryBuilder
-				.CreateProviderFactory<PostgreSQLTransformationProviderFactory>()
-				.CreateProvider(constr);
+			provider = TransformationProviderFactory
+				.Create<PostgreSQLTransformationProvider>(constr);
 
 			provider.BeginTransaction();
             

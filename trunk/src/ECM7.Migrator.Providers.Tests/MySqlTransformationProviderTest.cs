@@ -1,6 +1,5 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System;
 	using System.Configuration;
 	using System.Data;
 
@@ -32,9 +31,8 @@ namespace ECM7.Migrator.Providers.Tests
 			string constr = ConfigurationManager.AppSettings["MySqlConnectionString"];
 			Require.IsNotNullOrEmpty(constr, "Connection string \"MySqlConnectionString\" is not exist");
 
-			provider = ProviderFactoryBuilder
-				.CreateProviderFactory<MySqlTransformationProviderFactory>()
-				.CreateProvider(constr);
+			provider = TransformationProviderFactory
+				.Create<MySqlTransformationProvider>(constr);
 
 			AddDefaultTable();
 		}

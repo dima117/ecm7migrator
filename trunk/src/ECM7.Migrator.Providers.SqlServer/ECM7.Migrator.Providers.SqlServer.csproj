@@ -79,10 +79,8 @@
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="SqlServerCeTransformationProvider.cs" />
-    <Compile Include="BaseSqlServerTransformationProvider.cs" />
-    <Compile Include="SqlServerCeTransformationProviderFactory.cs" />
+    <Compile Include="Base\BaseSqlServerTransformationProvider.cs" />
     <Compile Include="SqlServerTransformationProvider.cs" />
-    <Compile Include="SqlServerTransformationProviderFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">

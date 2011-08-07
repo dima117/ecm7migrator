@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace ECM7.Migrator.Providers.Tests.DataTypes
 {
 	[TestFixture]
-	public class MySqlDataTypesTest : DataTypesTestBase<MySqlTransformationProviderFactory>
+	public class MySqlDataTypesTest : DataTypesTestBase<MySqlTransformationProvider>
 	{
 		public override string ConnectionString
 		{

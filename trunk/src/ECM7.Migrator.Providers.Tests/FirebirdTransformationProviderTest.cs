@@ -15,9 +15,8 @@
             string constr = ConfigurationManager.AppSettings["FirebirdConnectionString"];
 			Require.IsNotNullOrEmpty(constr, "Connection string \"FirebirdConnectionString\" is not exist");
 
-			provider = ProviderFactoryBuilder
-				.CreateProviderFactory<FirebirdTransformationProviderFactory>()
-				.CreateProvider(constr);
+			provider = TransformationProviderFactory
+				.Create<FirebirdTransformationProvider>(constr);
 			
             AddDefaultTable();
         }

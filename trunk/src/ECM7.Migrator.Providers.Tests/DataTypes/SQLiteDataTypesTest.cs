@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace ECM7.Migrator.Providers.Tests.DataTypes
 {
 	[TestFixture]
-	public class SQLiteDataTypesTest : DataTypesTestBase<SQLiteTransformationProviderFactory>
+	public class SQLiteDataTypesTest : DataTypesTestBase<SQLiteTransformationProvider>
 	{
 		public override string ConnectionString
 		{

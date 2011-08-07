@@ -50,7 +50,6 @@
       <Link>AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="FirebirdTransformationProvider.cs" />
-    <Compile Include="FirebirdTransformationProviderFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">

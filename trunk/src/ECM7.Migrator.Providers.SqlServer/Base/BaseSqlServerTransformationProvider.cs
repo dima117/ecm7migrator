@@ -1,10 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using ECM7.Migrator.Framework;
-
-namespace ECM7.Migrator.Providers.SqlServer
+namespace ECM7.Migrator.Providers.SqlServer.Base
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Data;
+
+	using ECM7.Migrator.Framework;
+
 	using System.Text;
 
 	/// <summary>

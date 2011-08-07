@@ -46,16 +46,16 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string factoryTypeName, IDbConnection connection, Assembly asm)
-			: this(ProviderFactoryBuilder.CreateProviderFactory(factoryTypeName).CreateProvider(connection), asm)
+		public Migrator(string providerTypeName, IDbConnection connection, Assembly asm)
+			: this(TransformationProviderFactory.Create(providerTypeName, connection), asm)
 		{
 		}
 
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string factoryTypeName, string connectionString, Assembly asm)
-			:this(ProviderFactoryBuilder.CreateProviderFactory(factoryTypeName).CreateProvider(connectionString), asm)
+		public Migrator(string providerTypeName, string connectionString, Assembly asm)
+			:this(TransformationProviderFactory.Create(providerTypeName, connectionString), asm)
 		{
 		}
 

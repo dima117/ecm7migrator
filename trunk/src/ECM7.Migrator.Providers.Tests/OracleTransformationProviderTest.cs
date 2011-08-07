@@ -46,9 +46,8 @@ namespace ECM7.Migrator.Providers.Tests
 			string constr = ConfigurationManager.AppSettings["OracleConnectionString"];
 			Require.IsNotNullOrEmpty(constr, "Connection string \"OracleConnectionString\" is not exist");
 
-			provider = ProviderFactoryBuilder
-				.CreateProviderFactory<OracleTransformationProviderFactory>()
-				.CreateProvider(constr);
+			provider = TransformationProviderFactory
+				.Create<OracleTransformationProvider>(constr);
 
 			provider.BeginTransaction();
 
