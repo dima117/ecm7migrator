@@ -6,6 +6,7 @@ using ECM7.Migrator.Framework;
 namespace ECM7.Migrator.Providers.SqlServer
 {
 	using ECM7.Migrator.Framework.Logging;
+	using ECM7.Migrator.Providers.SqlServer.Base;
 
 	/// <summary>
 	/// Migration transformations provider for Microsoft SQL Server.

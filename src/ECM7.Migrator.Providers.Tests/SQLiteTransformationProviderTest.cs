@@ -34,9 +34,8 @@ namespace ECM7.Migrator.Providers.Tests
 			string constr = ConfigurationManager.AppSettings["SQLiteConnectionString"];
 			Require.IsNotNullOrEmpty(constr, "Connection string \"SQLiteConnectionString\" is not exist");
 
-			provider = ProviderFactoryBuilder
-				.CreateProviderFactory<SQLiteTransformationProviderFactory>()
-				.CreateProvider(constr);
+			provider = TransformationProviderFactory
+				.Create<SQLiteTransformationProvider>(constr);
 
 			provider.BeginTransaction();
 

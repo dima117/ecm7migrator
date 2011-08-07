@@ -18,9 +18,9 @@ namespace ECM7.Migrator.Providers.Tests
 			string constr = ConfigurationManager.AppSettings["SqlServerConnectionString"];
 			Require.IsNotNullOrEmpty(constr, "Connection string \"SqlServerConnectionString\" is not exist");
 
-			provider = ProviderFactoryBuilder
-				.CreateProviderFactory<SqlServerTransformationProviderFactory>()
-				.CreateProvider(constr);
+			provider = TransformationProviderFactory
+				.Create<SqlServerTransformationProvider>(constr);
+
 			provider.BeginTransaction();
 
 			AddDefaultTable();

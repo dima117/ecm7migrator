@@ -84,8 +84,6 @@
     <Compile Include="MigrationPlan.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="Configuration\MigratorConfigurationSection.cs" />
-    <Compile Include="Providers\ITransformationProviderFactory.cs" />
-    <Compile Include="Providers\ProviderFactoryBuilder.cs" />
     <Compile Include="Providers\NoOpTransformationProvider.cs" />
     <Compile Include="Providers\SqlFormatter.cs" />
     <Compile Include="Providers\SqlGenerator.cs" />

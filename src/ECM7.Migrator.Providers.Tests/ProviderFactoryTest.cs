@@ -1,5 +1,6 @@
 namespace ECM7.Migrator.Providers.Tests
 {
+	using System;
 	using System.Configuration;
 	using System.Data.SqlClient;
 
@@ -21,137 +22,83 @@ namespace ECM7.Migrator.Providers.Tests
 	[TestFixture]
 	public class ProviderFactoryTest
 	{
-		public static class TestProviders
-		{
-			public static ITransformationProvider SqlServer
-			{
-				get
-				{
-					return ProviderFactoryBuilder
-						.CreateProviderFactory<SqlServerTransformationProviderFactory>()
-						.CreateProvider(ConfigurationManager.AppSettings["SqlServerConnectionString"]);
-				}
-			}
-
-			public static ITransformationProvider SqlServerCe
-			{
-				get
-				{
-					return ProviderFactoryBuilder
-						.CreateProviderFactory<SqlServerCeTransformationProviderFactory>()
-						.CreateProvider(ConfigurationManager.AppSettings["SqlServerCeConnectionString"]);
-				}
-			}
-
-			public static ITransformationProvider MySql
-			{
-				get
-				{
-					return ProviderFactoryBuilder
-						.CreateProviderFactory<MySqlTransformationProviderFactory>()
-						.CreateProvider(ConfigurationManager.AppSettings["MySqlConnectionString"]);
-				}
-			}
-
-			public static ITransformationProvider PostgreSQL
-			{
-				get
-				{
-					return ProviderFactoryBuilder
-						.CreateProviderFactory<PostgreSQLTransformationProviderFactory>()
-						.CreateProvider(ConfigurationManager.AppSettings["NpgsqlConnectionString"]);
-				}
-			}
-
-			public static ITransformationProvider SQLite
-			{
-				get
-				{
-					return ProviderFactoryBuilder
-						.CreateProviderFactory<SQLiteTransformationProviderFactory>()
-						.CreateProvider(ConfigurationManager.AppSettings["SQLiteConnectionString"]);
-				}
-			}
-
-			public static ITransformationProvider Oracle
-			{
-				get
-				{
-					return ProviderFactoryBuilder
-						.CreateProviderFactory<OracleTransformationProviderFactory>()
-						.CreateProvider(ConfigurationManager.AppSettings["OracleConnectionString"]);
-				}
-			}
-
-			public static ITransformationProvider Firebird
-			{
-				get
-				{
-					return ProviderFactoryBuilder
-						.CreateProviderFactory<FirebirdTransformationProviderFactory>()
-						.CreateProvider(ConfigurationManager.AppSettings["FirebirdConnectionString"]);
-				}
-			}
-		}
-
 		#region Provider loading tests
 
 		[Test, Category("SqlServer")]
 		public void CanLoadSqlServerProvider()
 		{
-			Assert.IsNotNull(TestProviders.SqlServer);
+			ITransformationProvider provider = TransformationProviderFactory
+				.Create<SqlServerTransformationProvider>(
+					ConfigurationManager.AppSettings["SqlServerConnectionString"]);
+
+			Assert.IsNotNull(provider);
+			Assert.IsTrue(provider is SqlServerTransformationProvider);
 		}
 
 		[Test, Category("SqlServerCe")]
 		public void CanLoadSqlServerCeProvider()
 		{
-			Assert.IsNotNull(TestProviders.SqlServerCe);
+			ITransformationProvider provider = TransformationProviderFactory
+				.Create<SqlServerCeTransformationProvider>(
+					ConfigurationManager.AppSettings["SqlServerCeConnectionString"]);
+
+			Assert.IsNotNull(provider);
+			Assert.IsTrue(provider is SqlServerCeTransformationProvider);
 		}
 
 		[Test, Category("MySql")]
 		public void CanLoadMySqlProvider()
 		{
-			Assert.IsNotNull(TestProviders.MySql);
+			ITransformationProvider provider = TransformationProviderFactory
+				.Create<MySqlTransformationProvider>(
+					ConfigurationManager.AppSettings["MySqlConnectionString"]);
+
+			Assert.IsNotNull(provider);
+			Assert.IsTrue(provider is MySqlTransformationProvider);
 		}
 
 		[Test, Category("PostgreSQL")]
 		public void CanLoadPostgreSQLProvider()
 		{
-			Assert.IsNotNull(TestProviders.PostgreSQL);
+			ITransformationProvider provider = TransformationProviderFactory
+				.Create<PostgreSQLTransformationProvider>(
+					ConfigurationManager.AppSettings["NpgsqlConnectionString"]);
+
+			Assert.IsNotNull(provider);
+			Assert.IsTrue(provider is PostgreSQLTransformationProvider);
 		}
 
 		[Test, Category("SQLite")]
 		public void CanLoadSqLiteProvider()
 		{
-			Assert.IsNotNull(TestProviders.SQLite);
+			ITransformationProvider provider = TransformationProviderFactory
+				.Create<SQLiteTransformationProvider>(
+					ConfigurationManager.AppSettings["SQLiteConnectionString"]);
+
+			Assert.IsNotNull(provider);
+			Assert.IsTrue(provider is SQLiteTransformationProvider);
 		}
 
 		[Test, Category("Oracle")]
 		public void CanLoadOracleProvider()
 		{
-			Assert.IsNotNull(TestProviders.Oracle);
+			ITransformationProvider provider = TransformationProviderFactory
+				.Create<OracleTransformationProvider>(
+					ConfigurationManager.AppSettings["OracleConnectionString"]);
+
+			Assert.IsNotNull(provider);
+			Assert.IsTrue(provider is OracleTransformationProvider);
 		}
 
 		[Test, Category("Firebird")]
 		public void CanLoadFirebirdProvider()
 		{
-			Assert.IsNotNull(TestProviders.Firebird);
-		}
+			ITransformationProvider provider = TransformationProviderFactory
+				.Create<FirebirdTransformationProvider>(
+					ConfigurationManager.AppSettings["FirebirdConnectionString"]);
 
-		[Test, Category("Некорректные диалекты"), ExpectedException(typeof(RequirementNotCompliedException))]
-		public void CantLoadNotExistsDialect()
-		{
-			ProviderFactoryBuilder
-				.CreateProviderFactory("NotExistsFactory")
-				.CreateProvider(ConfigurationManager.AppSettings["OracleConnectionString"]);
-		}
-
-		[Test, Category("Некорректные диалекты"), ExpectedException(typeof(RequirementNotCompliedException))]
-		public void CantLoadNotDialectClass()
-		{
-			ProviderFactoryBuilder
-				.CreateProviderFactory("System.Int32")
-				.CreateProvider(ConfigurationManager.AppSettings["OracleConnectionString"]);
+			Assert.IsNotNull(provider);
+			Assert.IsTrue(provider is FirebirdTransformationProvider);
 		}
 
 		#endregion
@@ -161,76 +108,84 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void SqlServerShortcutTest()
 		{
-			ITransformationProvider tp = ProviderFactoryBuilder
-				.CreateProviderFactory("SqlServer")
-				.CreateProvider(ConfigurationManager.AppSettings["SqlServerConnectionString"]);
-
-			Assert.That(tp is ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider);
+			Assert.AreEqual(
+				TransformationProviderFactory.GetProviderType("SqlServer"),
+				typeof(SqlServerTransformationProvider));
 		}
 
 		[Test]
 		public void SqlServerCeShortcutTest()
 		{
-			ITransformationProvider tp = ProviderFactoryBuilder
-				.CreateProviderFactory("SqlServerCe")
-				.CreateProvider(ConfigurationManager.AppSettings["SqlServerCeConnectionString"]);
-
-			Assert.That(tp is ECM7.Migrator.Providers.SqlServer.SqlServerCeTransformationProvider);
+			Assert.AreEqual(
+				TransformationProviderFactory.GetProviderType("SqlServerCe"),
+				typeof(SqlServerCeTransformationProvider));
 		}
 
 		[Test]
 		public void OracleShortcutTest()
 		{
-			ITransformationProvider tp = ProviderFactoryBuilder
-				.CreateProviderFactory("Oracle")
-				.CreateProvider(ConfigurationManager.AppSettings["OracleConnectionString"]);
-
-			Assert.That(tp is ECM7.Migrator.Providers.Oracle.OracleTransformationProvider);
+			Assert.AreEqual(
+				TransformationProviderFactory.GetProviderType("Oracle"),
+				typeof(OracleTransformationProvider));
 		}
 
 		[Test]
 		public void MySqlShortcutTest()
 		{
-			ITransformationProvider tp = ProviderFactoryBuilder
-				.CreateProviderFactory("MySql")
-				.CreateProvider(ConfigurationManager.AppSettings["MySqlConnectionString"]);
-
-			Assert.That(tp is ECM7.Migrator.Providers.MySql.MySqlTransformationProvider);
+			Assert.AreEqual(
+				TransformationProviderFactory.GetProviderType("MySql"),
+				typeof(MySqlTransformationProvider));
 		}
 
 		[Test]
 		public void SQLiteShortcutTest()
 		{
-			ITransformationProvider tp = ProviderFactoryBuilder
-				.CreateProviderFactory("SQLite")
-				.CreateProvider(ConfigurationManager.AppSettings["SQLiteConnectionString"]);
-
-			Assert.That(tp is ECM7.Migrator.Providers.SQLite.SQLiteTransformationProvider);
+			Assert.AreEqual(
+				TransformationProviderFactory.GetProviderType("SQLite"),
+				typeof(SQLiteTransformationProvider));
 		}
 
 		[Test]
 		public void PostgreSQLShortcutTest()
 		{
-			ITransformationProvider tp = ProviderFactoryBuilder
-				.CreateProviderFactory("PostgreSQL")
-				.CreateProvider(ConfigurationManager.AppSettings["NpgsqlConnectionString"]);
-
-			Assert.That(tp is ECM7.Migrator.Providers.PostgreSQL.PostgreSQLTransformationProvider);
+			Assert.AreEqual(
+				TransformationProviderFactory.GetProviderType("PostgreSQL"),
+				typeof(PostgreSQLTransformationProvider));
 		}
 
 		[Test]
 		public void FirebirdShortcutTest()
 		{
-			ITransformationProvider tp = ProviderFactoryBuilder
-				.CreateProviderFactory("Firebird")
-				.CreateProvider(ConfigurationManager.AppSettings["FirebirdConnectionString"]);
-
-			Assert.That(tp is ECM7.Migrator.Providers.Firebird.FirebirdTransformationProvider);
+			Assert.AreEqual(
+				TransformationProviderFactory.GetProviderType("Firebird"),
+				typeof(FirebirdTransformationProvider));
 		}
 
 		#endregion
 
 		#region TransformationProviderFactoryTest
+
+		[Test]
+		public void GetProviderTypeTest()
+		{
+			Assert.AreEqual(
+				TransformationProviderFactory.GetProviderType("ECM7.Migrator.Providers.PostgreSQL.PostgreSQLTransformationProvider, ECM7.Migrator.Providers.PostgreSQL"),
+				typeof(PostgreSQLTransformationProvider));
+		}
+
+		[Test]
+		public void GetInvalidProviderTypeTest()
+		{
+			Assert.Throws<RequirementNotCompliedException>(() =>
+				TransformationProviderFactory.GetProviderType(typeof(DateTime).FullName));
+		}
+
+		[Test]
+		public void GetInvalidProviderTypeTest2()
+		{
+			Assert.Throws<RequirementNotCompliedException>(() =>
+				TransformationProviderFactory.GetProviderType("moo moo moo"));
+		}
 
 		[Test]
 		public void CanGetConnectionType()
@@ -251,7 +206,7 @@ namespace ECM7.Migrator.Providers.Tests
 		}
 
 		[Test]
-		public void CanCreateProviderWithInvalidConnection()
+		public void CantCreateProviderWithInvalidConnection()
 		{
 			Assert.Throws<System.MissingMethodException>(() =>
 			TransformationProviderFactory.Create(
@@ -281,6 +236,7 @@ namespace ECM7.Migrator.Providers.Tests
 			Assert.AreEqual(sb1.Database, sb2.Database);
 			Assert.AreEqual(sb1.UserName, sb2.UserName);
 		}
+		
 		#endregion
 	}
 }

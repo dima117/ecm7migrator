@@ -22,9 +22,8 @@
 
 
 			// провайдер
-			var provider = ProviderFactoryBuilder
-				.CreateProviderFactory<SqlServerTransformationProviderFactory>()
-				.CreateProvider(constr); 
+			var provider = TransformationProviderFactory
+				.Create<SqlServerTransformationProvider>(constr); 
 			
 			if (provider.TableExists("SchemaInfo"))
 			{
