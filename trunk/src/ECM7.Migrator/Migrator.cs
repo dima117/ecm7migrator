@@ -16,7 +16,7 @@ namespace ECM7.Migrator
 	/// <summary>
 	/// Migrations mediator.
 	/// </summary>
-	public class Migrator
+	public class Migrator : IDisposable
 	{
 		/// <summary>
 		/// Провайдер
@@ -189,5 +189,14 @@ namespace ECM7.Migrator
 
 			return new MigrationPlan(versions, startVersion);
 		}
+
+		#region Implementation of IDisposable
+
+		public void Dispose()
+		{
+			provider.Dispose();
+		}
+
+		#endregion
 	}
 }

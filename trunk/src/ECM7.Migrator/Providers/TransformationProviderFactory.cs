@@ -65,7 +65,6 @@
 
 		#region Shortcuts
 
-		// todo: поменять шорткаты
 		private static readonly Dictionary<string, string> shortcuts = new Dictionary<string, string>
 		{
 			{ "Firebird",		"ECM7.Migrator.Providers.Firebird.FirebirdTransformationProvider, ECM7.Migrator.Providers.Firebird" },

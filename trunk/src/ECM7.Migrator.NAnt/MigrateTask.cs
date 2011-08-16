@@ -94,9 +94,11 @@ namespace ECM7.Migrator.NAnt
 		protected override void ExecuteTask()
 		{
 			ConfigureLogging();
-			Migrator migrator = MigratorFactory.CreateMigrator(this);
 
-			migrator.Migrate(to);
+			using (Migrator migrator = MigratorFactory.CreateMigrator(this))
+			{
+				migrator.Migrate(to);
+			}
 		}
 
 		private void ConfigureLogging()

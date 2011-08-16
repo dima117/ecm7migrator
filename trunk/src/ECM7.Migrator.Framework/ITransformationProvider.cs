@@ -8,7 +8,7 @@ namespace ECM7.Migrator.Framework
 	/// <summary>
 	/// The main interface to use in Migrations to make changes on a database schema.
 	/// </summary>
-	public interface ITransformationProvider
+	public interface ITransformationProvider : IDisposable
 	{
 		IDbConnection Connection { get; }
 

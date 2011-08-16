@@ -381,5 +381,14 @@ namespace ECM7.Migrator.Providers
 		{
 			return false;
 		}
+
+		#region Implementation of IDisposable
+
+		public void Dispose()
+		{
+			// No Op
+		}
+
+		#endregion
 	}
 }

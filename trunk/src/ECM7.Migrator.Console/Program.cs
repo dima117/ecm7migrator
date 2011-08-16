@@ -125,7 +125,7 @@ namespace ECM7.Migrator.Console
 			// TODO: прикрутить какую-нибудь библиотеку для разбора параметров командной строки
 			string key = string.Empty;
 
-			// TODO: учесть строки с пробелами, если есть кавычки
+			// TODO: учесть в ключах строки с пробелами, если есть кавычки
 			Regex regex = new Regex(@"^\s*-key:(?'key'\.+)\s*$", RegexOptions.IgnoreCase);
 
 			foreach (string param in args)
@@ -215,9 +215,10 @@ namespace ECM7.Migrator.Console
 		/// </summary>
 		public static void Migrate(IMigratorConfiguration config, long migrateTo)
 		{
-			Migrator migrator = MigratorFactory.CreateMigrator(config);
-
-			migrator.Migrate(migrateTo);
+			using (Migrator migrator = MigratorFactory.CreateMigrator(config))
+			{
+				migrator.Migrate(migrateTo);
+			}
 		}
 
 		/// <summary>
@@ -225,18 +226,20 @@ namespace ECM7.Migrator.Console
 		/// </summary>
 		public static void List(IMigratorConfiguration config)
 		{
-			Migrator mig = MigratorFactory.CreateMigrator(config);
-			IList<long> appliedMigrations = mig.GetAppliedMigrations();
-
-			Console.WriteLine("Available migrations:");
-			foreach (var info in mig.AvailableMigrations)
+			using (Migrator mig = MigratorFactory.CreateMigrator(config))
 			{
-				long v = info.Version;
-				Console.WriteLine(
-					"{0} {1} {2}",
-					appliedMigrations.Contains(v) ? "=>" : "  ",
-					v.ToString().PadLeft(3),
-					StringUtils.ToHumanName(info.Type.Name));
+				IList<long> appliedMigrations = mig.GetAppliedMigrations();
+
+				Console.WriteLine("Available migrations:");
+				foreach (var info in mig.AvailableMigrations)
+				{
+					long v = info.Version;
+					Console.WriteLine(
+						"{0} {1} {2}",
+						appliedMigrations.Contains(v) ? "=>" : "  ",
+						v.ToString().PadLeft(3),
+						StringUtils.ToHumanName(info.Type.Name));
+				}
 			}
 		}
 

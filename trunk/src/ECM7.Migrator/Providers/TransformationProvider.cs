@@ -26,9 +26,11 @@ namespace ECM7.Migrator.Providers
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
 		protected IDbConnection connection;
 
+		private bool connectionNeedClose = false;
+
 		public IDbConnection Connection
 		{
-			get { return connection;}
+			get { return connection; }
 		}
 
 		private IDbTransaction transaction;
@@ -725,6 +727,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (connection.State != ConnectionState.Open)
 			{
+				connectionNeedClose = true;
 				connection.Open();
 			}
 		}
@@ -740,9 +743,9 @@ namespace ECM7.Migrator.Providers
 				{
 					transaction.Rollback();
 				}
-				finally
+				catch (Exception ex)
 				{
-					connection.Close();
+					MigratorLogManager.Log.Error("Не удалось откатить транзакцию", ex);
 				}
 			}
 			transaction = null;
@@ -759,9 +762,9 @@ namespace ECM7.Migrator.Providers
 				{
 					transaction.Commit();
 				}
-				finally
+				catch (Exception ex)
 				{
-					connection.Close();
+					MigratorLogManager.Log.Error("Не удалось применить транзакцию", ex);
 				}
 			}
 			transaction = null;
@@ -912,5 +915,24 @@ namespace ECM7.Migrator.Providers
 				// ReSharper restore AssignNullToNotNullAttribute
 			}
 		}
+
+		#region Implementation of IDisposable
+
+		public void Dispose()
+		{
+			if (connectionNeedClose && connection != null && connection.State == ConnectionState.Open)
+			{
+				connection.Close();
+				connectionNeedClose = false;
+			}
+		}
+
+		~TransformationProvider()
+		{
+			this.Dispose();
+		}
+
+
+		#endregion
 	}
 }
