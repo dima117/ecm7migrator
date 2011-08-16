@@ -24,14 +24,15 @@
 			var provider = new Mock<ITransformationProvider>();
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
 
-			var migrator = new Migrator(provider.Object, asm);
+			using (var migrator = new Migrator(provider.Object, asm))
+			{
+				migrator.ExecuteMigration(2, 1);
 
-			migrator.ExecuteMigration(2, 1);
-
-			provider.Verify(db => db.BeginTransaction());
-			provider.Verify(db => db.ExecuteNonQuery("up"));
-			provider.Verify(db => db.MigrationApplied(2, "test-key111"));
-			provider.Verify(db => db.Commit());
+				provider.Verify(db => db.BeginTransaction());
+				provider.Verify(db => db.ExecuteNonQuery("up"));
+				provider.Verify(db => db.MigrationApplied(2, "test-key111"));
+				provider.Verify(db => db.Commit());
+			}
 		}
 
 		/// <summary>
@@ -43,14 +44,15 @@
 			var provider = new Mock<ITransformationProvider>();
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
 
-			var migrator = new Migrator(provider.Object, asm);
+			using (var migrator = new Migrator(provider.Object, asm))
+			{
+				migrator.ExecuteMigration(2, 2);
 
-			migrator.ExecuteMigration(2, 2);
-
-			provider.Verify(db => db.BeginTransaction());
-			provider.Verify(db => db.ExecuteNonQuery("down"));
-			provider.Verify(db => db.MigrationUnApplied(2, "test-key111"));
-			provider.Verify(db => db.Commit());
+				provider.Verify(db => db.BeginTransaction());
+				provider.Verify(db => db.ExecuteNonQuery("down"));
+				provider.Verify(db => db.MigrationUnApplied(2, "test-key111"));
+				provider.Verify(db => db.Commit());
+			}
 		}
 
 		/// <summary>
@@ -66,13 +68,14 @@
 				.Setup(db => db.MigrationUnApplied(It.IsAny<long>(), It.IsAny<string>()))
 				.Throws<Exception>();
 
-			var migrator = new Migrator(provider.Object, asm);
+			using (var migrator = new Migrator(provider.Object, asm))
+			{
+				Assert.Throws<Exception>(() => migrator.ExecuteMigration(2, 2));
 
-			Assert.Throws<Exception>(() => migrator.ExecuteMigration(2, 2));
-
-			provider.Verify(db => db.BeginTransaction());
-			provider.Verify(db => db.MigrationUnApplied(2, It.IsAny<string>()));
-			provider.Verify(db => db.Rollback());
+				provider.Verify(db => db.BeginTransaction());
+				provider.Verify(db => db.MigrationUnApplied(2, It.IsAny<string>()));
+				provider.Verify(db => db.Rollback());
+			}
 		}
 	}
 }

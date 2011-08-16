@@ -94,9 +94,10 @@ namespace ECM7.Migrator.MSBuild
 		{
 			ConfigureLogging();
 
-			Migrator migrator = MigratorFactory.CreateMigrator(this);
-
-			migrator.Migrate(to);
+			using (Migrator migrator = MigratorFactory.CreateMigrator(this))
+			{
+				migrator.Migrate(to);
+			}
 
 			return true;
 		}

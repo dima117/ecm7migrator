@@ -15,69 +15,114 @@ namespace ECM7.Migrator.Tests2
 	[TestFixture]
 	public class ColumnPropertyMappingTest
 	{
-		private readonly OracleTransformationProvider oracleProvider = TransformationProviderFactory
-			.Create<OracleTransformationProvider>(new OracleConnection()) as OracleTransformationProvider;
+		#region Helpers
 
-		private readonly SqlServerTransformationProvider sqlServerProvider = TransformationProviderFactory
-			.Create<SqlServerTransformationProvider>(new SqlConnection()) as SqlServerTransformationProvider;
+		private static OracleTransformationProvider CreateOracleProvider()
+		{
+			return TransformationProviderFactory
+				.Create<OracleTransformationProvider>(new OracleConnection())
+					as OracleTransformationProvider;
+		}
+
+		private static SqlServerTransformationProvider CreateSqlServerProvider()
+		{
+			return TransformationProviderFactory
+				.Create<SqlServerTransformationProvider>(new SqlConnection())
+					as SqlServerTransformationProvider;
+		}
+
+		#endregion
+
+		#region Oracle
 
 		[Test]
 		public void OracleCreatesSql()
 		{
-			string columnSql = this.oracleProvider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30)), false);
-			Assert.AreEqual("\"foo\" varchar2(30)", columnSql.ToLower());
+			using (var provider = CreateOracleProvider())
+			{
+				string columnSql = provider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30)), false);
+				Assert.AreEqual("\"foo\" varchar2(30)", columnSql.ToLower());
+			}
 		}
 
 		[Test]
 		public void OracleCreatesNotNullSql()
 		{
-			string columnSql = this.oracleProvider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30), ColumnProperty.NotNull), false);
-			Assert.AreEqual("\"foo\" varchar2(30) not null", columnSql.ToLower());
+			using (var provider = CreateOracleProvider())
+			{
+				string columnSql = provider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30), ColumnProperty.NotNull), false);
+				Assert.AreEqual("\"foo\" varchar2(30) not null", columnSql.ToLower());
+			}
 		}
 
 		[Test]
 		public void OracleCreatesNotNullSqlWithDefault()
 		{
-			string columnSql = this.oracleProvider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30), ColumnProperty.NotNull, "'test'"), false);
-			Assert.AreEqual("\"foo\" varchar2(30) default 'test' not null", columnSql.ToLower());
+			using (var provider = CreateOracleProvider())
+			{
+				string columnSql = provider.GetColumnSql(
+						new Column("foo", DbType.AnsiString.WithSize(30), ColumnProperty.NotNull, "'test'"), false);
+				Assert.AreEqual("\"foo\" varchar2(30) default 'test' not null", columnSql.ToLower());
+			}
 		}
+
+		#endregion
 
 		[Test]
 		public void SqlServerCreatesSql()
 		{
-			string columnSql = this.sqlServerProvider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30), 0), false);
-			Assert.AreEqual("[foo] varchar(30)", columnSql.ToLower());
+			using (var provider = CreateSqlServerProvider())
+			{
+				string columnSql = provider.GetColumnSql(
+					new Column("foo", DbType.AnsiString.WithSize(30), 0), false);
+				Assert.AreEqual("[foo] varchar(30)", columnSql.ToLower());
+			}
 		}
 
 		[Test]
 		public void SqlServerCreatesNotNullSql()
 		{
-			string columnSql = this.sqlServerProvider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30), ColumnProperty.NotNull), false);
-			Assert.AreEqual("[foo] varchar(30) not null", columnSql.ToLower());
+			using (var provider = CreateSqlServerProvider())
+			{
+				string columnSql = provider.GetColumnSql(
+						new Column("foo", DbType.AnsiString.WithSize(30), ColumnProperty.NotNull), false);
+				Assert.AreEqual("[foo] varchar(30) not null", columnSql.ToLower());
+			}
 		}
 
 		[Test]
 		public void SqlServerCreatesSqWithDefault()
 		{
-			string columnSql = this.sqlServerProvider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30), "'NEW'"), false);
-			Assert.AreEqual("[foo] varchar(30) default 'new'", columnSql.ToLower());
+			using (var provider = CreateSqlServerProvider())
+			{
+				string columnSql = provider.GetColumnSql(
+					new Column("foo", DbType.AnsiString.WithSize(30), "'NEW'"), false);
+				Assert.AreEqual("[foo] varchar(30) default 'new'", columnSql.ToLower());
+			}
 		}
 
 		[Test]
 		public void SqlServerCreatesSqWithNullDefault()
 		{
-			string columnSql = this.sqlServerProvider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30), "NULL"), false);
-			Assert.AreEqual("[foo] varchar(30) default null", columnSql.ToLower());
+			using (var provider = CreateSqlServerProvider())
+			{
+				string columnSql = provider.GetColumnSql(
+					new Column("foo", DbType.AnsiString.WithSize(30), "NULL"), false);
+				Assert.AreEqual("[foo] varchar(30) default null", columnSql.ToLower());
+			}
 		}
 
 		[Test]
 		public void SqlServerCreatesSqWithBooleanDefault()
 		{
-			string columnSql1 = this.sqlServerProvider.GetColumnSql(new Column("foo", DbType.Boolean, false), false);
-			Assert.AreEqual("[foo] bit default 0", columnSql1.ToLower());
+			using (var provider = CreateSqlServerProvider())
+			{
+				string columnSql1 = provider.GetColumnSql(new Column("foo", DbType.Boolean, false), false);
+				Assert.AreEqual("[foo] bit default 0", columnSql1.ToLower());
 
-			string columnSql2 = this.sqlServerProvider.GetColumnSql(new Column("bar", DbType.Boolean, true), false);
-			Assert.AreEqual("[bar] bit default 1", columnSql2.ToLower());
+				string columnSql2 = provider.GetColumnSql(new Column("bar", DbType.Boolean, true), false);
+				Assert.AreEqual("[bar] bit default 1", columnSql2.ToLower());
+			}
 		}
 	}
 }

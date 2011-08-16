@@ -34,9 +34,10 @@
 		[Test]
 		public void CanInitByConfig()
 		{
-			Migrator migrator = MigratorFactory.InitByConfigFile();
-
-			Assert.IsNotNull(migrator);
+			using(Migrator migrator = MigratorFactory.InitByConfigFile())
+			{
+				Assert.IsNotNull(migrator);
+			}
 		}
 	}
 }
