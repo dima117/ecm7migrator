@@ -1,6 +1,7 @@
 namespace ECM7.Migrator.Providers.Tests
 {
 	using System;
+	using System.Configuration;
 	using System.Data;
 	using System.Reflection;
 
@@ -17,7 +18,7 @@ namespace ECM7.Migrator.Providers.Tests
 	/// Base class for Provider tests for all non-constraint oriented tests.
 	/// </summary>
 	//[TestFixture(Ignore = true, IgnoreReason = "")]
-	public abstract class TransformationProviderBase
+	public abstract class TransformationProviderBase<TProvider> where TProvider : ITransformationProvider
 	{
 		protected ITransformationProvider provider;
 
@@ -36,14 +37,29 @@ namespace ECM7.Migrator.Providers.Tests
 			}
 		}
 
+		public abstract string ConnectionStrinSettingsName { get; }
+		public abstract bool UseTransaction { get; }
+
 		[SetUp]
-		public void SetUp()
+		public virtual void SetUp()
 		{
 			if (!isInitialized)
 			{
 				BasicConfigurator.Configure();
 				isInitialized = true;
 			}
+
+			string constr = ConfigurationManager.AppSettings[ConnectionStrinSettingsName];
+			Require.IsNotNullOrEmpty(constr, "Connection string \"{0}\" is not exist", ConnectionStrinSettingsName);
+
+			provider = TransformationProviderFactory.Create<TProvider>(constr);
+
+			if (UseTransaction)
+			{
+				provider.BeginTransaction();
+			}
+
+			AddDefaultTable();
 		}
 
 		[TearDown]
@@ -51,7 +67,12 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			DropTestTables();
 
-			provider.Rollback();
+			if (UseTransaction)
+			{
+				provider.Rollback();
+			}
+
+			provider.Dispose();
 		}
 
 		protected void DropTestTables()

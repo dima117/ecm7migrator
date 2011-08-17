@@ -1,29 +1,23 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System.Configuration;
 	using System.Data;
 
 	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Providers;
 	using ECM7.Migrator.Providers.SqlServer;
 
 	using NUnit.Framework;
 
 	[TestFixture, Category("SqlServer")]
-	public class SqlServerTransformationProviderTest : TransformationProviderConstraintBase
+	public class SqlServerTransformationProviderTest : TransformationProviderConstraintBase<SqlServerTransformationProvider>
 	{
-		[SetUp]
-		public void SetUp()
+		public override string ConnectionStrinSettingsName
 		{
-			string constr = ConfigurationManager.AppSettings["SqlServerConnectionString"];
-			Require.IsNotNullOrEmpty(constr, "Connection string \"SqlServerConnectionString\" is not exist");
+			get { return "SqlServerConnectionString"; }
+		}
 
-			provider = TransformationProviderFactory
-				.Create<SqlServerTransformationProvider>(constr);
-
-			provider.BeginTransaction();
-
-			AddDefaultTable();
+		public override bool UseTransaction
+		{
+			get { return true; }
 		}
 
 		protected override string BatchSql
