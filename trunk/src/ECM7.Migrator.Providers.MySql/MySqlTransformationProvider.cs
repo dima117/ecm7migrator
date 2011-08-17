@@ -246,6 +246,10 @@ namespace ECM7.Migrator.Providers.MySql
 			}
 		}
 
+		public override void AddCheckConstraint(string name, string table, string checkSql)
+		{
+			throw new NotSupportedException("MySql doesn't support check constraints");
+		}
 		#endregion
 	}
 }

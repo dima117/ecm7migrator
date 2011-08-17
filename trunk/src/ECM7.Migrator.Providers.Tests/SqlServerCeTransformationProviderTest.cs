@@ -1,18 +1,26 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System;
-	using System.Configuration;
-	using System.Data.SqlServerCe;
-	using System.IO;
-
 	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Providers.SqlServer;
 
 	using NUnit.Framework;
 
 	[TestFixture, Category("SqlServerCe")]
-	public class SqlServerCeTransformationProviderTest : TransformationProviderConstraintBase
+	public class SqlServerCeTransformationProviderTest 
+		: TransformationProviderConstraintBase<SqlServerCeTransformationProvider>
 	{
+		public override string ConnectionStrinSettingsName
+		{
+			get
+			{
+				return "SqlServerCeConnectionString";
+			}
+		}
+
+		public override bool UseTransaction
+		{
+			get { return true; }
+		}
 
 		protected override string BatchSql
 		{
@@ -30,33 +38,6 @@ namespace ECM7.Migrator.Providers.Tests
 				go
 				insert into [TestTwo] ([Id], [TestId]) values (55, 555)
 				";
-			}
-		}
-
-		[SetUp]
-		public void SetUp()
-		{
-
-			string constr = ConfigurationManager.AppSettings["SqlServerCeConnectionString"];
-			Require.IsNotNullOrEmpty(constr, "Connection string \"SqlServerCeConnectionString\" is not exist");
-
-			EnsureDatabase(constr);
-
-			provider = TransformationProviderFactory
-				.Create<SqlServerCeTransformationProvider>(constr);
-
-			provider.BeginTransaction();
-
-			AddDefaultTable();
-		}
-
-		private static void EnsureDatabase(string constr)
-		{
-			SqlCeConnection connection = new SqlCeConnection(constr);
-			if (!File.Exists(connection.Database))
-			{
-				SqlCeEngine engine = new SqlCeEngine(constr);
-				engine.CreateDatabase();
 			}
 		}
 

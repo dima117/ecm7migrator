@@ -600,8 +600,10 @@ namespace ECM7.Migrator.Providers
 							if (!query.IsNullOrEmpty(true))
 							{
 								MigratorLogManager.Log.ExecuteSql(query);
-								IDbCommand cmd = this.BuildCommand(query);
-								result = cmd.ExecuteNonQuery();
+								using (IDbCommand cmd = this.BuildCommand(query))
+								{
+									result = cmd.ExecuteNonQuery();
+								}
 							}
 							sqlBatch.Clear();
 						}
@@ -614,8 +616,10 @@ namespace ECM7.Migrator.Providers
 				else
 				{
 					MigratorLogManager.Log.ExecuteSql(sql);
-					IDbCommand cmd = this.BuildCommand(sql);
-					result = cmd.ExecuteNonQuery();
+					using(IDbCommand cmd = this.BuildCommand(sql))
+					{
+						result = cmd.ExecuteNonQuery();
+					}
 				}
 			}
 			catch (Exception ex)

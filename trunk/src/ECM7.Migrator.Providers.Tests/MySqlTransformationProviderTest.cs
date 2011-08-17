@@ -1,6 +1,6 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System.Configuration;
+	using System;
 	using System.Data;
 
 	using ECM7.Migrator.Framework;
@@ -9,7 +9,7 @@ namespace ECM7.Migrator.Providers.Tests
 	using NUnit.Framework;
 
 	[TestFixture, Category("MySql")]
-	public class MySqlTransformationProviderTest : TransformationProviderConstraintBase
+	public class MySqlTransformationProviderTest : TransformationProviderConstraintBase<MySqlTransformationProvider>
 	{
 		protected override string BatchSql
 		{
@@ -25,22 +25,14 @@ namespace ECM7.Migrator.Providers.Tests
 			}
 		}
 
-		[SetUp]
-		public void SetUp()
+		public override string ConnectionStrinSettingsName
 		{
-			string constr = ConfigurationManager.AppSettings["MySqlConnectionString"];
-			Require.IsNotNullOrEmpty(constr, "Connection string \"MySqlConnectionString\" is not exist");
-
-			provider = TransformationProviderFactory
-				.Create<MySqlTransformationProvider>(constr);
-
-			AddDefaultTable();
+			get { return "MySqlConnectionString"; }
 		}
 
-		[TearDown]
-		public override void TearDown()
+		public override bool UseTransaction
 		{
-			DropTestTables();
+			get { return false; }
 		}
 
 		[Test]
@@ -51,8 +43,11 @@ namespace ECM7.Migrator.Providers.Tests
 			                  new Column("name", DbType.String, 50));
 		}
 
-		// [Test,Ignore("MySql doesn't support check constraints")]
-		public override void CanAddCheckConstraint() {}
+		[Test]
+		public override void CanAddCheckConstraint()
+		{
+			Assert.Throws<NotSupportedException>(AddCheckConstraint);
+		}
 
 	}
 }

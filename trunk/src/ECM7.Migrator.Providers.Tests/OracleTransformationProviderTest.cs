@@ -3,7 +3,6 @@ using System.Text;
 namespace ECM7.Migrator.Providers.Tests
 {
 	using System;
-	using System.Configuration;
 	using System.Data;
 
 	using Framework;
@@ -12,7 +11,7 @@ namespace ECM7.Migrator.Providers.Tests
 	using NUnit.Framework;
 
 	[TestFixture, Category("Oracle")]
-	public class OracleTransformationProviderTest : TransformationProviderConstraintBase
+	public class OracleTransformationProviderTest : TransformationProviderConstraintBase<OracleTransformationProvider>
 	{
 		protected override string BatchSql
 		{
@@ -40,18 +39,14 @@ namespace ECM7.Migrator.Providers.Tests
 			get { return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.test.res.migration.sql"; }
 		}
 
-		[SetUp]
-		public void SetUp()
+		public override string ConnectionStrinSettingsName
 		{
-			string constr = ConfigurationManager.AppSettings["OracleConnectionString"];
-			Require.IsNotNullOrEmpty(constr, "Connection string \"OracleConnectionString\" is not exist");
+			get { return "OracleConnectionString"; }
+		}
 
-			provider = TransformationProviderFactory
-				.Create<OracleTransformationProvider>(constr);
-
-			provider.BeginTransaction();
-
-			AddDefaultTable();
+		public override bool UseTransaction
+		{
+			get { return true; }
 		}
 
 		[Test, ExpectedException(typeof(NotSupportedException))]
@@ -117,9 +112,7 @@ namespace ECM7.Migrator.Providers.Tests
 
 			provider.Update("Test", new[] { "Title" }, new string[] { null });
 
-			string sql = "SELECT {0} FROM {1}".FormatWith(
-				provider.QuoteName("Title"), provider.QuoteName("Test"));
-
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME}", "Title", "Test");
 
 			using (IDataReader reader = provider.ExecuteQuery(sql))
 			{
@@ -128,7 +121,6 @@ namespace ECM7.Migrator.Providers.Tests
 				Assert.IsNull(vals[0]);
 				Assert.IsNull(vals[1]);
 			}
-
 		}
 	}
 }

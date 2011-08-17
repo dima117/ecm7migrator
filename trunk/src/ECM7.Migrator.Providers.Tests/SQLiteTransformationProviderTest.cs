@@ -1,14 +1,22 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System.Configuration;
-
 	using ECM7.Migrator.Providers.SQLite;
 
 	using NUnit.Framework;
 
 	[TestFixture, Category("SQLite")]
-	public class SQLiteTransformationProviderTest : TransformationProviderBase
+	public class SQLiteTransformationProviderTest : TransformationProviderBase<SQLiteTransformationProvider>
 	{
+		public override string ConnectionStrinSettingsName
+		{
+			get { return "SQLiteConnectionString"; }
+		}
+
+		public override bool UseTransaction
+		{
+			get { return true; }
+		}
+
 		protected override string BatchSql
 		{
 			get
@@ -26,20 +34,6 @@ namespace ECM7.Migrator.Providers.Tests
 				insert into [TestTwo] ([Id], [TestId]) values (55, 555)
 				";
 			}
-		}
-
-		[SetUp]
-		public void SetUp()
-		{
-			string constr = ConfigurationManager.AppSettings["SQLiteConnectionString"];
-			Require.IsNotNullOrEmpty(constr, "Connection string \"SQLiteConnectionString\" is not exist");
-
-			provider = TransformationProviderFactory
-				.Create<SQLiteTransformationProvider>(constr);
-
-			provider.BeginTransaction();
-
-			AddDefaultTable();
 		}
 
 		[Test]

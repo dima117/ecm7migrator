@@ -1,25 +1,21 @@
 ﻿namespace ECM7.Migrator.Providers.Tests
 {
-	using System.Configuration;
-
-    using ECM7.Migrator.Providers.Firebird;
+	using ECM7.Migrator.Providers.Firebird;
 
     using NUnit.Framework;
 
     [TestFixture, Category("Firebird")]
-    public class FirebirdTransformationProviderTest : TransformationProviderConstraintBase
+    public class FirebirdTransformationProviderTest 
+		: TransformationProviderConstraintBase<FirebirdTransformationProvider>
     {
-        [SetUp]
-        public void SetUp()
-        {
-            string constr = ConfigurationManager.AppSettings["FirebirdConnectionString"];
-			Require.IsNotNullOrEmpty(constr, "Connection string \"FirebirdConnectionString\" is not exist");
+    	public override string ConnectionStrinSettingsName
+    	{
+    		get { return "FirebirdConnectionString"; }
+    	}
 
-			provider = TransformationProviderFactory
-				.Create<FirebirdTransformationProvider>(constr);
-			
-            AddDefaultTable();
-        }
-
+    	public override bool UseTransaction
+    	{
+			get { return false; }
+    	}
     }
 }

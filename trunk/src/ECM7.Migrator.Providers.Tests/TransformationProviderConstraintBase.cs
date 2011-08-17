@@ -12,7 +12,8 @@ namespace ECM7.Migrator.Providers.Tests
 	/// <summary>
 	/// Base class for Provider tests for all tests including constraint oriented tests.
 	/// </summary>
-	public abstract class TransformationProviderConstraintBase : TransformationProviderBase
+	public abstract class TransformationProviderConstraintBase<TProvider> : TransformationProviderBase<TProvider>
+		where TProvider : ITransformationProvider
 	{
 
 		public void AddForeignKey()
