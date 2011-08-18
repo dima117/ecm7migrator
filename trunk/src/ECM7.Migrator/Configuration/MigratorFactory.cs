@@ -9,6 +9,7 @@
 	/// </summary>
 	public static class MigratorFactory
 	{
+		// todo: поменять слово dialect на provider
 		#region config file
 
 		/// <summary>

@@ -22,9 +22,15 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 		public ITransformationProvider Provider { get; set; }
 
 		[SetUp]
-		public void TestFixtureSetup()
+		public void Setup()
 		{
-			Provider = TransformationProviderFactory.Create<TProvider>(ConnectionString);
+			Provider = ProviderFactory.Create<TProvider>(ConnectionString);
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			Provider.Dispose();
 		}
 
 		#endregion
@@ -47,7 +53,7 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 			Provider.AddTable(tableName, new Column("testcolumn", type));
 			try
 			{
-				InsertTest(tableName, type, testValue);
+				InsertTest(tableName, testValue);
 				SelectTest(tableName);
 			}
 			finally
@@ -65,7 +71,7 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 			//Assert.AreEqual(value, loadedValue);
 		}
 
-		private void InsertTest(string tableName, ColumnType type, object testValue)
+		private void InsertTest(string tableName, object testValue)
 		{
 			IDbCommand command = Provider.GetCommand();
 			command.CommandText = Provider.FormatSql("insert into {0:NAME} ({1:NAME}) values ({2})", tableName, "testcolumn", ParameterName);

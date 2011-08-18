@@ -19,14 +19,14 @@ namespace ECM7.Migrator.Tests2
 
 		private static OracleTransformationProvider CreateOracleProvider()
 		{
-			return TransformationProviderFactory
+			return ProviderFactory
 				.Create<OracleTransformationProvider>(new OracleConnection())
 					as OracleTransformationProvider;
 		}
 
 		private static SqlServerTransformationProvider CreateSqlServerProvider()
 		{
-			return TransformationProviderFactory
+			return ProviderFactory
 				.Create<SqlServerTransformationProvider>(new SqlConnection())
 					as SqlServerTransformationProvider;
 		}

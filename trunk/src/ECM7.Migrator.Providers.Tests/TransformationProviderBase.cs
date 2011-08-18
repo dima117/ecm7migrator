@@ -52,7 +52,7 @@ namespace ECM7.Migrator.Providers.Tests
 			string constr = ConfigurationManager.AppSettings[ConnectionStrinSettingsName];
 			Require.IsNotNullOrEmpty(constr, "Connection string \"{0}\" is not exist", ConnectionStrinSettingsName);
 
-			provider = TransformationProviderFactory.Create<TProvider>(constr);
+			provider = ProviderFactory.Create<TProvider>(constr);
 
 			if (UseTransaction)
 			{

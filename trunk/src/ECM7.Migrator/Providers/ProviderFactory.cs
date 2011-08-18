@@ -6,7 +6,7 @@
 
 	using ECM7.Migrator.Framework;
 
-	public class TransformationProviderFactory
+	public class ProviderFactory
 	{
 		public static ITransformationProvider Create<TProvider>(string connectionString)
 			where TProvider : ITransformationProvider
@@ -48,6 +48,7 @@
 			return Create(providerType, connection);
 		}
 
+		// todo:!!!!!!!!!!! проверить вызов dispose для провайдеров, созданных этим методос
 		public static ITransformationProvider Create(Type providerType, IDbConnection connection)
 		{
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
