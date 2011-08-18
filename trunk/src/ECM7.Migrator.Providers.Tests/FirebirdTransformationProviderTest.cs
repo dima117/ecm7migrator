@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.Providers.Tests
+﻿using System.Data;
+
+namespace ECM7.Migrator.Providers.Tests
 {
 	using ECM7.Migrator.Providers.Firebird;
 
@@ -17,5 +19,13 @@
     	{
 			get { return false; }
     	}
+
+
+		[Test]
+		public override void AddDecimalColumn()
+		{
+			provider.AddColumn("TestTwo", "TestDecimal", DbType.Decimal, 18);
+			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestDecimal"));
+		}
     }
 }

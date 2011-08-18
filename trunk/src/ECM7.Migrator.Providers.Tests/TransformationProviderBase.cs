@@ -291,7 +291,7 @@ namespace ECM7.Migrator.Providers.Tests
 		}
 
 		[Test]
-		public void AddDecimalColumn()
+		public virtual void AddDecimalColumn()
 		{
 			provider.AddColumn("TestTwo", "TestDecimal", DbType.Decimal, 38);
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestDecimal"));
