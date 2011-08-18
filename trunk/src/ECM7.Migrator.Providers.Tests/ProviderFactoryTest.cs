@@ -175,11 +175,12 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void CanCreateProvider()
 		{
-			var provider = ProviderFactory.Create(
-				typeof(PostgreSQLTransformationProvider), new NpgsqlConnection());
-
-			Assert.IsNotNull(provider);
-			Assert.AreEqual(typeof(PostgreSQLTransformationProvider), provider.GetType());
+			using (var provider = ProviderFactory
+				.Create(typeof(PostgreSQLTransformationProvider), new NpgsqlConnection()))
+			{
+				Assert.IsNotNull(provider);
+				Assert.AreEqual(typeof(PostgreSQLTransformationProvider), provider.GetType());
+			}
 		}
 
 		[Test]

@@ -73,7 +73,9 @@ namespace ECM7.Migrator.Providers
 		{
 			string result;
 			if (!defaults.TryGetValue(typecode, out result))
-				throw new ArgumentException("Dialect does not support DbType." + typecode, "typecode");
+			{
+				throw new ArgumentException("Provider does not support DbType." + typecode, "typecode");
+			}
 
 			return result;
 		}

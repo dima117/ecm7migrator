@@ -19,7 +19,7 @@ namespace ECM7.Migrator.NAnt
 	/// <target name="migrate" description="Migrate the database" depends="build">
 	///  <property name="version" value="-1" overwrite="false" />
 	///  <migrate
-	///    dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
+	///    provider="ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider, ECM7.Migrator.Providers.SqlServer"
 	///    connection-string="Database=MyDB;Data Source=localhost;User Id=;Password=;"
 	///    assembly-file="bin/MyProject.dll"
 	///    to="${version}" />
@@ -37,8 +37,8 @@ namespace ECM7.Migrator.NAnt
 		/// <summary>
 		/// Диалект
 		/// </summary>
-		[TaskAttribute("dialect", Required = true)]
-		public string Dialect { get; set; }
+		[TaskAttribute("provider", Required = true)]
+		public string Provider { get; set; }
 
 		/// <summary>
 		/// Строка подключения

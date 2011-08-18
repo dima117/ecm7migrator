@@ -9,7 +9,6 @@
 	/// </summary>
 	public static class MigratorFactory
 	{
-		// todo: поменять слово dialect на provider
 		#region config file
 
 		/// <summary>
@@ -33,13 +32,13 @@
 		public static Migrator CreateMigrator(IMigratorConfiguration config)
 		{
 			Require.IsNotNull(config, "Конфигурация не задана");
-			Require.IsNotNullOrEmpty(config.Dialect, "Не задан используемый диалект");
+			Require.IsNotNullOrEmpty(config.Provider, "Не задан используемый тип провайдера");
 
 			Assembly assembly = GetAssembly(config);
 
 			string connectionString = GetConnectionString(config);
 
-			return new Migrator(config.Dialect.Trim(), connectionString, assembly);
+			return new Migrator(config.Provider.Trim(), connectionString, assembly);
 		}
 
 		/// <summary>

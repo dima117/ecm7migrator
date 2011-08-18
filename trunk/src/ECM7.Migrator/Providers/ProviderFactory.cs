@@ -48,7 +48,6 @@
 			return Create(providerType, connection);
 		}
 
-		// todo:!!!!!!!!!!! проверить вызов dispose для провайдеров, созданных этим методос
 		public static ITransformationProvider Create(Type providerType, IDbConnection connection)
 		{
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");

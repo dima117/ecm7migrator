@@ -283,22 +283,7 @@ namespace ECM7.Migrator.Providers
 
 		#region For
 
-		public ITransformationProvider For<TDialect>()
-		{
-			return this;
-		}
-
-		public ITransformationProvider For(Type providerType)
-		{
-			return this;
-		}
-
-		public ITransformationProvider For(string providerTypeName)
-		{
-			return this;
-		}
-
-		public void For<TDialect>(Action<ITransformationProvider> actions)
+		public void For<TProvider>(Action<ITransformationProvider> actions)
 		{
 		}
 
