@@ -24,81 +24,58 @@ namespace ECM7.Migrator.Providers.Tests
 	{
 		#region Provider loading tests
 
+		private static void CanLoadProviderInternalTest<TProvider>(string cstringName)
+			where TProvider : ITransformationProvider
+		{
+			string cstring = ConfigurationManager.AppSettings[cstringName];
+
+			using (ITransformationProvider provider = ProviderFactory.Create<TProvider>(cstring))
+			{
+				Assert.IsNotNull(provider);
+				Assert.IsTrue(provider is TProvider);
+			}
+		}
+
 		[Test, Category("SqlServer")]
 		public void CanLoadSqlServerProvider()
 		{
-			ITransformationProvider provider = TransformationProviderFactory
-				.Create<SqlServerTransformationProvider>(
-					ConfigurationManager.AppSettings["SqlServerConnectionString"]);
-
-			Assert.IsNotNull(provider);
-			Assert.IsTrue(provider is SqlServerTransformationProvider);
+			CanLoadProviderInternalTest<SqlServerTransformationProvider>("SqlServerConnectionString");
 		}
 
 		[Test, Category("SqlServerCe")]
 		public void CanLoadSqlServerCeProvider()
 		{
-			ITransformationProvider provider = TransformationProviderFactory
-				.Create<SqlServerCeTransformationProvider>(
-					ConfigurationManager.AppSettings["SqlServerCeConnectionString"]);
-
-			Assert.IsNotNull(provider);
-			Assert.IsTrue(provider is SqlServerCeTransformationProvider);
+			CanLoadProviderInternalTest<SqlServerCeTransformationProvider>("SqlServerCeConnectionString");
 		}
 
 		[Test, Category("MySql")]
 		public void CanLoadMySqlProvider()
 		{
-			ITransformationProvider provider = TransformationProviderFactory
-				.Create<MySqlTransformationProvider>(
-					ConfigurationManager.AppSettings["MySqlConnectionString"]);
-
-			Assert.IsNotNull(provider);
-			Assert.IsTrue(provider is MySqlTransformationProvider);
+			CanLoadProviderInternalTest<MySqlTransformationProvider>("MySqlConnectionString");
 		}
 
 		[Test, Category("PostgreSQL")]
 		public void CanLoadPostgreSQLProvider()
 		{
-			ITransformationProvider provider = TransformationProviderFactory
-				.Create<PostgreSQLTransformationProvider>(
-					ConfigurationManager.AppSettings["NpgsqlConnectionString"]);
-
-			Assert.IsNotNull(provider);
-			Assert.IsTrue(provider is PostgreSQLTransformationProvider);
+			CanLoadProviderInternalTest<PostgreSQLTransformationProvider>("NpgsqlConnectionString");
 		}
 
 		[Test, Category("SQLite")]
 		public void CanLoadSqLiteProvider()
 		{
-			ITransformationProvider provider = TransformationProviderFactory
-				.Create<SQLiteTransformationProvider>(
-					ConfigurationManager.AppSettings["SQLiteConnectionString"]);
-
-			Assert.IsNotNull(provider);
-			Assert.IsTrue(provider is SQLiteTransformationProvider);
+			CanLoadProviderInternalTest<SQLiteTransformationProvider>("SQLiteConnectionString");
 		}
 
 		[Test, Category("Oracle")]
 		public void CanLoadOracleProvider()
 		{
-			ITransformationProvider provider = TransformationProviderFactory
-				.Create<OracleTransformationProvider>(
-					ConfigurationManager.AppSettings["OracleConnectionString"]);
-
-			Assert.IsNotNull(provider);
-			Assert.IsTrue(provider is OracleTransformationProvider);
+			CanLoadProviderInternalTest<OracleTransformationProvider>("OracleConnectionString");
 		}
 
 		[Test, Category("Firebird")]
 		public void CanLoadFirebirdProvider()
 		{
-			ITransformationProvider provider = TransformationProviderFactory
-				.Create<FirebirdTransformationProvider>(
-					ConfigurationManager.AppSettings["FirebirdConnectionString"]);
-
-			Assert.IsNotNull(provider);
-			Assert.IsTrue(provider is FirebirdTransformationProvider);
+			CanLoadProviderInternalTest<FirebirdTransformationProvider>("FirebirdConnectionString");
 		}
 
 		#endregion
@@ -109,7 +86,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void SqlServerShortcutTest()
 		{
 			Assert.AreEqual(
-				TransformationProviderFactory.GetProviderType("SqlServer"),
+				ProviderFactory.GetProviderType("SqlServer"),
 				typeof(SqlServerTransformationProvider));
 		}
 
@@ -117,7 +94,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void SqlServerCeShortcutTest()
 		{
 			Assert.AreEqual(
-				TransformationProviderFactory.GetProviderType("SqlServerCe"),
+				ProviderFactory.GetProviderType("SqlServerCe"),
 				typeof(SqlServerCeTransformationProvider));
 		}
 
@@ -125,7 +102,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void OracleShortcutTest()
 		{
 			Assert.AreEqual(
-				TransformationProviderFactory.GetProviderType("Oracle"),
+				ProviderFactory.GetProviderType("Oracle"),
 				typeof(OracleTransformationProvider));
 		}
 
@@ -133,7 +110,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void MySqlShortcutTest()
 		{
 			Assert.AreEqual(
-				TransformationProviderFactory.GetProviderType("MySql"),
+				ProviderFactory.GetProviderType("MySql"),
 				typeof(MySqlTransformationProvider));
 		}
 
@@ -141,7 +118,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void SQLiteShortcutTest()
 		{
 			Assert.AreEqual(
-				TransformationProviderFactory.GetProviderType("SQLite"),
+				ProviderFactory.GetProviderType("SQLite"),
 				typeof(SQLiteTransformationProvider));
 		}
 
@@ -149,7 +126,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void PostgreSQLShortcutTest()
 		{
 			Assert.AreEqual(
-				TransformationProviderFactory.GetProviderType("PostgreSQL"),
+				ProviderFactory.GetProviderType("PostgreSQL"),
 				typeof(PostgreSQLTransformationProvider));
 		}
 
@@ -157,7 +134,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void FirebirdShortcutTest()
 		{
 			Assert.AreEqual(
-				TransformationProviderFactory.GetProviderType("Firebird"),
+				ProviderFactory.GetProviderType("Firebird"),
 				typeof(FirebirdTransformationProvider));
 		}
 
@@ -169,7 +146,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void GetProviderTypeTest()
 		{
 			Assert.AreEqual(
-				TransformationProviderFactory.GetProviderType("ECM7.Migrator.Providers.PostgreSQL.PostgreSQLTransformationProvider, ECM7.Migrator.Providers.PostgreSQL"),
+				ProviderFactory.GetProviderType("ECM7.Migrator.Providers.PostgreSQL.PostgreSQLTransformationProvider, ECM7.Migrator.Providers.PostgreSQL"),
 				typeof(PostgreSQLTransformationProvider));
 		}
 
@@ -177,14 +154,14 @@ namespace ECM7.Migrator.Providers.Tests
 		public void GetInvalidProviderTypeTest()
 		{
 			Assert.Throws<RequirementNotCompliedException>(() =>
-				TransformationProviderFactory.GetProviderType(typeof(DateTime).FullName));
+				ProviderFactory.GetProviderType(typeof(DateTime).FullName));
 		}
 
 		[Test]
 		public void GetInvalidProviderTypeTest2()
 		{
 			Assert.Throws<RequirementNotCompliedException>(() =>
-				TransformationProviderFactory.GetProviderType("moo moo moo"));
+				ProviderFactory.GetProviderType("moo moo moo"));
 		}
 
 		[Test]
@@ -192,13 +169,13 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			Assert.AreEqual(
 				typeof(NpgsqlConnection),
-				TransformationProviderFactory.GetConnectionType(typeof(PostgreSQLTransformationProvider)));
+				ProviderFactory.GetConnectionType(typeof(PostgreSQLTransformationProvider)));
 		}
 
 		[Test]
 		public void CanCreateProvider()
 		{
-			var provider = TransformationProviderFactory.Create(
+			var provider = ProviderFactory.Create(
 				typeof(PostgreSQLTransformationProvider), new NpgsqlConnection());
 
 			Assert.IsNotNull(provider);
@@ -209,7 +186,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CantCreateProviderWithInvalidConnection()
 		{
 			Assert.Throws<System.MissingMethodException>(() =>
-			TransformationProviderFactory.Create(
+			ProviderFactory.Create(
 				typeof(PostgreSQLTransformationProvider), new SqlConnection()));
 		}
 
@@ -217,26 +194,26 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanCreateProviderUsingConnectionString()
 		{
 			string cstring = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
-			ITransformationProvider provider = TransformationProviderFactory.Create(
-				typeof(PostgreSQLTransformationProvider), cstring);
+			using (var provider = ProviderFactory.Create(typeof(PostgreSQLTransformationProvider), cstring))
+			{
+				// проверка типа провайдера
+				Assert.IsNotNull(provider);
+				Assert.AreEqual(typeof(PostgreSQLTransformationProvider), provider.GetType());
 
-			// проверка типа провайдера
-			Assert.IsNotNull(provider);
-			Assert.AreEqual(typeof(PostgreSQLTransformationProvider), provider.GetType());
+				// проверка типа подключения
+				Assert.IsNotNull(provider.Connection);
+				Assert.AreEqual(typeof(NpgsqlConnection), provider.Connection.GetType());
 
-			// проверка типа подключения
-			Assert.IsNotNull(provider.Connection);
-			Assert.AreEqual(typeof(NpgsqlConnection), provider.Connection .GetType());
+				// проверка строки подключнеия у созданного провайдера
+				NpgsqlConnectionStringBuilder sb1 = new NpgsqlConnectionStringBuilder(cstring);
+				NpgsqlConnectionStringBuilder sb2 = new NpgsqlConnectionStringBuilder(provider.Connection.ConnectionString);
 
-			// проверка строки подключнеия у созданного провайдера
-			NpgsqlConnectionStringBuilder sb1 = new NpgsqlConnectionStringBuilder(cstring);
-			NpgsqlConnectionStringBuilder sb2 = new NpgsqlConnectionStringBuilder(provider.Connection.ConnectionString);
-
-			Assert.AreEqual(sb1.Host, sb2.Host);
-			Assert.AreEqual(sb1.Database, sb2.Database);
-			Assert.AreEqual(sb1.UserName, sb2.UserName);
+				Assert.AreEqual(sb1.Host, sb2.Host);
+				Assert.AreEqual(sb1.Database, sb2.Database);
+				Assert.AreEqual(sb1.UserName, sb2.UserName);
+			}
 		}
-		
+
 		#endregion
 	}
 }

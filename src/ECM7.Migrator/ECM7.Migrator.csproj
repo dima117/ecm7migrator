@@ -88,7 +88,7 @@
     <Compile Include="Providers\SqlFormatter.cs" />
     <Compile Include="Providers\SqlGenerator.cs" />
     <Compile Include="Providers\TransformationProvider.cs" />
-    <Compile Include="Providers\TransformationProviderFactory.cs" />
+    <Compile Include="Providers\ProviderFactory.cs" />
     <Compile Include="Providers\TypeNames.cs" />
     <Compile Include="VersionException.cs" />
   </ItemGroup>

@@ -49,5 +49,12 @@ namespace ECM7.Migrator.Providers.Tests
 			Assert.Throws<NotSupportedException>(AddCheckConstraint);
 		}
 
+		[Test]
+		public override void RemoveCheckConstraint()
+		{
+			Assert.Throws<NotSupportedException>(AddCheckConstraint);
+			provider.RemoveConstraint("TestTwo", "CK_TestTwo_TestId");
+			Assert.IsFalse(provider.ConstraintExists("TestTwo", "CK_TestTwo_TestId"));
+		}
 	}
 }

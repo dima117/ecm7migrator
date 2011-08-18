@@ -47,7 +47,7 @@ namespace ECM7.Migrator
 		/// Инициализация
 		/// </summary>
 		public Migrator(string providerTypeName, IDbConnection connection, Assembly asm)
-			: this(TransformationProviderFactory.Create(providerTypeName, connection), asm)
+			: this(ProviderFactory.Create(providerTypeName, connection), asm)
 		{
 		}
 
@@ -55,7 +55,7 @@ namespace ECM7.Migrator
 		/// Инициализация
 		/// </summary>
 		public Migrator(string providerTypeName, string connectionString, Assembly asm)
-			:this(TransformationProviderFactory.Create(providerTypeName, connectionString), asm)
+			:this(ProviderFactory.Create(providerTypeName, connectionString), asm)
 		{
 		}
 
