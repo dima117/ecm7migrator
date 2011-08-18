@@ -457,17 +457,17 @@ namespace ECM7.Migrator.Framework
 		#region For
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TProvider'.
 		/// </summary>
-		void For<TDialect>(Action<ITransformationProvider> actions);
+		void For<TProvider>(Action<ITransformationProvider> actions);
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TDialect'.
+		/// Get this provider or a NoOp provider if you are not running in the context of 'TProvider'.
 		/// </summary>
 		void For(Type providerType, Action<ITransformationProvider> actions);
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'providerTypeName'.
+		/// Get this provider or a NoOp provider if you are not running in the context of provider with name 'providerTypeName'.
 		/// </summary>
 		void For(string providerTypeName, Action<ITransformationProvider> actions); 
 		#endregion

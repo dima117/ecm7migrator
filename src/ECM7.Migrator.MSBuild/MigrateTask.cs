@@ -15,7 +15,7 @@ namespace ECM7.Migrator.MSBuild
 	/// </summary>
 	/// <example>
 	/// <Target name="Migrate" DependsOnTargets="Build">
-	///     <Migrate Dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
+	///     <Migrate Provider="ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider, ECM7.Migrator.Providers.SqlServer"
 	///         Connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
 	///         AssemblyFile="bin/MyProject.dll"/>
 	/// </Target>
@@ -26,7 +26,7 @@ namespace ECM7.Migrator.MSBuild
 	///        <Output TaskParameter="Value" PropertyName="SchemaVersion"/>
 	///     </CreateProperty>
 	///     <Migrate
-	///			Dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
+	///			Provider="ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider, ECM7.Migrator.Providers.SqlServer"
 	///         Connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
 	///         Migrations="bin/MyProject.dll"
 	///         To="$(SchemaVersion)"/>
@@ -40,7 +40,7 @@ namespace ECM7.Migrator.MSBuild
 		/// Диалект
 		/// </summary>
 		[Required]
-		public string Dialect { get; set; }
+		public string Provider { get; set; }
 
 		/// <summary>
 		/// Строка подключения

@@ -8,7 +8,7 @@
 		/// <summary>
 		/// Диалект
 		/// </summary>
-		string Dialect { get; }
+		string Provider { get; }
 
 		/// <summary>
 		/// Строка подключения

@@ -10,10 +10,10 @@
 		/// <summary>
 		/// Диалект
 		/// </summary>
-		[ConfigurationProperty("dialect", IsRequired = true)]
-		public string Dialect
+		[ConfigurationProperty("provider", IsRequired = true)]
+		public string Provider
 		{
-			get { return (string)base["dialect"]; }
+			get { return (string)base["provider"]; }
 		}
 
 		/// <summary>

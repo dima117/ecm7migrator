@@ -146,15 +146,15 @@ namespace ECM7.Migrator.Console
 		/// <param name="args">Список аргументов</param>
 		private static MigratorConfiguration GetConfig(string[] args)
 		{
-			Require.That(args.Length >= 3, "Parameters: dialect, connection string, migration assembly");
+			Require.That(args.Length >= 3, "Parameters: provider, connection string, migration assembly");
 
 			// получаем значения первых трех аргументов
-			string dialect = args[0];
+			string provider = args[0];
 			string connectionString = args[1];
 			string migrationsAssembly = args[2];
 			string key = GetKey(args);
 
-			MigratorConfiguration config = new MigratorConfiguration { Dialect = dialect };
+			MigratorConfiguration config = new MigratorConfiguration { Provider = provider };
 
 			// сборка с миграциями
 			if (File.Exists(migrationsAssembly))
@@ -250,9 +250,9 @@ namespace ECM7.Migrator.Console
 		{
 			const int TAB = 17;
 
-			Console.WriteLine("usage:\nECM7.Migrator.Console.exe dialect connectionString migrationsAssembly [options]");
+			Console.WriteLine("usage:\nECM7.Migrator.Console.exe provider connectionString migrationsAssembly [options]");
 			Console.WriteLine();
-			Console.WriteLine("\t{0} {1}", "dialect".PadRight(TAB), "Full name of dialect type (include assembly name)");
+			Console.WriteLine("\t{0} {1}", "provider".PadRight(TAB), "Full name of provider type (include assembly name)");
 			Console.WriteLine("\t{0} {1}", "connectionString".PadRight(TAB), "Connection string to the database");
 			Console.WriteLine("\t{0} {1}", "migrationAssembly".PadRight(TAB), "Path to the assembly containing the migrations");
 			Console.WriteLine("Options:");

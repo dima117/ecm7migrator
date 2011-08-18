@@ -10,7 +10,7 @@
 		/// <summary>
 		/// Диалект
 		/// </summary>
-		public string Dialect { get;  set; }
+		public string Provider { get;  set; }
 
 		/// <summary>
 		/// Строка подключения

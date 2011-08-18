@@ -779,9 +779,9 @@ namespace ECM7.Migrator.Providers
 		/// <summary>
 		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
 		/// </summary>
-		public void For<TDialect>(Action<ITransformationProvider> actions)
+		public void For<TProvider>(Action<ITransformationProvider> actions)
 		{
-			For(typeof(TDialect), actions);
+			For(typeof(TProvider), actions);
 		}
 
 		/// <summary>
@@ -794,7 +794,7 @@ namespace ECM7.Migrator.Providers
 		}
 
 		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of dialect with name 'providerTypeName'.
+		/// Get this provider or a NoOp provider if you are not running in the context of provider with name 'providerTypeName'.
 		/// </summary>
 		public void For(string providerTypeName, Action<ITransformationProvider> actions)
 		{

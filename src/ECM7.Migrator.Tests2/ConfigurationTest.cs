@@ -23,7 +23,7 @@
 			Assert.IsNotNull(config);
 			Assert.AreEqual("111", config.Assembly);
 			Assert.AreEqual("xxx", config.AssemblyFile);
-			Assert.AreEqual("222", config.Dialect);
+			Assert.AreEqual("222", config.Provider);
 			Assert.AreEqual("333", config.ConnectionString);
 			Assert.AreEqual("444", config.ConnectionStringName);
 		}
