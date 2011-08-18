@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers.Firebird
 {
@@ -68,6 +70,16 @@ namespace ECM7.Migrator.Providers.Firebird
 		{
 			string sql = FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql);
 			ExecuteNonQuery(sql);
+		}
+
+		protected override void BuildColumnSql(List<string> vals, Column column, bool compoundPrimaryKey)
+		{
+			AddColumnName(vals, column);
+			AddColumnType(vals, column);
+			AddDefaultValueSql(vals, column);
+			AddNotNullSql(vals, column);
+			AddPrimaryKeySql(vals, column, compoundPrimaryKey);
+			AddUniqueSql(vals, column);
 		}
 
 		#endregion
