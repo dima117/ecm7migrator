@@ -17,6 +17,7 @@ namespace ECM7.Migrator.Providers.Firebird
 		public FirebirdTransformationProvider(FbConnection connection)
 			: base(connection)
 		{
+			// todo: написать тесты на закрытие подключения
 			RegisterColumnType(DbType.AnsiStringFixedLength, "CHAR(255)");
 			RegisterColumnType(DbType.AnsiStringFixedLength, 32767, "CHAR($l)");
 			RegisterColumnType(DbType.AnsiString, "VARCHAR(255)");
@@ -33,7 +34,7 @@ namespace ECM7.Migrator.Providers.Firebird
 			RegisterColumnType(DbType.Guid, "CHAR(36)");
 			RegisterColumnType(DbType.Int16, "SMALLINT");
 			RegisterColumnType(DbType.Int32, "INTEGER");
-			RegisterColumnType(DbType.Int64, "INT64");
+			RegisterColumnType(DbType.Int64, "BIGINT");
 			RegisterColumnType(DbType.Single, "DOUBLE PRECISION");
 			RegisterColumnType(DbType.StringFixedLength, "CHAR(255) CHARACTER SET UNICODE_FSS");
 			RegisterColumnType(DbType.StringFixedLength, 4000, "CHAR($l) CHARACTER SET UNICODE_FSS");
@@ -61,6 +62,26 @@ namespace ECM7.Migrator.Providers.Firebird
 		#endregion
 
 		#region custom sql
+
+		public override bool ColumnExists(string table, string column)
+		{
+			string sql = FormatSql(
+				"select count(*) from rdb$relation_fields " +
+				"where rdb$relation_name = '{0}' and rdb$field_name = '{1}'", table, column);
+
+			int cnt = Convert.ToInt32(ExecuteScalar(sql));
+			return cnt > 0;
+		}
+
+		public override bool TableExists(string table)
+		{
+			string sql = FormatSql(
+				"select count(*) from rdb$relations " +
+				"where rdb$system_flag = 0 and rdb$relation_name = '{0}'", table);
+
+			int cnt = Convert.ToInt32(ExecuteScalar(sql));
+			return cnt > 0;
+		}
 
 		public override bool IndexExists(string indexName, string tableName)
 		{
