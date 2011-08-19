@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using ECM7.Migrator.Framework;
+using ECM7.Migrator.Framework.Logging;
 
 namespace ECM7.Migrator.Providers.Firebird
 {
@@ -43,6 +44,11 @@ namespace ECM7.Migrator.Providers.Firebird
 
 		#region Overrides of SqlGenerator
 
+		public override string BatchSeparator
+		{
+			get { return ";"; }
+		}
+
 		public override string Default(object defaultValue)
 		{
 			if (defaultValue.GetType().Equals(typeof(bool)))
@@ -58,12 +64,35 @@ namespace ECM7.Migrator.Providers.Firebird
 
 		public override bool IndexExists(string indexName, string tableName)
 		{
-			throw new System.NotImplementedException();
+			string sql = FormatSql(
+				"select count(*) from rdb$indices " +
+				"where rdb$relation_name = '{0}' and rdb$index_name = '{1}' " +
+				"and not (rdb$index_name starting with 'rdb$')", tableName, indexName);
+
+			int cnt = Convert.ToInt32(ExecuteScalar(sql));
+			return cnt > 0;
 		}
 
 		public override bool ConstraintExists(string table, string name)
 		{
-			throw new System.NotImplementedException();
+			string sql = FormatSql(
+				"select count(*) from rdb$relation_constraints " +
+				"where rdb$relation_name = '{0}' and rdb$constraint_name = '{1}'", table, name);
+
+			int cnt = Convert.ToInt32(ExecuteScalar(sql));
+			return cnt > 0;
+		}
+
+		public override void RemoveIndex(string indexName, string tableName)
+		{
+			if (!IndexExists(indexName, tableName))
+			{
+				MigratorLogManager.Log.WarnFormat("Index {0} is not exists", indexName);
+				return;
+			}
+
+			string sql = FormatSql("DROP INDEX {0:NAME}", indexName);
+			ExecuteNonQuery(sql);
 		}
 
 		public override void AddColumn(string table, string columnSql)
