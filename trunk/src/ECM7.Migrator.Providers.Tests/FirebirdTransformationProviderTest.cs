@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Text;
 
 namespace ECM7.Migrator.Providers.Tests
 {
@@ -20,6 +21,21 @@ namespace ECM7.Migrator.Providers.Tests
 			get { return false; }
     	}
 
+		protected override string BatchSql
+		{
+			get
+			{
+				StringBuilder sb = new StringBuilder();
+
+				sb.AppendLine("insert into \"TestTwo\" (\"Id\", \"TestId\") values (11, 111);");
+				sb.AppendLine("insert into \"TestTwo\" (\"Id\", \"TestId\") values (22, 222);");
+				sb.AppendLine("insert into \"TestTwo\" (\"Id\", \"TestId\") values (33, 333);");
+				sb.AppendLine("insert into \"TestTwo\" (\"Id\", \"TestId\") values (44, 444);");
+				sb.AppendLine("insert into \"TestTwo\" (\"Id\", \"TestId\") values (55, 555);");
+
+				return sb.ToString();
+			}
+		}
 
 		[Test]
 		public override void AddDecimalColumn()
