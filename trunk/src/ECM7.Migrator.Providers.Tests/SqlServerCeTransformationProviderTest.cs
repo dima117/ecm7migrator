@@ -1,3 +1,5 @@
+using ECM7.Migrator.Exceptions;
+
 namespace ECM7.Migrator.Providers.Tests
 {
 	using ECM7.Migrator.Framework;

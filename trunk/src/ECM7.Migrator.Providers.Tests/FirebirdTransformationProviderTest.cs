@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Text;
 
 namespace ECM7.Migrator.Providers.Tests
@@ -37,11 +38,27 @@ namespace ECM7.Migrator.Providers.Tests
 			}
 		}
 
+		protected override string ResourceSql
+		{
+			get
+			{
+				return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.fb.test.res.migration.sql";
+			}
+		}
+
 		[Test]
 		public override void AddDecimalColumn()
 		{
 			provider.AddColumn("TestTwo", "TestDecimal", DbType.Decimal, 18);
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestDecimal"));
+		}
+
+		[Test]
+		public override void RenameTableThatExists()
+		{
+			AddTableWithPrimaryKey();
+			Assert.Throws<NotSupportedException>(
+				() => provider.RenameTable("Test", "Test_Rename"));
 		}
     }
 }

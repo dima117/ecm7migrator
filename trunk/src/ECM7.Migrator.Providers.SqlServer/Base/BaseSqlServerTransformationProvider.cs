@@ -1,3 +1,5 @@
+using ECM7.Migrator.Exceptions;
+
 namespace ECM7.Migrator.Providers.SqlServer.Base
 {
 	using System;
@@ -95,7 +97,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 				"from [INFORMATION_SCHEMA].[CHECK_CONSTRAINTS]" +
 				"WHERE [CONSTRAINT_NAME] = '{1}'", table, name);
 
-			using (IDataReader reader = ExecuteQuery(sql))
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
 			}
@@ -112,7 +114,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 				return false;
 
 			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT * FROM [INFORMATION_SCHEMA].[COLUMNS] WHERE [TABLE_NAME]='{0}' AND [COLUMN_NAME]='{1}'", table, column)))
+				ExecuteReader(String.Format("SELECT * FROM [INFORMATION_SCHEMA].[COLUMNS] WHERE [TABLE_NAME]='{0}' AND [COLUMN_NAME]='{1}'", table, column)))
 			{
 				return reader.Read();
 			}
@@ -121,7 +123,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 		public override bool TableExists(string table)
 		{
 			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME]='{0}'", table)))
+				ExecuteReader(String.Format("SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME]='{0}'", table)))
 			{
 				return reader.Read();
 			}
@@ -157,7 +159,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 		{
 			string sqlContrainte = FindConstraints(table, column);
 			List<string> constraints = new List<string>();
-			using (IDataReader reader = ExecuteQuery(sqlContrainte))
+			using (IDataReader reader = ExecuteReader(sqlContrainte))
 			{
 				while (reader.Read())
 				{

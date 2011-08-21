@@ -206,7 +206,7 @@ namespace ECM7.Migrator.Providers
 			return 0;
 		}
 
-		public IDataReader ExecuteQuery(string sql)
+		public IDataReader ExecuteReader(string sql)
 		{
 			return null;
 		}

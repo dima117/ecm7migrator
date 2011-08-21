@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.SqlServerCe;
+using ECM7.Migrator.Exceptions;
 using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers.SqlServer
@@ -42,7 +43,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 		public override bool ConstraintExists(string table, string name)
 		{
 			string sql = string.Format("SELECT [cont].[constraint_name] FROM [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS] [cont] WHERE [cont].[Constraint_Name]='{0}'", name);
-			using (IDataReader reader = ExecuteQuery(sql))
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
 			}

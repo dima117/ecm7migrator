@@ -316,7 +316,7 @@ namespace ECM7.Migrator.Framework
 		/// </summary>
 		/// <param name="sql">The SQL to execute.</param>
 		/// <returns></returns>
-		IDataReader ExecuteQuery(string sql);
+		IDataReader ExecuteReader(string sql);
 
 		/// <summary>
 		/// Execute an arbitrary SQL query

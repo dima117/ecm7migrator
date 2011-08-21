@@ -140,7 +140,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			string tempColumn = "temp_" + column.Name;
 			RenameColumn(table, column.Name, tempColumn);
 			AddColumn(table, column);
-			ExecuteQuery(FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", table, column.Name, tempColumn));
+			ExecuteReader(FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", table, column.Name, tempColumn));
 			RemoveColumn(table, tempColumn);
 		}
 
@@ -151,7 +151,7 @@ namespace ECM7.Migrator.Providers.SQLite
 		public override bool TableExists(string table)
 		{
 			using (IDataReader reader =
-				ExecuteQuery(String.Format("SELECT [name] FROM [sqlite_master] WHERE [type]='table' and [name]='{0}'", table)))
+				ExecuteReader(String.Format("SELECT [name] FROM [sqlite_master] WHERE [type]='table' and [name]='{0}'", table)))
 			{
 				return reader.Read();
 			}
@@ -177,7 +177,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			List<string> tables = new List<string>();
 
 			const string SQL = "SELECT [name] FROM [sqlite_master] WHERE [type]='table' AND [name] <> 'sqlite_sequence' ORDER BY [name]";
-			using (IDataReader reader = ExecuteQuery(SQL))
+			using (IDataReader reader = ExecuteReader(SQL))
 			{
 				while (reader.Read())
 				{

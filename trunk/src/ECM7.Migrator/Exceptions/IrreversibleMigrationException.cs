@@ -1,7 +1,7 @@
-namespace ECM7.Migrator
-{
-	using System;
+using System;
 
+namespace ECM7.Migrator.Exceptions
+{
 	/// <summary>
 	/// Exception thrown in a migration <c>Down()</c> method
 	/// when changes can't be undone.

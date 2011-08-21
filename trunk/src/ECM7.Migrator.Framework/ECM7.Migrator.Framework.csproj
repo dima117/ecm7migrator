@@ -83,7 +83,6 @@
     <Compile Include="Migration.cs" />
     <Compile Include="MigrationAssemblyAttribute.cs" />
     <Compile Include="MigrationAttribute.cs" />
-    <Compile Include="MigrationException.cs" />
     <Compile Include="StringUtils.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using ECM7.Migrator.Exceptions;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Framework.Logging;
 
@@ -70,6 +71,25 @@ namespace ECM7.Migrator.Providers.Firebird
 			return new InternalDataReader(cmd);
 		}
 
+		public override string[] GetTables()
+		{
+			string sql = FormatSql(
+				"select rdb$relation_name from rdb$relations where rdb$system_flag = 0");
+
+			List<string> result = new List<string>();
+
+			using (IDataReader reader = ExecuteReader(sql))
+			{
+				while (reader.Read())
+				{
+					string tableName = reader.GetString(0);
+					result.Add(tableName);
+				}
+			}
+
+			return result.ToArray();
+		}
+
 		public override bool ColumnExists(string table, string column)
 		{
 			string sql = FormatSql(
@@ -129,6 +149,11 @@ namespace ECM7.Migrator.Providers.Firebird
 			ExecuteNonQuery(sql);
 		}
 
+		public override void RenameTable(string oldName, string newName)
+		{
+			throw new NotSupportedException("Firebird не поддерживает переименование таблиц");
+		}
+
 		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
 			string sql = FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TO {2:NAME}",
@@ -140,7 +165,7 @@ namespace ECM7.Migrator.Providers.Firebird
 		{
 			try
 			{
-				string sql = this.FormatSql("ALTER TABLE {0:NAME} DROP {1:NAME} ", table, column);
+				string sql = FormatSql("ALTER TABLE {0:NAME} DROP {1:NAME} ", table, column);
 				ExecuteNonQuery(sql);
 			}
 			catch (Exception ex)

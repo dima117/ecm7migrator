@@ -36,7 +36,7 @@ namespace ECM7.Migrator.Providers.Tests
 
 		protected override string ResourceSql
 		{
-			get { return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.test.res.migration.sql"; }
+			get { return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.fb.test.res.migration.sql"; }
 		}
 
 		public override string ConnectionStrinSettingsName
@@ -72,7 +72,7 @@ namespace ECM7.Migrator.Providers.Tests
 			string sql = "SELECT {0} FROM {1}".FormatWith(
 				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				int[] vals = GetVals(reader);
 
@@ -93,7 +93,7 @@ namespace ECM7.Migrator.Providers.Tests
 				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
 
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				int[] vals = GetVals(reader);
 
@@ -114,7 +114,7 @@ namespace ECM7.Migrator.Providers.Tests
 
 			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME}", "Title", "Test");
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				string[] vals = GetStringVals(reader);
 

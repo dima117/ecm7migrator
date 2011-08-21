@@ -1,10 +1,9 @@
-﻿namespace ECM7.Migrator
+﻿using System;
+using System.Collections.Generic;
+using ECM7.Common.Utils.Exceptions;
+
+namespace ECM7.Migrator.Exceptions
 {
-	using System;
-	using System.Collections.Generic;
-
-	using ECM7.Common.Utils.Exceptions;
-
 	/// <summary>
 	/// Исключение, генерируемое при наличии некорректных версий
 	/// </summary>
@@ -36,7 +35,7 @@
 		{
 			if (versionses != null && !versionses.IsEmpty())
 			{
-				this.versions.AddRange(versionses);
+				versions.AddRange(versionses);
 			}
 		}
 	}

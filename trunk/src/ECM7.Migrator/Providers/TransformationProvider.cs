@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 
 using ECM7.Migrator.Compatibility;
+using ECM7.Migrator.Exceptions;
 using ECM7.Migrator.Framework;
 
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
@@ -26,7 +27,7 @@ namespace ECM7.Migrator.Providers
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
 		protected IDbConnection connection;
 
-		private bool connectionNeedClose = false;
+		private bool connectionNeedClose;
 
 		public IDbConnection Connection
 		{
@@ -52,7 +53,7 @@ namespace ECM7.Migrator.Providers
 			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}.{2:NAME}",
 				"table_name", "information_schema", "tables");
 
-			using (IDataReader reader = ExecuteQuery(sql))
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				while (reader.Read())
 				{
@@ -71,14 +72,14 @@ namespace ECM7.Migrator.Providers
 		{
 			if (TableExists(table) && ConstraintExists(table, name))
 			{
-				string format = this.FormatSql("ALTER TABLE {0:NAME} DROP CONSTRAINT {1:NAME}", table, name);
+				string format = FormatSql("ALTER TABLE {0:NAME} DROP CONSTRAINT {1:NAME}", table, name);
 				ExecuteNonQuery(format);
 			}
 		}
 
 		public virtual void AddTable(string table, string engine, string columnsSql)
 		{
-			string sqlCreate = this.FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
+			string sqlCreate = FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
 			ExecuteNonQuery(sqlCreate);
 		}
 
@@ -184,22 +185,30 @@ namespace ECM7.Migrator.Providers
 			if (TableExists(oldName))
 			{
 				string sql = FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", oldName, newName);
-				this.ExecuteNonQuery(sql);
+				ExecuteNonQuery(sql);
 			}
 		}
 
 		public virtual void RenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
-			string sql = FormatSql("ALTER TABLE {0:NAME} RENAME COLUMN {1:NAME} TO {2:NAME}",
-				tableName, oldColumnName, newColumnName);
-			ExecuteNonQuery(sql);
+			try
+			{
+				string sql = FormatSql("ALTER TABLE {0:NAME} RENAME COLUMN {1:NAME} TO {2:NAME}",
+					tableName, oldColumnName, newColumnName);
+				ExecuteNonQuery(sql);
+			}
+			catch (Exception ex)
+			{
+				string message = "Error when rename column '{0}' to '{1}' from table '{2}'".FormatWith(oldColumnName, newColumnName, tableName);
+				throw new MigrationException(message, ex);
+			}
 		}
 
 		public virtual void RemoveColumn(string table, string column)
 		{
 			try
 			{
-				string sql = this.FormatSql("ALTER TABLE {0:NAME} DROP COLUMN {1:NAME} ", table, column);
+				string sql = FormatSql("ALTER TABLE {0:NAME} DROP COLUMN {1:NAME} ", table, column);
 				ExecuteNonQuery(sql);
 			}
 			catch (Exception ex)
@@ -571,7 +580,7 @@ namespace ECM7.Migrator.Providers
 							if (!query.IsNullOrEmpty(true))
 							{
 								MigratorLogManager.Log.ExecuteSql(query);
-								using (IDbCommand cmd = this.BuildCommand(query))
+								using (IDbCommand cmd = BuildCommand(query))
 								{
 									result = cmd.ExecuteNonQuery();
 								}
@@ -587,7 +596,7 @@ namespace ECM7.Migrator.Providers
 				else
 				{
 					MigratorLogManager.Log.ExecuteSql(sql);
-					using (IDbCommand cmd = this.BuildCommand(sql))
+					using (IDbCommand cmd = BuildCommand(sql))
 					{
 						result = cmd.ExecuteNonQuery();
 					}
@@ -596,7 +605,7 @@ namespace ECM7.Migrator.Providers
 			catch (Exception ex)
 			{
 				MigratorLogManager.Log.Warn(ex.Message, ex);
-				throw;
+				throw new SQLException(ex);
 			}
 
 			return result;
@@ -604,7 +613,7 @@ namespace ECM7.Migrator.Providers
 
 		private IDbCommand BuildCommand(string sql)
 		{
-			this.EnsureHasConnection();
+			EnsureHasConnection();
 			IDbCommand cmd = connection.CreateCommand();
 			cmd.CommandText = sql;
 			cmd.CommandType = CommandType.Text;
@@ -625,7 +634,7 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		/// <param name="sql">The SQL command.</param>
 		/// <returns>A data iterator, <see cref="System.Data.IDataReader">IDataReader</see>.</returns>
-		public IDataReader ExecuteQuery(string sql)
+		public IDataReader ExecuteReader(string sql)
 		{
 			MigratorLogManager.Log.ExecuteSql(sql);
 
@@ -638,7 +647,7 @@ namespace ECM7.Migrator.Providers
 				reader = OpenDataReader(cmd);
 				return reader;
 			}
-			catch
+			catch (Exception ex)
 			{
 				if (reader != null)
 				{
@@ -651,23 +660,23 @@ namespace ECM7.Migrator.Providers
 					cmd.Dispose();
 				}
 
-				throw;
+				throw new SQLException(ex);
 			}
 		}
 
 		public object ExecuteScalar(string sql)
 		{
-			MigratorLogManager.Log.ExecuteSql(sql);
 			using (IDbCommand cmd = BuildCommand(sql))
 			{
 				try
 				{
+					MigratorLogManager.Log.ExecuteSql(sql);
 					return cmd.ExecuteScalar();
 				}
-				catch
+				catch (Exception ex)
 				{
 					MigratorLogManager.Log.WarnFormat("Query failed: {0}", cmd.CommandText);
-					throw;
+					throw new SQLException(ex);
 				}
 			}
 		}
@@ -810,7 +819,7 @@ namespace ECM7.Migrator.Providers
 			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME} WHERE {2:NAME} = '{3}'",
 				"Version", SCHEMA_INFO_TABLE, "Key", key.Replace("'", "''"));
 
-			using (IDataReader reader = ExecuteQuery(sql))
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				while (reader.Read())
 				{
@@ -926,7 +935,7 @@ namespace ECM7.Migrator.Providers
 
 		~TransformationProvider()
 		{
-			this.Dispose();
+			Dispose();
 		}
 
 

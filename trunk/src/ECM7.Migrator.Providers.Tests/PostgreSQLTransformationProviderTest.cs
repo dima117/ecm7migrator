@@ -38,7 +38,7 @@ namespace ECM7.Migrator.Providers.Tests
 
 		protected override string ResourceSql
 		{
-			get { return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.test.res.migration.sql"; }
+			get { return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.fb.test.res.migration.sql"; }
 		}
 	}
 }
