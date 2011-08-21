@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.DataTypes
 {
-	public abstract class DataTypesTestBase<TProvider> 
+	public abstract class DataTypesTestBase<TProvider>
 		where TProvider : ITransformationProvider
 	{
 		#region Base
@@ -64,24 +64,29 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 
 		private void SelectTest(string tableName)
 		{
-			IDbCommand command = Provider.GetCommand();
-			command.CommandText = Provider.FormatSql("select {0:NAME} from {1:NAME}", "testcolumn", tableName);
+			using (IDbCommand command = Provider.GetCommand())
+			{
+				command.CommandText = Provider.FormatSql("select {0:NAME} from {1:NAME}", "testcolumn", tableName);
 
-			command.ExecuteScalar();
+				command.ExecuteScalar();
+			}
 			//Assert.AreEqual(value, loadedValue);
 		}
 
 		private void InsertTest(string tableName, object testValue)
 		{
-			IDbCommand command = Provider.GetCommand();
-			command.CommandText = Provider.FormatSql("insert into {0:NAME} ({1:NAME}) values ({2})", tableName, "testcolumn", ParameterName);
+			using (IDbCommand command = Provider.GetCommand())
+			{
+				command.CommandText = Provider.FormatSql(
+					"insert into {0:NAME} ({1:NAME}) values ({2})", tableName, "testcolumn", ParameterName);
 
-			var parameter = command.CreateParameter();
-			parameter.ParameterName = ParameterName;
-			parameter.Value = testValue;
+				var parameter = command.CreateParameter();
+				parameter.ParameterName = ParameterName;
+				parameter.Value = testValue;
 
-			command.Parameters.Add(parameter);
-			Assert.AreEqual(1, command.ExecuteNonQuery());
+				command.Parameters.Add(parameter);
+				Assert.AreEqual(1, command.ExecuteNonQuery());
+			}
 		}
 
 		#endregion
