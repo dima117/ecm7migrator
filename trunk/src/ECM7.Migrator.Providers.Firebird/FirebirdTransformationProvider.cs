@@ -6,6 +6,8 @@ using ECM7.Migrator.Framework.Logging;
 
 namespace ECM7.Migrator.Providers.Firebird
 {
+	using ECM7.Migrator.Providers.Firebird.Internal;
+
 	using FirebirdSql.Data.FirebirdClient;
 
 	public class FirebirdTransformationProvider : TransformationProvider<FbConnection>
@@ -62,6 +64,11 @@ namespace ECM7.Migrator.Providers.Firebird
 		#endregion
 
 		#region custom sql
+
+		protected override IDataReader OpenDataReader(IDbCommand cmd)
+		{
+			return new InternalDataReader(cmd);
+		}
 
 		public override bool ColumnExists(string table, string column)
 		{

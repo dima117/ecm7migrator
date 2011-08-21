@@ -616,7 +616,7 @@ namespace ECM7.Migrator.Providers
 				else
 				{
 					MigratorLogManager.Log.ExecuteSql(sql);
-					using(IDbCommand cmd = this.BuildCommand(sql))
+					using (IDbCommand cmd = this.BuildCommand(sql))
 					{
 						result = cmd.ExecuteNonQuery();
 					}
@@ -644,6 +644,11 @@ namespace ECM7.Migrator.Providers
 			return cmd;
 		}
 
+		protected virtual IDataReader OpenDataReader(IDbCommand cmd)
+		{
+			return cmd.ExecuteReader();
+		}
+
 		/// <summary>
 		/// Execute an SQL query returning results.
 		/// </summary>
@@ -652,14 +657,29 @@ namespace ECM7.Migrator.Providers
 		public IDataReader ExecuteQuery(string sql)
 		{
 			MigratorLogManager.Log.ExecuteSql(sql);
-			IDbCommand cmd = BuildCommand(sql);
+
+			IDbCommand cmd = null;
+			IDataReader reader = null;
+
 			try
 			{
-				return cmd.ExecuteReader();
+				cmd = BuildCommand(sql);
+				reader = OpenDataReader(cmd);
+				return reader;
 			}
 			catch
 			{
-				MigratorLogManager.Log.WarnFormat("query failed: {0}", cmd.CommandText);
+				if (reader != null)
+				{
+					reader.Dispose();
+				}
+
+				if (cmd != null)
+				{
+					MigratorLogManager.Log.WarnFormat("query failed: {0}", cmd.CommandText);
+					cmd.Dispose();
+				}
+
 				throw;
 			}
 		}
@@ -667,15 +687,17 @@ namespace ECM7.Migrator.Providers
 		public object ExecuteScalar(string sql)
 		{
 			MigratorLogManager.Log.ExecuteSql(sql);
-			IDbCommand cmd = BuildCommand(sql);
-			try
+			using (IDbCommand cmd = BuildCommand(sql))
 			{
-				return cmd.ExecuteScalar();
-			}
-			catch
-			{
-				MigratorLogManager.Log.WarnFormat("Query failed: {0}", cmd.CommandText);
-				throw;
+				try
+				{
+					return cmd.ExecuteScalar();
+				}
+				catch
+				{
+					MigratorLogManager.Log.WarnFormat("Query failed: {0}", cmd.CommandText);
+					throw;
+				}
 			}
 		}
 
