@@ -195,30 +195,6 @@ namespace ECM7.Migrator.Providers.Tests
 		}
 
 		[Test]
-		public void GetColumnsReturnsProperCount()
-		{
-			AddTableWithPrimaryKey();
-			Column[] cols = provider.GetColumns("Test");
-			Assert.IsNotNull(cols);
-			Assert.AreEqual(6, cols.Length);
-		}
-
-		[Test]
-		public void GetColumnsContainsProperNullInformation()
-		{
-			AddTableWithPrimaryKey();
-			Column[] cols = provider.GetColumns("Test");
-			Assert.IsNotNull(cols);
-			foreach (Column column in cols)
-			{
-				if (column.Name == "name")
-					Assert.IsTrue((column.ColumnProperty & ColumnProperty.NotNull) == ColumnProperty.NotNull);
-				else if (column.Name == "Title")
-					Assert.IsTrue((column.ColumnProperty & ColumnProperty.Null) == ColumnProperty.Null);
-			}
-		}
-
-		[Test]
 		public void CanAddTableWithPrimaryKey()
 		{
 			AddTableWithPrimaryKey();
@@ -323,20 +299,6 @@ namespace ECM7.Migrator.Providers.Tests
 		}
 
 		[Test]
-		public void CanGetNullableFromProvider()
-		{
-			provider.AddColumn("TestTwo", "NullableColumn", DbType.String, 30, ColumnProperty.Null);
-			Column[] columns = provider.GetColumns("TestTwo");
-			foreach (Column column in columns)
-			{
-				if (column.Name == "NullableColumn")
-				{
-					Assert.IsTrue((column.ColumnProperty & ColumnProperty.Null) == ColumnProperty.Null);
-				}
-			}
-		}
-
-		[Test]
 		public void RemoveColumn()
 		{
 			AddColumn();
@@ -355,8 +317,8 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void RemoveUnexistingColumn()
 		{
-			provider.RemoveColumn("TestTwo", "abc");
-			provider.RemoveColumn("abc", "abc");
+			Assert.Throws<MigrationException>(() => provider.RemoveColumn("TestTwo", "abc"));
+			Assert.Throws<MigrationException>(() => provider.RemoveColumn("abc", "abc"));
 		}
 
 		/// <summary>

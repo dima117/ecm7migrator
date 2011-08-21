@@ -129,6 +129,27 @@ namespace ECM7.Migrator.Providers.Firebird
 			ExecuteNonQuery(sql);
 		}
 
+		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
+		{
+			string sql = FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TO {2:NAME}",
+				tableName, oldColumnName, newColumnName);
+			ExecuteNonQuery(sql);
+		}
+
+		public override void RemoveColumn(string table, string column)
+		{
+			try
+			{
+				string sql = this.FormatSql("ALTER TABLE {0:NAME} DROP {1:NAME} ", table, column);
+				ExecuteNonQuery(sql);
+			}
+			catch (Exception ex)
+			{
+				string message = "Error when remove column '{0}' from table '{1}'".FormatWith(column, table);
+				throw new MigrationException(message, ex);
+			}
+		}
+
 		protected override void BuildColumnSql(List<string> vals, Column column, bool compoundPrimaryKey)
 		{
 			AddColumnName(vals, column);

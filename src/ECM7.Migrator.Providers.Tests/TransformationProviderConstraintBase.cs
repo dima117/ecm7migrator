@@ -224,12 +224,22 @@ namespace ECM7.Migrator.Providers.Tests
 							  new Column("AddressId", DbType.Int32, ColumnProperty.PrimaryKey),
 							  new Column("Name", DbType.String, 30, ColumnProperty.Null)
 				);
-			Assert.IsTrue(provider.TableExists("Test"), "Table doesn't exist");
-			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"), "Constraint doesn't exist");
 
-			Column column = provider.GetColumnByName("Test", "Name");
-			Assert.IsNotNull(column);
-			Assert.IsTrue((column.ColumnProperty & ColumnProperty.Null) == ColumnProperty.Null);
+			Assert.IsTrue(provider.TableExists("Test"));
+			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"));
+
+			provider.Insert("Test",
+				new[] {"PersonId", "AddressId", "Name"},
+				new[] {"1", "2", null});
+
+			string sql = provider.FormatSql("select {0:NAME} from {1:NAME}", "Name", "Test");
+
+			using (var reader = provider.ExecuteQuery(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(DBNull.Value, reader[0]);
+				Assert.IsFalse(reader.Read());
+			}
 		}
 	}
 }

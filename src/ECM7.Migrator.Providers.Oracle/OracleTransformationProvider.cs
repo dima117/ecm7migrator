@@ -210,54 +210,6 @@ namespace ECM7.Migrator.Providers.Oracle
 			return tables.ToArray();
 		}
 
-		public override Column[] GetColumns(string table)
-		{
-			List<Column> columns = new List<Column>();
-
-
-			using (
-				IDataReader reader =
-					ExecuteQuery(
-						string.Format(
-							"select column_name, data_type, data_length, data_precision, data_scale, nullable FROM USER_TAB_COLUMNS WHERE table_name = '{0}'",
-							table)))
-			{
-				while (reader.Read())
-				{
-					string colName = reader["column_name"].ToString();
-					DbType colType = DbType.String;
-					string dataType = reader["data_type"].ToString().ToLower();
-					bool nullable = reader["nullable"].ToString() == "Y";
-
-					if (dataType.Equals("number"))
-					{
-						int precision = Convert.ToInt32(reader[3]);
-						int scale = Convert.ToInt32(reader[4]);
-						if (scale == 0)
-						{
-							colType = precision <= 10 ? DbType.Int16 : DbType.Int64;
-						}
-						else
-						{
-							colType = DbType.Decimal;
-						}
-					}
-					else if (dataType.StartsWith("timestamp") || dataType.Equals("date"))
-					{
-						colType = DbType.DateTime;
-					}
-
-					ColumnProperty properties = nullable
-						? ColumnProperty.Null
-						: ColumnProperty.NotNull;
-
-					columns.Add(new Column(colName, colType, properties));
-				}
-			}
-
-			return columns.ToArray();
-		}
-
 		public override void ChangeColumn(string table, string columnSql)
 		{
 			string sql = FormatSql("ALTER TABLE {0:NAME} MODIFY ({1})", table, columnSql);
