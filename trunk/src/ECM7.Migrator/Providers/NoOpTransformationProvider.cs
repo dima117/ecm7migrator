@@ -27,16 +27,6 @@ namespace ECM7.Migrator.Providers
 			return null;
 		}
 
-		public Column[] GetColumns(string table)
-		{
-			return null;
-		}
-
-		public Column GetColumnByName(string table, string column)
-		{
-			return null;
-		}
-
 		public void RemoveForeignKey(string table, string name)
 		{
 			// No Op

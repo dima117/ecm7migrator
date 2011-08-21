@@ -46,34 +46,6 @@ namespace ECM7.Migrator.Providers
 			RegisterProperty(ColumnProperty.PrimaryKey, "PRIMARY KEY");
 		}
 
-		public virtual Column[] GetColumns(string table)
-		{
-			List<Column> columns = new List<Column>();
-
-			string sql = FormatSql("select {0:NAME}, {1:NAME} from {2:NAME}.{3:NAME} where {4:NAME} = '{5}'",
-							"column_name", "is_nullable", "information_schema", "columns", "table_name", table);
-			using (IDataReader reader = ExecuteQuery(sql))
-			{
-				while (reader.Read())
-				{
-					Column column = new Column(reader.GetString(0), DbType.String);
-					string nullableStr = reader.GetString(1).ToUpper();
-					bool isNullable = nullableStr == "YES";
-					column.ColumnProperty |= isNullable ? ColumnProperty.Null : ColumnProperty.NotNull;
-
-					columns.Add(column);
-				}
-			}
-
-			return columns.ToArray();
-		}
-
-		public virtual Column GetColumnByName(string table, string columnName)
-		{
-			return Array.Find(GetColumns(table),
-				column => column.Name == columnName);
-		}
-
 		public virtual string[] GetTables()
 		{
 			List<string> tables = new List<string>();
@@ -218,23 +190,22 @@ namespace ECM7.Migrator.Providers
 
 		public virtual void RenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
-			if (ColumnExists(tableName, newColumnName))
-				throw new MigrationException(String.Format("Table '{0}' has column named '{1}' already", tableName, newColumnName));
-
-			if (ColumnExists(tableName, oldColumnName))
-			{
-				string sql = FormatSql("ALTER TABLE {0:NAME} RENAME COLUMN {1:NAME} TO {2:NAME}",
-					tableName, oldColumnName, newColumnName);
-				ExecuteNonQuery(sql);
-			}
+			string sql = FormatSql("ALTER TABLE {0:NAME} RENAME COLUMN {1:NAME} TO {2:NAME}",
+				tableName, oldColumnName, newColumnName);
+			ExecuteNonQuery(sql);
 		}
 
 		public virtual void RemoveColumn(string table, string column)
 		{
-			if (ColumnExists(table, column))
+			try
 			{
 				string sql = this.FormatSql("ALTER TABLE {0:NAME} DROP COLUMN {1:NAME} ", table, column);
 				ExecuteNonQuery(sql);
+			}
+			catch (Exception ex)
+			{
+				string message = "Error when remove column '{0}' from table '{1}'".FormatWith(column, table);
+				throw new MigrationException(message, ex);
 			}
 		}
 

@@ -326,21 +326,6 @@ namespace ECM7.Migrator.Framework
 		object ExecuteScalar(string sql);
 
 		/// <summary>
-		/// Get the information about the columns in a table
-		/// </summary>
-		/// <param name="table">The table name that you want the columns for.</param>
-		/// <returns></returns>
-		Column[] GetColumns(string table);
-
-		/// <summary>
-		/// Get information about a single column in a table
-		/// </summary>
-		/// <param name="table">The table name that you want the columns for.</param>
-		/// <param name="column">The column name for which you want information.</param>
-		/// <returns></returns>
-		Column GetColumnByName(string table, string column);
-
-		/// <summary>
 		/// Get the names of all of the tables
 		/// </summary>
 		/// <returns>The names of all the tables.</returns>

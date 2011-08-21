@@ -148,27 +148,6 @@ namespace ECM7.Migrator.Providers.MySql
 			return ConstraintExists(table, "PRIMARY");
 		}
 
-		public override Column[] GetColumns(string table)
-		{
-			List<Column> columns = new List<Column>();
-			using (
-				IDataReader reader =
-					ExecuteQuery(FormatSql("SHOW COLUMNS FROM {0:NAME}", table)))
-			{
-				while (reader.Read())
-				{
-					Column column = new Column(reader.GetString(0), DbType.String);
-					string nullableStr = reader.GetString(2).ToUpper();
-					bool isNullable = nullableStr == "YES";
-					column.ColumnProperty |= isNullable ? ColumnProperty.Null : ColumnProperty.NotNull;
-
-					columns.Add(column);
-				}
-			}
-
-			return columns.ToArray();
-		}
-
 		public override string[] GetTables()
 		{
 			List<string> tables = new List<string>();

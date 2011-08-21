@@ -4,7 +4,7 @@ namespace ECM7.Migrator.Providers.SQLite
 	using System.Collections.Generic;
 	using System.Data;
 	using System.Data.SQLite;
-	using System.Linq;
+
 	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Framework.Logging;
 
@@ -72,7 +72,7 @@ namespace ECM7.Migrator.Providers.SQLite
 		/// </summary>
 		public override bool IndexExists(string indexName, string tableName)
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException("SQLite не поддерживает индексы");
 		}
 
 		/// <summary>
@@ -109,25 +109,7 @@ namespace ECM7.Migrator.Providers.SQLite
 		/// <param name="column">The column to remove</param>
 		public override void RemoveColumn(string table, string column)
 		{
-			if (!(TableExists(table) && ColumnExists(table, column)))
-			{
-				return;
-			}
-
-			string[] origColDefs = GetColumnDefs(table);
-
-			string[] newColDefs = origColDefs.Where(origdef => !ColumnMatch(column, origdef)).ToArray();
-			string colDefsSql = String.Join(",", newColDefs);
-
-			string[] colNames = ParseSqlForColumnNames(newColDefs);
-			string colNamesSql = String.Join(",", colNames);
-
-			string tmpTable = table + "_temp";
-
-			AddTable(tmpTable, null, colDefsSql);
-			ExecuteQuery(FormatSql("INSERT INTO {0:NAME} SELECT {1} FROM {2:NAME}", tmpTable, colNamesSql, table));
-			RemoveTable(table);
-			ExecuteQuery(FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", tmpTable, table));
+			throw new NotSupportedException("SQLite не поддерживает удаление колонок");
 		}
 
 		/// <summary>
@@ -138,22 +120,7 @@ namespace ECM7.Migrator.Providers.SQLite
 		/// <param name="newColumnName">The new name of the column</param>
 		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
-			if (ColumnExists(tableName, newColumnName))
-			{
-				throw new MigrationException(String.Format("Table '{0}' has column named '{1}' already", tableName, newColumnName));
-			}
-
-			if (ColumnExists(tableName, oldColumnName))
-			{
-				string[] columnDefs = GetColumnDefs(tableName);
-				string columnDef = Array.Find(columnDefs, col => ColumnMatch(oldColumnName, col));
-
-				string newColumnDef = columnDef.Replace(oldColumnName, newColumnName);
-
-				AddColumn(tableName, newColumnDef);
-				ExecuteQuery(FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", tableName, newColumnName, oldColumnName));
-				RemoveColumn(tableName, oldColumnName);
-			}
+			throw new NotSupportedException("SLQite не поддерживает переименование колонок");
 		}
 
 		/// <summary>
@@ -219,112 +186,6 @@ namespace ECM7.Migrator.Providers.SQLite
 			}
 
 			return tables.ToArray();
-		}
-
-		public override Column[] GetColumns(string table)
-		{
-			List<Column> columns = new List<Column>();
-			foreach (string columnDef in GetColumnDefs(table))
-			{
-				string name = ExtractNameFromColumnDef(columnDef);
-				// FIXME: Need to get the real type information
-				Column column = new Column(name, DbType.String);
-				bool isNullable = IsNullable(columnDef);
-				column.ColumnProperty |= isNullable ? ColumnProperty.Null : ColumnProperty.NotNull;
-				columns.Add(column);
-			}
-			return columns.ToArray();
-		}
-
-		public string GetSqlDefString(string table)
-		{
-			string sqldef = null;
-			using (IDataReader reader = ExecuteQuery(String.Format("SELECT [sql] FROM [sqlite_master] WHERE [type]='table' AND [name]='{0}'", table)))
-			{
-				if (reader.Read())
-				{
-					sqldef = (string)reader[0];
-				}
-			}
-			return sqldef;
-		}
-
-		public string[] GetColumnNames(string table)
-		{
-			return ParseSqlForColumnNames(GetSqlDefString(table));
-		}
-
-		public string[] GetColumnDefs(string table)
-		{
-			return ParseSqlColumnDefs(GetSqlDefString(table));
-		}
-
-		/// <summary>
-		/// Turn something like 'columnName INTEGER NOT NULL' into just 'columnName'
-		/// </summary>
-		public string[] ParseSqlForColumnNames(string sqldef)
-		{
-			string[] parts = ParseSqlColumnDefs(sqldef);
-			return ParseSqlForColumnNames(parts);
-		}
-
-		public string[] ParseSqlForColumnNames(string[] parts)
-		{
-			if (null == parts)
-				return null;
-
-			for (int i = 0; i < parts.Length; i++)
-			{
-				parts[i] = ExtractNameFromColumnDef(parts[i]);
-			}
-			return parts;
-		}
-
-		/// <summary>
-		/// Name is the first value before the space.
-		/// </summary>
-		/// <param name="columnDef"></param>
-		/// <returns></returns>
-		public string ExtractNameFromColumnDef(string columnDef)
-		{
-			int idx = columnDef.IndexOf(" ");
-			if (idx > 0)
-			{
-				return columnDef.Substring(0, idx);
-			}
-			return null;
-		}
-
-		public bool IsNullable(string columnDef)
-		{
-			return !columnDef.Contains("NOT NULL");
-		}
-
-		public string[] ParseSqlColumnDefs(string sqldef)
-		{
-			if (String.IsNullOrEmpty(sqldef))
-			{
-				return null;
-			}
-
-			sqldef = sqldef.Replace(Environment.NewLine, " ");
-			int start = sqldef.IndexOf("(");
-			int end = sqldef.IndexOf(")");
-
-			sqldef = sqldef.Substring(0, end);
-			sqldef = sqldef.Substring(start + 1);
-
-			string[] cols = sqldef.Split(new[] { ',' });
-			for (int i = 0; i < cols.Length; i++)
-			{
-				cols[i] = cols[i].Trim();
-			}
-			return cols;
-		}
-
-		public bool ColumnMatch(string column, string columnDef)
-		{
-			return columnDef.StartsWith(column + " ") || columnDef.StartsWith(QuoteName(column));
 		}
 
 		#endregion

@@ -184,28 +184,6 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			return tables.ToArray();
 		}
 
-		public override Column[] GetColumns(string table)
-		{
-			List<Column> columns = new List<Column>();
-			string sql = String.Format(
-				"select COLUMN_NAME, IS_NULLABLE from information_schema.columns where table_schema = 'public' AND table_name = '{0}';", table);
-
-			using (IDataReader reader = ExecuteQuery(sql))
-			{
-				// FIXME: Mostly duplicated code from the Transformation provider just to support stupid case-insensitivty of Postgre
-				while (reader.Read())
-				{
-					Column column = new Column(reader[0].ToString(), DbType.String);
-					bool isNullable = reader.GetString(1) == "YES";
-					column.ColumnProperty |= isNullable ? ColumnProperty.Null : ColumnProperty.NotNull;
-
-					columns.Add(column);
-				}
-			}
-
-			return columns.ToArray();
-		}
-
 		#endregion
 	}
 }
