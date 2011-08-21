@@ -234,7 +234,7 @@ namespace ECM7.Migrator.Providers.Tests
 
 			string sql = provider.FormatSql("select {0:NAME} from {1:NAME}", "Name", "Test");
 
-			using (var reader = provider.ExecuteQuery(sql))
+			using (var reader = provider.ExecuteReader(sql))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual(DBNull.Value, reader[0]);

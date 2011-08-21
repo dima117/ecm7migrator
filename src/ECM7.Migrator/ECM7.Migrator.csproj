@@ -76,8 +76,10 @@
     <Compile Include="Configuration\IMigratorConfiguration.cs" />
     <Compile Include="Configuration\MigratorConfiguration.cs" />
     <Compile Include="Configuration\MigratorFactory.cs" />
-    <Compile Include="Loader\DuplicatedVersionException.cs" />
-    <Compile Include="IrreversibleMigrationException.cs" />
+    <Compile Include="Exceptions\DuplicatedVersionException.cs" />
+    <Compile Include="Exceptions\IrreversibleMigrationException.cs" />
+    <Compile Include="Exceptions\MigrationException.cs" />
+    <Compile Include="Exceptions\SQLException.cs" />
     <Compile Include="Loader\MigrationInfo.cs" />
     <Compile Include="Loader\MigrationComparer.cs" />
     <Compile Include="Loader\MigrationAssembly.cs" />
@@ -90,7 +92,7 @@
     <Compile Include="Providers\TransformationProvider.cs" />
     <Compile Include="Providers\ProviderFactory.cs" />
     <Compile Include="Providers\TypeNames.cs" />
-    <Compile Include="VersionException.cs" />
+    <Compile Include="Exceptions\VersionException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />

@@ -199,7 +199,7 @@ namespace ECM7.Migrator.Providers.Oracle
 			List<string> tables = new List<string>();
 
 			using (IDataReader reader =
-				ExecuteQuery("SELECT table_name FROM user_tables"))
+				ExecuteReader("SELECT table_name FROM user_tables"))
 			{
 				while (reader.Read())
 				{

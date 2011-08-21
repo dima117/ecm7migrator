@@ -1,3 +1,5 @@
+﻿using ECM7.Migrator.Exceptions;
+
 namespace ECM7.Migrator.Providers.Tests
 {
 	using System;
@@ -121,7 +123,7 @@ namespace ECM7.Migrator.Providers.Tests
 
 			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME} ORDER BY {2:NAME}", "TestId", "TestTwo", "Id");
 
-			using (var reader = provider.ExecuteQuery(sql))
+			using (var reader = provider.ExecuteReader(sql))
 			{
 				for (int i = 1; i <= 5; i++)
 				{
@@ -220,12 +222,12 @@ namespace ECM7.Migrator.Providers.Tests
 			provider.RemoveTable("Test_Rename");
 		}
 
-		[Test, ExpectedException(typeof(MigrationException))]
-		public void RenameTableToExistingTable()
+		[Test]
+		public virtual void RenameTableToExistingTable()
 		{
 			AddTableWithPrimaryKey();
-			provider.RenameTable("Test", "TestTwo");
-
+			Assert.Throws<SQLException>(
+					() => provider.RenameTable("Test", "TestTwo"));
 		}
 
 		[Test]
@@ -238,11 +240,12 @@ namespace ECM7.Migrator.Providers.Tests
 			Assert.IsFalse(provider.ColumnExists("Test", "Name"));
 		}
 
-		[Test, ExpectedException(typeof(MigrationException))]
+		[Test]
 		public void RenameColumnToExistingColumn()
 		{
 			AddTableWithPrimaryKey();
-			provider.RenameColumn("Test", "Title", "Name");
+			Assert.Throws<SQLException>(
+				() => provider.RenameColumn("Test", "Title", "Name"));
 		}
 
 		[Test]
@@ -393,7 +396,7 @@ namespace ECM7.Migrator.Providers.Tests
 			string sql = "SELECT {0} FROM {1}".FormatWith(
 				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				int[] vals = GetVals(reader);
 
@@ -412,7 +415,7 @@ namespace ECM7.Migrator.Providers.Tests
 			string sql = "SELECT {0} FROM {1}".FormatWith(
 				provider.QuoteName("Title"), provider.QuoteName("Test"));
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				string[] vals = GetStringVals(reader);
 
@@ -430,7 +433,7 @@ namespace ECM7.Migrator.Providers.Tests
 			string sql = "SELECT {0} FROM {1}".FormatWith(
 				provider.QuoteName("Name"), provider.QuoteName("Test"));
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual("Muad'Dib", reader.GetString(0));
@@ -447,7 +450,7 @@ namespace ECM7.Migrator.Providers.Tests
 			string sql = "SELECT {0} FROM {1}".FormatWith(
 				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual(2, Convert.ToInt32(reader[0]));
@@ -464,7 +467,7 @@ namespace ECM7.Migrator.Providers.Tests
 			string sql = "SELECT {0} FROM {1}".FormatWith(
 				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				Assert.IsFalse(reader.Read());
 			}
@@ -481,7 +484,7 @@ namespace ECM7.Migrator.Providers.Tests
 			string sql = "SELECT {0} FROM {1}".FormatWith(
 				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				int[] vals = GetVals(reader);
 
@@ -503,7 +506,7 @@ namespace ECM7.Migrator.Providers.Tests
 			string sql = "SELECT {0} FROM {1}".FormatWith(
 				provider.QuoteName("Title"), provider.QuoteName("Test"));
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				string[] vals = GetStringVals(reader);
 
@@ -523,7 +526,7 @@ namespace ECM7.Migrator.Providers.Tests
 			string sql = "SELECT {0} FROM {1}".FormatWith(
 				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
 
-			using (IDataReader reader = provider.ExecuteQuery(sql))
+			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				int[] vals = GetVals(reader);
 

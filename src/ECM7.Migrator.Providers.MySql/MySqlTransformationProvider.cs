@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using ECM7.Migrator.Exceptions;
 using ECM7.Migrator.Framework;
 using MySql.Data.MySqlClient;
 
@@ -108,7 +109,7 @@ namespace ECM7.Migrator.Providers.MySql
 
 			string sql = FormatSql("SHOW INDEXES FROM {0:NAME}", tableName);
 
-			using (IDataReader reader = ExecuteQuery(sql))
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				while (reader.Read())
 				{
@@ -129,7 +130,7 @@ namespace ECM7.Migrator.Providers.MySql
 
 			string sqlConstraint = FormatSql("SHOW KEYS FROM {0:NAME}", table);
 
-			using (IDataReader reader = ExecuteQuery(sqlConstraint))
+			using (IDataReader reader = ExecuteReader(sqlConstraint))
 			{
 				while (reader.Read())
 				{
@@ -151,7 +152,7 @@ namespace ECM7.Migrator.Providers.MySql
 		public override string[] GetTables()
 		{
 			List<string> tables = new List<string>();
-			using (IDataReader reader = ExecuteQuery("SHOW TABLES"))
+			using (IDataReader reader = ExecuteReader("SHOW TABLES"))
 			{
 				while (reader.Read())
 				{
@@ -187,7 +188,7 @@ namespace ECM7.Migrator.Providers.MySql
 			{
 				string definition = null;
 				string sql = FormatSql("SHOW COLUMNS FROM {0:NAME} WHERE Field='{1}'", tableName, oldColumnName);
-				using (IDataReader reader = ExecuteQuery(sql))
+				using (IDataReader reader = ExecuteReader(sql))
 				{
 					if (reader.Read())
 					{

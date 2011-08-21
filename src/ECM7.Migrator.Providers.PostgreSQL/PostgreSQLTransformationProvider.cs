@@ -123,7 +123,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		{
 			string sql = string.Format("SELECT \"constraint_name\" FROM \"information_schema\".\"table_constraints\" WHERE \"table_schema\" = 'public' AND \"constraint_name\" = '{0}'", name);
 
-			using (IDataReader reader = ExecuteQuery(sql))
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
 			}
@@ -138,7 +138,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 			string sql = String.Format("SELECT \"column_name\" FROM \"information_schema\".\"columns\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}' AND \"column_name\" = '{1}'", table, column);
 
-			using (IDataReader reader = ExecuteQuery(sql))
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
 			}
@@ -148,7 +148,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		{
 			string sql = String.Format("SELECT \"table_name\" FROM \"information_schema\".\"tables\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}'", table);
 
-			using (IDataReader reader = ExecuteQuery(sql))
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
 			}
@@ -167,14 +167,14 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			AddColumn(table, column);
 
 			string sql = FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", table, column.Name, tempColumn);
-			ExecuteQuery(sql);
+			ExecuteReader(sql);
 			RemoveColumn(table, tempColumn);
 		}
 
 		public override string[] GetTables()
 		{
 			List<string> tables = new List<string>();
-			using (IDataReader reader = ExecuteQuery("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"))
+			using (IDataReader reader = ExecuteReader("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"))
 			{
 				while (reader.Read())
 				{

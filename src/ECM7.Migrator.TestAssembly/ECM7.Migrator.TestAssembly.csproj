@@ -62,7 +62,7 @@
     <EmbeddedResource Include="Res\test.res.migration.sql" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Res\pgsql.ora.test.res.migration.sql" />
+    <EmbeddedResource Include="Res\pgsql.ora.fb.test.res.migration.sql" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

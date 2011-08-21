@@ -1,3 +1,5 @@
+using ECM7.Migrator.Exceptions;
+
 namespace ECM7.Migrator.Loader
 {
 	using System;
