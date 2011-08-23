@@ -55,6 +55,11 @@ namespace ECM7.Migrator.Providers.Tests
 			return false;
 		}
 
+		public override bool TableExists(string table)
+		{
+			return false;
+		}
+
 		public override bool ConstraintExists(string table, string name)
 		{
 			return false;

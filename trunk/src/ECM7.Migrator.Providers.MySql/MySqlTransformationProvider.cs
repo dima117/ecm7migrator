@@ -144,11 +144,6 @@ namespace ECM7.Migrator.Providers.MySql
 			return false;
 		}
 
-		public override bool PrimaryKeyExists(string table, string name)
-		{
-			return ConstraintExists(table, "PRIMARY");
-		}
-
 		public override string[] GetTables()
 		{
 			List<string> tables = new List<string>();
@@ -163,9 +158,14 @@ namespace ECM7.Migrator.Providers.MySql
 			return tables.ToArray();
 		}
 
-		public override void ChangeColumn(string table, string columnSql)
+		public override bool TableExists(string table)
 		{
-			ExecuteNonQuery(FormatSql("ALTER TABLE {0:NAME} MODIFY {1}", table, columnSql));
+			throw new NotImplementedException("Нужно реализовать проверку существования таблицы в MySql");
+		}
+
+		protected override string GetSqlChangeColumn(string table, string columnSql)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1}", table, columnSql);
 		}
 
 		public override void AddTable(string name, params Column[] columns)
@@ -173,10 +173,9 @@ namespace ECM7.Migrator.Providers.MySql
 			AddTable(name, "INNODB", columns);
 		}
 
-		public override void AddTable(string name, string engine, string columnsSql)
+		protected override string GetSqlAddTable(string table, string engine, string columnsSql)
 		{
-			string sqlCreate = FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", name, columnsSql, engine);
-			ExecuteNonQuery(sqlCreate);
+			return FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", table, columnsSql, engine);
 		}
 
 		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)

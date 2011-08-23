@@ -40,7 +40,7 @@ namespace ECM7.Migrator.Tests2
 		{
 			using (var provider = CreateOracleProvider())
 			{
-				string columnSql = provider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30)), false);
+				string columnSql = provider.GetSqlColumnDef(new Column("foo", DbType.AnsiString.WithSize(30)), false);
 				Assert.AreEqual("\"foo\" varchar2(30)", columnSql.ToLower());
 			}
 		}
@@ -50,7 +50,7 @@ namespace ECM7.Migrator.Tests2
 		{
 			using (var provider = CreateOracleProvider())
 			{
-				string columnSql = provider.GetColumnSql(new Column("foo", DbType.AnsiString.WithSize(30), ColumnProperty.NotNull), false);
+				string columnSql = provider.GetSqlColumnDef(new Column("foo", DbType.AnsiString.WithSize(30), ColumnProperty.NotNull), false);
 				Assert.AreEqual("\"foo\" varchar2(30) not null", columnSql.ToLower());
 			}
 		}
@@ -60,7 +60,7 @@ namespace ECM7.Migrator.Tests2
 		{
 			using (var provider = CreateOracleProvider())
 			{
-				string columnSql = provider.GetColumnSql(
+				string columnSql = provider.GetSqlColumnDef(
 						new Column("foo", DbType.AnsiString.WithSize(30), ColumnProperty.NotNull, "'test'"), false);
 				Assert.AreEqual("\"foo\" varchar2(30) default 'test' not null", columnSql.ToLower());
 			}
@@ -73,7 +73,7 @@ namespace ECM7.Migrator.Tests2
 		{
 			using (var provider = CreateSqlServerProvider())
 			{
-				string columnSql = provider.GetColumnSql(
+				string columnSql = provider.GetSqlColumnDef(
 					new Column("foo", DbType.AnsiString.WithSize(30), 0), false);
 				Assert.AreEqual("[foo] varchar(30)", columnSql.ToLower());
 			}
@@ -84,7 +84,7 @@ namespace ECM7.Migrator.Tests2
 		{
 			using (var provider = CreateSqlServerProvider())
 			{
-				string columnSql = provider.GetColumnSql(
+				string columnSql = provider.GetSqlColumnDef(
 						new Column("foo", DbType.AnsiString.WithSize(30), ColumnProperty.NotNull), false);
 				Assert.AreEqual("[foo] varchar(30) not null", columnSql.ToLower());
 			}
@@ -95,7 +95,7 @@ namespace ECM7.Migrator.Tests2
 		{
 			using (var provider = CreateSqlServerProvider())
 			{
-				string columnSql = provider.GetColumnSql(
+				string columnSql = provider.GetSqlColumnDef(
 					new Column("foo", DbType.AnsiString.WithSize(30), "'NEW'"), false);
 				Assert.AreEqual("[foo] varchar(30) default 'new'", columnSql.ToLower());
 			}
@@ -106,7 +106,7 @@ namespace ECM7.Migrator.Tests2
 		{
 			using (var provider = CreateSqlServerProvider())
 			{
-				string columnSql = provider.GetColumnSql(
+				string columnSql = provider.GetSqlColumnDef(
 					new Column("foo", DbType.AnsiString.WithSize(30), "NULL"), false);
 				Assert.AreEqual("[foo] varchar(30) default null", columnSql.ToLower());
 			}
@@ -117,10 +117,10 @@ namespace ECM7.Migrator.Tests2
 		{
 			using (var provider = CreateSqlServerProvider())
 			{
-				string columnSql1 = provider.GetColumnSql(new Column("foo", DbType.Boolean, false), false);
+				string columnSql1 = provider.GetSqlColumnDef(new Column("foo", DbType.Boolean, false), false);
 				Assert.AreEqual("[foo] bit default 0", columnSql1.ToLower());
 
-				string columnSql2 = provider.GetColumnSql(new Column("bar", DbType.Boolean, true), false);
+				string columnSql2 = provider.GetSqlColumnDef(new Column("bar", DbType.Boolean, true), false);
 				Assert.AreEqual("[bar] bit default 1", columnSql2.ToLower());
 			}
 		}

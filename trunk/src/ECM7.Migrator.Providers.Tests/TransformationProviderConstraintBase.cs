@@ -55,7 +55,7 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			AddTableWithoutPrimaryKey();
 			provider.AddPrimaryKey("PK_Test", "Test", "Id");
-			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"));
+			Assert.IsTrue(provider.ConstraintExists("Test", "PK_Test"));
 		}
 
 		#region index
@@ -100,7 +100,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void AddUniqueColumn()
 		{
-			provider.AddColumn("TestTwo", "Test", DbType.String, 50, ColumnProperty.Unique);
+			provider.AddColumn("TestTwo", new Column("Test", DbType.String, 50, ColumnProperty.Unique));
 		}
 
 		[Test]
@@ -194,8 +194,8 @@ namespace ECM7.Migrator.Providers.Tests
 							  new Column("PersonId", DbType.Int32, ColumnProperty.PrimaryKey),
 							  new Column("AddressId", DbType.Int32, ColumnProperty.PrimaryKey)
 				);
-			Assert.IsTrue(provider.TableExists("Test"), "Table doesn't exist");
-			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"), "Constraint doesn't exist");
+			Assert.IsTrue(provider.TableExists("Test"));
+			Assert.IsTrue(provider.ConstraintExists("Test", "PK_Test"));
 		}
 
 		[Test]
@@ -226,7 +226,7 @@ namespace ECM7.Migrator.Providers.Tests
 				);
 
 			Assert.IsTrue(provider.TableExists("Test"));
-			Assert.IsTrue(provider.PrimaryKeyExists("Test", "PK_Test"));
+			Assert.IsTrue(provider.ConstraintExists("Test", "PK_Test"));
 
 			provider.Insert("Test",
 				new[] {"PersonId", "AddressId", "Name"},

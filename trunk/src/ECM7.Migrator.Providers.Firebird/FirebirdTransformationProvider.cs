@@ -143,10 +143,9 @@ namespace ECM7.Migrator.Providers.Firebird
 			ExecuteNonQuery(sql);
 		}
 
-		public override void AddColumn(string table, string columnSql)
+		protected override string GetSqlAddColumn(string table, string columnSql)
 		{
-			string sql = FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql);
-			ExecuteNonQuery(sql);
+			return FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql);
 		}
 
 		public override void RenameTable(string oldName, string newName)

@@ -1,0 +1,271 @@
+﻿namespace ECM7.Migrator.Providers
+{
+	using System;
+	using System.Data;
+	using System.IO;
+	using System.Reflection;
+	using System.Text;
+
+	using ECM7;
+	using ECM7.Migrator.Exceptions;
+	using ECM7.Migrator.Framework.Logging;
+
+	public class SqlRunner<TConnection> : IDisposable where TConnection : IDbConnection
+	{
+		protected SqlRunner(TConnection connection)
+		{
+			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
+			this.connection = connection;
+		}
+
+		private bool connectionNeedClose; // = false
+
+		private readonly IDbConnection connection;
+
+		private IDbTransaction transaction;
+
+		public IDbConnection Connection
+		{
+			get { return connection; }
+		}
+
+		public virtual string BatchSeparator
+		{
+			get { return null; }
+		}
+
+		#region public methods
+
+		public IDbCommand GetCommand()
+		{
+			return BuildCommand(null);
+		}
+
+		public IDataReader ExecuteReader(string sql)
+		{
+			IDbCommand cmd = null;
+			IDataReader reader = null;
+
+			try
+			{
+				MigratorLogManager.Log.ExecuteSql(sql);
+				cmd = BuildCommand(sql);
+				reader = OpenDataReader(cmd);
+				return reader;
+			}
+			catch (Exception ex)
+			{
+				if (reader != null)
+				{
+					reader.Dispose();
+				}
+
+				if (cmd != null)
+				{
+					MigratorLogManager.Log.WarnFormat("query failed: {0}", cmd.CommandText);
+					cmd.Dispose();
+				}
+
+				throw new SQLException(ex);
+			}
+		}
+
+		public object ExecuteScalar(string sql)
+		{
+			using (IDbCommand cmd = BuildCommand(sql))
+			{
+				try
+				{
+					MigratorLogManager.Log.ExecuteSql(sql);
+					return cmd.ExecuteScalar();
+				}
+				catch (Exception ex)
+				{
+					MigratorLogManager.Log.WarnFormat("Query failed: {0}", cmd.CommandText);
+					throw new SQLException(ex);
+				}
+			}
+		}
+
+		public int ExecuteNonQuery(string sql)
+		{
+			int result = 0;
+
+			try
+			{
+				// если задан разделитель пакетов запросов, запускаем пакеты по очереди
+				if (!BatchSeparator.IsNullOrEmpty(true) &&
+					sql.IndexOf(BatchSeparator, StringComparison.CurrentCultureIgnoreCase) >= 0)
+				{
+					sql += "\n" + BatchSeparator.Trim(); // make sure last batch is executed.
+
+					string[] lines = sql.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+
+					StringBuilder sqlBatch = new StringBuilder();
+
+					foreach (string line in lines)
+					{
+						if (line.ToUpperInvariant().Trim() == BatchSeparator.ToUpperInvariant())
+						{
+							string query = sqlBatch.ToString();
+							if (!query.IsNullOrEmpty(true))
+							{
+								result = ExecuteNonQueryInternal(query);
+							}
+
+							sqlBatch.Clear();
+						}
+						else
+						{
+							sqlBatch.AppendLine(line.Trim());
+						}
+					}
+				}
+				else
+				{
+					result = ExecuteNonQueryInternal(sql);
+				}
+			}
+			catch (Exception ex)
+			{
+				MigratorLogManager.Log.Warn(ex.Message, ex);
+				throw new SQLException(ex);
+			}
+
+			return result;
+		}
+
+		public void ExecuteFromResource(Assembly assembly, string path)
+		{
+			Require.IsNotNull(assembly, "Incorrect assembly");
+
+			using (Stream stream = assembly.GetManifestResourceStream(path))
+			{
+				Require.IsNotNull(stream, "Не удалось загрузить указанный файл ресурсов");
+
+				// ReSharper disable AssignNullToNotNullAttribute
+				using (StreamReader reader = new StreamReader(stream))
+				{
+					string sql = reader.ReadToEnd();
+					ExecuteNonQuery(sql);
+				}
+				// ReSharper restore AssignNullToNotNullAttribute
+			}
+		}
+
+
+		#endregion
+
+		#region transactions
+
+		/// <summary>
+		/// Starts a transaction. Called by the migration mediator.
+		/// </summary>
+		public void BeginTransaction()
+		{
+			if (transaction == null && connection != null)
+			{
+				EnsureHasConnection();
+				transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+			}
+		}
+
+		/// <summary>
+		/// Commit the current transaction. Called by the migrations mediator.
+		/// </summary>
+		public void Commit()
+		{
+			if (transaction != null && connection != null && connection.State == ConnectionState.Open)
+			{
+				try
+				{
+					transaction.Commit();
+				}
+				catch (Exception ex)
+				{
+					MigratorLogManager.Log.Error("Не удалось применить транзакцию", ex);
+				}
+			}
+			transaction = null;
+		}
+
+		/// <summary>
+		/// Rollback the current migration. Called by the migration mediator.
+		/// </summary>
+		public virtual void Rollback()
+		{
+			if (transaction != null && connection != null && connection.State == ConnectionState.Open)
+			{
+				try
+				{
+					transaction.Rollback();
+				}
+				catch (Exception ex)
+				{
+					MigratorLogManager.Log.Error("Не удалось откатить транзакцию", ex);
+				}
+			}
+			transaction = null;
+		}
+
+		#endregion		
+
+		#region helpers
+
+		protected void EnsureHasConnection()
+		{
+			if (connection.State != ConnectionState.Open)
+			{
+				connectionNeedClose = true;
+				connection.Open();
+			}
+		}
+
+		private int ExecuteNonQueryInternal(string sql)
+		{
+			MigratorLogManager.Log.ExecuteSql(sql);
+			using (IDbCommand cmd = BuildCommand(sql))
+			{
+				return cmd.ExecuteNonQuery();
+			}
+		}
+
+		protected virtual IDbCommand BuildCommand(string sql)
+		{
+			EnsureHasConnection();
+			IDbCommand cmd = connection.CreateCommand();
+			cmd.CommandText = sql;
+			cmd.CommandType = CommandType.Text;
+			if (transaction != null)
+			{
+				cmd.Transaction = transaction;
+			}
+			return cmd;
+		}
+
+		protected virtual IDataReader OpenDataReader(IDbCommand cmd)
+		{
+			return cmd.ExecuteReader();
+		}
+
+		#endregion
+
+		#region Implementation of IDisposable
+
+		public void Dispose()
+		{
+			if (connectionNeedClose && connection != null && connection.State == ConnectionState.Open)
+			{
+				connection.Close();
+				connectionNeedClose = false;
+			}
+		}
+
+		~SqlRunner()
+		{
+			Dispose();
+		}
+
+		#endregion
+	}
+}

@@ -48,7 +48,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void ByteColumnWillBeCreatedAsBlob()
 		{
-			provider.AddColumn("TestTwo", "BlobColumn", DbType.Byte);
+			provider.AddColumn("TestTwo", new Column("BlobColumn", DbType.Byte));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "BlobColumn"));
 		}
 

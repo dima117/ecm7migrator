@@ -4,22 +4,24 @@ using System.Collections.Generic;
 namespace ECM7.Migrator.Providers
 {
 	using System.Data;
+	using System.Linq;
 
 	using ECM7.Migrator.Framework;
 
 	using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
-	public abstract class SqlGenerator
+	public abstract class SqlGenerator<TConnection> : SqlRunner<TConnection>
+		where TConnection : IDbConnection
 	{
-		protected readonly IFormatProvider sqlFormatProvider;
-		private readonly Dictionary<ColumnProperty, string> propertyMap = new Dictionary<ColumnProperty, string>();
-		private readonly TypeNames typeNames = new TypeNames();
-
-		protected SqlGenerator()
+		protected SqlGenerator(TConnection connection)
+			: base(connection)
 		{
 			sqlFormatProvider = new SqlFormatter(obj => QuoteName(obj.ToString()));
 		}
 
+		protected readonly IFormatProvider sqlFormatProvider;
+		private readonly Dictionary<ColumnProperty, string> propertyMap = new Dictionary<ColumnProperty, string>();
+		private readonly TypeNames typeNames = new TypeNames();
 
 		#region Экранирование зарезервированных слов в идентификаторах
 
@@ -191,7 +193,7 @@ namespace ECM7.Migrator.Providers
 
 		#region Генерация SQL для колонок
 
-		public virtual string GetColumnSql(Column column, bool compoundPrimaryKey)
+		public virtual string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
 		{
 			Require.IsNotNull(column, "Не задан обрабатываемый столбец");
 
@@ -308,11 +310,27 @@ namespace ECM7.Migrator.Providers
 			get { return "\"{0}\""; }
 		}
 
-		public virtual string BatchSeparator
+		#endregion
+
+		public virtual string[] QuoteValues(params string[] values)
 		{
-			get { return null; }
+			return Array.ConvertAll(values,
+				val => null == val ? "null" : String.Format("'{0}'", val.Replace("'", "''")));
 		}
 
-		#endregion
+		public string JoinColumnsAndValues(string[] columns, string[] values, string separator = ",")
+		{
+			Require.IsNotNull(separator, "Не задан разделитель");
+
+			string processedSeparator = " " + separator.Trim() + " ";
+
+			string[] quotedValues = QuoteValues(values);
+			string[] namesAndValues = columns
+				.Select((col, i) => FormatSql("{0:NAME}={1}", col, quotedValues[i]))
+				.ToArray();
+
+			return string.Join(processedSeparator, namesAndValues);
+		}
+
 	}
 }

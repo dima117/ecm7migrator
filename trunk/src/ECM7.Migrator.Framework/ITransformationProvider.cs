@@ -21,72 +21,6 @@ namespace ECM7.Migrator.Framework
 		/// Add a column to an existing table
 		/// </summary>
 		/// <param name="table">The name of the table that will get the new column</param>
-		/// <param name="columnName">The name of the new column</param>
-		/// <param name="type">The data type for the new column</param>
-		/// <param name="size">The precision or size of the column</param>
-		/// <param name="property">Properties that can be ORed together</param>
-		/// <param name="defaultValue">The default value of the column if no value is given in a query</param>
-		void AddColumn(string table, string columnName, DbType type, int size, ColumnProperty property, object defaultValue);
-
-		/// <summary>
-		/// Add a column to an existing table
-		/// </summary>
-		/// <param name="table">The name of the table that will get the new column</param>
-		/// <param name="columnName">The name of the new column</param>
-		/// <param name="type">The data type for the new column</param>
-		/// <param name="property">Properties that can be ORed together</param>
-		/// <param name="defaultValue">The default value of the column if no value is given in a query</param>
-		void AddColumn(string table, string columnName, ColumnType type, ColumnProperty property, object defaultValue);
-
-		/// <summary>
-		/// Add a column to an existing table
-		/// </summary>
-		/// <param name="table">The name of the table that will get the new column</param>
-		/// <param name="column">The name of the new column</param>
-		/// <param name="type">The data type for the new columnd</param>
-		void AddColumn(string table, string column, DbType type);
-		
-		/// <summary>
-		/// Add a column to an existing table
-		/// </summary>
-		/// <param name="table">The name of the table that will get the new column</param>
-		/// <param name="column">The name of the new column</param>
-		/// <param name="type">The data type for the new columnd</param>
-		/// <param name="size">The precision or size of the column</param>
-		void AddColumn(string table, string column, DbType type, int size);
-
-		/// <summary>
-		/// Add a column to an existing table
-		/// </summary>
-		/// <param name="table">The name of the table that will get the new column</param>
-		/// <param name="column">The name of the new column</param>
-		/// <param name="type">The data type for the new columnd</param>
-		/// <param name="size">The precision or size of the column</param>
-		/// <param name="property">Properties that can be ORed together</param>
-		void AddColumn(string table, string column, DbType type, int size, ColumnProperty property);
-
-		/// <summary>
-		/// Add a column to an existing table
-		/// </summary>
-		/// <param name="table">The name of the table that will get the new column</param>
-		/// <param name="column">The name of the new column</param>
-		/// <param name="type">The data type for the new columnd</param>
-		/// <param name="property">Properties that can be ORed together</param>
-		void AddColumn(string table, string column, DbType type, ColumnProperty property);
-
-		/// <summary>
-		/// Add a column to an existing table with the default column size.
-		/// </summary>
-		/// <param name="table">The name of the table that will get the new column</param>
-		/// <param name="column">The name of the new column</param>
-		/// <param name="type">The data type for the new columnd</param>
-		/// <param name="defaultValue">The default value of the column if no value is given in a query</param>
-		void AddColumn(string table, string column, DbType type, object defaultValue);
-
-		/// <summary>
-		/// Add a column to an existing table
-		/// </summary>
-		/// <param name="table">The name of the table that will get the new column</param>
 		/// <param name="column">An instance of a <see cref="Column">Column</see> with the specified properties</param>
 		void AddColumn(string table, Column column);
 
@@ -297,14 +231,6 @@ namespace ECM7.Migrator.Framework
 		bool ConstraintExists(string table, string name);
 
 		/// <summary>
-		/// Check to see if a primary key constraint exists on the table
-		/// </summary>
-		/// <param name="name">The name of the primary key</param>
-		/// <param name="table">The table that the constraint lives on.</param>
-		/// <returns></returns>
-		bool PrimaryKeyExists(string table, string name);
-
-		/// <summary>
 		/// Execute an arbitrary SQL query
 		/// </summary>
 		/// <param name="sql">The SQL to execute.</param>
@@ -421,19 +347,10 @@ namespace ECM7.Migrator.Framework
 		/// </summary>
 		/// <param name="table">The name of the table to update</param>
 		/// <param name="columns">The names of the columns.</param>
-		/// <param name="columnValues">The values for the columns in the same order as the names.</param>
-		/// <returns></returns>
-		int Update(string table, string[] columns, string[] columnValues);
-
-		/// <summary>
-		/// Update the values in a table
-		/// </summary>
-		/// <param name="table">The name of the table to update</param>
-		/// <param name="columns">The names of the columns.</param>
 		/// <param name="values">The values for the columns in the same order as the names.</param>
 		/// <param name="where">A where clause to limit the update</param>
 		/// <returns></returns>
-		int Update(string table, string[] columns, string[] values, string where);
+		int Update(string table, string[] columns, string[] values, string where = null);
 
 		IDbCommand GetCommand();
 
