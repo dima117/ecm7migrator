@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 
 using ECM7.Migrator.Compatibility;
 using ECM7.Migrator.Exceptions;
@@ -13,38 +11,29 @@ using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Providers
 {
-	using System.Text;
-
 	using ECM7.Migrator.Framework.Logging;
 
 	/// <summary>
 	/// Base class for every transformation providers.
 	/// A 'tranformation' is an operation that modifies the database.
 	/// </summary>
-	public abstract class TransformationProvider<TConnection> : SqlGenerator, ITransformationProvider
+	public abstract class TransformationProvider<TConnection> : SqlGenerator<TConnection>, ITransformationProvider
 		where TConnection : IDbConnection
 	{
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
-		protected IDbConnection connection;
-
-		private bool connectionNeedClose;
-
-		public IDbConnection Connection
-		{
-			get { return connection; }
-		}
-
-		private IDbTransaction transaction;
 
 		protected TransformationProvider(TConnection connection)
+			: base(connection)
 		{
-			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
-			this.connection = connection;
-
 			RegisterProperty(ColumnProperty.Null, "NULL");
 			RegisterProperty(ColumnProperty.NotNull, "NOT NULL");
 			RegisterProperty(ColumnProperty.Unique, "UNIQUE");
 			RegisterProperty(ColumnProperty.PrimaryKey, "PRIMARY KEY");
+		}
+
+		public virtual void RemoveForeignKey(string table, string name)
+		{
+			RemoveConstraint(table, name);
 		}
 
 		public virtual string[] GetTables()
@@ -63,70 +52,14 @@ namespace ECM7.Migrator.Providers
 			return tables.ToArray();
 		}
 
-		public virtual void RemoveForeignKey(string table, string name)
-		{
-			RemoveConstraint(table, name);
-		}
-
-		public virtual void RemoveConstraint(string table, string name)
-		{
-			if (TableExists(table) && ConstraintExists(table, name))
-			{
-				string format = FormatSql("ALTER TABLE {0:NAME} DROP CONSTRAINT {1:NAME}", table, name);
-				ExecuteNonQuery(format);
-			}
-		}
-
-		public virtual void AddTable(string table, string engine, string columnsSql)
-		{
-			string sqlCreate = FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
-			ExecuteNonQuery(sqlCreate);
-		}
-
-		/// <summary>
-		/// Add a new table
-		/// </summary>
-		/// <param name="name">Table name</param>
-		/// <param name="columns">Columns</param>
-		/// <example>
-		/// Adds the Test table with two columns:
-		/// <code>
-		/// Database.AddTable("Test",
-		///	                  new Column("Id", typeof(int), ColumnProperty.PrimaryKey),
-		///	                  new Column("Title", typeof(string), 100)
-		///	                 );
-		/// </code>
-		/// </example>
 		public virtual void AddTable(string name, params Column[] columns)
 		{
 			// Most databases don't have the concept of a storage engine, so default is to not use it.
 			AddTable(name, null, columns);
 		}
 
-		/// <summary>
-		/// Add a new table
-		/// </summary>
-		/// <param name="name">Table name</param>
-		/// <param name="columns">Columns</param>
-		/// <param name="engine">the database storage engine to use</param>
-		/// <example>
-		/// Adds the Test table with two columns:
-		/// <code>
-		/// Database.AddTable("Test", "INNODB",
-		///	                  new Column("Id", typeof(int), ColumnProperty.PrimaryKey),
-		///	                  new Column("Title", typeof(string), 100)
-		///	                 );
-		/// </code>
-		/// </example>
 		public virtual void AddTable(string name, string engine, params Column[] columns)
 		{
-
-			if (TableExists(name))
-			{
-				MigratorLogManager.Log.WarnFormat("Table {0} already exists", name);
-				return;
-			}
-
 			List<string> pks = GetPrimaryKeys(columns);
 			bool compoundPrimaryKey = pks.Count > 1;
 
@@ -137,7 +70,7 @@ namespace ECM7.Migrator.Providers
 				if (compoundPrimaryKey && column.IsPrimaryKey)
 					column.ColumnProperty |= ColumnProperty.NotNull;
 
-				string columnSql = GetColumnSql(column, compoundPrimaryKey);
+				string columnSql = this.GetSqlColumnDef(column, compoundPrimaryKey);
 				listQuerySections.Add(columnSql);
 			}
 
@@ -148,7 +81,9 @@ namespace ECM7.Migrator.Providers
 			}
 
 			string sectionsSql = listQuerySections.ToCommaSeparatedString();
-			AddTable(name, engine, sectionsSql);
+			string createTableSql = this.GetSqlAddTable(name, engine, sectionsSql);
+
+			ExecuteNonQuery(createTableSql);
 		}
 
 		protected virtual string BuildPrimaryKeyQuerySection(string tableName, List<string> primaryKeyColumns)
@@ -165,14 +100,6 @@ namespace ECM7.Migrator.Providers
 				.Where(column => column.IsPrimaryKey)
 				.Select(column => column.Name)
 				.ToList();
-		}
-
-		public virtual void RemoveTable(string name)
-		{
-			if (TableExists(name))
-			{
-				ExecuteNonQuery(FormatSql("DROP TABLE {0:NAME}", name));
-			}
 		}
 
 		public virtual void RenameTable(string oldName, string newName)
@@ -231,211 +158,6 @@ namespace ECM7.Migrator.Providers
 				return false;
 			}
 		}
-
-		public virtual void ChangeColumn(string table, Column column)
-		{
-			if (!ColumnExists(table, column.Name))
-			{
-				MigratorLogManager.Log.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
-				return;
-			}
-
-			string columnSql = GetColumnSql(column, false);
-			ChangeColumn(table, columnSql);
-		}
-
-		public virtual void ChangeColumn(string table, string columnSql)
-		{
-			string sql = FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1}", table, columnSql);
-			ExecuteNonQuery(sql);
-		}
-
-		public virtual bool TableExists(string table)
-		{
-			try
-			{
-				string sql = FormatSql("SELECT COUNT(*) FROM {0:NAME}", table);
-				ExecuteNonQuery(sql);
-				return true;
-			}
-			catch (Exception)
-			{
-				return false;
-			}
-		}
-
-		#region AddColumn
-
-		public virtual void AddColumn(string table, string columnSql)
-		{
-			string sql = FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
-			ExecuteNonQuery(sql);
-		}
-
-		public void AddColumn(string table, Column column)
-		{
-			if (ColumnExists(table, column.Name))
-			{
-				MigratorLogManager.Log.WarnFormat("Column {0}.{1} already exists", table, column.Name);
-				return;
-			}
-
-			string columnSql = GetColumnSql(column, false);
-
-			AddColumn(table, columnSql);
-		}
-
-		/// <summary>
-		/// Add a new column to an existing table.
-		/// </summary>
-		/// <param name="table">Table to which to add the column</param>
-		/// <param name="columnName">Column name</param>
-		/// <param name="type">Date type of the column</param>
-		/// <param name="size">Max length of the column</param>
-		/// <param name="property">Properties of the column, see <see cref="ColumnProperty">ColumnProperty</see>,</param>
-		/// <param name="defaultValue">Default value</param>
-		public virtual void AddColumn(string table, string columnName, DbType type, int size, ColumnProperty property,
-									  object defaultValue)
-		{
-			Column column = new Column(columnName, type, size, property, defaultValue);
-			AddColumn(table, column);
-		}
-
-		public void AddColumn(string table, string columnName, ColumnType type, ColumnProperty property, object defaultValue)
-		{
-			Column column = new Column(columnName, type, property, defaultValue);
-			AddColumn(table, column);
-		}
-
-		/// <summary>
-		/// Добавление колонки
-		/// </summary>
-		public virtual void AddColumn(string table, string column, DbType type)
-		{
-			AddColumn(table, column, type, 0, ColumnProperty.Null, null);
-		}
-
-		/// <summary>
-		/// Добавление колонки
-		/// </summary>
-		public virtual void AddColumn(string table, string column, DbType type, int size)
-		{
-			AddColumn(table, column, type, size, ColumnProperty.Null, null);
-		}
-
-		public void AddColumn(string table, string column, DbType type, object defaultValue)
-		{
-			if (ColumnExists(table, column))
-			{
-				MigratorLogManager.Log.WarnFormat("Column {0}.{1} already exists", table, column);
-				return;
-			}
-
-			Column newColumn = new Column(column, type, defaultValue);
-
-			AddColumn(table, newColumn);
-
-		}
-
-		/// <summary>
-		/// Добавление колонки
-		/// </summary>
-		public virtual void AddColumn(string table, string column, DbType type, ColumnProperty property)
-		{
-			AddColumn(table, column, type, 0, property, null);
-		}
-
-		/// <summary>
-		/// Добавление колонки
-		/// </summary>
-		public virtual void AddColumn(string table, string column, DbType type, int size, ColumnProperty property)
-		{
-			AddColumn(table, column, type, size, property, null);
-		}
-
-		#endregion
-
-		/// <summary>
-		/// Append a primary key to a table.
-		/// </summary>
-		/// <param name="name">Constraint name</param>
-		/// <param name="table">Table name</param>
-		/// <param name="columns">Primary column names</param>
-		public virtual void AddPrimaryKey(string name, string table, params string[] columns)
-		{
-			if (ConstraintExists(table, name))
-			{
-				MigratorLogManager.Log.WarnFormat("Primary key {0} already exists", name);
-				return;
-			}
-			string sql = FormatSql(
-				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} PRIMARY KEY ({2:COLS}) ",
-				table, name, columns);
-
-			ExecuteNonQuery(sql);
-		}
-
-		public virtual void AddUniqueConstraint(string name, string table, params string[] columns)
-		{
-			if (ConstraintExists(table, name))
-			{
-				MigratorLogManager.Log.WarnFormat("Constraint {0} already exists", name);
-				return;
-			}
-
-			string sql = FormatSql(
-				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} UNIQUE({2:COLS})",
-				table, name, columns);
-
-			ExecuteNonQuery(sql);
-		}
-
-		public virtual void AddCheckConstraint(string name, string table, string checkSql)
-		{
-			if (ConstraintExists(table, name))
-			{
-				MigratorLogManager.Log.WarnFormat("Constraint {0} already exists", name);
-				return;
-			}
-
-			string sql = FormatSql("ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} CHECK ({2}) ", table, name, checkSql);
-			ExecuteNonQuery(sql);
-		}
-
-		#region indexes
-
-		public void AddIndex(string name, bool unique, string table, params string[] columns)
-		{
-			Require.That(columns.Length > 0, "Not specified columns of the table to create an index");
-
-			if (IndexExists(name, table))
-			{
-				MigratorLogManager.Log.WarnFormat("Index {0} already exists", name);
-				return;
-			}
-
-			string uniqueString = unique ? "UNIQUE" : string.Empty;
-			string sql = FormatSql("CREATE {0} INDEX {1:NAME} ON {2:NAME} ({3:COLS})",
-				uniqueString, name, table, columns);
-
-			ExecuteNonQuery(sql);
-		}
-
-		public abstract bool IndexExists(string indexName, string tableName);
-
-		public virtual void RemoveIndex(string indexName, string tableName)
-		{
-			if (!IndexExists(indexName, tableName))
-			{
-				MigratorLogManager.Log.WarnFormat("Index {0} is not exists", indexName);
-				return;
-			}
-
-			string sql = FormatSql("DROP INDEX {0:NAME} ON {1:NAME}", indexName, tableName);
-			ExecuteNonQuery(sql);
-		}
-
-		#endregion
 
 		#region ForeignKeys
 
@@ -545,148 +267,140 @@ namespace ECM7.Migrator.Providers
 
 		#endregion
 
+		#region generate sql
+
+		protected virtual string GetSqlAddTable(string table, string engine, string columnsSql)
+		{
+			return FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
+		}
+
+		protected virtual string GetSqlAddColumn(string table, string columnSql)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
+		}
+
+		protected virtual string GetSqlChangeColumn(string table, string columnSql)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1}", table, columnSql);
+		}
+
+		#endregion
+
+		#region DDL
+
+		#region tables
+
+		public abstract bool TableExists(string table);
+
+		public virtual void RemoveTable(string name)
+		{
+			string sql = FormatSql("DROP TABLE {0:NAME}", name);
+			ExecuteNonQuery(sql);
+		}
+
+		#endregion
+
+		#region columns
+
+		public void AddColumn(string table, Column column)
+		{
+			string sqlColumnDef = GetSqlColumnDef(column, false);
+			string sqlAddColumn = GetSqlAddColumn(table, sqlColumnDef);
+
+			ExecuteNonQuery(sqlAddColumn);
+		}
+
+		public virtual void ChangeColumn(string table, Column column)
+		{
+			string sqlColumnDef = GetSqlColumnDef(column, false);
+			string sqlChangeColumn = GetSqlChangeColumn(table, sqlColumnDef);
+
+			ExecuteNonQuery(sqlChangeColumn);
+		}
+
+
+		#endregion
+
+		#region constraints
+
+		public virtual void AddPrimaryKey(string name, string table, params string[] columns)
+		{
+			string sql = FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} PRIMARY KEY ({2:COLS})", table, name, columns);
+
+			ExecuteNonQuery(sql);
+		}
+
+		public virtual void AddUniqueConstraint(string name, string table, params string[] columns)
+		{
+			string sql = FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} UNIQUE({2:COLS})", table, name, columns);
+
+			ExecuteNonQuery(sql);
+		}
+
+		public virtual void AddCheckConstraint(string name, string table, string checkSql)
+		{
+			string sql = FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} CHECK ({2}) ", table, name, checkSql);
+
+			ExecuteNonQuery(sql);
+		}
+
 		/// <summary>
 		/// Determines if a constraint exists.
 		/// </summary>
 		/// <param name="name">Constraint name</param>
 		/// <param name="table">Table owning the constraint</param>
-		/// <returns><c>true</c> if the constraint exists.</returns>
 		public abstract bool ConstraintExists(string table, string name);
 
-		public virtual bool PrimaryKeyExists(string table, string name)
+		public virtual void RemoveConstraint(string table, string name)
 		{
-			return ConstraintExists(table, name);
+			string format = FormatSql(
+				"ALTER TABLE {0:NAME} DROP CONSTRAINT {1:NAME}", table, name);
+
+			ExecuteNonQuery(format);
 		}
 
-		public int ExecuteNonQuery(string sql)
+		#endregion
+
+		#region indexes
+
+		public virtual void AddIndex(string name, bool unique, string table, params string[] columns)
 		{
-			int result = 0;
+			Require.That(columns.Length > 0, "Not specified columns of the table to create an index");
 
-			try
-			{
-				if (!BatchSeparator.IsNullOrEmpty(true) &&
-					sql.IndexOf(BatchSeparator, StringComparison.CurrentCultureIgnoreCase) >= 0)
-				{
-					// если задан разделитель пакетов запросов, запускаем пакеты по очереди
-					sql += "\n" + BatchSeparator.Trim(); // make sure last batch is executed.
-					string[] lines = sql.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
-					StringBuilder sqlBatch = new StringBuilder();
+			string uniqueString = unique ? "UNIQUE" : string.Empty;
+			string sql = FormatSql("CREATE {0} INDEX {1:NAME} ON {2:NAME} ({3:COLS})",
+				uniqueString, name, table, columns);
 
-					foreach (string line in lines)
-					{
-						if (line.ToUpperInvariant().Trim() == BatchSeparator.ToUpperInvariant())
-						{
-							string query = sqlBatch.ToString();
-							if (!query.IsNullOrEmpty(true))
-							{
-								MigratorLogManager.Log.ExecuteSql(query);
-								using (IDbCommand cmd = BuildCommand(query))
-								{
-									result = cmd.ExecuteNonQuery();
-								}
-							}
-							sqlBatch.Clear();
-						}
-						else
-						{
-							sqlBatch.AppendLine(line.Trim());
-						}
-					}
-				}
-				else
-				{
-					MigratorLogManager.Log.ExecuteSql(sql);
-					using (IDbCommand cmd = BuildCommand(sql))
-					{
-						result = cmd.ExecuteNonQuery();
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				MigratorLogManager.Log.Warn(ex.Message, ex);
-				throw new SQLException(ex);
-			}
-
-			return result;
+			ExecuteNonQuery(sql);
 		}
 
-		private IDbCommand BuildCommand(string sql)
+		public abstract bool IndexExists(string indexName, string tableName);
+
+		public virtual void RemoveIndex(string indexName, string tableName)
 		{
-			EnsureHasConnection();
-			IDbCommand cmd = connection.CreateCommand();
-			cmd.CommandText = sql;
-			cmd.CommandType = CommandType.Text;
-			if (transaction != null)
-			{
-				cmd.Transaction = transaction;
-			}
-			return cmd;
+			string sql = FormatSql("DROP INDEX {0:NAME} ON {1:NAME}", indexName, tableName);
+
+			ExecuteNonQuery(sql);
 		}
 
-		protected virtual IDataReader OpenDataReader(IDbCommand cmd)
+		#endregion
+
+		#endregion
+
+		#region DML
+
+		public virtual int Insert(string table, string[] columns, string[] values)
 		{
-			return cmd.ExecuteReader();
+			string sql = FormatSql("INSERT INTO {0:NAME} ({1:COLS}) VALUES ({2})",
+				table, columns, QuoteValues(values).ToCommaSeparatedString());
+
+			return ExecuteNonQuery(sql);
 		}
 
-		/// <summary>
-		/// Execute an SQL query returning results.
-		/// </summary>
-		/// <param name="sql">The SQL command.</param>
-		/// <returns>A data iterator, <see cref="System.Data.IDataReader">IDataReader</see>.</returns>
-		public IDataReader ExecuteReader(string sql)
-		{
-			MigratorLogManager.Log.ExecuteSql(sql);
-
-			IDbCommand cmd = null;
-			IDataReader reader = null;
-
-			try
-			{
-				cmd = BuildCommand(sql);
-				reader = OpenDataReader(cmd);
-				return reader;
-			}
-			catch (Exception ex)
-			{
-				if (reader != null)
-				{
-					reader.Dispose();
-				}
-
-				if (cmd != null)
-				{
-					MigratorLogManager.Log.WarnFormat("query failed: {0}", cmd.CommandText);
-					cmd.Dispose();
-				}
-
-				throw new SQLException(ex);
-			}
-		}
-
-		public object ExecuteScalar(string sql)
-		{
-			using (IDbCommand cmd = BuildCommand(sql))
-			{
-				try
-				{
-					MigratorLogManager.Log.ExecuteSql(sql);
-					return cmd.ExecuteScalar();
-				}
-				catch (Exception ex)
-				{
-					MigratorLogManager.Log.WarnFormat("Query failed: {0}", cmd.CommandText);
-					throw new SQLException(ex);
-				}
-			}
-		}
-
-		public virtual int Update(string table, string[] columns, string[] values)
-		{
-			return Update(table, columns, values, null);
-		}
-
-		public virtual int Update(string table, string[] columns, string[] values, string where)
+		public virtual int Update(string table, string[] columns, string[] values, string where = null)
 		{
 			string namesAndValues = JoinColumnsAndValues(columns, values);
 
@@ -695,14 +409,6 @@ namespace ECM7.Migrator.Providers
 								: "UPDATE {0:NAME} SET {1} WHERE {2}";
 
 			string sql = FormatSql(query, table, namesAndValues, where);
-			return ExecuteNonQuery(sql);
-		}
-
-		public virtual int Insert(string table, string[] columns, string[] values)
-		{
-			string sql = FormatSql("INSERT INTO {0:NAME} ({1:COLS}) VALUES ({2})",
-				table, columns, QuoteValues(values).ToCommaSeparatedString());
-
 			return ExecuteNonQuery(sql);
 		}
 
@@ -717,64 +423,7 @@ namespace ECM7.Migrator.Providers
 			return ExecuteNonQuery(sql);
 		}
 
-		/// <summary>
-		/// Starts a transaction. Called by the migration mediator.
-		/// </summary>
-		public void BeginTransaction()
-		{
-			if (transaction == null && connection != null)
-			{
-				EnsureHasConnection();
-				transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
-			}
-		}
-
-		protected void EnsureHasConnection()
-		{
-			if (connection.State != ConnectionState.Open)
-			{
-				connectionNeedClose = true;
-				connection.Open();
-			}
-		}
-
-		/// <summary>
-		/// Rollback the current migration. Called by the migration mediator.
-		/// </summary>
-		public virtual void Rollback()
-		{
-			if (transaction != null && connection != null && connection.State == ConnectionState.Open)
-			{
-				try
-				{
-					transaction.Rollback();
-				}
-				catch (Exception ex)
-				{
-					MigratorLogManager.Log.Error("Не удалось откатить транзакцию", ex);
-				}
-			}
-			transaction = null;
-		}
-
-		/// <summary>
-		/// Commit the current transaction. Called by the migrations mediator.
-		/// </summary>
-		public void Commit()
-		{
-			if (transaction != null && connection != null && connection.State == ConnectionState.Open)
-			{
-				try
-				{
-					transaction.Commit();
-				}
-				catch (Exception ex)
-				{
-					MigratorLogManager.Log.Error("Не удалось применить транзакцию", ex);
-				}
-			}
-			transaction = null;
-		}
+		#endregion
 
 		#region For
 
@@ -806,6 +455,8 @@ namespace ECM7.Migrator.Providers
 		}
 
 		#endregion
+
+		#region methods for migrator core
 		/// <summary>
 		/// The list of Migrations currently applied to the database.
 		/// </summary>
@@ -878,66 +529,6 @@ namespace ECM7.Migrator.Providers
 				}
 			}
 		}
-
-		public IDbCommand GetCommand()
-		{
-			return BuildCommand(null);
-		}
-
-		public virtual string[] QuoteValues(params string[] values)
-		{
-			return Array.ConvertAll(values,
-				val => null == val ? "null" : String.Format("'{0}'", val.Replace("'", "''")));
-		}
-
-		public string JoinColumnsAndValues(string[] columns, string[] values, string separator = ",")
-		{
-			Require.IsNotNull(separator, "Не задан разделитель");
-
-			string processedSeparator = " " + separator.Trim() + " ";
-
-			string[] quotedValues = QuoteValues(values);
-			string[] namesAndValues = columns
-				.Select((col, i) => FormatSql("{0:NAME}={1}", col, quotedValues[i]))
-				.ToArray();
-
-			return string.Join(processedSeparator, namesAndValues);
-		}
-
-		public void ExecuteFromResource(Assembly assembly, string path)
-		{
-			Require.IsNotNull(assembly, "Incorrect assembly");
-
-			using (Stream stream = assembly.GetManifestResourceStream(path))
-			{
-				Require.IsNotNull(stream, "Не удалось загрузить указанный файл ресурсов");
-
-				// ReSharper disable AssignNullToNotNullAttribute
-				using (StreamReader reader = new StreamReader(stream))
-				{
-					string sql = reader.ReadToEnd();
-					ExecuteNonQuery(sql);
-				}
-				// ReSharper restore AssignNullToNotNullAttribute
-			}
-		}
-
-		#region Implementation of IDisposable
-
-		public void Dispose()
-		{
-			if (connectionNeedClose && connection != null && connection.State == ConnectionState.Open)
-			{
-				connection.Close();
-				connectionNeedClose = false;
-			}
-		}
-
-		~TransformationProvider()
-		{
-			Dispose();
-		}
-
 
 		#endregion
 	}

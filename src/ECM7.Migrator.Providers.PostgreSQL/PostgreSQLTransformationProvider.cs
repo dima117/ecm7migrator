@@ -154,6 +154,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 		}
 
+
+
 		public override void ChangeColumn(string table, Column column)
 		{
 			if (!ColumnExists(table, column.Name))

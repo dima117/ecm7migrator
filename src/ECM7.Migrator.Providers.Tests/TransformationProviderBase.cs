@@ -257,7 +257,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void AddColumn()
 		{
-			provider.AddColumn("TestTwo", "Test", DbType.String, 50);
+			provider.AddColumn("TestTwo", new Column("Test", DbType.String.WithSize(50)));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "Test"));
 		}
 
@@ -272,32 +272,33 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public virtual void AddDecimalColumn()
 		{
-			provider.AddColumn("TestTwo", "TestDecimal", DbType.Decimal, 38);
+			provider.AddColumn("TestTwo", new Column("TestDecimal", DbType.Decimal.WithSize(38)));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestDecimal"));
 		}
 
 		[Test]
 		public void AddColumnWithDefault()
 		{
-			provider.AddColumn("TestTwo", "TestWithDefault", DbType.Int32, 50, 0, 10);
+			// todo: написать тест на проверку значения по умолчанию
+			provider.AddColumn("TestTwo", new Column("TestWithDefault", DbType.Int32, defaultValue: 10));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestWithDefault"));
 		}
 
 		[Test]
 		public void AddColumnWithDefaultButNoSize()
 		{
-			provider.AddColumn("TestTwo", "TestWithDefault", DbType.Int32, 10);
+			provider.AddColumn("TestTwo", new Column("TestWithDefault", DbType.Int32, defaultValue: 10));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestWithDefault"));
 
 
-			provider.AddColumn("TestTwo", "TestWithDefaultString", DbType.String, "'foo'");
+			provider.AddColumn("TestTwo", new Column("TestWithDefaultString", DbType.String, "'foo'"));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestWithDefaultString"));
 		}
 
 		[Test]
 		public void AddBooleanColumnWithDefault()
 		{
-			provider.AddColumn("TestTwo", "TestBoolean", DbType.Boolean, 0, 0, false);
+			provider.AddColumn("TestTwo", new Column("TestBoolean", DbType.Boolean, false));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestBoolean"));
 		}
 
@@ -332,7 +333,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void RemoveBoolColumn()
 		{
 			AddTableWithPrimaryKey();
-			provider.AddColumn("Test", "Inactif", DbType.Boolean);
+			provider.AddColumn("Test", new Column("Inactif", DbType.Boolean));
 			Assert.IsTrue(provider.ColumnExists("Test", "Inactif"));
 
 			provider.RemoveColumn("Test", "Inactif");

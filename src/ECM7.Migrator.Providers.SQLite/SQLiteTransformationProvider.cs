@@ -6,7 +6,6 @@ namespace ECM7.Migrator.Providers.SQLite
 	using System.Data.SQLite;
 
 	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Framework.Logging;
 
 	/// <summary>
 	/// Summary description for SQLiteTransformationProvider.
@@ -123,25 +122,9 @@ namespace ECM7.Migrator.Providers.SQLite
 			throw new NotSupportedException("SLQite не поддерживает переименование колонок");
 		}
 
-		/// <summary>
-		/// Change the definition of an existing column.
-		/// </summary>
-		/// <param name="table">The name of the table that will get the new column</param>
-		/// <param name="column">
-		/// An instance of a <see cref="Column">Column</see> with the specified properties and the name of an existing column</param>
 		public override void ChangeColumn(string table, Column column)
 		{
-			if (!ColumnExists(table, column.Name))
-			{
-				MigratorLogManager.Log.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
-				return;
-			}
-
-			string tempColumn = "temp_" + column.Name;
-			RenameColumn(table, column.Name, tempColumn);
-			AddColumn(table, column);
-			ExecuteReader(FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", table, column.Name, tempColumn));
-			RemoveColumn(table, tempColumn);
+			throw new NotSupportedException("SLQite не поддерживает изменение колонок");
 		}
 
 		/// <summary>

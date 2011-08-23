@@ -4,6 +4,7 @@ using System.Text;
 
 namespace ECM7.Migrator.Providers.Tests
 {
+	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Providers.Firebird;
 
     using NUnit.Framework;
@@ -49,7 +50,7 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public override void AddDecimalColumn()
 		{
-			provider.AddColumn("TestTwo", "TestDecimal", DbType.Decimal, 18);
+			provider.AddColumn("TestTwo", new Column("TestDecimal", DbType.Decimal.WithSize(18)));
 			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestDecimal"));
 		}
 

@@ -77,41 +77,6 @@ namespace ECM7.Migrator.Providers
 			return false;
 		}
 
-		public void AddColumn(string table, string columnName, DbType type, int size, ColumnProperty property, object defaultValue)
-		{
-			// No Op
-		}
-
-		public void AddColumn(string table, string columnName, ColumnType type, ColumnProperty property, object defaultValue)
-		{
-			// No Op
-		}
-
-		public void AddColumn(string table, string column, DbType type)
-		{
-			// No Op
-		}
-
-		public void AddColumn(string table, string column, DbType type, object defaultValue)
-		{
-			// No Op
-		}
-
-		public void AddColumn(string table, string column, DbType type, int size)
-		{
-			// No Op
-		}
-
-		public void AddColumn(string table, string column, DbType type, ColumnProperty property)
-		{
-			// No Op
-		}
-
-		public void AddColumn(string table, string column, DbType type, int size, ColumnProperty property)
-		{
-			// No Op
-		}
-
 		public void AddPrimaryKey(string name, string table, params string[] columns)
 		{
 			// No Op
@@ -195,12 +160,6 @@ namespace ECM7.Migrator.Providers
 			// No Op
 		}
 
-
-		public bool PrimaryKeyExists(string table, string name)
-		{
-			return false;
-		}
-
 		public int ExecuteNonQuery(string sql)
 		{
 			return 0;
@@ -216,12 +175,7 @@ namespace ECM7.Migrator.Providers
 			return null;
 		}
 
-		public int Update(string table, string[] columns, string[] columnValues)
-		{
-			return 0;
-		}
-
-		public int Update(string table, string[] columns, string[] columnValues, string where)
+		public int Update(string table, string[] columns, string[] columnValues, string where = null)
 		{
 			return 0;
 		}
