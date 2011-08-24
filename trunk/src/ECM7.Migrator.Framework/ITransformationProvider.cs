@@ -186,13 +186,6 @@ namespace ECM7.Migrator.Framework
 		/// Add a table
 		/// </summary>
 		/// <param name="name">The name of the table to add.</param>
-		/// <param name="columns">The columns that are part of the table.</param>
-		void AddTable(string name, params Column[] columns);
-
-		/// <summary>
-		/// Add a table
-		/// </summary>
-		/// <param name="name">The name of the table to add.</param>
 		/// <param name="engine">The name of the database engine to use. (MySQL)</param>
 		/// <param name="columns">The columns that are part of the table.</param>
 		void AddTable(string name, string engine, params Column[] columns);
@@ -382,5 +375,7 @@ namespace ECM7.Migrator.Framework
 		string QuoteName(string name);
 
 		string FormatSql(string format, params object[] args);
+
+		void AddTable(string name, params Column[] columns);
 	}
 }

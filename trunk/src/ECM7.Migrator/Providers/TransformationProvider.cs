@@ -52,56 +52,6 @@ namespace ECM7.Migrator.Providers
 			return tables.ToArray();
 		}
 
-		public virtual void AddTable(string name, params Column[] columns)
-		{
-			// Most databases don't have the concept of a storage engine, so default is to not use it.
-			AddTable(name, null, columns);
-		}
-
-		public virtual void AddTable(string name, string engine, params Column[] columns)
-		{
-			List<string> pks = GetPrimaryKeys(columns);
-			bool compoundPrimaryKey = pks.Count > 1;
-
-			List<string> listQuerySections = new List<string>(columns.Length);
-			foreach (Column column in columns)
-			{
-				// Remove the primary key notation if compound primary key because we'll add it back later
-				if (compoundPrimaryKey && column.IsPrimaryKey)
-					column.ColumnProperty |= ColumnProperty.NotNull;
-
-				string columnSql = this.GetSqlColumnDef(column, compoundPrimaryKey);
-				listQuerySections.Add(columnSql);
-			}
-
-			if (compoundPrimaryKey)
-			{
-				string primaryKeyQuerySection = BuildPrimaryKeyQuerySection(name, pks);
-				listQuerySections.Add(primaryKeyQuerySection);
-			}
-
-			string sectionsSql = listQuerySections.ToCommaSeparatedString();
-			string createTableSql = this.GetSqlAddTable(name, engine, sectionsSql);
-
-			ExecuteNonQuery(createTableSql);
-		}
-
-		protected virtual string BuildPrimaryKeyQuerySection(string tableName, List<string> primaryKeyColumns)
-		{
-			string pkName = "PK_" + tableName;
-
-			return FormatSql("CONSTRAINT {0:NAME} PRIMARY KEY ({1:COLS})", pkName, primaryKeyColumns);
-
-		}
-
-		public List<string> GetPrimaryKeys(IEnumerable<Column> columns)
-		{
-			return columns
-				.Where(column => column.IsPrimaryKey)
-				.Select(column => column.Name)
-				.ToList();
-		}
-
 		public virtual void RenameTable(string oldName, string newName)
 		{
 			if (TableExists(newName))
@@ -113,49 +63,6 @@ namespace ECM7.Migrator.Providers
 			{
 				string sql = FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", oldName, newName);
 				ExecuteNonQuery(sql);
-			}
-		}
-
-		public virtual void RenameColumn(string tableName, string oldColumnName, string newColumnName)
-		{
-			try
-			{
-				string sql = FormatSql("ALTER TABLE {0:NAME} RENAME COLUMN {1:NAME} TO {2:NAME}",
-					tableName, oldColumnName, newColumnName);
-				ExecuteNonQuery(sql);
-			}
-			catch (Exception ex)
-			{
-				string message = "Error when rename column '{0}' to '{1}' from table '{2}'".FormatWith(oldColumnName, newColumnName, tableName);
-				throw new MigrationException(message, ex);
-			}
-		}
-
-		public virtual void RemoveColumn(string table, string column)
-		{
-			try
-			{
-				string sql = FormatSql("ALTER TABLE {0:NAME} DROP COLUMN {1:NAME} ", table, column);
-				ExecuteNonQuery(sql);
-			}
-			catch (Exception ex)
-			{
-				string message = "Error when remove column '{0}' from table '{1}'".FormatWith(column, table);
-				throw new MigrationException(message, ex);
-			}
-		}
-
-		public virtual bool ColumnExists(string table, string column)
-		{
-			try
-			{
-				string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}", column, table);
-				ExecuteNonQuery(sql);
-				return true;
-			}
-			catch (Exception)
-			{
-				return false;
 			}
 		}
 
@@ -274,6 +181,14 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
 		}
 
+		protected virtual string GetSqlPrimaryKey(string tableName, List<string> primaryKeyColumns)
+		{
+			string pkName = "PK_" + tableName;
+
+			return FormatSql("CONSTRAINT {0:NAME} PRIMARY KEY ({1:COLS})", pkName, primaryKeyColumns);
+
+		}
+
 		protected virtual string GetSqlAddColumn(string table, string columnSql)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
@@ -284,11 +199,65 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1}", table, columnSql);
 		}
 
+		protected virtual string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} RENAME COLUMN {1:NAME} TO {2:NAME}",
+					tableName, oldColumnName, newColumnName);
+		}
+
+		protected virtual string GetSqlRemoveColumn(string table, string column)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} DROP COLUMN {1:NAME} ", table, column);
+		}
+
 		#endregion
 
 		#region DDL
 
 		#region tables
+
+		public virtual void AddTable(string name, params Column[] columns)
+		{
+			AddTable(name, null, columns);
+		}
+
+		public virtual void AddTable(string name, string engine, params Column[] columns)
+		{
+			// список колонок, входящих в первичный ключ
+			List<string> pks = columns
+				.Where(column => column.IsPrimaryKey)
+				.Select(column => column.Name)
+				.ToList();
+
+			bool compoundPrimaryKey = pks.Count > 1;
+
+			List<string> querySections = new List<string>();
+
+			// SQL для колонок таблицы
+			foreach (Column column in columns)
+			{
+				// Remove the primary key notation if compound primary key because we'll add it back later
+				if (compoundPrimaryKey && column.IsPrimaryKey)
+				{
+					column.ColumnProperty |= ColumnProperty.PrimaryKey;
+				}
+
+				string columnSql = GetSqlColumnDef(column, compoundPrimaryKey);
+				querySections.Add(columnSql);
+			}
+
+			// SQL для составного первичного ключа
+			if (compoundPrimaryKey)
+			{
+				string primaryKeyQuerySection = GetSqlPrimaryKey(name, pks);
+				querySections.Add(primaryKeyQuerySection);
+			}
+
+			string sqlQuerySections = querySections.ToCommaSeparatedString();
+			string createTableSql = GetSqlAddTable(name, engine, sqlQuerySections);
+
+			ExecuteNonQuery(createTableSql);
+		}
 
 		public abstract bool TableExists(string table);
 
@@ -318,6 +287,19 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sqlChangeColumn);
 		}
 
+		public virtual void RenameColumn(string tableName, string oldColumnName, string newColumnName)
+		{
+			string sql = GetSqlRenameColumn(tableName, oldColumnName, newColumnName);
+			ExecuteNonQuery(sql);
+		}
+
+		public abstract bool ColumnExists(string table, string column);
+
+		public virtual void RemoveColumn(string table, string column)
+		{
+			string sql = GetSqlRemoveColumn(table, column);
+			ExecuteNonQuery(sql);
+		}
 
 		#endregion
 

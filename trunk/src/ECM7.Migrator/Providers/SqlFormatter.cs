@@ -6,7 +6,7 @@
 	using System.Linq;
 
 	/// <summary>
-	/// Поддержка форматов "TAB", "COL", "NAME" для экранирования идентификаторов
+	/// Поддержка форматов "NAME" и "COLS" для экранирования идентификаторов
 	/// </summary>
 	public class SqlFormatter : IFormatProvider, ICustomFormatter
 	{

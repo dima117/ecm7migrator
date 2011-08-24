@@ -148,6 +148,11 @@ namespace ECM7.Migrator.Providers.Firebird
 			return FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql);
 		}
 
+		protected override string GetSqlRemoveColumn(string table, string column)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} DROP {1:NAME} ", table, column);
+		}
+
 		public override void RenameTable(string oldName, string newName)
 		{
 			throw new NotSupportedException("Firebird не поддерживает переименование таблиц");
@@ -160,19 +165,6 @@ namespace ECM7.Migrator.Providers.Firebird
 			ExecuteNonQuery(sql);
 		}
 
-		public override void RemoveColumn(string table, string column)
-		{
-			try
-			{
-				string sql = FormatSql("ALTER TABLE {0:NAME} DROP {1:NAME} ", table, column);
-				ExecuteNonQuery(sql);
-			}
-			catch (Exception ex)
-			{
-				string message = "Error when remove column '{0}' from table '{1}'".FormatWith(column, table);
-				throw new MigrationException(message, ex);
-			}
-		}
 
 		protected override void BuildColumnSql(List<string> vals, Column column, bool compoundPrimaryKey)
 		{
