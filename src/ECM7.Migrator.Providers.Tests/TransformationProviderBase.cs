@@ -321,8 +321,8 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void RemoveUnexistingColumn()
 		{
-			Assert.Throws<MigrationException>(() => provider.RemoveColumn("TestTwo", "abc"));
-			Assert.Throws<MigrationException>(() => provider.RemoveColumn("abc", "abc"));
+			Assert.Throws<SQLException>(() => provider.RemoveColumn("TestTwo", "abc"));
+			Assert.Throws<SQLException>(() => provider.RemoveColumn("abc", "abc"));
 		}
 
 		/// <summary>

@@ -140,6 +140,11 @@ namespace ECM7.Migrator.Providers.SQLite
 			}
 		}
 
+		public override bool ColumnExists(string table, string column)
+		{
+			throw new NotImplementedException("Нужно реализовать проверку существования колонки");
+		}
+
 		/// <summary>
 		/// Determines if a constraint exists.
 		/// </summary>

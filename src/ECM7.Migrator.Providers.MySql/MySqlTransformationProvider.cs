@@ -163,19 +163,20 @@ namespace ECM7.Migrator.Providers.MySql
 			throw new NotImplementedException("Нужно реализовать проверку существования таблицы в MySql");
 		}
 
+		public override bool ColumnExists(string table, string column)
+		{
+			throw new NotImplementedException("Нужно реализовать проверку существования колонки");
+		}
+
 		protected override string GetSqlChangeColumn(string table, string columnSql)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1}", table, columnSql);
 		}
 
-		public override void AddTable(string name, params Column[] columns)
-		{
-			AddTable(name, "INNODB", columns);
-		}
-
 		protected override string GetSqlAddTable(string table, string engine, string columnsSql)
 		{
-			return FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", table, columnsSql, engine);
+			string dbEngine = engine.Nvl("INNODB");
+			return FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", table, columnsSql, dbEngine);
 		}
 
 		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
