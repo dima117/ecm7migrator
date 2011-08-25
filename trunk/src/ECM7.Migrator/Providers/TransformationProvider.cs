@@ -4,15 +4,12 @@ using System.Data;
 using System.Linq;
 
 using ECM7.Migrator.Compatibility;
-using ECM7.Migrator.Exceptions;
 using ECM7.Migrator.Framework;
 
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Providers
 {
-	using ECM7.Migrator.Framework.Logging;
-
 	/// <summary>
 	/// Base class for every transformation providers.
 	/// A 'tranformation' is an operation that modifies the database.
@@ -30,149 +27,6 @@ namespace ECM7.Migrator.Providers
 			RegisterProperty(ColumnProperty.Unique, "UNIQUE");
 			RegisterProperty(ColumnProperty.PrimaryKey, "PRIMARY KEY");
 		}
-
-		public virtual void RemoveForeignKey(string table, string name)
-		{
-			RemoveConstraint(table, name);
-		}
-
-		public virtual string[] GetTables()
-		{
-			List<string> tables = new List<string>();
-			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}.{2:NAME}",
-				"table_name", "information_schema", "tables");
-
-			using (IDataReader reader = ExecuteReader(sql))
-			{
-				while (reader.Read())
-				{
-					tables.Add((string)reader[0]);
-				}
-			}
-			return tables.ToArray();
-		}
-
-		public virtual void RenameTable(string oldName, string newName)
-		{
-			if (TableExists(newName))
-			{
-				throw new MigrationException(String.Format("Table with name '{0}' already exists", newName));
-			}
-
-			if (TableExists(oldName))
-			{
-				string sql = FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", oldName, newName);
-				ExecuteNonQuery(sql);
-			}
-		}
-
-		#region ForeignKeys
-
-		public void GenerateForeignKey(string primaryTable, string refTable)
-		{
-			GenerateForeignKey(primaryTable, refTable, ForeignKeyConstraint.NoAction);
-		}
-
-		public void GenerateForeignKey(string primaryTable, string refTable, ForeignKeyConstraint constraint)
-		{
-			GenerateForeignKey(primaryTable, refTable + "Id", refTable, "Id", constraint);
-		}
-
-		/// <summary>
-		/// Guesses the name of the foreign key and add it
-		/// </summary>
-		public virtual void GenerateForeignKey(string primaryTable, string primaryColumn, string refTable, string refColumn)
-		{
-			string fkName = "FK_" + primaryTable + "_" + refTable;
-			AddForeignKey(fkName, primaryTable, primaryColumn, refTable, refColumn);
-		}
-
-		/// <summary>
-		/// Guesses the name of the foreign key and add it
-		/// </summary>
-		public virtual void GenerateForeignKey(string primaryTable, string[] primaryColumns, string refTable,
-											   string[] refColumns)
-		{
-			string fkName = "FK_" + primaryTable + "_" + refTable;
-			AddForeignKey(fkName, primaryTable, primaryColumns, refTable, refColumns);
-		}
-
-		/// <summary>
-		/// Guesses the name of the foreign key and add it
-		/// </summary>
-		public virtual void GenerateForeignKey(string primaryTable, string primaryColumn, string refTable,
-											   string refColumn, ForeignKeyConstraint constraint)
-		{
-			string fkName = "FK_" + primaryTable + "_" + refTable;
-			AddForeignKey(fkName, primaryTable, primaryColumn, refTable, refColumn, constraint);
-		}
-
-		/// <summary>
-		/// Guesses the name of the foreign key and add it
-		/// </summary>
-		public virtual void GenerateForeignKey(string primaryTable, string[] primaryColumns, string refTable,
-											   string[] refColumns, ForeignKeyConstraint constraint)
-		{
-			string fkName = "FK_" + primaryTable + "_" + refTable;
-			AddForeignKey(fkName, primaryTable, primaryColumns, refTable, refColumns, constraint);
-		}
-
-		/// <summary>
-		/// Append a foreign key (relation) between two tables.
-		/// tables.
-		/// </summary>
-		/// <param name="name">Constraint name</param>
-		/// <param name="primaryTable">Table name containing the primary key</param>
-		/// <param name="primaryColumn">Primary key column name</param>
-		/// <param name="refTable">Foreign table name</param>
-		/// <param name="refColumn">Foreign column name</param>
-		public virtual void AddForeignKey(string name, string primaryTable, string primaryColumn, string refTable,
-										  string refColumn)
-		{
-			AddForeignKey(name, primaryTable, new[] { primaryColumn }, refTable, new[] { refColumn });
-		}
-
-		/// <summary>
-		/// <see cref="ITransformationProvider.AddForeignKey(string, string, string, string, string)">
-		/// AddForeignKey(string, string, string, string, string)
-		/// </see>
-		/// </summary>
-		public virtual void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns)
-		{
-			AddForeignKey(name, primaryTable, primaryColumns, refTable, refColumns, ForeignKeyConstraint.NoAction);
-		}
-
-		public virtual void AddForeignKey(string name, string primaryTable, string primaryColumn, string refTable, string refColumn, ForeignKeyConstraint constraint)
-		{
-			AddForeignKey(name, primaryTable, new[] { primaryColumn }, refTable, new[] { refColumn }, constraint);
-		}
-
-		public virtual void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
-			string[] refColumns, ForeignKeyConstraint constraint)
-		{
-			AddForeignKey(name, primaryTable, primaryColumns, refTable, refColumns, constraint, ForeignKeyConstraint.NoAction);
-		}
-
-		public virtual void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
-			string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint)
-		{
-			if (ConstraintExists(primaryTable, name))
-			{
-				MigratorLogManager.Log.WarnFormat("Constraint {0} already exists", name);
-				return;
-			}
-
-			string onDeleteConstraintResolved = SqlForConstraint(onDeleteConstraint);
-			string onUpdateConstraintResolved = SqlForConstraint(onUpdateConstraint);
-
-			string sql = FormatSql(
-				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} FOREIGN KEY ({2:COLS}) REFERENCES {3:NAME} ({4:COLS}) ON UPDATE {5} ON DELETE {6}",
-				primaryTable, name, primaryColumns, refTable, refColumns, onUpdateConstraintResolved, onDeleteConstraintResolved);
-
-			ExecuteNonQuery(sql);
-		}
-
-		#endregion
 
 		#region generate sql
 
@@ -210,13 +64,24 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("ALTER TABLE {0:NAME} DROP COLUMN {1:NAME} ", table, column);
 		}
 
+		protected virtual string GetSqlRenameTable(string oldName, string newName)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", oldName, newName);
+		}
+
+		protected virtual string GetSqlGetTables()
+		{
+			return FormatSql("SELECT {0:NAME} FROM {1:NAME}.{2:NAME}",
+				"table_name", "information_schema", "tables");
+		}
+
 		#endregion
 
 		#region DDL
 
 		#region tables
 
-		public virtual void AddTable(string name, params Column[] columns)
+		public void AddTable(string name, params Column[] columns)
 		{
 			AddTable(name, null, columns);
 		}
@@ -259,7 +124,31 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(createTableSql);
 		}
 
+		public virtual string[] GetTables()
+		{
+			List<string> tables = new List<string>();
+			string sql = GetSqlGetTables();
+
+			using (IDataReader reader = ExecuteReader(sql))
+			{
+				while (reader.Read())
+				{
+					string tableName = reader.GetString(0);
+					tables.Add(tableName);
+				}
+			}
+
+			return tables.ToArray();
+		}
+
+
 		public abstract bool TableExists(string table);
+
+		public virtual void RenameTable(string oldName, string newName)
+		{
+			string sql = this.GetSqlRenameTable(oldName, newName);
+			ExecuteNonQuery(sql);
+		}
 
 		public virtual void RemoveTable(string name)
 		{
@@ -304,6 +193,33 @@ namespace ECM7.Migrator.Providers
 		#endregion
 
 		#region constraints
+
+		public void AddForeignKey(string name,
+			string primaryTable, string primaryColumn, string refTable, string refColumn,
+			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
+			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
+		{
+			AddForeignKey(name,
+				primaryTable, primaryColumn.AsArray(),
+				refTable, refColumn.AsArray(),
+				onDeleteConstraint, onUpdateConstraint);
+		}
+
+		public virtual void AddForeignKey(string name,
+			string primaryTable, string[] primaryColumns,
+			string refTable, string[] refColumns,
+			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
+			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
+		{
+			string onDeleteConstraintResolved = SqlForConstraint(onDeleteConstraint);
+			string onUpdateConstraintResolved = SqlForConstraint(onUpdateConstraint);
+
+			string sql = FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} FOREIGN KEY ({2:COLS}) REFERENCES {3:NAME} ({4:COLS}) ON UPDATE {5} ON DELETE {6}",
+				primaryTable, name, primaryColumns, refTable, refColumns, onUpdateConstraintResolved, onDeleteConstraintResolved);
+
+			ExecuteNonQuery(sql);
+		}
 
 		public virtual void AddPrimaryKey(string name, string table, params string[] columns)
 		{
@@ -382,15 +298,15 @@ namespace ECM7.Migrator.Providers
 			return ExecuteNonQuery(sql);
 		}
 
-		public virtual int Update(string table, string[] columns, string[] values, string where = null)
+		public virtual int Update(string table, string[] columns, string[] values, string whereSql = null)
 		{
 			string namesAndValues = JoinColumnsAndValues(columns, values);
 
-			string query = where.IsNullOrEmpty(true)
+			string query = whereSql.IsNullOrEmpty(true)
 								? "UPDATE {0:NAME} SET {1}"
 								: "UPDATE {0:NAME} SET {1} WHERE {2}";
 
-			string sql = FormatSql(query, table, namesAndValues, where);
+			string sql = FormatSql(query, table, namesAndValues, whereSql);
 			return ExecuteNonQuery(sql);
 		}
 
@@ -431,8 +347,8 @@ namespace ECM7.Migrator.Providers
 		/// </summary>
 		public void For(string providerTypeName, Action<ITransformationProvider> actions)
 		{
-			Type providerType = Type.GetType(providerTypeName);
-			Require.IsNotNull(providerType, "Не удалось загрузить тип провайдера: {0}".FormatWith(providerTypeName.Nvl("null")));
+			// todo: написать тест на For с использованием шорткатов
+			Type providerType = ProviderFactory.GetProviderType(providerTypeName);
 			For(providerType, actions);
 		}
 
@@ -452,6 +368,7 @@ namespace ECM7.Migrator.Providers
 			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME} WHERE {2:NAME} = '{3}'",
 				"Version", SCHEMA_INFO_TABLE, "Key", key.Replace("'", "''"));
 
+			// todo: написать тест, который выполняет миграцию, а потом проверяет, что она сохранилась в БД
 			using (IDataReader reader = ExecuteReader(sql))
 			{
 				while (reader.Read())

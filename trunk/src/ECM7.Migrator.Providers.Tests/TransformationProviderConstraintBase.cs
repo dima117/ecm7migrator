@@ -145,13 +145,7 @@ namespace ECM7.Migrator.Providers.Tests
 			Assert.IsTrue(provider.ConstraintExists("TestTwo", "CK_TestTwo_TestId"));
 		}
 
-		[Test]
-		public void RemoveForeignKey()
-		{
-			AddForeignKey();
-			provider.RemoveForeignKey("TestTwo", "FK_Test_TestTwo");
-			Assert.IsFalse(provider.ConstraintExists("TestTwo", "FK_Test_TestTwo"));
-		}
+		// todo: написать тесты на добавление и удаление всех типов констрэйнтов
 
 		[Test]
 		public void RemoveUniqueConstraint()
@@ -167,15 +161,6 @@ namespace ECM7.Migrator.Providers.Tests
 			AddCheckConstraint();
 			provider.RemoveConstraint("TestTwo", "CK_TestTwo_TestId");
 			Assert.IsFalse(provider.ConstraintExists("TestTwo", "CK_TestTwo_TestId"));
-		}
-
-		[Test]
-		public void RemoveUnexistingForeignKey()
-		{
-			AddForeignKey();
-			provider.RemoveForeignKey("abc", "FK_Test_TestTwo");
-			provider.RemoveForeignKey("abc", "abc");
-			provider.RemoveForeignKey("Test", "abc");
 		}
 
 		[Test]

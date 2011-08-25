@@ -90,17 +90,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			// todo: проверить, что при отдельном добавлении внешнего ключа генерируется исключение
 			throw new NotSupportedException("SQLite не поддерживает внешние ключи");
 		}
-
-		/// <summary>
-		/// Remove an existing foreign key constraint
-		/// </summary>
-		/// <param name="name">The name of the foreign key to remove</param>
-		/// <param name="table">The table that contains the foreign key.</param>
-		public override void RemoveForeignKey(string name, string table)
-		{
-			throw new NotSupportedException("SQLite не поддерживает внешние ключи");
-		}
-
+		
 		/// <summary>
 		/// Remove an existing column from a table
 		/// </summary>

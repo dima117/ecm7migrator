@@ -1,5 +1,3 @@
-using ECM7.Migrator.Exceptions;
-
 namespace ECM7.Migrator.Providers.SqlServer.Base
 {
 	using System;
@@ -14,7 +12,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 	/// Migration transformations provider for Microsoft SQL Server.
 	/// </summary>
 	public abstract class BaseSqlServerTransformationProvider<TConnection> : TransformationProvider<TConnection>
-		where TConnection: IDbConnection
+		where TConnection : IDbConnection
 	{
 		protected BaseSqlServerTransformationProvider(TConnection connection)
 			: base(connection)
@@ -135,22 +133,14 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			base.RemoveColumn(table, column);
 		}
 
-		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
+		protected override string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
-			if (ColumnExists(tableName, newColumnName))
-				throw new MigrationException(String.Format("Table '{0}' has column named '{1}' already", tableName, newColumnName));
-
-			if (ColumnExists(tableName, oldColumnName))
-				ExecuteNonQuery(String.Format("EXEC sp_rename '{0}.{1}', '{2}', 'COLUMN'", tableName, oldColumnName, newColumnName));
+			return FormatSql("EXEC sp_rename '{0}.{1}', '{2}', 'COLUMN'", tableName, oldColumnName, newColumnName);
 		}
 
-		public override void RenameTable(string oldName, string newName)
+		protected override string GetSqlRenameTable(string oldName, string newName)
 		{
-			if (TableExists(newName))
-				throw new MigrationException(String.Format("Table with name '{0}' already exists", newName));
-
-			if (TableExists(oldName))
-				ExecuteNonQuery(String.Format("EXEC sp_rename '{0}', '{1}'", oldName, newName));
+			return FormatSql("EXEC sp_rename '{0}', '{1}'", oldName, newName);
 		}
 
 		// Deletes all constraints linked to a column. Sql Server
@@ -169,7 +159,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			// Can't share the connection so two phase modif
 			foreach (string constraint in constraints)
 			{
-				RemoveForeignKey(table, constraint);
+				RemoveConstraint(table, constraint);
 			}
 		}
 
@@ -180,7 +170,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			sqlBuilder.Append("SELECT [CONSTRAINT_NAME] ");
 			sqlBuilder.Append("FROM [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE] ");
 			sqlBuilder.AppendFormat("WHERE [TABLE_NAME] = '{0}' and [COLUMN_NAME] = '{1}' ", table, column);
-			
+
 			sqlBuilder.Append("UNION ALL ");
 			sqlBuilder.Append("SELECT [dobj].[name] as [CONSTRAINT_NAME] ");
 			sqlBuilder.Append("FROM [sys].[columns] [col] ");
@@ -190,7 +180,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 
 			return sqlBuilder.ToString();
 		}
-	
+
 		#endregion
 	}
 }
