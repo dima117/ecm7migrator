@@ -15,8 +15,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 	public class SqlServerCeTransformationProvider : BaseSqlServerTransformationProvider<SqlCeConnection>
 	{
 		// todo: написать для всех провайдеров тесты на типы данных
-		// todo: добавить тесты поддержки топов данных для Firebird
-		// todo: проверить, что для всех создаваемых провайдеров и миграторов вызывается Dispose
+		// todo: добавить тесты поддержки типов данных для Firebird
 		
 		#region custom sql
 
@@ -52,17 +51,6 @@ namespace ECM7.Migrator.Providers.SqlServer
 		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
 			throw new MigrationException("SqlServerCe doesn't support column renaming");
-		}
-
-		public override void RenameTable(string oldName, string newName)
-		{
-			if (TableExists(newName))
-			{
-				throw new MigrationException("The specified table already exists");
-			}
-
-			string sql = FormatSql("exec sp_rename '{0}', '{1}'", oldName, newName);
-			ExecuteNonQuery(sql);
 		}
 
 		public override void AddCheckConstraint(string name, string table, string checkSql)

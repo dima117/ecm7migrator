@@ -93,14 +93,13 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		#region custom sql
 
-		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
-										  string[] refColumns, ForeignKeyConstraint constraint)
+
+		public override void AddForeignKey(string name, 
+			string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, 
+			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, 
+			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
-			if (ConstraintExists(primaryTable, name))
-			{
-				MigratorLogManager.Log.WarnFormat("Constraint {0} already exists", name);
-				return;
-			}
+			Require.AreEqual(onUpdateConstraint, ForeignKeyConstraint.NoAction, "Oracle не поддерживает каскадное обновление");
 
 			List<string> command = new List<string>
 				{
@@ -110,7 +109,7 @@ namespace ECM7.Migrator.Providers.Oracle
 					FormatSql("REFERENCES {0:NAME} ({1:COLS})", refTable, refColumns)
 				};
 
-			switch (constraint)
+			switch (onDeleteConstraint)
 			{
 				case ForeignKeyConstraint.Cascade:
 					command.Add("ON DELETE CASCADE");
@@ -147,10 +146,6 @@ namespace ECM7.Migrator.Providers.Oracle
 		}
 
 		// todo: написать тесты на добавление внешнего ключа с каскадным обновлением
-		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint)
-		{
-			throw new NotSupportedException("Oracle не поддерживает каскадное обновление");
-		}
 
 		protected override string GetSqlAddColumn(string table, string columnSql)
 		{

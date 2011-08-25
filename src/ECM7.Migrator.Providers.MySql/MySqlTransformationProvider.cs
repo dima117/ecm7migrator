@@ -84,15 +84,6 @@ namespace ECM7.Migrator.Providers.MySql
 
 		#region custom sql
 
-		public override void RemoveForeignKey(string table, string name)
-		{
-			if (ConstraintExists(table, name))
-			{
-				ExecuteNonQuery(FormatSql("ALTER TABLE {0:NAME} DROP FOREIGN KEY {1:NAME}", table, name));
-				ExecuteNonQuery(FormatSql("ALTER TABLE {0:NAME} DROP KEY {1:NAME}", table, name));
-			}
-		}
-
 		public override void RemoveConstraint(string table, string name)
 		{
 			if (ConstraintExists(table, name))

@@ -25,49 +25,6 @@ namespace ECM7.Migrator.Framework
 		void AddColumn(string table, Column column);
 
 		/// <summary>
-		/// Add a foreign key constraint
-		/// </summary>
-		/// <param name="name">The name of the foreign key. e.g. FK_TABLE_REF</param>
-		/// <param name="foreignTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
-		/// <param name="foreignColumns">The columns that are the foreign keys (eg. FK_id)</param>
-		/// <param name="primaryTable">The table that holds the primary keys (eg. Table.PK_id)</param>
-		/// <param name="primaryColumns">The columns that are the primary keys (eg. PK_id)</param>
-		void AddForeignKey(string name, string foreignTable, string[] foreignColumns, string primaryTable, string[] primaryColumns);
-
-		/// <summary>
-		/// Add a foreign key constraint
-		/// </summary>
-		/// <param name="name">The name of the foreign key. e.g. FK_TABLE_REF</param>
-		/// <param name="foreignTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
-		/// <param name="foreignColumns">The columns that are the foreign keys (eg. FK_id)</param>
-		/// <param name="primaryTable">The table that holds the primary keys (eg. Table.PK_id)</param>
-		/// <param name="primaryColumns">The columns that are the primary keys (eg. PK_id)</param>
-		/// <param name="constraint">Constraint parameters</param>
-		void AddForeignKey(string name, string foreignTable, string[] foreignColumns, string primaryTable, string[] primaryColumns, ForeignKeyConstraint constraint);
-
-		/// <summary>
-		/// Add a foreign key constraint
-		/// </summary>
-		/// 
-		/// <param name="name">The name of the foreign key. e.g. FK_TABLE_REF</param>
-		/// <param name="foreignTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
-		/// <param name="foreignColumn">The column that is the foreign key (eg. FK_id)</param>
-		/// <param name="primaryTable">The table that holds the primary keys (eg. Table.PK_id)</param>
-		/// <param name="primaryColumn">The column that is the primary key (eg. PK_id)</param>
-		void AddForeignKey(string name, string foreignTable, string foreignColumn, string primaryTable, string primaryColumn);
-
-		/// <summary>
-		/// Add a foreign key constraint
-		/// </summary>
-		/// <param name="name">The name of the foreign key. e.g. FK_TABLE_REF</param>
-		/// <param name="foreignTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
-		/// <param name="foreignColumn">The column that is the foreign key (eg. FK_id)</param>
-		/// <param name="primaryTable">The table that holds the primary key (eg. Table.PK_id)</param>
-		/// <param name="primaryColumn">The column that is the primary key (eg. PK_id)</param>
-		/// <param name="constraint">Constraint parameters</param>
-		void AddForeignKey(string name, string foreignTable, string foreignColumn, string primaryTable, string primaryColumn, ForeignKeyConstraint constraint);
-
-		/// <summary>
 		/// Define a new index
 		/// </summary>
 		/// <param name="name">Name of new index</param>
@@ -90,73 +47,6 @@ namespace ECM7.Migrator.Framework
 		/// <param name="indexName">Index name</param>
 		/// <param name="tableName">Table name</param>
 		void RemoveIndex(string indexName, string tableName);
-
-
-		/// <summary>
-		/// Add a foreign key constraint when you don't care about the name of the constraint.
-		/// Warning: This will prevent you from dropping the constraint since you won't know the name.
-		/// </summary>
-		/// <param name="foreignTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
-		/// <param name="foreignColumn">The column that is the foreign key (eg. FK_id)</param>
-		/// <param name="primaryTable">The table that holds the primary key (eg. Table.PK_id)</param>
-		/// <param name="primaryColumn">The column that is the primary key (eg. PK_id)</param>
-		void GenerateForeignKey(string foreignTable, string foreignColumn, string primaryTable, string primaryColumn);
-
-		/// <summary>
-		/// Add a foreign key constraint when you don't care about the name of the constraint.
-		/// Warning: This will prevent you from dropping the constraint since you won't know the name.
-		/// </summary>
-		/// <param name="foreignTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
-		/// <param name="foreignColumns">The columns that are the foreign keys (eg. FK_id)</param>
-		/// <param name="primaryTable">The table that holds the primary key (eg. Table.PK_id)</param>
-		/// <param name="primaryColumns">The column that is the primary key (eg. PK_id)</param>
-		void GenerateForeignKey(string foreignTable, string[] foreignColumns, string primaryTable, string[] primaryColumns);
-
-		/// <summary>
-		/// Add a foreign key constraint when you don't care about the name of the constraint.
-		/// Warning: This will prevent you from dropping the constraint since you won't know the name.
-		/// </summary>
-		/// <param name="foreignTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
-		/// <param name="foreignColumns">The columns that are the foreign keys (eg. FK_id)</param>
-		/// <param name="primaryTable">The table that holds the primary key (eg. Table.PK_id)</param>
-		/// <param name="primaryColumns">The columns that are the primary keys (eg. PK_id)</param>
-		/// <param name="constraint">Constraint parameters</param>
-		void GenerateForeignKey(string foreignTable, string[] foreignColumns, string primaryTable, string[] primaryColumns, ForeignKeyConstraint constraint);
-
-		/// <summary>
-		/// Add a foreign key constraint when you don't care about the name of the constraint.
-		/// Warning: This will prevent you from dropping the constraint since you won't know the name.
-		/// </summary>
-		/// <param name="foreignTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
-		/// <param name="foreignColumn">The columns that are the foreign keys (eg. FK_id)</param>
-		/// <param name="primaryTable">The table that holds the primary key (eg. Table.PK_id)</param>
-		/// <param name="primaryColumn">The column that is the primary key (eg. PK_id)</param>
-		/// <param name="constraint">Constraint parameters</param>
-		void GenerateForeignKey(string foreignTable, string foreignColumn, string primaryTable, string primaryColumn,
-								ForeignKeyConstraint constraint);
-
-		/// <summary>
-		/// Add a foreign key constraint when you don't care about the name of the constraint.
-		/// Warning: This will prevent you from dropping the constraint since you won't know the name.
-		///
-		/// The current expectations are that there is a column named the same as the foreignTable present in
-		/// the table. This is subject to change because I think it's not a good convention.
-		/// </summary>
-		/// <param name="foreignTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
-		/// <param name="primaryTable">The table that holds the primary key (eg. Table.PK_id)</param>
-		void GenerateForeignKey(string foreignTable, string primaryTable);
-
-		/// <summary>
-		/// Add a foreign key constraint when you don't care about the name of the constraint.
-		/// Warning: This will prevent you from dropping the constraint since you won't know the name.
-		///
-		/// The current expectations are that there is a column named the same as the foreignTable present in
-		/// the table. This is subject to change because I think it's not a good convention.
-		/// </summary>
-		/// <param name="foreignTable">The table that the foreign key will be created in (eg. Table.FK_id)</param>
-		/// <param name="primaryTable">The table that holds the primary key (eg. Table.PK_id)</param>
-		/// <param name="constraint"></param>
-		void GenerateForeignKey(string foreignTable, string primaryTable, ForeignKeyConstraint constraint);
 
 		/// <summary>
 		/// Add a primary key to a table
@@ -289,13 +179,6 @@ namespace ECM7.Migrator.Framework
 		void RemoveColumn(string table, string column);
 
 		/// <summary>
-		/// Remove an existing foreign key constraint
-		/// </summary>
-		/// <param name="table">The table that contains the foreign key.</param>
-		/// <param name="name">The name of the foreign key to remove</param>
-		void RemoveForeignKey(string table, string name);
-
-		/// <summary>
 		/// Remove an existing constraint
 		/// </summary>
 		/// <param name="table">The table that contains the foreign key.</param>
@@ -341,9 +224,9 @@ namespace ECM7.Migrator.Framework
 		/// <param name="table">The name of the table to update</param>
 		/// <param name="columns">The names of the columns.</param>
 		/// <param name="values">The values for the columns in the same order as the names.</param>
-		/// <param name="where">A where clause to limit the update</param>
+		/// <param name="whereSql">A whereSql clause to limit the update</param>
 		/// <returns></returns>
-		int Update(string table, string[] columns, string[] values, string where = null);
+		int Update(string table, string[] columns, string[] values, string whereSql = null);
 
 		IDbCommand GetCommand();
 
@@ -367,8 +250,23 @@ namespace ECM7.Migrator.Framework
 		void For(string providerTypeName, Action<ITransformationProvider> actions); 
 		#endregion
 
-		void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
-		                                   string[] refColumns, ForeignKeyConstraint onDeleteConstraint, ForeignKeyConstraint onUpdateConstraint);
+		void AddForeignKey(
+			string name,
+			string primaryTable,
+			string[] primaryColumns,
+			string refTable,
+			string[] refColumns,
+			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
+			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction);
+
+		void AddForeignKey(
+			string name,
+			string primaryTable,
+			string primaryColumn,
+			string refTable,
+			string refColumn,
+			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
+			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction);
 
 		void ExecuteFromResource(Assembly assembly, string path);
 
