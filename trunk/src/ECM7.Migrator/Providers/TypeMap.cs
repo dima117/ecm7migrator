@@ -44,7 +44,7 @@ namespace ECM7.Migrator.Providers
 	///		Names.Get(DbType,10000)	// --> "VARCHAR(10000)"
 	/// </code>
 	/// </remarks>
-	public class TypeNames
+	public class TypeMap
 	{
 		#region Private
 
@@ -116,22 +116,56 @@ namespace ECM7.Migrator.Providers
 
 		#region Put
 
-		public void Put(DbType typecode, int? length, string value)
+		/// <summary>
+		/// –егистрирует название типа Ѕƒ, которое будет использовано дл€
+		/// конкретного значени€ DbType, указанного в "миграци€х".
+		/// <para><c>$l</c> - будет заменено на конкретное значение длины</para>
+		/// <para><c>$s</c> - будет заменено на конкретное значение, показывающее 
+		/// количество знаков после зап€той дл€ вещественных чисел</para>м
+		/// </summary>
+		/// <param name="typecode">The typecode</param>
+		/// <param name="length">Maximum length of database type</param>
+		/// <param name="name">The database type name</param>
+		public void Put(DbType typecode, int? length, string name)
 		{
-			Put(typecode, length, value, null);
+			Put(typecode, length, name, null);
 		}
 
-		public void Put(DbType typecode, int? length, string value, int? defaultScale)
+		/// <summary>
+		/// –егистрирует название типа Ѕƒ, которое будет использовано дл€
+		/// конкретного значени€ DbType, указанного в "миграци€х".
+		/// <para><c>$l</c> - будет заменено на конкретное значение длины</para>
+		/// <para><c>$s</c> - будет заменено на конкретное значение, показывающее 
+		/// количество знаков после зап€той дл€ вещественных чисел</para>
+		/// </summary>
+		/// <param name="typecode">“ип</param>
+		/// <param name="length">ћаксимальна€ длина</param>
+		/// <param name="name">Ќазвание типа Ѕƒ</param>
+		/// <param name="defaultScale">«начение по-умолчанию: количество знаков после зап€той дл€ вещественных чисел</param>
+		public void Put(DbType typecode, int? length, string name, int? defaultScale)
 		{
 			if (length.HasValue)
-				PutValue(typecode, length.Value, new Pair<string, int?>(value, defaultScale));
+			{
+				PutValue(typecode, length.Value, new Pair<string, int?>(name, defaultScale));
+			}
 			else
-				PutDefaultValue(typecode, value);
+			{
+				PutDefaultValue(typecode, name);
+			}
 		}
 
-		public void Put(DbType typecode, string value)
+		/// <summary>
+		/// –егистрирует название типа Ѕƒ, которое будет использовано дл€
+		/// конкретного значени€ DbType, указанного в "миграци€х".
+		/// </summary>
+		/// <para><c>$l</c> - будет заменено на конкретное значение длины</para>
+		/// <para><c>$s</c> - будет заменено на конкретное значение, показывающее 
+		/// количество знаков после зап€той дл€ вещественных чисел</para>
+		/// <param name="typecode">“ип</param>
+		/// <param name="name">Ќазвание типа Ѕƒ</param>
+		public void Put(DbType typecode, string name)
 		{
-			PutDefaultValue(typecode, value);
+			PutDefaultValue(typecode, name);
 		}
 
 		#endregion
@@ -156,10 +190,10 @@ namespace ECM7.Migrator.Providers
 		public string Get(DbType typecode, int? length, int? scale)
 		{
 			Pair<string, int?> result = null;
-			
+
 			if (length.HasValue)
 				result = GetValue(typecode, length.Value);
-				
+
 			if (result == null)
 				result = new Pair<string, int?>(GetDefaultValue(typecode), null);
 
@@ -169,10 +203,9 @@ namespace ECM7.Migrator.Providers
 		#endregion
 
 		/// <summary>
-		/// ѕроверка, содержит ли провайдер мэппинг дл€ заданного типа
+		/// ѕроверка, что заданный тип зарегистрирован
 		/// </summary>
 		/// <param name="type">ѕровер€емый тип</param>
-		/// <returns>≈сли мэппинг дл€ провер€емого типа установлен, возвращаетс€ true, иначе возвращаетс€ false.</returns>
 		public bool HasType(DbType type)
 		{
 			return typeMapping.ContainsKey(type) || defaults.ContainsKey(type);

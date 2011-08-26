@@ -19,43 +19,43 @@ namespace ECM7.Migrator.Providers.MySql
 		public MySqlTransformationProvider(MySqlConnection connection)
 			: base(connection)
 		{
-			RegisterColumnType(DbType.AnsiStringFixedLength, "CHAR(255)");
-			RegisterColumnType(DbType.AnsiStringFixedLength, 255, "CHAR($l)");
-			RegisterColumnType(DbType.AnsiStringFixedLength, 65535, "TEXT");
-			RegisterColumnType(DbType.AnsiStringFixedLength, 16777215, "MEDIUMTEXT");
-			RegisterColumnType(DbType.AnsiString, "VARCHAR(255)");
-			RegisterColumnType(DbType.AnsiString, 255, "VARCHAR($l)");
-			RegisterColumnType(DbType.AnsiString, 65535, "TEXT");
-			RegisterColumnType(DbType.AnsiString, 16777215, "MEDIUMTEXT");
-			RegisterColumnType(DbType.Binary, "LONGBLOB");
-			RegisterColumnType(DbType.Binary, 127, "TINYBLOB");
-			RegisterColumnType(DbType.Binary, 65535, "BLOB");
-			RegisterColumnType(DbType.Binary, 16777215, "MEDIUMBLOB");
-			RegisterColumnType(DbType.Boolean, "TINYINT(1)");
-			RegisterColumnType(DbType.Byte, "TINYINT UNSIGNED");
-			RegisterColumnType(DbType.Currency, "MONEY");
-			RegisterColumnType(DbType.Date, "DATE");
-			RegisterColumnType(DbType.DateTime, "DATETIME");
-			RegisterColumnType(DbType.Decimal, "NUMERIC");
-			RegisterColumnType(DbType.Decimal, 38, "NUMERIC($l, $s)", 2);
-			RegisterColumnType(DbType.Double, "DOUBLE");
-			RegisterColumnType(DbType.Guid, "VARCHAR(40)");
-			RegisterColumnType(DbType.Int16, "SMALLINT");
-			RegisterColumnType(DbType.Int32, "INTEGER");
-			RegisterColumnType(DbType.Int64, "BIGINT");
-			RegisterColumnType(DbType.Single, "FLOAT");
-			RegisterColumnType(DbType.StringFixedLength, "CHAR(255)");
-			RegisterColumnType(DbType.StringFixedLength, 255, "CHAR($l)");
-			RegisterColumnType(DbType.StringFixedLength, 65535, "TEXT");
-			RegisterColumnType(DbType.StringFixedLength, 16777215, "MEDIUMTEXT");
-			RegisterColumnType(DbType.String, "VARCHAR(255)");
-			RegisterColumnType(DbType.String, 255, "VARCHAR($l)");
-			RegisterColumnType(DbType.String, 65535, "TEXT");
-			RegisterColumnType(DbType.String, 16777215, "MEDIUMTEXT");
-			RegisterColumnType(DbType.Time, "TIME");
+			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
+			typeMap.Put(DbType.AnsiStringFixedLength, 255, "CHAR($l)");
+			typeMap.Put(DbType.AnsiStringFixedLength, 65535, "TEXT");
+			typeMap.Put(DbType.AnsiStringFixedLength, 16777215, "MEDIUMTEXT");
+			typeMap.Put(DbType.AnsiString, "VARCHAR(255)");
+			typeMap.Put(DbType.AnsiString, 255, "VARCHAR($l)");
+			typeMap.Put(DbType.AnsiString, 65535, "TEXT");
+			typeMap.Put(DbType.AnsiString, 16777215, "MEDIUMTEXT");
+			typeMap.Put(DbType.Binary, "LONGBLOB");
+			typeMap.Put(DbType.Binary, 127, "TINYBLOB");
+			typeMap.Put(DbType.Binary, 65535, "BLOB");
+			typeMap.Put(DbType.Binary, 16777215, "MEDIUMBLOB");
+			typeMap.Put(DbType.Boolean, "TINYINT(1)");
+			typeMap.Put(DbType.Byte, "TINYINT UNSIGNED");
+			typeMap.Put(DbType.Currency, "MONEY");
+			typeMap.Put(DbType.Date, "DATE");
+			typeMap.Put(DbType.DateTime, "DATETIME");
+			typeMap.Put(DbType.Decimal, "NUMERIC");
+			typeMap.Put(DbType.Decimal, 38, "NUMERIC($l, $s)", 2);
+			typeMap.Put(DbType.Double, "DOUBLE");
+			typeMap.Put(DbType.Guid, "VARCHAR(40)");
+			typeMap.Put(DbType.Int16, "SMALLINT");
+			typeMap.Put(DbType.Int32, "INTEGER");
+			typeMap.Put(DbType.Int64, "BIGINT");
+			typeMap.Put(DbType.Single, "FLOAT");
+			typeMap.Put(DbType.StringFixedLength, "CHAR(255)");
+			typeMap.Put(DbType.StringFixedLength, 255, "CHAR($l)");
+			typeMap.Put(DbType.StringFixedLength, 65535, "TEXT");
+			typeMap.Put(DbType.StringFixedLength, 16777215, "MEDIUMTEXT");
+			typeMap.Put(DbType.String, "VARCHAR(255)");
+			typeMap.Put(DbType.String, 255, "VARCHAR($l)");
+			typeMap.Put(DbType.String, 65535, "TEXT");
+			typeMap.Put(DbType.String, 16777215, "MEDIUMTEXT");
+			typeMap.Put(DbType.Time, "TIME");
 
-			RegisterProperty(ColumnProperty.Unsigned, "UNSIGNED");
-			RegisterProperty(ColumnProperty.Identity, "AUTO_INCREMENT");
+			propertyMap.RegisterProperty(ColumnProperty.Unsigned, "UNSIGNED");
+			propertyMap.RegisterProperty(ColumnProperty.Identity, "AUTO_INCREMENT");
 
 		}
 

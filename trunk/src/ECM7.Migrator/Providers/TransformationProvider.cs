@@ -14,25 +14,150 @@ namespace ECM7.Migrator.Providers
 	/// Base class for every transformation providers.
 	/// A 'tranformation' is an operation that modifies the database.
 	/// </summary>
-	public abstract class TransformationProvider<TConnection> : SqlGenerator<TConnection>, ITransformationProvider
+	public abstract class TransformationProvider<TConnection> : SqlRunner<TConnection>, ITransformationProvider
 		where TConnection : IDbConnection
 	{
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
 
+		protected readonly IFormatProvider sqlFormatProvider;
+		protected readonly PropertyMap propertyMap = new PropertyMap();
+		protected readonly TypeMap typeMap = new TypeMap();
+
+
 		protected TransformationProvider(TConnection connection)
 			: base(connection)
 		{
-			RegisterProperty(ColumnProperty.Null, "NULL");
-			RegisterProperty(ColumnProperty.NotNull, "NOT NULL");
-			RegisterProperty(ColumnProperty.Unique, "UNIQUE");
-			RegisterProperty(ColumnProperty.PrimaryKey, "PRIMARY KEY");
+			sqlFormatProvider = new SqlFormatter(obj => QuoteName(obj.ToString()));
+
+			propertyMap.RegisterProperty(ColumnProperty.Null, "NULL");
+			propertyMap.RegisterProperty(ColumnProperty.NotNull, "NOT NULL");
+			propertyMap.RegisterProperty(ColumnProperty.Unique, "UNIQUE");
+			propertyMap.RegisterProperty(ColumnProperty.PrimaryKey, "PRIMARY KEY");
 		}
+
+		#region tmp
+
+		#region Экранирование зарезервированных слов в идентификаторах
+
+
+		/// <summary>
+		/// Обертывание идентификаторов в кавычки
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public virtual string QuoteName(string name)
+		{
+			return String.Format(NamesQuoteTemplate, name);
+		}
+
+		public string FormatSql(string format, params object[] args)
+		{
+			return string.Format(sqlFormatProvider, format, args);
+		}
+
+		#endregion
+
+		public virtual string Default(object defaultValue)
+		{
+			return String.Format("DEFAULT {0}", defaultValue);
+		}
+
+		public string SqlForConstraint(ForeignKeyConstraint constraint)
+		{
+			switch (constraint)
+			{
+				case ForeignKeyConstraint.Cascade:
+					return "CASCADE";
+				case ForeignKeyConstraint.Restrict:
+					return "RESTRICT";
+				case ForeignKeyConstraint.SetDefault:
+					return "SET DEFAULT";
+				case ForeignKeyConstraint.SetNull:
+					return "SET NULL";
+				default:
+					return "NO ACTION";
+			}
+		}
+
+		#region Особенности СУБД
+
+		public virtual bool IdentityNeedsType
+		{
+			get { return true; }
+		}
+
+		public virtual bool NeedsNotNullForIdentity
+		{
+			get { return true; }
+		}
+
+		public virtual bool SupportsIndex
+		{
+			get { return true; }
+		}
+
+		public bool TypeIsSupported(DbType type)
+		{
+			return typeMap.HasType(type);
+		}
+
+		public virtual string NamesQuoteTemplate
+		{
+			get { return "\"{0}\""; }
+		}
+
+
+		#endregion
+
+		public virtual string[] QuoteValues(params string[] values)
+		{
+			return Array.ConvertAll(values,
+				val => null == val ? "null" : String.Format("'{0}'", val.Replace("'", "''")));
+		}
+
+		public string JoinColumnsAndValues(string[] columns, string[] values, string separator = ",")
+		{
+			Require.IsNotNull(separator, "Не задан разделитель");
+
+			string processedSeparator = " " + separator.Trim() + " ";
+
+			string[] quotedValues = QuoteValues(values);
+			string[] namesAndValues = columns
+				.Select((col, i) => FormatSql("{0:NAME}={1}", col, quotedValues[i]))
+				.ToArray();
+
+			return string.Join(processedSeparator, namesAndValues);
+		}
+
+
+		#endregion
 
 		#region generate sql
 
 		protected virtual string GetSqlAddTable(string table, string engine, string columnsSql)
 		{
 			return FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
+		}
+
+		protected virtual string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
+		{
+			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+
+			sqlBuilder.AddColumnName(NamesQuoteTemplate);
+			sqlBuilder.AddColumnType(IdentityNeedsType);
+
+			// identity не нуждается в типе
+			sqlBuilder.AddSqlForIdentityWhichNotNeedsType(IdentityNeedsType);
+			sqlBuilder.AddUnsignedSql();
+			sqlBuilder.AddNotNullSql(NeedsNotNullForIdentity);
+			sqlBuilder.AddPrimaryKeySql(compoundPrimaryKey);
+
+			// identity нуждается в типе
+			sqlBuilder.AddSqlForIdentityWhichNeedsType(IdentityNeedsType);
+			sqlBuilder.AddUniqueSql();
+			sqlBuilder.AddDefaultValueSql(Default);
+
+			return sqlBuilder.ToString();
 		}
 
 		protected virtual string GetSqlPrimaryKey(string tableName, List<string> primaryKeyColumns)

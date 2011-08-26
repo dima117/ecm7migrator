@@ -89,9 +89,8 @@ namespace ECM7.Migrator.Providers.Tests
 		public void AddDefaultTable()
 		{
 			provider.AddTable("TestTwo",
-			new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
-			new Column("TestId", DbType.Int32, ColumnProperty.ForeignKey)
-			);
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("TestId", DbType.Int32));
 		}
 
 		public void AddTableWithoutPrimaryKey()

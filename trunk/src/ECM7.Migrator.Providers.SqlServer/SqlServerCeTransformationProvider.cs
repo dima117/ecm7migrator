@@ -2,7 +2,6 @@ using System;
 using System.Data;
 using System.Data.SqlServerCe;
 using ECM7.Migrator.Exceptions;
-using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers.SqlServer
 {
@@ -22,21 +21,21 @@ namespace ECM7.Migrator.Providers.SqlServer
 		public SqlServerCeTransformationProvider(SqlCeConnection connection)
 			: base(connection)
 		{
-			RegisterColumnType(DbType.AnsiStringFixedLength, "NCHAR(255)");
-			RegisterColumnType(DbType.AnsiStringFixedLength, 4000, "NCHAR($l)");
-			RegisterColumnType(DbType.AnsiString, "VARCHAR(255)");
-			RegisterColumnType(DbType.AnsiString, 4000, "VARCHAR($l)");
-			RegisterColumnType(DbType.AnsiString, int.MaxValue, "TEXT");
+			typeMap.Put(DbType.AnsiStringFixedLength, "NCHAR(255)");
+			typeMap.Put(DbType.AnsiStringFixedLength, 4000, "NCHAR($l)");
+			typeMap.Put(DbType.AnsiString, "VARCHAR(255)");
+			typeMap.Put(DbType.AnsiString, 4000, "VARCHAR($l)");
+			typeMap.Put(DbType.AnsiString, int.MaxValue, "TEXT");
 
-			RegisterColumnType(DbType.String, "NVARCHAR(255)");
-			RegisterColumnType(DbType.String, 4000, "NVARCHAR($l)");
-			RegisterColumnType(DbType.String, int.MaxValue, "NTEXT");
+			typeMap.Put(DbType.String, "NVARCHAR(255)");
+			typeMap.Put(DbType.String, 4000, "NVARCHAR($l)");
+			typeMap.Put(DbType.String, int.MaxValue, "NTEXT");
 
-			RegisterColumnType(DbType.Binary, int.MaxValue, "IMAGE");
+			typeMap.Put(DbType.Binary, int.MaxValue, "IMAGE");
 
-			RegisterColumnType(DbType.Decimal, "NUMERIC(19,5)");
-			RegisterColumnType(DbType.Decimal, 19, "NUMERIC(19, $l)");
-			RegisterColumnType(DbType.Double, "FLOAT");
+			typeMap.Put(DbType.Decimal, "NUMERIC(19,5)");
+			typeMap.Put(DbType.Decimal, 19, "NUMERIC(19, $l)");
+			typeMap.Put(DbType.Double, "FLOAT");
 		}
 
 		public override bool ConstraintExists(string table, string name)

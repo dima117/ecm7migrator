@@ -21,33 +21,33 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		public PostgreSQLTransformationProvider(NpgsqlConnection connection)
 			: base(connection)
 		{
-			RegisterColumnType(DbType.AnsiStringFixedLength, "char(255)");
-			RegisterColumnType(DbType.AnsiStringFixedLength, 8000, "char($l)");
-			RegisterColumnType(DbType.AnsiString, "varchar(255)");
-			RegisterColumnType(DbType.AnsiString, 8000, "varchar($l)");
-			RegisterColumnType(DbType.AnsiString, 2147483647, "text");
-			RegisterColumnType(DbType.Binary, "bytea");
-			RegisterColumnType(DbType.Binary, 2147483647, "bytea");
-			RegisterColumnType(DbType.Boolean, "boolean");
-			RegisterColumnType(DbType.Byte, "int2");
-			RegisterColumnType(DbType.Currency, "decimal(16,4)");
-			RegisterColumnType(DbType.Date, "date");
-			RegisterColumnType(DbType.DateTime, "timestamp");
-			RegisterColumnType(DbType.Decimal, "decimal(19,5)");
-			RegisterColumnType(DbType.Decimal, 19, "decimal(18, $l)");
-			RegisterColumnType(DbType.Double, "float8");
-			RegisterColumnType(DbType.Int16, "int2");
-			RegisterColumnType(DbType.Int32, "int4");
-			RegisterColumnType(DbType.Int64, "int8");
-			RegisterColumnType(DbType.Single, "float4");
-			RegisterColumnType(DbType.StringFixedLength, "char(255)");
-			RegisterColumnType(DbType.StringFixedLength, 4000, "char($l)");
-			RegisterColumnType(DbType.String, "varchar(255)");
-			RegisterColumnType(DbType.String, 4000, "varchar($l)");
-			RegisterColumnType(DbType.String, 1073741823, "text");
-			RegisterColumnType(DbType.Time, "time");
+			typeMap.Put(DbType.AnsiStringFixedLength, "char(255)");
+			typeMap.Put(DbType.AnsiStringFixedLength, 8000, "char($l)");
+			typeMap.Put(DbType.AnsiString, "varchar(255)");
+			typeMap.Put(DbType.AnsiString, 8000, "varchar($l)");
+			typeMap.Put(DbType.AnsiString, 2147483647, "text");
+			typeMap.Put(DbType.Binary, "bytea");
+			typeMap.Put(DbType.Binary, 2147483647, "bytea");
+			typeMap.Put(DbType.Boolean, "boolean");
+			typeMap.Put(DbType.Byte, "int2");
+			typeMap.Put(DbType.Currency, "decimal(16,4)");
+			typeMap.Put(DbType.Date, "date");
+			typeMap.Put(DbType.DateTime, "timestamp");
+			typeMap.Put(DbType.Decimal, "decimal(19,5)");
+			typeMap.Put(DbType.Decimal, 19, "decimal(18, $l)");
+			typeMap.Put(DbType.Double, "float8");
+			typeMap.Put(DbType.Int16, "int2");
+			typeMap.Put(DbType.Int32, "int4");
+			typeMap.Put(DbType.Int64, "int8");
+			typeMap.Put(DbType.Single, "float4");
+			typeMap.Put(DbType.StringFixedLength, "char(255)");
+			typeMap.Put(DbType.StringFixedLength, 4000, "char($l)");
+			typeMap.Put(DbType.String, "varchar(255)");
+			typeMap.Put(DbType.String, 4000, "varchar($l)");
+			typeMap.Put(DbType.String, 1073741823, "text");
+			typeMap.Put(DbType.Time, "time");
 
-			RegisterProperty(ColumnProperty.Identity, "serial");
+			propertyMap.RegisterProperty(ColumnProperty.Identity, "serial");
 		}
 
 		#region Overrides of SqlGenerator

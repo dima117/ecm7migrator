@@ -86,12 +86,13 @@
     <Compile Include="MigrationPlan.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="Configuration\MigratorConfigurationSection.cs" />
+    <Compile Include="Providers\ColumnSqlBuilder.cs" />
+    <Compile Include="Providers\PropertyMap.cs" />
     <Compile Include="Providers\SqlFormatter.cs" />
-    <Compile Include="Providers\SqlGenerator.cs" />
     <Compile Include="Providers\SqlRunner.cs" />
     <Compile Include="Providers\TransformationProvider.cs" />
     <Compile Include="Providers\ProviderFactory.cs" />
-    <Compile Include="Providers\TypeNames.cs" />
+    <Compile Include="Providers\TypeMap.cs" />
     <Compile Include="Exceptions\VersionException.cs" />
   </ItemGroup>
   <ItemGroup>
