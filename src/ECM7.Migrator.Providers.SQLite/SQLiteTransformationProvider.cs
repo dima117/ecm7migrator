@@ -7,6 +7,8 @@ namespace ECM7.Migrator.Providers.SQLite
 
 	using ECM7.Migrator.Framework;
 
+	using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
+
 	/// <summary>
 	/// Summary description for SQLiteTransformationProvider.
 	/// </summary>
@@ -19,30 +21,30 @@ namespace ECM7.Migrator.Providers.SQLite
 		public SQLiteTransformationProvider(SQLiteConnection connection)
 			: base(connection)
 		{
-			RegisterColumnType(DbType.Binary, "BLOB");
-			RegisterColumnType(DbType.Byte, "INTEGER");
-			RegisterColumnType(DbType.Int16, "INTEGER");
-			RegisterColumnType(DbType.Int32, "INTEGER");
-			RegisterColumnType(DbType.Int64, "INTEGER");
-			RegisterColumnType(DbType.SByte, "INTEGER");
-			RegisterColumnType(DbType.UInt16, "INTEGER");
-			RegisterColumnType(DbType.UInt32, "INTEGER");
-			RegisterColumnType(DbType.UInt64, "INTEGER");
-			RegisterColumnType(DbType.Currency, "NUMERIC");
-			RegisterColumnType(DbType.Decimal, "NUMERIC");
-			RegisterColumnType(DbType.Double, "NUMERIC");
-			RegisterColumnType(DbType.Single, "NUMERIC");
-			RegisterColumnType(DbType.VarNumeric, "NUMERIC");
-			RegisterColumnType(DbType.String, "TEXT");
-			RegisterColumnType(DbType.AnsiString, "TEXT");
-			RegisterColumnType(DbType.AnsiStringFixedLength, "TEXT");
-			RegisterColumnType(DbType.StringFixedLength, "TEXT");
-			RegisterColumnType(DbType.DateTime, "DATETIME");
-			RegisterColumnType(DbType.Time, "DATETIME");
-			RegisterColumnType(DbType.Boolean, "INTEGER");
-			RegisterColumnType(DbType.Guid, "UNIQUEIDENTIFIER");
+			typeMap.Put(DbType.Binary, "BLOB");
+			typeMap.Put(DbType.Byte, "INTEGER");
+			typeMap.Put(DbType.Int16, "INTEGER");
+			typeMap.Put(DbType.Int32, "INTEGER");
+			typeMap.Put(DbType.Int64, "INTEGER");
+			typeMap.Put(DbType.SByte, "INTEGER");
+			typeMap.Put(DbType.UInt16, "INTEGER");
+			typeMap.Put(DbType.UInt32, "INTEGER");
+			typeMap.Put(DbType.UInt64, "INTEGER");
+			typeMap.Put(DbType.Currency, "NUMERIC");
+			typeMap.Put(DbType.Decimal, "NUMERIC");
+			typeMap.Put(DbType.Double, "NUMERIC");
+			typeMap.Put(DbType.Single, "NUMERIC");
+			typeMap.Put(DbType.VarNumeric, "NUMERIC");
+			typeMap.Put(DbType.String, "TEXT");
+			typeMap.Put(DbType.AnsiString, "TEXT");
+			typeMap.Put(DbType.AnsiStringFixedLength, "TEXT");
+			typeMap.Put(DbType.StringFixedLength, "TEXT");
+			typeMap.Put(DbType.DateTime, "DATETIME");
+			typeMap.Put(DbType.Time, "DATETIME");
+			typeMap.Put(DbType.Boolean, "INTEGER");
+			typeMap.Put(DbType.Guid, "UNIQUEIDENTIFIER");
 
-			RegisterProperty(ColumnProperty.Identity, "AUTOINCREMENT");
+			propertyMap.RegisterProperty(ColumnProperty.Identity, "AUTOINCREMENT");
 		}
 
 		#region Overrides of SqlGenerator
@@ -83,8 +85,8 @@ namespace ECM7.Migrator.Providers.SQLite
 			string[] primaryColumns,
 			string refTable,
 			string[] refColumns,
-			ECM7.Migrator.Framework.ForeignKeyConstraint onDeleteConstraint,
-			ECM7.Migrator.Framework.ForeignKeyConstraint onUpdateConstraint)
+			ECM7.Migrator.Framework.ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
+			ECM7.Migrator.Framework.ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
 			// todo: написать тесты на отсутствие поддержки внешних ключей в SQLite
 			// todo: проверить, что при отдельном добавлении внешнего ключа генерируется исключение

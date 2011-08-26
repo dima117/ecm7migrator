@@ -21,29 +21,29 @@ namespace ECM7.Migrator.Providers.Firebird
 			: base(connection)
 		{
 			// todo: написать тесты на закрытие подключения
-			RegisterColumnType(DbType.AnsiStringFixedLength, "CHAR(255)");
-			RegisterColumnType(DbType.AnsiStringFixedLength, 32767, "CHAR($l)");
-			RegisterColumnType(DbType.AnsiString, "VARCHAR(255)");
-			RegisterColumnType(DbType.AnsiString, 32767, "VARCHAR($l)");
-			RegisterColumnType(DbType.Binary, "VARCHAR(8000)");
-			RegisterColumnType(DbType.Binary, 8000, "VARCHAR($l)");
-			RegisterColumnType(DbType.Boolean, "SMALLINT");
-			RegisterColumnType(DbType.Byte, "SMALLINT");
-			RegisterColumnType(DbType.Currency, "DECIMAL(18,4)");
-			RegisterColumnType(DbType.Date, "TIMESTAMP");
-			RegisterColumnType(DbType.DateTime, "TIMESTAMP");
-			RegisterColumnType(DbType.Decimal, "DECIMAL");
-			RegisterColumnType(DbType.Decimal, 38, "DECIMAL($l, $s)", 2);
-			RegisterColumnType(DbType.Guid, "CHAR(36)");
-			RegisterColumnType(DbType.Int16, "SMALLINT");
-			RegisterColumnType(DbType.Int32, "INTEGER");
-			RegisterColumnType(DbType.Int64, "BIGINT");
-			RegisterColumnType(DbType.Single, "DOUBLE PRECISION");
-			RegisterColumnType(DbType.StringFixedLength, "CHAR(255) CHARACTER SET UNICODE_FSS");
-			RegisterColumnType(DbType.StringFixedLength, 4000, "CHAR($l) CHARACTER SET UNICODE_FSS");
-			RegisterColumnType(DbType.String, "VARCHAR(255) CHARACTER SET UNICODE_FSS");
-			RegisterColumnType(DbType.String, 4000, "VARCHAR($l) CHARACTER SET UNICODE_FSS");
-			RegisterColumnType(DbType.Time, "TIMESTAMP");
+			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
+			typeMap.Put(DbType.AnsiStringFixedLength, 32767, "CHAR($l)");
+			typeMap.Put(DbType.AnsiString, "VARCHAR(255)");
+			typeMap.Put(DbType.AnsiString, 32767, "VARCHAR($l)");
+			typeMap.Put(DbType.Binary, "VARCHAR(8000)");
+			typeMap.Put(DbType.Binary, 8000, "VARCHAR($l)");
+			typeMap.Put(DbType.Boolean, "SMALLINT");
+			typeMap.Put(DbType.Byte, "SMALLINT");
+			typeMap.Put(DbType.Currency, "DECIMAL(18,4)");
+			typeMap.Put(DbType.Date, "TIMESTAMP");
+			typeMap.Put(DbType.DateTime, "TIMESTAMP");
+			typeMap.Put(DbType.Decimal, "DECIMAL");
+			typeMap.Put(DbType.Decimal, 38, "DECIMAL($l, $s)", 2);
+			typeMap.Put(DbType.Guid, "CHAR(36)");
+			typeMap.Put(DbType.Int16, "SMALLINT");
+			typeMap.Put(DbType.Int32, "INTEGER");
+			typeMap.Put(DbType.Int64, "BIGINT");
+			typeMap.Put(DbType.Single, "DOUBLE PRECISION");
+			typeMap.Put(DbType.StringFixedLength, "CHAR(255) CHARACTER SET UNICODE_FSS");
+			typeMap.Put(DbType.StringFixedLength, 4000, "CHAR($l) CHARACTER SET UNICODE_FSS");
+			typeMap.Put(DbType.String, "VARCHAR(255) CHARACTER SET UNICODE_FSS");
+			typeMap.Put(DbType.String, 4000, "VARCHAR($l) CHARACTER SET UNICODE_FSS");
+			typeMap.Put(DbType.Time, "TIMESTAMP");
 		}
 
 		#region Overrides of SqlGenerator
@@ -165,15 +165,18 @@ namespace ECM7.Migrator.Providers.Firebird
 			ExecuteNonQuery(sql);
 		}
 
-
-		protected override void BuildColumnSql(List<string> vals, Column column, bool compoundPrimaryKey)
+		protected override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
 		{
-			AddColumnName(vals, column);
-			AddColumnType(vals, column);
-			AddDefaultValueSql(vals, column);
-			AddNotNullSql(vals, column);
-			AddPrimaryKeySql(vals, column, compoundPrimaryKey);
-			AddUniqueSql(vals, column);
+			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+
+			sqlBuilder.AddColumnName(NamesQuoteTemplate);
+			sqlBuilder.AddColumnType(IdentityNeedsType);
+			sqlBuilder.AddDefaultValueSql(Default);
+			sqlBuilder.AddNotNullSql(NeedsNotNullForIdentity);
+			sqlBuilder.AddPrimaryKeySql(compoundPrimaryKey);
+			sqlBuilder.AddUniqueSql();
+
+			return sqlBuilder.ToString();
 		}
 
 		#endregion
