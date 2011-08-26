@@ -67,6 +67,8 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ColumnDef\ColumnPropertyMappingTest.cs" />
+    <Compile Include="ColumnDef\SqlServerColumnPropertyMappingTest.cs" />
     <Compile Include="DataTypes\DataTypesTestBase.cs" />
     <Compile Include="DataTypes\MySqlDataTypesTest.cs" />
     <Compile Include="DataTypes\OracleDataTypesTest.cs" />

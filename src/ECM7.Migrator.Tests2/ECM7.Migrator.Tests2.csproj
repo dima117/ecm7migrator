@@ -54,7 +54,6 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ColumnPropertyMappingTest.cs" />
     <Compile Include="ConfigurationTest.cs" />
     <Compile Include="ExecuteMigrationTest.cs" />
     <Compile Include="MigrationAssemblyTest.cs" />

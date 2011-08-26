@@ -165,7 +165,7 @@ namespace ECM7.Migrator.Providers.Firebird
 			ExecuteNonQuery(sql);
 		}
 
-		protected override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
+		public override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
 		{
 			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
 

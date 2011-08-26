@@ -79,7 +79,7 @@ namespace ECM7.Migrator.Providers.Oracle
 			return base.Default(defaultValue);
 		}
 
-		protected override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
+		public override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
 		{
 			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
 

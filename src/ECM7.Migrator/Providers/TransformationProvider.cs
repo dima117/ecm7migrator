@@ -139,7 +139,7 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
 		}
 
-		protected virtual string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
+		public virtual string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
 		{
 			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
 
