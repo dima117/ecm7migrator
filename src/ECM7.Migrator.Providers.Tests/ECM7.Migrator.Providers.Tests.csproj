@@ -78,6 +78,9 @@
     <Compile Include="DataTypes\SqlServerDataTypesTest.cs" />
     <Compile Include="FirebirdTransformationProviderTest.cs" />
     <Compile Include="GenericProviderTests.cs" />
+    <Compile Include="ImplementationTest\PostgreSQLTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\SqlServerTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\TransfprmationProviderTestBase.cs" />
     <Compile Include="MySqlTransformationProviderTest.cs" />
     <Compile Include="OracleTransformationProviderTest.cs" />
     <Compile Include="PostgreSQLTransformationProviderTest.cs" />

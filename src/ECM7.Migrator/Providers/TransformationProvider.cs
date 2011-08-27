@@ -266,7 +266,6 @@ namespace ECM7.Migrator.Providers
 			return tables.ToArray();
 		}
 
-
 		public abstract bool TableExists(string table);
 
 		public virtual void RenameTable(string oldName, string newName)
