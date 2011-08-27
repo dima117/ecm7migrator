@@ -33,8 +33,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			typeMap.Put(DbType.Currency, "decimal(16,4)");
 			typeMap.Put(DbType.Date, "date");
 			typeMap.Put(DbType.DateTime, "timestamp");
-			typeMap.Put(DbType.Decimal, "decimal(19,5)");
-			typeMap.Put(DbType.Decimal, 19, "decimal(18, $l)");
+			typeMap.Put(DbType.Decimal, "decimal(18,5)");
+			typeMap.Put(DbType.Decimal, 18, "decimal($l, $s)");
 			typeMap.Put(DbType.Double, "float8");
 			typeMap.Put(DbType.Int16, "int2");
 			typeMap.Put(DbType.Int32, "int4");
