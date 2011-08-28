@@ -1,10 +1,7 @@
-﻿using System;
-using System.Data;
-using System.Text;
+﻿using System.Text;
 
 namespace ECM7.Migrator.Providers.Tests
 {
-	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Providers.Firebird;
 
     using NUnit.Framework;
@@ -46,20 +43,5 @@ namespace ECM7.Migrator.Providers.Tests
 				return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.fb.test.res.migration.sql";
 			}
 		}
-
-		[Test]
-		public override void AddDecimalColumn()
-		{
-			provider.AddColumn("TestTwo", new Column("TestDecimal", DbType.Decimal.WithSize(18)));
-			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestDecimal"));
-		}
-
-		[Test]
-		public override void RenameTableThatExists()
-		{
-			AddTableWithPrimaryKey();
-			Assert.Throws<NotSupportedException>(
-				() => provider.RenameTable("Test", "Test_Rename"));
-		}
-    }
+	}
 }

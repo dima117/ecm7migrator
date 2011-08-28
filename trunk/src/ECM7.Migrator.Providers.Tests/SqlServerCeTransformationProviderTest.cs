@@ -54,11 +54,5 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			base.RemoveCheckConstraint();
 		}
-
-		[Test, ExpectedException(typeof(MigrationException))]
-		public override void RenameColumnThatExists()
-		{
-			base.RenameColumnThatExists();
-		}
 	}
 }
