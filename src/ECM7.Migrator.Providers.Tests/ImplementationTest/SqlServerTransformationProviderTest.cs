@@ -6,9 +6,9 @@
 
 	[TestFixture]
 	public class SqlServerTransformationProviderTest 
-		: TransfprmationProviderTestBase<SqlServerTransformationProvider>
+		: TransformationProviderTestBase<SqlServerTransformationProvider>
 	{
-		#region Overrides of TransfprmationProviderTestBase<SqlServerTransformationProvider>
+		#region Overrides of TransformationProviderTestBase<SqlServerTransformationProvider>
 
 		public override string ConnectionStrinSettingsName
 		{

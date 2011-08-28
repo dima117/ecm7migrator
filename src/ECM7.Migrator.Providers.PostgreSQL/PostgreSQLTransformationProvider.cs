@@ -83,7 +83,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override void RemoveTable(string name)
 		{
-			string sql = FormatSql("DROP TABLE IF EXISTS {0:NAME} CASCADE", name);
+			string sql = FormatSql("DROP TABLE {0:NAME} CASCADE", name);
 			ExecuteNonQuery(sql);
 		}
 

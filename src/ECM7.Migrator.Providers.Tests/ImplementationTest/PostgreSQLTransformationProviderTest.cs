@@ -6,9 +6,9 @@
 
 	[TestFixture]
 	public class PostgreSQLTransformationProviderTest
-		: TransfprmationProviderTestBase<PostgreSQLTransformationProvider>
+		: TransformationProviderTestBase<PostgreSQLTransformationProvider>
 	{
-		#region Overrides of TransfprmationProviderTestBase<PostgreSQLTransformationProvider>
+		#region Overrides of TransformationProviderTestBase<PostgreSQLTransformationProvider>
 
 		public override string ConnectionStrinSettingsName
 		{

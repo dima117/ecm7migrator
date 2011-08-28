@@ -108,9 +108,6 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 
 		public override bool ColumnExists(string table, string column)
 		{
-			if (!TableExists(table))
-				return false;
-
 			using (IDataReader reader =
 				ExecuteReader(String.Format("SELECT * FROM [INFORMATION_SCHEMA].[COLUMNS] WHERE [TABLE_NAME]='{0}' AND [COLUMN_NAME]='{1}'", table, column)))
 			{
