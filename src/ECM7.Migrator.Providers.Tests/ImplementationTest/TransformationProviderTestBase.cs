@@ -196,6 +196,73 @@
 			provider.RemoveTable(TABLE_NAME);
 		}
 
+		[Test]
+		public void CanChangeColumn()
+		{
+			const string TABLE_NAME = "ChangeColumnTest10b19f64359941099ccb424d0adfa686";
+
+			provider.AddTable(TABLE_NAME, new Column("TestStringColumn", DbType.String.WithSize(4)));
+
+			provider.Insert(TABLE_NAME, new[] { "TestStringColumn" }, new[] { "moo" });
+			provider.Insert(TABLE_NAME, new[] { "TestStringColumn" }, new[] { "test" });
+
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(TABLE_NAME, new[] { "TestStringColumn" }, new[] { "moo-test" }));
+
+			provider.ChangeColumn(TABLE_NAME, new Column("TestStringColumn", DbType.String.WithSize(18)));
+			provider.Insert(TABLE_NAME, new[] { "TestStringColumn" }, new[] { "moo-test" });
+
+			string sql = provider.FormatSql(
+				"select count({0:NAME}) from {1:NAME} where {0:NAME} = '{2}'",
+				"TestStringColumn", TABLE_NAME, "moo-test");
+
+			Assert.AreEqual(1, provider.ExecuteScalar(sql));
+			provider.RemoveTable(TABLE_NAME);
+		}
+
+		[Test]
+		public void CanRenameColumn()
+		{
+			const string TABLE_NAME = "RenameColumnTest7fd566e427c74657a9ee3fede59bdb37";
+
+			provider.AddTable(TABLE_NAME, new Column("TestColumn1", DbType.Int32));
+			provider.RenameColumn(TABLE_NAME, "TestColumn1", "TestColumn2");
+
+			Assert.IsFalse(provider.ColumnExists(TABLE_NAME, "TestColumn1"));
+			Assert.IsTrue(provider.ColumnExists(TABLE_NAME, "TestColumn2"));
+
+			provider.RemoveTable(TABLE_NAME);
+		}
+
+		[Test]
+		public void CanRemoveColumn()
+		{
+			const string TABLE_NAME = "RemoveColumnTest7172daac54f34fb9be1fed5718d3bac6";
+			
+			provider.AddTable(TABLE_NAME,
+				new Column("ID", DbType.Int32),
+				new Column("TestColumn1", DbType.Int32));
+
+			provider.RemoveColumn(TABLE_NAME, "TestColumn1");
+
+			Assert.IsFalse(provider.ColumnExists(TABLE_NAME, "TestColumn1"));
+
+			provider.RemoveTable(TABLE_NAME);
+		}
+
+		[Test]
+		public void CantRemoveUnexistingColumn()
+		{
+			const string TABLE_NAME = "RemoveUnexistingColumn75124a19c5724c209189480644e3c7cb";
+
+			provider.AddTable(TABLE_NAME, new Column("ID", DbType.Int32));
+
+			Assert.Throws<SQLException>(() => 
+				provider.RemoveColumn(TABLE_NAME, "9d41bdb2b6ae4e1abcf656c5681b3763"));
+
+			provider.RemoveTable(TABLE_NAME);
+		}
+
 		#endregion
 	}
 }

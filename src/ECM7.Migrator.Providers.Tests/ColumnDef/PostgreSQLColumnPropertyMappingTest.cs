@@ -1,7 +1,5 @@
 ﻿namespace ECM7.Migrator.Providers.Tests.ColumnDef
 {
-	using System;
-
 	using ECM7.Migrator.Providers.PostgreSQL;
 
 	using Npgsql;
@@ -32,7 +30,7 @@
 		/// </summary>
 		public override string FullColumnSql
 		{
-			get { return "\"Moo\" decimal(18, 10) NOT NULL UNIQUE DEFAULT 124"; }
+			get { return "\"Moo\" decimal(10, 4) NOT NULL UNIQUE DEFAULT 124"; }
 		}
 
 		/// <summary>
