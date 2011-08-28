@@ -11,7 +11,7 @@
 
 	using NUnit.Framework;
 
-	public abstract class TransfprmationProviderTestBase<TProvider> where TProvider : ITransformationProvider
+	public abstract class TransformationProviderTestBase<TProvider> where TProvider : ITransformationProvider
 	{
 		#region common
 
@@ -134,6 +134,12 @@
 		}
 
 		[Test]
+		public void CantRemoveUnexistingTable()
+		{
+			Assert.Throws<SQLException>(() => provider.RemoveTable("1929e6db3b4f43dbba0fb6530b822068"));
+		}
+
+		[Test]
 		public void CanGetTables()
 		{
 			const string TABLE1 = "tableMoo01f352bfffb9498f8c60660b9107814d";
@@ -153,6 +159,42 @@
 		}
 
 		#endregion
+
+		#endregion
+
+		#region columns
+
+		[Test]
+		public void CanAddColumn()
+		{
+			const string TABLE_NAME = "AddColumnTest238b7423cd4f49b8a0bd8d93f432a4ec";
+
+			provider.AddTable(TABLE_NAME, new Column("ID", DbType.Int32));
+
+			provider.AddColumn(TABLE_NAME, new Column("TestStringColumn", DbType.String.WithSize(7)));
+
+			provider.Insert(TABLE_NAME, new[] { "ID", "TestStringColumn" }, new[] { "2", "test" });
+			provider.Insert(TABLE_NAME, new[] { "ID", "TestStringColumn" }, new[] { "4", "testmoo" });
+
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(TABLE_NAME, new[] { "ID", "TestStringColumn" }, new[] { "6", "testmoo1" }));
+
+			string sql = provider.FormatSql("select * from {0:NAME}", TABLE_NAME);
+			using (var reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(2, reader.GetInt32(0));
+				Assert.AreEqual("test", reader.GetString(1));
+
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(4, reader.GetInt32(0));
+				Assert.AreEqual("testmoo", reader.GetString(1));
+
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(TABLE_NAME);
+		}
 
 		#endregion
 	}
