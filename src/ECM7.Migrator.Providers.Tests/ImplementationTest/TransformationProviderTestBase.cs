@@ -1,5 +1,6 @@
 ﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 {
+	using System;
 	using System.Configuration;
 	using System.Data;
 	using System.Linq;
@@ -10,6 +11,8 @@
 	using log4net.Config;
 
 	using NUnit.Framework;
+
+	using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 	public abstract class TransformationProviderTestBase<TProvider> where TProvider : ITransformationProvider
 	{
@@ -267,6 +270,197 @@
 		#endregion
 
 		#region constraints
+
+		#region foreign key
+
+		[Test]
+		public void CanAddForeignKey()
+		{
+			// создаем таблицы и добавляем внешний ключ
+			const string PRIMARY_TABLE = "AddForeignKey_Primaryf1c55eda62994cc38bc90b6282430a65";
+			const string REF_TABLE = "AddForeignKey_Ref606c825dfc0d4117b1f905550adcbec5";
+			const string FOREIGN_KEY_NAME = "FK_TestSimpleKeyd6bcf94ba1f246fc9c591f39e02b8ed4";
+
+			provider.AddTable(REF_TABLE, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
+			provider.Insert(REF_TABLE, "ID".AsArray(), "17".AsArray());
+
+			provider.AddTable(PRIMARY_TABLE,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("RefID", DbType.Int32));
+			provider.AddForeignKey(FOREIGN_KEY_NAME, PRIMARY_TABLE, "RefID", REF_TABLE, "ID");
+
+			// пробуем нарушить ограничения внешнего ключа
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(PRIMARY_TABLE, new[] { "ID", "RefID" }, new[] { "1", "111" }));
+			provider.Insert(PRIMARY_TABLE, new[] { "ID", "RefID" }, new[] { "1", "17" });
+			Assert.Throws<SQLException>(() => provider.Delete(REF_TABLE));
+
+			// удаляем таблицы
+			provider.RemoveTable(PRIMARY_TABLE);
+			provider.RemoveTable(REF_TABLE);
+		}
+
+		[Test]
+		public void CanAddComplexForeignKey()
+		{
+			// создаем таблицы и добавляем внешний ключ
+			const string PRIMARY_TABLE = "AddForeignKey_Primary9e205ec9f984453bb424f77b1a2db000";
+			const string REF_TABLE = "AddForeignKey_Ref26f8aff53f6c4b2994e28ac981f56c59";
+			const string FOREIGN_KEY_NAME = "FK_TestComplexKeyabd758075a754c0088dcefa60a88a107";
+
+			provider.AddTable(REF_TABLE,
+				new Column("ID1", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("ID2", DbType.Int32, ColumnProperty.PrimaryKey));
+
+			provider.Insert(REF_TABLE, new[] { "ID1", "ID2" }, new[] { "111", "222" });
+
+			provider.AddTable(PRIMARY_TABLE,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("RefID1", DbType.Int32),
+				new Column("RefID2", DbType.Int32));
+
+			provider.AddForeignKey(FOREIGN_KEY_NAME,
+				PRIMARY_TABLE, new[] { "RefID1", "RefID2" },
+				REF_TABLE, new[] { "ID1", "ID2" });
+
+			// пробуем нарушить ограничения внешнего ключа
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(PRIMARY_TABLE, new[] { "ID", "RefID1", "RefID2" }, new[] { "1", "123", "456" }));
+
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(PRIMARY_TABLE, new[] { "ID", "RefID1", "RefID2" }, new[] { "1", "111", "456" }));
+
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(PRIMARY_TABLE, new[] { "ID", "RefID1", "RefID2" }, new[] { "1", "123", "222" }));
+
+			provider.Insert(PRIMARY_TABLE, new[] { "ID", "RefID1", "RefID2" }, new[] { "1", "111", "222" });
+
+			Assert.Throws<SQLException>(() => provider.Delete(REF_TABLE));
+
+			// удаляем таблицы
+			provider.RemoveTable(PRIMARY_TABLE);
+			provider.RemoveTable(REF_TABLE);
+		}
+
+		[Test]
+		public void CanAddForeignKeyWithDeleteCascade()
+		{
+			const string PRIMARY_TABLE = "AddForeignKey_Primarye1d7661e88764d41b1d1aea668842001";
+			const string REF_TABLE = "AddForeignKey_Reface89f21336b47189420dadc3aea3a4b";
+			const string FOREIGN_KEY_NAME = "FK_Test457a1e3993824b9daba30465de464459";
+
+			provider.AddTable(REF_TABLE, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
+			provider.Insert(REF_TABLE, "ID".AsArray(), "177".AsArray());
+
+			provider.AddTable(PRIMARY_TABLE,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("RefID", DbType.Int32));
+			provider.AddForeignKey(FOREIGN_KEY_NAME, PRIMARY_TABLE, "RefID", REF_TABLE, "ID", ForeignKeyConstraint.Cascade);
+
+			provider.Insert(PRIMARY_TABLE, new[] { "ID", "RefID" }, new[] { "1", "177" });
+			provider.Delete(REF_TABLE);
+
+			string sql = provider.FormatSql("select count(*) from {0:NAME}", PRIMARY_TABLE);
+			Assert.AreEqual(0, provider.ExecuteScalar(sql));
+
+			// удаляем таблицы
+			provider.RemoveTable(PRIMARY_TABLE);
+			provider.RemoveTable(REF_TABLE);
+		}
+
+		[Test]
+		public void CanAddForeignKeyWithUpdateCascade()
+		{
+			const string PRIMARY_TABLE = "AddForeignKey_Primary030942db757c4ef6a12f01488b5a5a84";
+			const string REF_TABLE = "AddForeignKey_Ref4d5e9b0d68ea42b28b9d3329b3638678";
+			const string FOREIGN_KEY_NAME = "FK_Testb418aa8f282b42b893022d28a61feff6";
+
+			provider.AddTable(REF_TABLE, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
+			provider.Insert(REF_TABLE, "ID".AsArray(), "654".AsArray());
+
+			provider.AddTable(PRIMARY_TABLE,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("RefID", DbType.Int32));
+
+			provider.AddForeignKey(FOREIGN_KEY_NAME,
+				PRIMARY_TABLE, "RefID", REF_TABLE, "ID",
+				ForeignKeyConstraint.NoAction, ForeignKeyConstraint.Cascade);
+
+			provider.Insert(PRIMARY_TABLE, new[] { "ID", "RefID" }, new[] { "1", "654" });
+
+			provider.Update(REF_TABLE, "ID".AsArray(), "777".AsArray());
+
+			string sql = provider.FormatSql("select {0:NAME} from {1:NAME}", "RefID", PRIMARY_TABLE);
+			Assert.AreEqual(777, provider.ExecuteScalar(sql));
+
+			// удаляем таблицы
+			provider.RemoveTable(PRIMARY_TABLE);
+			provider.RemoveTable(REF_TABLE);
+		}
+
+		[Test]
+		public void CanAddForeignKeyWithUpdateSetNull()
+		{
+			const string PRIMARY_TABLE = "AddForeignKey_Primary030942db757c4ef6a12f01488b5a5a84";
+			const string REF_TABLE = "AddForeignKey_Ref4d5e9b0d68ea42b28b9d3329b3638678";
+			const string FOREIGN_KEY_NAME = "FK_Testb418aa8f282b42b893022d28a61feff6";
+
+			provider.AddTable(REF_TABLE, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
+			provider.Insert(REF_TABLE, "ID".AsArray(), "654".AsArray());
+
+			provider.AddTable(PRIMARY_TABLE,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("RefID", DbType.Int32));
+
+			provider.AddForeignKey(FOREIGN_KEY_NAME,
+				PRIMARY_TABLE, "RefID", REF_TABLE, "ID",
+				ForeignKeyConstraint.NoAction, ForeignKeyConstraint.SetNull);
+
+			provider.Insert(PRIMARY_TABLE, new[] { "ID", "RefID" }, new[] { "1", "654" });
+
+			provider.Update(REF_TABLE, "ID".AsArray(), "777".AsArray());
+
+			string sql = provider.FormatSql("select {0:NAME} from {1:NAME}", "RefID", PRIMARY_TABLE);
+			Assert.AreEqual(DBNull.Value, provider.ExecuteScalar(sql));
+
+			// удаляем таблицы
+			provider.RemoveTable(PRIMARY_TABLE);
+			provider.RemoveTable(REF_TABLE);
+		}
+
+		[Test]
+		public void CanAddForeignKeyWithUpdateSetDefault()
+		{
+			const string PRIMARY_TABLE = "AddForeignKey_Primary030942db757c4ef6a12f01488b5a5a84";
+			const string REF_TABLE = "AddForeignKey_Ref4d5e9b0d68ea42b28b9d3329b3638678";
+			const string FOREIGN_KEY_NAME = "FK_Testb418aa8f282b42b893022d28a61feff6";
+
+			provider.AddTable(REF_TABLE, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
+			provider.Insert(REF_TABLE, "ID".AsArray(), "999".AsArray());
+			provider.Insert(REF_TABLE, "ID".AsArray(), "654".AsArray());
+
+			provider.AddTable(PRIMARY_TABLE,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("RefID", DbType.Int32, ColumnProperty.NotNull, 999));
+
+			provider.AddForeignKey(FOREIGN_KEY_NAME,
+				PRIMARY_TABLE, "RefID", REF_TABLE, "ID",
+				ForeignKeyConstraint.NoAction, ForeignKeyConstraint.SetDefault);
+
+			provider.Insert(PRIMARY_TABLE, new[] { "ID", "RefID" }, new[] { "1", "654" });
+
+			string whereSql = provider.FormatSql("{0:NAME} = 654", "ID");
+			provider.Update(REF_TABLE, "ID".AsArray(), "777".AsArray(), whereSql);
+
+			string sql = provider.FormatSql("select {0:NAME} from {1:NAME}", "RefID", PRIMARY_TABLE);
+			Assert.AreEqual(999, provider.ExecuteScalar(sql));
+
+			// удаляем таблицы
+			provider.RemoveTable(PRIMARY_TABLE);
+			provider.RemoveTable(REF_TABLE);
+		}
+
+		#endregion
 
 		[Test]
 		public void CanAddPrimaryKey()
