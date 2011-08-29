@@ -1,6 +1,4 @@
-﻿using ECM7.Migrator.Exceptions;
-
-namespace ECM7.Migrator.Providers.Tests
+﻿namespace ECM7.Migrator.Providers.Tests
 {
 	using System;
 	using System.Configuration;
@@ -8,7 +6,6 @@ namespace ECM7.Migrator.Providers.Tests
 	using System.Reflection;
 
 	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Framework.Logging;
 
 	using log4net.Config;
 
