@@ -56,14 +56,6 @@ namespace ECM7.Migrator.Providers.Tests
 		}
 
 		[Test]
-		public override void ChangeColumn()
-		{
-			provider.ChangeColumn("TestTwo", new Column("TestId", DbType.String, 50, ColumnProperty.Null));
-			Assert.IsTrue(provider.ColumnExists("TestTwo", "TestId"));
-			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "0", "Not an Int val." });
-		}
-
-		[Test]
 		public override void InsertData()
 		{
 			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });

@@ -145,20 +145,21 @@
 			const string TABLE1 = "tableMoo01f352bfffb9498f8c60660b9107814d";
 			const string TABLE2 = "tableHruc526fc9c3d6a4ea4880b4430ca3c6b0d";
 
+			var tables = provider.GetTables();
+			Assert.AreEqual(0, tables.Length);
+
 			provider.AddTable(TABLE1, new Column("ID", DbType.Int32));
 			provider.AddTable(TABLE2, new Column("ID", DbType.Int32));
 
-			var tables = provider.GetTables();
+			var tables2 = provider.GetTables();
 
-			Assert.AreEqual(2, tables.Length);
-			Assert.IsTrue(tables.Contains(TABLE1));
-			Assert.IsTrue(tables.Contains(TABLE2));
+			Assert.AreEqual(2, tables2.Length);
+			Assert.IsTrue(tables2.Contains(TABLE1));
+			Assert.IsTrue(tables2.Contains(TABLE2));
 
 			provider.RemoveTable(TABLE1);
 			provider.RemoveTable(TABLE2);
 		}
-
-		#endregion
 
 		#endregion
 
@@ -238,7 +239,7 @@
 		public void CanRemoveColumn()
 		{
 			const string TABLE_NAME = "RemoveColumnTest7172daac54f34fb9be1fed5718d3bac6";
-			
+
 			provider.AddTable(TABLE_NAME,
 				new Column("ID", DbType.Int32),
 				new Column("TestColumn1", DbType.Int32));
@@ -257,11 +258,130 @@
 
 			provider.AddTable(TABLE_NAME, new Column("ID", DbType.Int32));
 
-			Assert.Throws<SQLException>(() => 
+			Assert.Throws<SQLException>(() =>
 				provider.RemoveColumn(TABLE_NAME, "9d41bdb2b6ae4e1abcf656c5681b3763"));
 
 			provider.RemoveTable(TABLE_NAME);
 		}
+
+		#endregion
+
+		#region constraints
+
+		[Test]
+		public void CanAddPrimaryKey()
+		{
+			const string TABLE_NAME = "AddPrimaryKey2cc2d87087894b34af4f02add192fea9";
+			const string PK_NAME = "PK_AddPrimaryKey2cc2d87087894b34af4f02add192fea9";
+
+			provider.AddTable(TABLE_NAME,
+				new Column("ID1", DbType.Int32, ColumnProperty.NotNull),
+				new Column("ID2", DbType.Int32, ColumnProperty.NotNull));
+
+			provider.AddPrimaryKey(PK_NAME, TABLE_NAME, "ID1", "ID2");
+
+			provider.Insert(TABLE_NAME, new[] { "ID1", "ID2" }, new[] { "1", "2" });
+			provider.Insert(TABLE_NAME, new[] { "ID1", "ID2" }, new[] { "2", "2" });
+
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(TABLE_NAME, new[] { "ID1", "ID2" }, new[] { "1", "2" }));
+
+			provider.RemoveTable(TABLE_NAME);
+		}
+
+		[Test]
+		public void CanCheckThatPrimaryKeyIsExist()
+		{
+			const string TABLE_NAME = "CheckThatPrimaryKeyIsExist471f6847ea4c44d8a201b420a2a49926";
+			const string PK_NAME = "PK_CheckThatPrimaryKeyIsExist471f6847ea4c44d8a201b420a2a49926";
+
+			provider.AddTable(TABLE_NAME, new Column("ID", DbType.Int32, ColumnProperty.NotNull));
+			Assert.IsFalse(provider.ConstraintExists(TABLE_NAME, PK_NAME));
+
+			provider.AddPrimaryKey(PK_NAME, TABLE_NAME, "ID");
+			Assert.IsTrue(provider.ConstraintExists(TABLE_NAME, PK_NAME));
+
+			provider.RemoveConstraint(TABLE_NAME, PK_NAME);
+			Assert.IsFalse(provider.ConstraintExists(TABLE_NAME, PK_NAME));
+
+			provider.RemoveTable(TABLE_NAME);
+		}
+
+		#endregion
+
+		#region index
+
+		[Test]
+		public void CanAddAndRemoveIndex()
+		{
+			const string TABLE_NAME = "AddIndex62c7e42ed3af4361b4636664e380d377";
+
+			provider.AddTable(TABLE_NAME,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("Name", DbType.String.WithSize(10)));
+
+			provider.AddIndex("ix_moo", false, TABLE_NAME, new[] { "Name" });
+			Assert.IsTrue(provider.IndexExists("ix_moo", TABLE_NAME));
+
+			provider.Insert(TABLE_NAME, new[] { "ID", "Name" }, new[] { "1", "test-name" });
+			provider.Insert(TABLE_NAME, new[] { "ID", "Name" }, new[] { "2", "test-name" });
+
+			provider.RemoveIndex("ix_moo", TABLE_NAME);
+			Assert.IsFalse(provider.IndexExists("ix_moo", TABLE_NAME));
+
+			provider.RemoveTable(TABLE_NAME);
+		}
+
+		[Test]
+		public void CanAddAndRemoveUniqueIndex()
+		{
+			const string TABLE_NAME = "AddUniqueIndex76d66f21e9a545d4bfedd690b95bdc5d";
+
+			provider.AddTable(TABLE_NAME,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("Name", DbType.String.WithSize(10)));
+
+			provider.AddIndex("ix_moo", true, TABLE_NAME, new[] { "Name" });
+			Assert.IsTrue(provider.IndexExists("ix_moo", TABLE_NAME));
+
+			provider.Insert(TABLE_NAME, new[] { "ID", "Name" }, new[] { "1", "test-name" });
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(TABLE_NAME, new[] { "ID", "Name" }, new[] { "2", "test-name" }));
+
+			provider.RemoveIndex("ix_moo", TABLE_NAME);
+			Assert.IsFalse(provider.IndexExists("ix_moo", TABLE_NAME));
+
+			provider.RemoveTable(TABLE_NAME);
+		}
+
+		[Test]
+		public void CanAddAndRemoveComplexIndex()
+		{
+			const string TABLE_NAME = "AddComplexIndex9732b8a809bf45d38f51506252b7ec70";
+
+			provider.AddTable(TABLE_NAME,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("Name1", DbType.String.WithSize(20)),
+				new Column("Name2", DbType.String.WithSize(20)));
+
+			provider.AddIndex("ix_moo", true, TABLE_NAME, new[] { "Name1", "Name2" });
+			Assert.IsTrue(provider.IndexExists("ix_moo", TABLE_NAME));
+
+			provider.Insert(TABLE_NAME, new[] { "ID", "Name1", "Name2" }, new[] { "1", "test-name", "xxx" });
+			provider.Insert(TABLE_NAME, new[] { "ID", "Name1", "Name2" }, new[] { "2", "test-name-2", "xxx" });
+			provider.Insert(TABLE_NAME, new[] { "ID", "Name1", "Name2" }, new[] { "3", "test-name", "zzz" });
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(TABLE_NAME, new[] { "ID", "Name1", "Name2" }, new[] { "4", "test-name", "xxx" }));
+
+
+			provider.RemoveIndex("ix_moo", TABLE_NAME);
+			Assert.IsFalse(provider.IndexExists("ix_moo", TABLE_NAME));
+
+			provider.RemoveTable(TABLE_NAME);
+		}
+
+		#endregion
+
 
 		#endregion
 	}

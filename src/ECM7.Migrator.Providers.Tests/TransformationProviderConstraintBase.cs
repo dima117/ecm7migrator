@@ -51,53 +51,6 @@ namespace ECM7.Migrator.Providers.Tests
 		}
 
 		[Test]
-		public void CanAddPrimaryKey()
-		{
-			AddTableWithoutPrimaryKey();
-			provider.AddPrimaryKey("PK_Test", "Test", "Id");
-			Assert.IsTrue(provider.ConstraintExists("Test", "PK_Test"));
-		}
-
-		#region index
-
-		[Test]
-		public void CanAddIndex()
-		{
-			AddTableWithPrimaryKey();
-			provider.AddIndex("ix_moo", false, "Test", new[] { "Name" });
-			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
-
-			provider.RemoveIndex("ix_moo", "Test");
-			Assert.IsFalse(provider.IndexExists("ix_moo", "Test"));
-		}
-
-		[Test]
-		public void CanAddUniqueIndex()
-		{
-			AddTableWithPrimaryKey();
-			provider.AddIndex("ix_moo", true, "Test", new[] { "Name" });
-			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
-
-			provider.RemoveIndex("ix_moo", "Test");
-			Assert.IsFalse(provider.IndexExists("ix_moo", "Test"));
-
-		}
-
-		[Test]
-		public void CanAddComplexIndex()
-		{
-			AddTableWithPrimaryKey();
-			provider.AddIndex("ix_moo", false, "Test", new[] { "Id", "Title" });
-			Assert.IsTrue(provider.IndexExists("ix_moo", "Test"));
-
-			provider.RemoveIndex("ix_moo", "Test");
-			Assert.IsFalse(provider.IndexExists("ix_moo", "Test"));
-
-		}
-
-		#endregion
-
-		[Test]
 		public void AddUniqueColumn()
 		{
 			provider.AddColumn("TestTwo", new Column("Test", DbType.String, 50, ColumnProperty.Unique));
