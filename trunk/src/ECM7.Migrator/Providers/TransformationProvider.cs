@@ -68,8 +68,6 @@ namespace ECM7.Migrator.Providers
 			{
 				case ForeignKeyConstraint.Cascade:
 					return "CASCADE";
-				case ForeignKeyConstraint.Restrict:
-					return "RESTRICT";
 				case ForeignKeyConstraint.SetDefault:
 					return "SET DEFAULT";
 				case ForeignKeyConstraint.SetNull:
