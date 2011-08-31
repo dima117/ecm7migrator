@@ -414,6 +414,7 @@ namespace ECM7.Migrator.Providers
 
 		public virtual int Insert(string table, string[] columns, string[] values)
 		{
+			// todo: сделать, чтобы методы insert и update получали массив object
 			string sql = FormatSql("INSERT INTO {0:NAME} ({1:COLS}) VALUES ({2})",
 				table, columns, QuoteValues(values).ToCommaSeparatedString());
 

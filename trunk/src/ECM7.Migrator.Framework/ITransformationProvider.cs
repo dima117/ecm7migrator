@@ -228,7 +228,7 @@ namespace ECM7.Migrator.Framework
 		/// <returns></returns>
 		int Update(string table, string[] columns, string[] values, string whereSql = null);
 
-		IDbCommand GetCommand();
+		IDbCommand GetCommand(string sql = null);
 
 		bool TypeIsSupported(DbType type);
 

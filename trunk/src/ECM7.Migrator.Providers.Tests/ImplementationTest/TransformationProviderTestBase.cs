@@ -145,7 +145,6 @@
 			provider.RemoveTable(tableName);
 		}
 
-
 		[Test]
 		public void CanRenameTable()
 		{
@@ -177,14 +176,15 @@
 			string table2 = this.GetRandomName("tableHru");
 
 			var tables = provider.GetTables();
-			Assert.AreEqual(0, tables.Length);
+			Assert.IsFalse(tables.Contains(table1));
+			Assert.IsFalse(tables.Contains(table2));
 
 			provider.AddTable(table1, new Column("ID", DbType.Int32));
 			provider.AddTable(table2, new Column("ID", DbType.Int32));
 
 			var tables2 = provider.GetTables();
 
-			Assert.AreEqual(2, tables2.Length);
+			Assert.AreEqual(tables.Length + 2, tables2.Length);
 			Assert.IsTrue(tables2.Contains(table1));
 			Assert.IsTrue(tables2.Contains(table2));
 
@@ -771,7 +771,7 @@
 		[Test]
 		public virtual void CanInsertData()
 		{
-			string tableName = this.GetRandomName("InsertTes");
+			string tableName = GetRandomName("InsertTest");
 			provider.AddTable(tableName,
 				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("Title", DbType.String.WithSize(30), ColumnProperty.Null),
@@ -784,8 +784,8 @@
 			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				Assert.IsTrue(reader.Read());
-				Assert.AreEqual(126, reader.GetInt32(0));
-				Assert.AreEqual(null, reader.GetString(1));
+				Assert.AreEqual(126, reader[0]);
+				Assert.AreEqual(DBNull.Value, reader[1]);
 				Assert.AreEqual("Muad'Dib", reader.GetString(2));
 				Assert.IsFalse(reader.Read());
 			}
@@ -794,6 +794,219 @@
 		}
 
 		#endregion
+
+		#region update
+
+		[Test]
+		public virtual void CanUpdateData()
+		{
+			string tableName = GetRandomName("UpdateData");
+
+			provider.AddTable(tableName,
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("TestInteger", DbType.Int32));
+
+			provider.Insert(tableName, new[] { "Id", "TestInteger" }, new[] { "1", "1122" });
+			provider.Insert(tableName, new[] { "Id", "TestInteger" }, new[] { "2", "3344" });
+
+			provider.Update(tableName, new[] { "TestInteger" }, new[] { "42" });
+
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME}", "TestInteger", tableName);
+			using (IDataReader reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(42, reader.GetInt32(0));
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(42, reader.GetInt32(0));
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(tableName);
+		}
+
+		[Test]
+		public virtual void CanUpdateWithNullData()
+		{
+			string tableName = GetRandomName("UpdateWithNullData");
+
+			provider.AddTable(tableName,
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("TestInteger", DbType.Int32));
+
+			provider.Insert(tableName, new[] { "Id", "TestInteger" }, new[] { "1", null });
+			provider.Insert(tableName, new[] { "Id", "TestInteger" }, new[] { "2", "5566" });
+
+			provider.Update(tableName, new[] { "TestInteger" }, new string[] { null });
+
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME}", "TestInteger", tableName);
+			using (IDataReader reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(DBNull.Value, reader[0]);
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(DBNull.Value, reader[0]);
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(tableName);
+		}
+
+		[Test]
+		public void CanUpdateDataWithWhere()
+		{
+			string tableName = GetRandomName("UpdateDataWithWhere");
+
+			provider.AddTable(tableName,
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("TestInteger", DbType.Int32));
+
+			provider.Insert(tableName, new[] { "Id", "TestInteger" }, new[] { "1", "123" });
+			provider.Insert(tableName, new[] { "Id", "TestInteger" }, new[] { "2", "456" });
+
+			string whereSql = provider.FormatSql("{0:NAME} = 2", "Id");
+			provider.Update(tableName, "TestInteger".AsArray(), "777".AsArray(), whereSql);
+
+			string sql = provider.FormatSql(
+				"SELECT {0:NAME}, {1:NAME} FROM {2:NAME} ORDER BY {0:NAME}", "Id", "TestInteger", tableName);
+
+			using (IDataReader reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(1, reader[0]);
+				Assert.AreEqual(123, reader[1]);
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(2, reader[0]);
+				Assert.AreEqual(777, reader[1]);
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(tableName);
+		}
+
+		#endregion
+
+		#region delete
+
+		[Test]
+		public void CanDeleteData()
+		{
+			string tableName = GetRandomName("DeleteData");
+
+			provider.AddTable(tableName, new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey));
+			provider.Insert(tableName, "Id".AsArray(), "1023".AsArray());
+			provider.Insert(tableName, "Id".AsArray(), "2047".AsArray());
+
+			string sqlWhere = provider.FormatSql("{0:NAME} = 2047", "Id");
+			provider.Delete(tableName, sqlWhere);
+
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME}", "Id", tableName);
+			using (IDataReader reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(1023, Convert.ToInt32(reader[0]));
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(tableName);
+		}
+
+		[Test]
+		public void CanDeleteAllData()
+		{
+			string tableName = GetRandomName("DeleteAllData");
+
+			provider.AddTable(tableName, new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey));
+			provider.Insert(tableName, "Id".AsArray(), "1111".AsArray());
+			provider.Insert(tableName, "Id".AsArray(), "2222".AsArray());
+
+			provider.Delete(tableName);
+
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME}", "Id", tableName);
+			using (IDataReader reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(tableName);
+		}
+
+		#endregion
+
+		#endregion
+
+		#region for migrator core
+
+		[Test]
+		public void SchemaInfoTableShouldBeCreatedWhenGetAppliedMigrations()
+		{
+			const string KEY = "mi mi mi";
+			const string SCHEMA_INFO_TABLE_NAME = "SchemaInfo";
+
+			Assert.IsFalse(provider.TableExists(SCHEMA_INFO_TABLE_NAME));
+
+			var appliedMigrations = provider.GetAppliedMigrations(KEY);
+			Assert.AreEqual(0, appliedMigrations.Count);
+			Assert.IsTrue(provider.TableExists(SCHEMA_INFO_TABLE_NAME));
+
+			provider.RemoveTable(SCHEMA_INFO_TABLE_NAME);
+		}
+
+		[Test]
+		public void SchemaInfoTableShouldBeCreatedWhenMigrationApplied()
+		{
+			const string KEY = "mi mi mi";
+			const string SCHEMA_INFO_TABLE_NAME = "SchemaInfo";
+
+			Assert.IsFalse(provider.TableExists(SCHEMA_INFO_TABLE_NAME));
+
+			provider.MigrationApplied(1, KEY);
+			Assert.IsTrue(provider.TableExists(SCHEMA_INFO_TABLE_NAME));
+
+			provider.RemoveTable(SCHEMA_INFO_TABLE_NAME);
+		}
+
+		[Test]
+		public void SchemaInfoTableShouldBeCreatedWhenMigrationUnApplied()
+		{
+			const string KEY = "mi mi mi";
+			const string SCHEMA_INFO_TABLE_NAME = "SchemaInfo";
+
+			Assert.IsFalse(provider.TableExists(SCHEMA_INFO_TABLE_NAME));
+
+			provider.MigrationUnApplied(1, KEY);
+			Assert.IsTrue(provider.TableExists(SCHEMA_INFO_TABLE_NAME));
+
+			provider.RemoveTable(SCHEMA_INFO_TABLE_NAME);
+		}
+
+		[Test]
+		public void CanGetAppliedMigrations()
+		{
+			// todo: разбить этот тест на несколько
+			// todo: проверить обновление структуры таблицы "SchemaInfo"
+			const string KEY = "mi mi mi";
+			const string SCHEMA_INFO_TABLE_NAME = "SchemaInfo";
+
+			Assert.IsFalse(provider.TableExists(SCHEMA_INFO_TABLE_NAME));
+
+			// Check that a "set" called after the first run works.
+			provider.MigrationApplied(123, KEY);
+			provider.MigrationApplied(125, KEY);
+			var appliedMigrations = provider.GetAppliedMigrations(KEY);
+			Assert.AreEqual(2, appliedMigrations.Count);
+			Assert.AreEqual(123, appliedMigrations[0]);
+			Assert.AreEqual(125, appliedMigrations[1]);
+
+			provider.MigrationUnApplied(123, KEY);
+			appliedMigrations = provider.GetAppliedMigrations(KEY);
+			Assert.AreEqual(1, appliedMigrations.Count);
+			Assert.AreEqual(125, appliedMigrations[0]);
+
+			var appliedMigrationsForAnotherKey = provider.GetAppliedMigrations("d3d4136830a94fdca8bd19f1c2eb9e81");
+			Assert.AreEqual(0, appliedMigrationsForAnotherKey.Count);
+
+			provider.RemoveTable(SCHEMA_INFO_TABLE_NAME);
+		}
 
 		#endregion
 
