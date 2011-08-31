@@ -1,15 +1,12 @@
-using ECM7.Migrator.Exceptions;
-
 namespace ECM7.Migrator.Providers.Tests
 {
-	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Providers.SqlServer;
 
 	using NUnit.Framework;
 
 	[TestFixture, Category("SqlServerCe")]
 	public class SqlServerCeTransformationProviderTest 
-		: TransformationProviderConstraintBase<SqlServerCeTransformationProvider>
+		: TransformationProviderBase<SqlServerCeTransformationProvider>
 	{
 		public override string ConnectionStrinSettingsName
 		{
@@ -41,18 +38,6 @@ namespace ECM7.Migrator.Providers.Tests
 				insert into [TestTwo] ([Id], [TestId]) values (55, 555)
 				";
 			}
-		}
-
-		[Test, ExpectedException(typeof(MigrationException))]
-		public override void CanAddCheckConstraint()
-		{
-			base.CanAddCheckConstraint();
-		}
-
-		[Test, ExpectedException(typeof(MigrationException))]
-		public override void RemoveCheckConstraint()
-		{
-			base.RemoveCheckConstraint();
 		}
 	}
 }

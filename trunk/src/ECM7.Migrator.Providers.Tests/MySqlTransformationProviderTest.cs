@@ -1,6 +1,5 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System;
 	using System.Data;
 
 	using ECM7.Migrator.Framework;
@@ -9,7 +8,7 @@ namespace ECM7.Migrator.Providers.Tests
 	using NUnit.Framework;
 
 	[TestFixture, Category("MySql")]
-	public class MySqlTransformationProviderTest : TransformationProviderConstraintBase<MySqlTransformationProvider>
+	public class MySqlTransformationProviderTest : TransformationProviderBase<MySqlTransformationProvider>
 	{
 		protected override string BatchSql
 		{
@@ -41,20 +40,6 @@ namespace ECM7.Migrator.Providers.Tests
 			provider.AddTable("Test", "MyISAM",
 			                  new Column("Id", DbType.Int32, ColumnProperty.NotNull),
 			                  new Column("name", DbType.String, 50));
-		}
-
-		[Test]
-		public override void CanAddCheckConstraint()
-		{
-			Assert.Throws<NotSupportedException>(AddCheckConstraint);
-		}
-
-		[Test]
-		public override void RemoveCheckConstraint()
-		{
-			Assert.Throws<NotSupportedException>(AddCheckConstraint);
-			provider.RemoveConstraint("TestTwo", "CK_TestTwo_TestId");
-			Assert.IsFalse(provider.ConstraintExists("TestTwo", "CK_TestTwo_TestId"));
 		}
 	}
 }

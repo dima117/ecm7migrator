@@ -57,7 +57,15 @@ namespace ECM7.Migrator.Providers.Tests.ColumnDef
 		/// </summary>
 		public abstract string BooleanColumnSqlWithDefaultValueSql { get; }
 
+
+
 		#endregion
+
+		//[Test]
+		//public void AddUniqueColumn()
+		//{
+		//    provider.AddColumn("TestTwo", new Column("Test", DbType.String, 50, ColumnProperty.Unique));
+		//}
 
 		[Test]
 		public void CanCreatesSimpleColumnSql()

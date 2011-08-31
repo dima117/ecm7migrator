@@ -193,63 +193,9 @@
 		}
 
 		[Test]
-		public virtual void InsertData()
-		{
-			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
-			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
-
-			string sql = "SELECT {0} FROM {1}".FormatWith(
-				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
-
-			using (IDataReader reader = provider.ExecuteReader(sql))
-			{
-				int[] vals = GetVals(reader);
-
-				Assert.IsTrue(Array.Exists(vals, val => val == 1));
-				Assert.IsTrue(Array.Exists(vals, val => val == 2));
-			}
-		}
-
-		[Test]
-		public void CanInsertNullData()
-		{
-			AddTableWithPrimaryKey();
-			provider.Insert("Test", new[] { "Id", "Title", "Name" }, new[] { "1", "foo", "moo" });
-			provider.Insert("Test", new[] { "Id", "Title", "Name" }, new[] { "2", null, "mi mi" });
-
-			string sql = "SELECT {0} FROM {1}".FormatWith(
-				provider.QuoteName("Title"), provider.QuoteName("Test"));
-
-			using (IDataReader reader = provider.ExecuteReader(sql))
-			{
-				string[] vals = GetStringVals(reader);
-
-				Assert.IsTrue(Array.Exists(vals, val => val == "foo"));
-				Assert.IsTrue(Array.Exists(vals, val => val == null));
-			}
-		}
-
-		[Test]
-		public void CanInsertDataWithSingleQuotes()
-		{
-			AddTableWithPrimaryKey();
-			provider.Insert("Test", new[] { "Id", "Name" }, new[] { "1", "Muad'Dib" });
-
-			string sql = "SELECT {0} FROM {1}".FormatWith(
-				provider.QuoteName("Name"), provider.QuoteName("Test"));
-
-			using (IDataReader reader = provider.ExecuteReader(sql))
-			{
-				Assert.IsTrue(reader.Read());
-				Assert.AreEqual("Muad'Dib", reader.GetString(0));
-				Assert.IsFalse(reader.Read());
-			}
-		}
-
-		[Test]
 		public void DeleteData()
 		{
-			InsertData();
+			//InsertData();
 			provider.Delete("TestTwo", provider.QuoteName("TestId") + " = 1");
 
 			string sql = "SELECT {0} FROM {1}".FormatWith(
@@ -266,7 +212,7 @@
 		[Test]
 		public void DeleteAllData()
 		{
-			InsertData();
+			//InsertData();
 			provider.Delete("TestTwo");
 
 			string sql = "SELECT {0} FROM {1}".FormatWith(
