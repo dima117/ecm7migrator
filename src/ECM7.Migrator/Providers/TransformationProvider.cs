@@ -477,6 +477,7 @@ namespace ECM7.Migrator.Providers
 		#endregion
 
 		#region methods for migrator core
+
 		/// <summary>
 		/// The list of Migrations currently applied to the database.
 		/// </summary>

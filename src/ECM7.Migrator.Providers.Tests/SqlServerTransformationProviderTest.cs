@@ -8,7 +8,7 @@ namespace ECM7.Migrator.Providers.Tests
 	using NUnit.Framework;
 
 	[TestFixture, Category("SqlServer")]
-	public class SqlServerTransformationProviderTest : TransformationProviderConstraintBase<SqlServerTransformationProvider>
+	public class SqlServerTransformationProviderTest : TransformationProviderBase<SqlServerTransformationProvider>
 	{
 		public override string ConnectionStrinSettingsName
 		{
@@ -44,7 +44,7 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			Assert.AreEqual("[foo]", provider.QuoteName("foo"));
 		}
-        
+
 		[Test]
 		public void ByteColumnWillBeCreatedAsBlob()
 		{

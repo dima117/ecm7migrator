@@ -120,6 +120,33 @@
 		}
 
 		[Test]
+		public void TableWithCompoundPrimaryKeyShouldKeepNullForOtherProperties()
+		{
+			string tableName = GetRandomName("Test");
+
+			provider.AddTable(tableName,
+				new Column("PersonId", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("AddressId", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("Name", DbType.String, 30, ColumnProperty.Null));
+
+			provider.Insert(tableName,
+				new[] { "PersonId", "AddressId", "Name" },
+				new[] { "1", "2", null });
+
+			string sql = provider.FormatSql("select {0:NAME} from {1:NAME}", "Name", tableName);
+
+			using (var reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(DBNull.Value, reader[0]);
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(tableName);
+		}
+
+
+		[Test]
 		public void CanRenameTable()
 		{
 			string table1 = this.GetRandomName("tableMoo");
@@ -271,6 +298,49 @@
 		#endregion
 
 		#region constraints
+
+		#region primary key
+
+		[Test]
+		public void CanAddPrimaryKey()
+		{
+			string tableName = GetRandomName("AddPrimaryKey");
+			string pkName = GetRandomName("PK_AddPrimaryKey");
+
+			provider.AddTable(tableName,
+				new Column("ID1", DbType.Int32, ColumnProperty.NotNull),
+				new Column("ID2", DbType.Int32, ColumnProperty.NotNull));
+
+			provider.AddPrimaryKey(pkName, tableName, "ID1", "ID2");
+
+			provider.Insert(tableName, new[] { "ID1", "ID2" }, new[] { "1", "2" });
+			provider.Insert(tableName, new[] { "ID1", "ID2" }, new[] { "2", "2" });
+
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(tableName, new[] { "ID1", "ID2" }, new[] { "1", "2" }));
+
+			provider.RemoveTable(tableName);
+		}
+
+		[Test]
+		public void CanCheckThatPrimaryKeyIsExist()
+		{
+			string tableName = GetRandomName("CheckThatPrimaryKeyIsExist");
+			string pkName = GetRandomName("PK_CheckThatPrimaryKeyIsExist");
+
+			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.NotNull));
+			Assert.IsFalse(provider.ConstraintExists(tableName, pkName));
+
+			provider.AddPrimaryKey(pkName, tableName, "ID");
+			Assert.IsTrue(provider.ConstraintExists(tableName, pkName));
+
+			provider.RemoveConstraint(tableName, pkName);
+			Assert.IsFalse(provider.ConstraintExists(tableName, pkName));
+
+			provider.RemoveTable(tableName);
+		}
+
+		#endregion
 
 		#region foreign key
 
@@ -518,44 +588,7 @@
 
 		#endregion
 
-		[Test]
-		public void CanAddPrimaryKey()
-		{
-			string tableName = GetRandomName("AddPrimaryKey");
-			string pkName = GetRandomName("PK_AddPrimaryKey");
-
-			provider.AddTable(tableName,
-				new Column("ID1", DbType.Int32, ColumnProperty.NotNull),
-				new Column("ID2", DbType.Int32, ColumnProperty.NotNull));
-
-			provider.AddPrimaryKey(pkName, tableName, "ID1", "ID2");
-
-			provider.Insert(tableName, new[] { "ID1", "ID2" }, new[] { "1", "2" });
-			provider.Insert(tableName, new[] { "ID1", "ID2" }, new[] { "2", "2" });
-
-			Assert.Throws<SQLException>(() =>
-				provider.Insert(tableName, new[] { "ID1", "ID2" }, new[] { "1", "2" }));
-
-			provider.RemoveTable(tableName);
-		}
-
-		[Test]
-		public void CanCheckThatPrimaryKeyIsExist()
-		{
-			string tableName = GetRandomName("CheckThatPrimaryKeyIsExist");
-			string pkName = GetRandomName("PK_CheckThatPrimaryKeyIsExist");
-
-			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.NotNull));
-			Assert.IsFalse(provider.ConstraintExists(tableName, pkName));
-
-			provider.AddPrimaryKey(pkName, tableName, "ID");
-			Assert.IsTrue(provider.ConstraintExists(tableName, pkName));
-
-			provider.RemoveConstraint(tableName, pkName);
-			Assert.IsFalse(provider.ConstraintExists(tableName, pkName));
-
-			provider.RemoveTable(tableName);
-		}
+		#region unique constraint
 
 		[Test]
 		public void CanAddComplexUniqueConstraint()
@@ -572,16 +605,16 @@
 			provider.AddUniqueConstraint(ucName, tableName, "TestStringColumn1", "TestStringColumn2");
 
 			// пробуем нарушить ограничения
-			provider.Insert(tableName, 
-				new[] { "ID", "TestStringColumn1", "TestStringColumn2" }, 
+			provider.Insert(tableName,
+				new[] { "ID", "TestStringColumn1", "TestStringColumn2" },
 				new[] { "1", "xxx", "abc" });
 
-			provider.Insert(tableName, 
-				new[] { "ID", "TestStringColumn1", "TestStringColumn2" }, 
+			provider.Insert(tableName,
+				new[] { "ID", "TestStringColumn1", "TestStringColumn2" },
 				new[] { "2", "111", "abc" });
 
-			provider.Insert(tableName, 
-				new[] { "ID", "TestStringColumn1", "TestStringColumn2" }, 
+			provider.Insert(tableName,
+				new[] { "ID", "TestStringColumn1", "TestStringColumn2" },
 				new[] { "3", "xxx", "222" });
 
 			Assert.Throws<SQLException>(() =>
@@ -612,7 +645,49 @@
 
 			provider.RemoveTable(tableName);
 		}
-		
+
+		#endregion
+
+		#region check constraint
+
+		[Test]
+		public void CanAddCheckConstraint()
+		{
+			string tableName = GetRandomName("AddCheckConstraint");
+			string constraintName = GetRandomName("CC_AddCheckConstraint");
+			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
+
+			string checkSql = provider.FormatSql("{0:NAME} > 5", "ID");
+			provider.AddCheckConstraint(constraintName, tableName, checkSql);
+
+			provider.Insert(tableName, "ID".AsArray(), "11".AsArray());
+
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(tableName, "ID".AsArray(), "4".AsArray()));
+
+			provider.RemoveTable(tableName);
+		}
+
+		[Test]
+		public void CanVerifyThatCheckConstraintIsExist()
+		{
+			string tableName = GetRandomName("CheckConstraintIsExist");
+			string constraintName = GetRandomName("CC_CheckConstraintIsExist");
+
+			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
+			Assert.IsFalse(provider.ConstraintExists(tableName, constraintName));
+
+			string checkSql = provider.FormatSql("{0:NAME} > 5", "ID");
+			provider.AddCheckConstraint(constraintName, tableName, checkSql);
+			Assert.IsTrue(provider.ConstraintExists(tableName, constraintName));
+
+			provider.RemoveConstraint(tableName, constraintName);
+			Assert.IsFalse(provider.ConstraintExists(tableName, constraintName));
+
+			provider.RemoveTable(tableName);
+		}
+
+		#endregion
 
 		#endregion
 
@@ -689,6 +764,38 @@
 
 		#endregion
 
+		#region DML
+
+		#region insert
+
+		[Test]
+		public virtual void CanInsertData()
+		{
+			string tableName = this.GetRandomName("InsertTes");
+			provider.AddTable(tableName,
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("Title", DbType.String.WithSize(30), ColumnProperty.Null),
+				new Column("Title2", DbType.String.WithSize(30)));
+
+			provider.Insert(tableName, new[] { "Id", "Title", "Title2" }, new[] { "126", null, "Muad'Dib" });
+
+			string sql = provider.FormatSql("SELECT {0:NAME}, {1:NAME}, {2:NAME} FROM {3:NAME}",
+				"Id", "Title", "Title2", tableName);
+			using (IDataReader reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(126, reader.GetInt32(0));
+				Assert.AreEqual(null, reader.GetString(1));
+				Assert.AreEqual("Muad'Dib", reader.GetString(2));
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(tableName);
+		}
+
+		#endregion
+
+		#endregion
 
 		#endregion
 

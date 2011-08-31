@@ -8,7 +8,7 @@ namespace ECM7.Migrator.Providers.Tests
 
     [TestFixture, Category("Firebird")]
     public class FirebirdTransformationProviderTest 
-		: TransformationProviderConstraintBase<FirebirdTransformationProvider>
+		: TransformationProviderBase<FirebirdTransformationProvider>
     {
     	public override string ConnectionStrinSettingsName
     	{

@@ -89,7 +89,6 @@
     <Compile Include="SqlServerCeTransformationProviderTest.cs" />
     <Compile Include="SqlServerTransformationProviderTest.cs" />
     <Compile Include="TransformationProviderBase.cs" />
-    <Compile Include="TransformationProviderConstraintBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">

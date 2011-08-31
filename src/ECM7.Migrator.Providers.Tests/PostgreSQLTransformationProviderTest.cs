@@ -8,7 +8,7 @@ namespace ECM7.Migrator.Providers.Tests
 
 	[TestFixture, Category("Postgre")]
 	public class PostgreSQLTransformationProviderTest 
-		: TransformationProviderConstraintBase<PostgreSQLTransformationProvider>
+		: TransformationProviderBase<PostgreSQLTransformationProvider>
 	{
 		public override string ConnectionStrinSettingsName
 		{

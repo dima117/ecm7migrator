@@ -5,13 +5,12 @@ namespace ECM7.Migrator.Providers.Tests
 	using System;
 	using System.Data;
 
-	using Framework;
 	using Oracle;
 
 	using NUnit.Framework;
 
 	[TestFixture, Category("Oracle")]
-	public class OracleTransformationProviderTest : TransformationProviderConstraintBase<OracleTransformationProvider>
+	public class OracleTransformationProviderTest : TransformationProviderBase<OracleTransformationProvider>
 	{
 		protected override string BatchSql
 		{
@@ -47,30 +46,6 @@ namespace ECM7.Migrator.Providers.Tests
 		public override bool UseTransaction
 		{
 			get { return true; }
-		}
-
-		[Test, ExpectedException(typeof(NotSupportedException))]
-		public override void CanAddForeignKeyWithDifferentActions()
-		{
-			base.CanAddForeignKeyWithDifferentActions();
-		}
-
-		[Test]
-		public override void InsertData()
-		{
-			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "1", "1" });
-			provider.Insert("TestTwo", new[] { "Id", "TestId" }, new[] { "2", "2" });
-
-			string sql = "SELECT {0} FROM {1}".FormatWith(
-				provider.QuoteName("TestId"), provider.QuoteName("TestTwo"));
-
-			using (IDataReader reader = provider.ExecuteReader(sql))
-			{
-				int[] vals = GetVals(reader);
-
-				Assert.IsTrue(Array.Exists(vals, val => val == 1));
-				Assert.IsTrue(Array.Exists(vals, val => val == 2));
-			}
 		}
 
 		[Test]
