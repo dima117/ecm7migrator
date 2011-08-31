@@ -36,11 +36,6 @@
 
 		#region public methods
 
-		public IDbCommand GetCommand()
-		{
-			return BuildCommand(null);
-		}
-
 		public IDataReader ExecuteReader(string sql)
 		{
 			IDbCommand cmd = null;
@@ -49,7 +44,7 @@
 			try
 			{
 				MigratorLogManager.Log.ExecuteSql(sql);
-				cmd = BuildCommand(sql);
+				cmd = GetCommand(sql);
 				reader = OpenDataReader(cmd);
 				return reader;
 			}
@@ -72,7 +67,7 @@
 
 		public object ExecuteScalar(string sql)
 		{
-			using (IDbCommand cmd = BuildCommand(sql))
+			using (IDbCommand cmd = GetCommand(sql))
 			{
 				try
 				{
@@ -224,13 +219,13 @@
 		private int ExecuteNonQueryInternal(string sql)
 		{
 			MigratorLogManager.Log.ExecuteSql(sql);
-			using (IDbCommand cmd = BuildCommand(sql))
+			using (IDbCommand cmd = GetCommand(sql))
 			{
 				return cmd.ExecuteNonQuery();
 			}
 		}
 
-		protected virtual IDbCommand BuildCommand(string sql)
+		public virtual IDbCommand GetCommand(string sql = null)
 		{
 			EnsureHasConnection();
 			IDbCommand cmd = connection.CreateCommand();
