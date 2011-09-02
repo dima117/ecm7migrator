@@ -5,10 +5,9 @@ namespace ECM7.Migrator.Providers.Tests
 	using NUnit.Framework;
 
 	[TestFixture, Category("SqlServerCe")]
-	public class SqlServerCeTransformationProviderTest 
-		: TransformationProviderBase<SqlServerCeTransformationProvider>
+	public class SqlServerCeTransformationProviderTest
 	{
-		public override string ConnectionStrinSettingsName
+		public string ConnectionStrinSettingsName
 		{
 			get
 			{
@@ -16,12 +15,12 @@ namespace ECM7.Migrator.Providers.Tests
 			}
 		}
 
-		public override bool UseTransaction
+		public bool UseTransaction
 		{
 			get { return true; }
 		}
 
-		protected override string BatchSql
+		protected string BatchSql
 		{
 			get
 			{

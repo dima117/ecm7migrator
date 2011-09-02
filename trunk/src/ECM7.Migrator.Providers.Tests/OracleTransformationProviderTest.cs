@@ -7,9 +7,9 @@ namespace ECM7.Migrator.Providers.Tests
 	using NUnit.Framework;
 
 	[TestFixture, Category("Oracle")]
-	public class OracleTransformationProviderTest : TransformationProviderBase<OracleTransformationProvider>
+	public class OracleTransformationProviderTest
 	{
-		protected override string BatchSql
+		protected string BatchSql
 		{
 			get
 			{
@@ -30,17 +30,12 @@ namespace ECM7.Migrator.Providers.Tests
 			}
 		}
 
-		protected override string ResourceSql
+		protected string ResourceSql
 		{
 			get { return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.fb.test.res.migration.sql"; }
 		}
 
-		public override string ConnectionStrinSettingsName
-		{
-			get { return "OracleConnectionString"; }
-		}
-
-		public override bool UseTransaction
+		public bool UseTransaction
 		{
 			get { return true; }
 		}

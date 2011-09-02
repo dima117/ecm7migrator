@@ -3,14 +3,13 @@ namespace ECM7.Migrator.Providers.Tests
 	using System.Data;
 
 	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Providers.MySql;
 
 	using NUnit.Framework;
 
 	[TestFixture, Category("MySql")]
-	public class MySqlTransformationProviderTest : TransformationProviderBase<MySqlTransformationProvider>
+	public class MySqlTransformationProviderTest
 	{
-		protected override string BatchSql
+		protected string BatchSql
 		{
 			get
 			{
@@ -24,12 +23,7 @@ namespace ECM7.Migrator.Providers.Tests
 			}
 		}
 
-		public override string ConnectionStrinSettingsName
-		{
-			get { return "MySqlConnectionString"; }
-		}
-
-		public override bool UseTransaction
+		public bool UseTransaction
 		{
 			get { return false; }
 		}
@@ -37,9 +31,9 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void AddTableWithMyISAMEngine()
 		{
-			provider.AddTable("Test", "MyISAM",
-			                  new Column("Id", DbType.Int32, ColumnProperty.NotNull),
-			                  new Column("name", DbType.String, 50));
+			//provider.AddTable("Test", "MyISAM",
+			//                  new Column("Id", DbType.Int32, ColumnProperty.NotNull),
+			//                  new Column("name", DbType.String, 50));
 		}
 	}
 }

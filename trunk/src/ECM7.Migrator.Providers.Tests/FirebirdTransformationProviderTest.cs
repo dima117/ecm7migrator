@@ -7,20 +7,14 @@ namespace ECM7.Migrator.Providers.Tests
     using NUnit.Framework;
 
     [TestFixture, Category("Firebird")]
-    public class FirebirdTransformationProviderTest 
-		: TransformationProviderBase<FirebirdTransformationProvider>
-    {
-    	public override string ConnectionStrinSettingsName
-    	{
-    		get { return "FirebirdConnectionString"; }
-    	}
-
-    	public override bool UseTransaction
+    public class FirebirdTransformationProviderTest
+	{
+    	public bool UseTransaction
     	{
 			get { return false; }
     	}
 
-		protected override string BatchSql
+		protected string BatchSql
 		{
 			get
 			{
@@ -36,7 +30,7 @@ namespace ECM7.Migrator.Providers.Tests
 			}
 		}
 
-		protected override string ResourceSql
+		protected string ResourceSql
 		{
 			get
 			{

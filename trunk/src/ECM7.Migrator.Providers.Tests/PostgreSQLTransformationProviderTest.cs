@@ -7,20 +7,19 @@ namespace ECM7.Migrator.Providers.Tests
 	using NUnit.Framework;
 
 	[TestFixture, Category("Postgre")]
-	public class PostgreSQLTransformationProviderTest 
-		: TransformationProviderBase<PostgreSQLTransformationProvider>
+	public class PostgreSQLTransformationProviderTest
 	{
-		public override string ConnectionStrinSettingsName
+		public string ConnectionStrinSettingsName
 		{
 			get { return "NpgsqlConnectionString"; }
 		}
 
-		public override bool UseTransaction
+		public bool UseTransaction
 		{
 			get { return true; }
 		}
 
-		protected override string BatchSql
+		protected string BatchSql
 		{
 			get
 			{
@@ -36,7 +35,7 @@ namespace ECM7.Migrator.Providers.Tests
 			}
 		}
 
-		protected override string ResourceSql
+		protected string ResourceSql
 		{
 			get { return "ECM7.Migrator.TestAssembly.Res.pgsql.ora.fb.test.res.migration.sql"; }
 		}

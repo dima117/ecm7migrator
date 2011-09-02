@@ -13,7 +13,6 @@ namespace ECM7.Migrator.Providers.SqlServer
 	/// </summary>
 	public class SqlServerCeTransformationProvider : BaseSqlServerTransformationProvider<SqlCeConnection>
 	{
-		// todo: написать дл€ всех провайдеров тесты на типы данных
 		// todo: добавить тесты поддержки типов данных дл€ Firebird
 		
 		#region custom sql
