@@ -87,6 +87,7 @@
     <Compile Include="Migrator.cs" />
     <Compile Include="Configuration\MigratorConfigurationSection.cs" />
     <Compile Include="Providers\ColumnSqlBuilder.cs" />
+    <Compile Include="Providers\ConditionByProvider.cs" />
     <Compile Include="Providers\PropertyMap.cs" />
     <Compile Include="Providers\SqlFormatter.cs" />
     <Compile Include="Providers\SqlRunner.cs" />
