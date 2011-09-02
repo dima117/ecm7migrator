@@ -446,36 +446,10 @@ namespace ECM7.Migrator.Providers
 
 		#endregion
 
-		#region For
-
-		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
-		/// </summary>
-		public void For<TProvider>(Action<ITransformationProvider> actions)
+		public IConditionByProvider ConditionalExecuteAction()
 		{
-			For(typeof(TProvider), actions);
+			return new ConditionByProvider(this);
 		}
-
-		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of 'TTargetProvider'.
-		/// </summary>
-		public void For(Type providerType, Action<ITransformationProvider> actions)
-		{
-			if (GetType() == providerType)
-				actions(this);
-		}
-
-		/// <summary>
-		/// Get this provider or a NoOp provider if you are not running in the context of provider with name 'providerTypeName'.
-		/// </summary>
-		public void For(string providerTypeName, Action<ITransformationProvider> actions)
-		{
-			// todo: написать тест на For с использованием шорткатов
-			Type providerType = ProviderFactory.GetProviderType(providerTypeName);
-			For(providerType, actions);
-		}
-
-		#endregion
 
 		#region methods for migrator core
 

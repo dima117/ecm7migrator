@@ -9,8 +9,6 @@
 
 	using log4net.Config;
 
-	using Npgsql;
-
 	using NUnit.Framework;
 
 	/// <summary>
@@ -120,20 +118,6 @@
 			object res = provider.ExecuteScalar(sql);
 
 			Assert.AreEqual(9999, Convert.ToInt32(res));
-		}
-
-		[Test]
-		public void CanExecuteBadSqlForNonCurrentProvider()
-		{
-			provider.For<GenericTransformationProvider<NpgsqlConnection>>(
-				database => database.ExecuteNonQuery("select foo from bar 123"));
-		}
-
-		[Test]
-		public void CanExecuteBadSqlInDelegateForNonCurrentProvider()
-		{
-			provider.For<GenericTransformationProvider<NpgsqlConnection>>(
-				database => database.ExecuteNonQuery("select foo from bar 123"));
 		}
 
 		/// <summary>

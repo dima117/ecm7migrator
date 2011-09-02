@@ -76,6 +76,7 @@
     <Compile Include="DbTypeExtensions.cs" />
     <Compile Include="ForeignKeyConstraint.cs" />
     <Compile Include="IColumn.cs" />
+    <Compile Include="IConditionByProvider.cs" />
     <Compile Include="Logging\LogExtensions.cs" />
     <Compile Include="IMigration.cs" />
     <Compile Include="ITransformationProvider.cs" />
