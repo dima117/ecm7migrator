@@ -77,7 +77,7 @@
     <Compile Include="DataTypes\SQLiteDataTypesTest.cs" />
     <Compile Include="DataTypes\SqlServerDataTypesTest.cs" />
     <Compile Include="FirebirdTransformationProviderTest.cs" />
-    <Compile Include="GenericProviderTests.cs" />
+    <Compile Include="ConditionByProviderTests.cs" />
     <Compile Include="ImplementationTest\PostgreSQLTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\SqlServerTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\TransformationProviderTestBase.cs" />
@@ -88,7 +88,6 @@
     <Compile Include="SQLiteTransformationProviderTest.cs" />
     <Compile Include="SqlServerCeTransformationProviderTest.cs" />
     <Compile Include="SqlServerTransformationProviderTest.cs" />
-    <Compile Include="TransformationProviderBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">

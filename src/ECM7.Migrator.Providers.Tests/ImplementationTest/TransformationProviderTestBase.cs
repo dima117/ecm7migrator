@@ -4,6 +4,7 @@
 	using System.Configuration;
 	using System.Data;
 	using System.Linq;
+	using System.Reflection;
 
 	using ECM7.Migrator.Exceptions;
 	using ECM7.Migrator.Framework;
@@ -24,6 +25,11 @@
 
 		public abstract string ConnectionStrinSettingsName { get; }
 
+		public virtual bool UseTransaction
+		{
+			get { return true; }
+		}
+
 		[SetUp]
 		public virtual void SetUp()
 		{
@@ -37,18 +43,81 @@
 			Require.IsNotNullOrEmpty(constr, "Connection string \"{0}\" is not exist", ConnectionStrinSettingsName);
 
 			provider = ProviderFactory.Create<TProvider>(constr);
+
+			if (UseTransaction)
+			{
+				provider.BeginTransaction();
+			}
 		}
 
 		[TearDown]
 		public virtual void TearDown()
 		{
+			if (UseTransaction)
+			{
+				provider.Rollback();
+			}
+
 			provider.Dispose();
 		}
 
+		protected virtual string ResourceSql
+		{
+			get { return "ECM7.Migrator.TestAssembly.Res.test.res.migration.sql"; }
+		}
+
+		protected virtual string BatchSql
+		{
+			get
+			{
+				return "переопределите SQL для проверки пакетов запросов";
+			}
+		}
 
 		#endregion
 
 		#region tests
+
+		#region common
+
+		[Test]
+		public void CanExecuteBatches()
+		{
+			provider.ExecuteNonQuery(BatchSql);
+
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME} ORDER BY {2:NAME}", "TestId", "TestTwo", "Id");
+
+			using (var reader = provider.ExecuteReader(sql))
+			{
+				for (int i = 1; i <= 5; i++)
+				{
+					Assert.IsTrue(reader.Read());
+					Assert.AreEqual(111 * i, Convert.ToInt32(reader[0]));
+				}
+				Assert.IsFalse(reader.Read());
+			}
+		}
+
+		[Test]
+		public void CanExecuteScriptFromResources()
+		{
+			provider.AddTable("TestTwo",
+				new Column("ID", DbType.Int32),
+				new Column("TestId", DbType.Int32));
+
+			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
+			provider.ExecuteFromResource(asm, ResourceSql);
+
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME} WHERE {2:NAME} = {3}",
+				"TestId", "TestTwo", "Id", 5555);
+
+			Assert.AreEqual(9999, provider.ExecuteScalar(sql));
+
+			provider.RemoveTable("TestTwo");
+		}
+
+
+		#endregion
 
 		#region table
 

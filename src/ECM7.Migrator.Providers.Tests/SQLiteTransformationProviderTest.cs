@@ -1,23 +1,21 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using ECM7.Migrator.Providers.SQLite;
-
 	using NUnit.Framework;
 
 	[TestFixture, Category("SQLite")]
-	public class SQLiteTransformationProviderTest : TransformationProviderBase<SQLiteTransformationProvider>
+	public class SQLiteTransformationProviderTest
 	{
-		public override string ConnectionStrinSettingsName
+		public string ConnectionStrinSettingsName
 		{
 			get { return "SQLiteConnectionString"; }
 		}
 
-		public override bool UseTransaction
+		public bool UseTransaction
 		{
 			get { return true; }
 		}
 
-		protected override string BatchSql
+		protected string BatchSql
 		{
 			get
 			{

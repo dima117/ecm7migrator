@@ -113,21 +113,6 @@ namespace ECM7.Migrator.Providers
 				val => null == val ? "null" : String.Format("'{0}'", val.Replace("'", "''")));
 		}
 
-		public string JoinColumnsAndValues(string[] columns, string[] values, string separator = ",")
-		{
-			Require.IsNotNull(separator, "Не задан разделитель");
-
-			string processedSeparator = " " + separator.Trim() + " ";
-
-			string[] quotedValues = QuoteValues(values);
-			string[] namesAndValues = columns
-				.Select((col, i) => FormatSql("{0:NAME}={1}", col, quotedValues[i]))
-				.ToArray();
-
-			return string.Join(processedSeparator, namesAndValues);
-		}
-
-
 		#endregion
 
 		#region generate sql
@@ -423,7 +408,10 @@ namespace ECM7.Migrator.Providers
 
 		public virtual int Update(string table, string[] columns, string[] values, string whereSql = null)
 		{
-			string namesAndValues = JoinColumnsAndValues(columns, values);
+			string[] quotedValues = QuoteValues(values);
+			string namesAndValues = columns
+				.Select((col, i) => FormatSql("{0:NAME}={1}", col, quotedValues[i]))
+				.ToCommaSeparatedString();
 
 			string query = whereSql.IsNullOrEmpty(true)
 								? "UPDATE {0:NAME} SET {1}"

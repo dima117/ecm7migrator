@@ -20,7 +20,6 @@ namespace ECM7.Migrator.Providers.Firebird
 		public FirebirdTransformationProvider(FbConnection connection)
 			: base(connection)
 		{
-			// todo: написать тесты на закрытие подключения
 			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
 			typeMap.Put(DbType.AnsiStringFixedLength, 32767, "CHAR($l)");
 			typeMap.Put(DbType.AnsiString, "VARCHAR(255)");

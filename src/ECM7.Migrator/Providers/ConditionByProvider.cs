@@ -18,7 +18,6 @@
 		public ConditionByProvider(ITransformationProvider current)
 		{
 			Require.IsNotNull(current, "Не задан текущий провайдер");
-			ValidateProviderType(current.GetType());
 			currentProvider = current;
 			isExecuted = false;
 		}

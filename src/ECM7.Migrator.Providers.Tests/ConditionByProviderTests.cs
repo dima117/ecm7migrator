@@ -3,21 +3,17 @@ namespace ECM7.Migrator.Providers.Tests
 	using System.Configuration;
 	using System.Data;
 
-	using ECM7.Migrator.Framework;
+	using ECM7.Common.Utils.Exceptions;
 	using ECM7.Migrator.Providers;
 	using ECM7.Migrator.Providers.PostgreSQL;
 	using ECM7.Migrator.Providers.SqlServer;
 	using ECM7.Migrator.Providers.SqlServer.Base;
 
-	using Moq;
-
 	using NUnit.Framework;
 
 	[TestFixture]
-	public class GenericProviderTests
+	public class ConditionByProviderTests
 	{
-		#region for
-
 		[Test]
 		public void CanExecuteActionForProvider()
 		{
@@ -80,48 +76,34 @@ namespace ECM7.Migrator.Providers.Tests
 			}
 		}
 
-		#endregion
+		[Test]
+		public void CanExecuteActionForProviderByAlias()
+		{
+			string cstring = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
+			using (var provider = ProviderFactory.Create<PostgreSQLTransformationProvider>(cstring))
+			{
+				int i = 5;
+				provider.ConditionalExecuteAction()
+					.For("PostgreSQL", db => i = 21)
+					.For("SqlServer", db => i = 23)
+					.Else(db => i = 18);
+
+				Assert.AreEqual(i, 21);
+			}
+		}
 
 		[Test]
-		public void CanJoinColumnsAndValues()
+		public void ProviderTypeShouldBeValidated()
 		{
-			Mock<IDbConnection> conn = new Mock<IDbConnection>();
+			string cstring = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
+			using (var provider = ProviderFactory.Create<PostgreSQLTransformationProvider>(cstring))
+			{
+				Assert.Throws<RequirementNotCompliedException>(() =>
+					new ConditionByProvider(provider).For<int>(null));
 
-			var provider = new GenericTransformationProvider<IDbConnection>(conn.Object);
-			string result = provider.JoinColumnsAndValues(new[] { "foo", "bar" }, new[] { "123", "456" });
-
-			string expected = provider.FormatSql("{0:NAME}='123' , {1:NAME}='456'", "foo", "bar");
-			Assert.AreEqual(expected, result);
-		}
-
-	}
-
-	public class GenericTransformationProvider<TConnection> : TransformationProvider<TConnection>
-		where TConnection : IDbConnection
-	{
-		public GenericTransformationProvider(TConnection conn)
-			: base(conn)
-		{
-		}
-
-		public override bool IndexExists(string indexName, string tableName)
-		{
-			return false;
-		}
-
-		public override bool TableExists(string table)
-		{
-			return false;
-		}
-
-		public override bool ColumnExists(string table, string column)
-		{
-			return false;
-		}
-
-		public override bool ConstraintExists(string table, string name)
-		{
-			return false;
+				Assert.Throws<RequirementNotCompliedException>(() =>
+					new ConditionByProvider(provider).For("System.DateTime", null));
+			}
 		}
 	}
 }

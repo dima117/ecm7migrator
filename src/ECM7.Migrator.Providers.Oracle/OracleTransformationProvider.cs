@@ -149,8 +149,6 @@ namespace ECM7.Migrator.Providers.Oracle
 			ExecuteNonQuery(sql);
 		}
 
-		// todo: написать тесты на добавление внешнего ключа с каскадным обновлением
-
 		protected override string GetSqlAddColumn(string table, string columnSql)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} ADD ({1})", table, columnSql);
