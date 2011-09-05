@@ -62,12 +62,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			get { return true; }
 		}
 
-		public override bool SupportsIndex
-		{
-			get { return true; }
-		}
-
-		public override string NamesQuoteTemplate
+		protected override string NamesQuoteTemplate
 		{
 			get { return "\"{0}\""; }
 		}

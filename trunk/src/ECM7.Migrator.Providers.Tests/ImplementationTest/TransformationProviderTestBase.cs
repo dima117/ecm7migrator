@@ -25,11 +25,6 @@
 
 		public abstract string ConnectionStrinSettingsName { get; }
 
-		public virtual bool UseTransaction
-		{
-			get { return true; }
-		}
-
 		[SetUp]
 		public virtual void SetUp()
 		{
@@ -43,21 +38,11 @@
 			Require.IsNotNullOrEmpty(constr, "Connection string \"{0}\" is not exist", ConnectionStrinSettingsName);
 
 			provider = ProviderFactory.Create<TProvider>(constr);
-
-			if (UseTransaction)
-			{
-				provider.BeginTransaction();
-			}
 		}
 
 		[TearDown]
 		public virtual void TearDown()
 		{
-			if (UseTransaction)
-			{
-				provider.Rollback();
-			}
-
 			provider.Dispose();
 		}
 
@@ -83,9 +68,13 @@
 		[Test]
 		public void CanExecuteBatches()
 		{
+			provider.AddTable("BatchSqlTest", 
+				new Column("Id", DbType.Int32),
+				new Column("TestId", DbType.Int32));
+
 			provider.ExecuteNonQuery(BatchSql);
 
-			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME} ORDER BY {2:NAME}", "TestId", "TestTwo", "Id");
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME} ORDER BY {2:NAME}", "TestId", "BatchSqlTest", "Id");
 
 			using (var reader = provider.ExecuteReader(sql))
 			{
@@ -96,13 +85,15 @@
 				}
 				Assert.IsFalse(reader.Read());
 			}
+
+			provider.RemoveTable("BatchSqlTest");
 		}
 
 		[Test]
 		public void CanExecuteScriptFromResources()
 		{
 			provider.AddTable("TestTwo",
-				new Column("ID", DbType.Int32),
+				new Column("Id", DbType.Int32),
 				new Column("TestId", DbType.Int32));
 
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
@@ -115,7 +106,6 @@
 
 			provider.RemoveTable("TestTwo");
 		}
-
 
 		#endregion
 
@@ -290,6 +280,33 @@
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual(4, reader.GetInt32(0));
 				Assert.AreEqual("testmoo", reader.GetString(1));
+
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(tableName);
+		}
+
+		[Test]
+		public void CanAddBooleanColumnWithDefault()
+		{
+			string tableName = this.GetRandomName("AddBooleanColumnTest");
+
+			provider.AddTable(tableName, new Column("ID", DbType.Int32));
+
+			provider.AddColumn(tableName, new Column("Boolean1", DbType.Boolean, ColumnProperty.NotNull, true));
+			provider.AddColumn(tableName, new Column("Boolean2", DbType.Boolean, ColumnProperty.NotNull, false));
+
+			provider.Insert(tableName, "ID".AsArray(), "22".AsArray());
+
+			string sql = provider.FormatSql("select * from {0:NAME}", tableName);
+			using (var reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+
+				Assert.AreEqual(22, reader["ID"]);
+				Assert.AreEqual(true, Convert.ToBoolean(reader["Boolean1"]));
+				Assert.AreEqual(false, Convert.ToBoolean(reader["Boolean2"]));
 
 				Assert.IsFalse(reader.Read());
 			}

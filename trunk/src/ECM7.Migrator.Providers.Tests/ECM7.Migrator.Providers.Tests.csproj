@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -83,7 +83,6 @@
     <Compile Include="ImplementationTest\TransformationProviderTestBase.cs" />
     <Compile Include="MySqlTransformationProviderTest.cs" />
     <Compile Include="OracleTransformationProviderTest.cs" />
-    <Compile Include="PostgreSQLTransformationProviderTest.cs" />
     <Compile Include="ProviderFactoryTest.cs" />
     <Compile Include="SQLiteTransformationProviderTest.cs" />
     <Compile Include="SqlServerCeTransformationProviderTest.cs" />

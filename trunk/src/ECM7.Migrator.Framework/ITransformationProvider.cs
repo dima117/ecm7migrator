@@ -258,8 +258,6 @@ namespace ECM7.Migrator.Framework
 
 		void ExecuteFromResource(Assembly assembly, string path);
 
-		string QuoteName(string name);
-
 		string FormatSql(string format, params object[] args);
 
 		void AddTable(string name, params Column[] columns);

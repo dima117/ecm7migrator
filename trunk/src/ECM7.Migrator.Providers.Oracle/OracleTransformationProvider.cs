@@ -58,7 +58,7 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		#region Overrides of SqlGenerator
 
-		public override string NamesQuoteTemplate
+		protected override string NamesQuoteTemplate
 		{
 			get { return "\"{0}\""; }
 		}
@@ -68,7 +68,7 @@ namespace ECM7.Migrator.Providers.Oracle
 			get { return "/"; }
 		}
 
-		public override string Default(object defaultValue)
+		protected override string GetSqlDefaultValue(object defaultValue)
 		{
 			// convert boolean to number (1, 0)
 			if (defaultValue is bool)
@@ -76,7 +76,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				defaultValue = (bool)defaultValue ? 1 : 0;
 			}
 
-			return base.Default(defaultValue);
+			return base.GetSqlDefaultValue(defaultValue);
 		}
 
 		public override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
@@ -85,7 +85,7 @@ namespace ECM7.Migrator.Providers.Oracle
 
 			sqlBuilder.AddColumnName(NamesQuoteTemplate);
 			sqlBuilder.AddColumnType(IdentityNeedsType);
-			sqlBuilder.AddDefaultValueSql(Default);
+			sqlBuilder.AddDefaultValueSql(this.GetSqlDefaultValue);
 			sqlBuilder.AddNotNullSql(NeedsNotNullForIdentity);
 			sqlBuilder.AddPrimaryKeySql(compoundPrimaryKey);
 			sqlBuilder.AddUniqueSql();

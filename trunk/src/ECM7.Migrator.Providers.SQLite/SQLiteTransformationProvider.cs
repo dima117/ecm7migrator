@@ -54,7 +54,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			get { return false; }
 		}
 
-		public override string NamesQuoteTemplate
+		protected override string NamesQuoteTemplate
 		{
 			get { return "[{0}]"; }
 		}
