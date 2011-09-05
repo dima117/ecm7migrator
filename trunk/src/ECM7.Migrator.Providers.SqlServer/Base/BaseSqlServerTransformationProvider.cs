@@ -49,7 +49,21 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			propertyMap.RegisterProperty(ColumnProperty.Identity, "IDENTITY");
 		}
 
-		#region Overrides of SqlGenerator
+		#region generate sql
+
+		protected override string GetSqlDefaultValue(object defaultValue)
+		{
+			if (defaultValue is bool)
+			{
+				defaultValue = ((bool)defaultValue) ? 1 : 0;
+			}
+
+			return String.Format("DEFAULT {0}", defaultValue);
+		}
+
+		#endregion
+
+		#region Особенности СУБД
 
 		protected override string NamesQuoteTemplate
 		{
@@ -61,20 +75,28 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			get { return "GO"; }
 		}
 
-		protected override string GetSqlDefaultValue(object defaultValue)
-		{
-			if (defaultValue.GetType().Equals(typeof(bool)))
-			{
-				defaultValue = ((bool)defaultValue) ? 1 : 0;
-			}
+		#endregion
 
-			return String.Format("DEFAULT {0}", defaultValue);
+		#region generate sql
+
+		protected override string GetSqlAddColumn(string table, string columnSql)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql);
 		}
 
+		protected override string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
+		{
+			return FormatSql("EXEC sp_rename '{0}.{1}', '{2}', 'COLUMN'", tableName, oldColumnName, newColumnName);
+		}
+
+		protected override string GetSqlRenameTable(string oldName, string newName)
+		{
+			return FormatSql("EXEC sp_rename '{0}', '{1}'", oldName, newName);
+		}
 
 		#endregion
 
-		#region custom sql
+		#region DDL
 
 		public override bool IndexExists(string indexName, string tableName)
 		{
@@ -101,11 +123,6 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			}
 		}
 
-		protected override string GetSqlAddColumn(string table, string columnSql)
-		{
-			return FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql);
-		}
-
 		public override bool ColumnExists(string table, string column)
 		{
 			using (IDataReader reader =
@@ -117,8 +134,9 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 
 		public override bool TableExists(string table)
 		{
-			using (IDataReader reader =
-				ExecuteReader(String.Format("SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME]='{0}'", table)))
+			string sql = FormatSql("SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME]='{0}'", table);
+
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
 			}
@@ -148,18 +166,8 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			base.RemoveColumn(table, column);
 		}
 
-		protected override string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
-		{
-			return FormatSql("EXEC sp_rename '{0}.{1}', '{2}', 'COLUMN'", tableName, oldColumnName, newColumnName);
-		}
-
-		protected override string GetSqlRenameTable(string oldName, string newName)
-		{
-			return FormatSql("EXEC sp_rename '{0}', '{1}'", oldName, newName);
-		}
-
-		// Deletes all constraints linked to a column. Sql Server
-		// doesn't seems to do this.
+		// Deletes all constraints linked to a column. 
+		// Sql Server doesn't seems to do this.
 		private void DeleteColumnConstraints(string table, string column)
 		{
 			string sqlContrainte = FindConstraints(table, column);

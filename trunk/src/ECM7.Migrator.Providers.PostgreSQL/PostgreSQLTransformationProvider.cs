@@ -7,8 +7,6 @@ using Npgsql;
 
 namespace ECM7.Migrator.Providers.PostgreSQL
 {
-	using ECM7.Migrator.Framework.Logging;
-
 	/// <summary>
 	/// Migration transformations provider for PostgreSQL
 	/// </summary>
