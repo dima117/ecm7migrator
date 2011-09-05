@@ -80,6 +80,11 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
 		}
 
+		protected virtual string GetSqlRemoveTable(string table)
+		{
+			return FormatSql("DROP TABLE {0:NAME}", table);
+		}
+
 		public virtual string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
 		{
 			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
@@ -155,10 +160,9 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", oldName, newName);
 		}
 
-		protected virtual string GetSqlGetTables()
+		protected virtual string GetSqlRemoveIndex(string indexName, string tableName)
 		{
-			return FormatSql("SELECT {0:NAME} FROM {1:NAME}.{2:NAME}",
-				"table_name", "information_schema", "tables");
+			return FormatSql("DROP INDEX {0:NAME} ON {1:NAME}", indexName, tableName);
 		}
 
 		#endregion
@@ -210,34 +214,19 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(createTableSql);
 		}
 
-		public virtual string[] GetTables()
-		{
-			List<string> tables = new List<string>();
-			string sql = GetSqlGetTables();
-
-			using (IDataReader reader = ExecuteReader(sql))
-			{
-				while (reader.Read())
-				{
-					string tableName = reader.GetString(0);
-					tables.Add(tableName);
-				}
-			}
-
-			return tables.ToArray();
-		}
+		public abstract string[] GetTables();
 
 		public abstract bool TableExists(string table);
 
 		public virtual void RenameTable(string oldName, string newName)
 		{
-			string sql = this.GetSqlRenameTable(oldName, newName);
+			string sql = GetSqlRenameTable(oldName, newName);
 			ExecuteNonQuery(sql);
 		}
 
 		public virtual void RemoveTable(string name)
 		{
-			string sql = FormatSql("DROP TABLE {0:NAME}", name);
+			string sql = GetSqlRemoveTable(name);
 			ExecuteNonQuery(sql);
 		}
 
@@ -330,11 +319,6 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sql);
 		}
 
-		/// <summary>
-		/// Determines if a constraint exists.
-		/// </summary>
-		/// <param name="name">Constraint name</param>
-		/// <param name="table">Table owning the constraint</param>
 		public abstract bool ConstraintExists(string table, string name);
 
 		public virtual void RemoveConstraint(string table, string name)
@@ -364,7 +348,7 @@ namespace ECM7.Migrator.Providers
 
 		public virtual void RemoveIndex(string indexName, string tableName)
 		{
-			string sql = FormatSql("DROP INDEX {0:NAME} ON {1:NAME}", indexName, tableName);
+			string sql = GetSqlRemoveIndex(indexName, tableName);
 
 			ExecuteNonQuery(sql);
 		}

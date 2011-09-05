@@ -50,21 +50,11 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			propertyMap.RegisterProperty(ColumnProperty.Identity, "serial");
 		}
 
-		#region Overrides of SqlGenerator
+		#region Особенности СУБД
 
 		public override bool IdentityNeedsType
 		{
 			get { return false; }
-		}
-
-		public override bool NeedsNotNullForIdentity
-		{
-			get { return true; }
-		}
-
-		protected override string NamesQuoteTemplate
-		{
-			get { return "\"{0}\""; }
 		}
 
 		public override string BatchSeparator
@@ -76,10 +66,14 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		#region custom sql
 
-		public override void RemoveTable(string name)
+		protected override string GetSqlRemoveTable(string table)
 		{
-			string sql = FormatSql("DROP TABLE {0:NAME} CASCADE", name);
-			ExecuteNonQuery(sql);
+			return FormatSql("DROP TABLE {0:NAME} CASCADE", table);
+		}
+
+		protected override string GetSqlRemoveIndex(string indexName, string tableName)
+		{
+			return FormatSql("DROP INDEX {0:NAME}", indexName);
 		}
 
 		public override bool IndexExists(string indexName, string tableName)
@@ -101,19 +95,6 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			return count > 0;
 		}
 
-		public override void RemoveIndex(string indexName, string tableName)
-		{
-			if (!IndexExists(indexName, tableName))
-			{
-				MigratorLogManager.Log.WarnFormat("Index {0} is not exists", indexName);
-				return;
-			}
-
-			string sql = FormatSql("DROP INDEX {0:NAME}", indexName);
-
-			ExecuteNonQuery(sql);
-		}
-
 		public override bool ConstraintExists(string table, string name)
 		{
 			string sql = string.Format("SELECT \"constraint_name\" FROM \"information_schema\".\"table_constraints\" WHERE \"table_schema\" = 'public' AND \"constraint_name\" = '{0}'", name);
@@ -126,11 +107,6 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override bool ColumnExists(string table, string column)
 		{
-			if (!TableExists(table))
-			{
-				return false;
-			}
-
 			string sql = String.Format("SELECT \"column_name\" FROM \"information_schema\".\"columns\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}' AND \"column_name\" = '{1}'", table, column);
 
 			using (IDataReader reader = ExecuteReader(sql))
@@ -149,29 +125,22 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 		}
 
-
-
 		public override void ChangeColumn(string table, Column column)
 		{
-			if (!ColumnExists(table, column.Name))
-			{
-				MigratorLogManager.Log.WarnFormat("Column {0}.{1} does not exist", table, column.Name);
-				return;
-			}
-
 			string tempColumn = "temp_" + column.Name;
 			RenameColumn(table, column.Name, tempColumn);
 			AddColumn(table, column);
 
 			string sql = FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", table, column.Name, tempColumn);
-			ExecuteReader(sql);
+			ExecuteNonQuery(sql);
+
 			RemoveColumn(table, tempColumn);
 		}
 
 		public override string[] GetTables()
 		{
 			List<string> tables = new List<string>();
-			using (IDataReader reader = ExecuteReader("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"))
+			using (IDataReader reader = ExecuteReader("SELECT \"table_name\" FROM \"information_schema\".\"tables\" WHERE \"table_schema\" = 'public'"))
 			{
 				while (reader.Read())
 				{
