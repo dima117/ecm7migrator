@@ -1,11 +1,9 @@
 using System;
 using System.Data;
 using System.Data.SqlServerCe;
-using ECM7.Migrator.Exceptions;
 
 namespace ECM7.Migrator.Providers.SqlServer
 {
-	using ECM7.Migrator.Framework.Logging;
 	using ECM7.Migrator.Providers.SqlServer.Base;
 
 	/// <summary>
@@ -48,12 +46,12 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
-			throw new MigrationException("SqlServerCe doesn't support column renaming");
+			throw new NotSupportedException("SqlServerCe doesn't support column renaming");
 		}
 
 		public override void AddCheckConstraint(string name, string table, string checkSql)
 		{
-			throw new MigrationException("SqlServerCe doesn't support check constraints");
+			throw new NotSupportedException("SqlServerCe doesn't support check constraints");
 		}
 
 		public override bool IndexExists(string indexName, string tableName)
@@ -65,18 +63,9 @@ namespace ECM7.Migrator.Providers.SqlServer
 			return count > 0;
 		}
 
-		public override void RemoveIndex(string indexName, string tableName)
+		protected override string GetSqlRemoveIndex(string indexName, string tableName)
 		{
-			if (!IndexExists(indexName, tableName))
-			{
-				MigratorLogManager.Log.WarnFormat("Index {0} is not exists", indexName);
-				return;
-			}
-
-			string sql = FormatSql("DROP INDEX {0:NAME}.{1:NAME}", tableName, indexName);
-
-			ExecuteNonQuery(sql);
-
+			return FormatSql("DROP INDEX {0:NAME}.{1:NAME}", tableName, indexName);
 		}
 
 		protected override string FindConstraints(string table, string column)
