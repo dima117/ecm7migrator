@@ -124,6 +124,24 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			}
 		}
 
+		public override string[] GetTables()
+		{
+			List<string> tables = new List<string>();
+			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}.{2:NAME}",
+				"table_name", "information_schema", "tables");
+
+			using (IDataReader reader = ExecuteReader(sql))
+			{
+				while (reader.Read())
+				{
+					string tableName = reader.GetString(0);
+					tables.Add(tableName);
+				}
+			}
+
+			return tables.ToArray();
+		}
+
 		public override void RemoveColumn(string table, string column)
 		{
 			DeleteColumnConstraints(table, column);
