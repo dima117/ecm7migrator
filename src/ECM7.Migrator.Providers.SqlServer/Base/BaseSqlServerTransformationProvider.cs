@@ -51,7 +51,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 
 		#region Overrides of SqlGenerator
 
-		public override string NamesQuoteTemplate
+		protected override string NamesQuoteTemplate
 		{
 			get { return "[{0}]"; }
 		}
@@ -61,7 +61,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			get { return "GO"; }
 		}
 
-		public override string Default(object defaultValue)
+		protected override string GetSqlDefaultValue(object defaultValue)
 		{
 			if (defaultValue.GetType().Equals(typeof(bool)))
 			{

@@ -66,12 +66,12 @@ namespace ECM7.Migrator.Providers.MySql
 			get { return false; }
 		}
 
-		public override string NamesQuoteTemplate
+		protected override string NamesQuoteTemplate
 		{
 			get { return "`{0}`"; }
 		}
 
-		public override string Default(object defaultValue)
+		protected override string GetSqlDefaultValue(object defaultValue)
 		{
 			if (defaultValue.GetType().Equals(typeof(bool)))
 			{

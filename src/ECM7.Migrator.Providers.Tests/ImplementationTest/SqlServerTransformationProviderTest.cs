@@ -15,6 +15,24 @@
 			get { return "SqlServerConnectionString"; }
 		}
 
+		protected override string BatchSql
+		{
+			get
+			{
+				return @"
+					insert into [BatchSqlTest] ([Id], [TestId]) values (11, 111)
+					GO
+					insert into [BatchSqlTest] ([Id], [TestId]) values (22, 222)
+					GO
+					insert into [BatchSqlTest] ([Id], [TestId]) values (33, 333)
+					GO
+					insert into [BatchSqlTest] ([Id], [TestId]) values (44, 444)
+					GO
+					go
+					insert into [BatchSqlTest] ([Id], [TestId]) values (55, 555)";
+			}
+		}
+
 		#endregion
 	}
 }

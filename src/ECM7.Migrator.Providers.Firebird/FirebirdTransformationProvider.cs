@@ -52,7 +52,7 @@ namespace ECM7.Migrator.Providers.Firebird
 			get { return ";"; }
 		}
 
-		public override string Default(object defaultValue)
+		protected override string GetSqlDefaultValue(object defaultValue)
 		{
 			if (defaultValue.GetType().Equals(typeof(bool)))
 			{
@@ -170,7 +170,7 @@ namespace ECM7.Migrator.Providers.Firebird
 
 			sqlBuilder.AddColumnName(NamesQuoteTemplate);
 			sqlBuilder.AddColumnType(IdentityNeedsType);
-			sqlBuilder.AddDefaultValueSql(Default);
+			sqlBuilder.AddDefaultValueSql(GetSqlDefaultValue);
 			sqlBuilder.AddNotNullSql(NeedsNotNullForIdentity);
 			sqlBuilder.AddPrimaryKeySql(compoundPrimaryKey);
 			sqlBuilder.AddUniqueSql();

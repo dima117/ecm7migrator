@@ -33,22 +33,8 @@ namespace ECM7.Migrator.Providers.Tests
 				insert into [TestTwo] ([Id], [TestId]) values (44, 444)
 				GO
 				go
-				insert into [TestTwo] ([Id], [TestId]) values (55, 555)
-				";
+				insert into [TestTwo] ([Id], [TestId]) values (55, 555)";
 			}
-		}
-
-		[Test]
-		public void QuoteCreatesProperFormat()
-		{
-			//Assert.AreEqual("[foo]", provider.QuoteName("foo"));
-		}
-
-		[Test]
-		public void ByteColumnWillBeCreatedAsBlob()
-		{
-			//provider.AddColumn("TestTwo", new Column("BlobColumn", DbType.Byte));
-			//Assert.IsTrue(provider.ColumnExists("TestTwo", "BlobColumn"));
 		}
 
 		[Test]

@@ -27,7 +27,7 @@ namespace ECM7.Migrator.Providers
 		protected TransformationProvider(TConnection connection)
 			: base(connection)
 		{
-			sqlFormatProvider = new SqlFormatter(obj => QuoteName(obj.ToString()));
+			sqlFormatProvider = new SqlFormatter(obj => string.Format(NamesQuoteTemplate, obj));
 
 			propertyMap.RegisterProperty(ColumnProperty.Null, "NULL");
 			propertyMap.RegisterProperty(ColumnProperty.NotNull, "NOT NULL");
@@ -35,47 +35,19 @@ namespace ECM7.Migrator.Providers
 			propertyMap.RegisterProperty(ColumnProperty.PrimaryKey, "PRIMARY KEY");
 		}
 
-		#region tmp
-
-		#region Экранирование зарезервированных слов в идентификаторах
-
-
-		/// <summary>
-		/// Обертывание идентификаторов в кавычки
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		public virtual string QuoteName(string name)
-		{
-			return String.Format(NamesQuoteTemplate, name);
-		}
+		#region common
 
 		public string FormatSql(string format, params object[] args)
 		{
 			return string.Format(sqlFormatProvider, format, args);
 		}
 
+		public IConditionByProvider ConditionalExecuteAction()
+		{
+			return new ConditionByProvider(this);
+		}
+
 		#endregion
-
-		public virtual string Default(object defaultValue)
-		{
-			return String.Format("DEFAULT {0}", defaultValue);
-		}
-
-		public string SqlForConstraint(ForeignKeyConstraint constraint)
-		{
-			switch (constraint)
-			{
-				case ForeignKeyConstraint.Cascade:
-					return "CASCADE";
-				case ForeignKeyConstraint.SetDefault:
-					return "SET DEFAULT";
-				case ForeignKeyConstraint.SetNull:
-					return "SET NULL";
-				default:
-					return "NO ACTION";
-			}
-		}
 
 		#region Особенности СУБД
 
@@ -89,28 +61,14 @@ namespace ECM7.Migrator.Providers
 			get { return true; }
 		}
 
-		public virtual bool SupportsIndex
-		{
-			get { return true; }
-		}
-
 		public bool TypeIsSupported(DbType type)
 		{
 			return typeMap.HasType(type);
 		}
 
-		public virtual string NamesQuoteTemplate
+		protected virtual string NamesQuoteTemplate
 		{
 			get { return "\"{0}\""; }
-		}
-
-
-		#endregion
-
-		public virtual string[] QuoteValues(params string[] values)
-		{
-			return Array.ConvertAll(values,
-				val => null == val ? "null" : String.Format("'{0}'", val.Replace("'", "''")));
 		}
 
 		#endregion
@@ -138,7 +96,7 @@ namespace ECM7.Migrator.Providers
 			// identity нуждается в типе
 			sqlBuilder.AddSqlForIdentityWhichNeedsType(IdentityNeedsType);
 			sqlBuilder.AddUniqueSql();
-			sqlBuilder.AddDefaultValueSql(Default);
+			sqlBuilder.AddDefaultValueSql(this.GetSqlDefaultValue);
 
 			return sqlBuilder.ToString();
 		}
@@ -151,9 +109,29 @@ namespace ECM7.Migrator.Providers
 
 		}
 
+		protected virtual string GetSqlDefaultValue(object defaultValue)
+		{
+			return string.Format("DEFAULT {0}", defaultValue);
+		}
+
 		protected virtual string GetSqlAddColumn(string table, string columnSql)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
+		}
+
+		protected virtual string GetSqlForeignKey(ForeignKeyConstraint constraint)
+		{
+			switch (constraint)
+			{
+				case ForeignKeyConstraint.Cascade:
+					return "CASCADE";
+				case ForeignKeyConstraint.SetDefault:
+					return "SET DEFAULT";
+				case ForeignKeyConstraint.SetNull:
+					return "SET NULL";
+				default:
+					return "NO ACTION";
+			}
 		}
 
 		protected virtual string GetSqlChangeColumn(string table, string columnSql)
@@ -318,8 +296,8 @@ namespace ECM7.Migrator.Providers
 			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
 			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
-			string onDeleteConstraintResolved = SqlForConstraint(onDeleteConstraint);
-			string onUpdateConstraintResolved = SqlForConstraint(onUpdateConstraint);
+			string onDeleteConstraintResolved = this.GetSqlForeignKey(onDeleteConstraint);
+			string onUpdateConstraintResolved = this.GetSqlForeignKey(onUpdateConstraint);
 
 			string sql = FormatSql(
 				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} FOREIGN KEY ({2:COLS}) REFERENCES {3:NAME} ({4:COLS}) ON UPDATE {5} ON DELETE {6}",
@@ -399,16 +377,27 @@ namespace ECM7.Migrator.Providers
 
 		public virtual int Insert(string table, string[] columns, string[] values)
 		{
+			var quotedValues = values.Select(val => 
+				null == val 
+					? "null" 
+					: string.Format("'{0}'", val.Replace("'", "''")));
+
 			// todo: сделать, чтобы методы insert и update получали массив object
 			string sql = FormatSql("INSERT INTO {0:NAME} ({1:COLS}) VALUES ({2})",
-				table, columns, QuoteValues(values).ToCommaSeparatedString());
+				table, columns, quotedValues.ToCommaSeparatedString());
 
 			return ExecuteNonQuery(sql);
 		}
 
 		public virtual int Update(string table, string[] columns, string[] values, string whereSql = null)
 		{
-			string[] quotedValues = QuoteValues(values);
+			var quotedValues = values
+				.Select(val =>
+					null == val
+						? "null"
+						: string.Format("'{0}'", val.Replace("'", "''")))
+				.ToList();
+
 			string namesAndValues = columns
 				.Select((col, i) => FormatSql("{0:NAME}={1}", col, quotedValues[i]))
 				.ToCommaSeparatedString();
@@ -433,11 +422,6 @@ namespace ECM7.Migrator.Providers
 		}
 
 		#endregion
-
-		public IConditionByProvider ConditionalExecuteAction()
-		{
-			return new ConditionByProvider(this);
-		}
 
 		#region methods for migrator core
 
