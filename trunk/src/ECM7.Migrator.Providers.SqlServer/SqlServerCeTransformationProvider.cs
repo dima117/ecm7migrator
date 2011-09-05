@@ -31,7 +31,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 			typeMap.Put(DbType.Binary, int.MaxValue, "IMAGE");
 
 			typeMap.Put(DbType.Decimal, "NUMERIC(19,5)");
-			typeMap.Put(DbType.Decimal, 19, "NUMERIC(19, $l)");
+			typeMap.Put(DbType.Decimal, 19, "NUMERIC($l, $s)");
 			typeMap.Put(DbType.Double, "FLOAT");
 		}
 

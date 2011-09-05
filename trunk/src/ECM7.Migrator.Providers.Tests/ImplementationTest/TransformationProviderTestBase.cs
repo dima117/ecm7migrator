@@ -112,7 +112,7 @@
 		#region table
 
 		[Test]
-		public void CanAddAndDropTable()
+		public virtual void CanAddAndDropTable()
 		{
 			string tableName = this.GetRandomName("MooTable");
 
@@ -128,14 +128,14 @@
 		}
 
 		[Test]
-		public void CanCreateTableWithNecessaryCols()
+		public virtual void CanCreateTableWithNecessaryCols()
 		{
 			string tableName = this.GetRandomName("Mimimi");
 
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32),
 				new Column("StringColumn", DbType.String.WithSize(500)),
-				new Column("DecimalColumn", DbType.Decimal.WithSize(18, 2))
+				new Column("DecimalColumn", DbType.Decimal.WithSize(10, 2))
 			);
 
 			provider.Insert(
@@ -159,7 +159,7 @@
 		}
 
 		[Test]
-		public void CanAddTableWithCompoundPrimaryKey()
+		public virtual void CanAddTableWithCompoundPrimaryKey()
 		{
 			string tableName = this.GetRandomName("TableWCPK");
 
@@ -179,7 +179,7 @@
 		}
 
 		[Test]
-		public void TableWithCompoundPrimaryKeyShouldKeepNullForOtherProperties()
+		public virtual void TableWithCompoundPrimaryKeyShouldKeepNullForOtherProperties()
 		{
 			string tableName = GetRandomName("Test");
 
@@ -205,7 +205,7 @@
 		}
 
 		[Test]
-		public void CanRenameTable()
+		public virtual void CanRenameTable()
 		{
 			string table1 = this.GetRandomName("tableMoo");
 			string table2 = this.GetRandomName("tableHru");
@@ -222,14 +222,14 @@
 		}
 
 		[Test]
-		public void CantRemoveUnexistingTable()
+		public virtual void CantRemoveUnexistingTable()
 		{
 			string randomTableName = GetRandomName();
 			Assert.Throws<SQLException>(() => provider.RemoveTable(randomTableName));
 		}
 
 		[Test]
-		public void CanGetTables()
+		public virtual void CanGetTables()
 		{
 			string table1 = this.GetRandomName("tableMoo");
 			string table2 = this.GetRandomName("tableHru");
@@ -256,7 +256,7 @@
 		#region columns
 
 		[Test]
-		public void CanAddColumn()
+		public virtual void CanAddColumn()
 		{
 			string tableName = this.GetRandomName("AddColumnTest");
 
@@ -288,7 +288,7 @@
 		}
 
 		[Test]
-		public void CanAddBooleanColumnWithDefault()
+		public virtual void CanAddBooleanColumnWithDefault()
 		{
 			string tableName = this.GetRandomName("AddBooleanColumnTest");
 
@@ -315,7 +315,7 @@
 		}
 
 		[Test]
-		public void CanChangeColumn()
+		public virtual void CanChangeColumn()
 		{
 			string tableName = GetRandomName("ChangeColumnTest");
 
@@ -339,7 +339,7 @@
 		}
 
 		[Test]
-		public void CanRenameColumn()
+		public virtual void CanRenameColumn()
 		{
 			string tableName = GetRandomName("RenameColumnTest");
 
@@ -353,7 +353,7 @@
 		}
 
 		[Test]
-		public void CanRemoveColumn()
+		public virtual void CanRemoveColumn()
 		{
 			string tableName = GetRandomName("RemoveColumnTest");
 
@@ -369,7 +369,7 @@
 		}
 
 		[Test]
-		public void CantRemoveUnexistingColumn()
+		public virtual void CantRemoveUnexistingColumn()
 		{
 			string tableName = GetRandomName("RemoveUnexistingColumn");
 
@@ -388,7 +388,7 @@
 		#region primary key
 
 		[Test]
-		public void CanAddPrimaryKey()
+		public virtual void CanAddPrimaryKey()
 		{
 			string tableName = GetRandomName("AddPrimaryKey");
 			string pkName = GetRandomName("PK_AddPrimaryKey");
@@ -409,7 +409,7 @@
 		}
 
 		[Test]
-		public void CanCheckThatPrimaryKeyIsExist()
+		public virtual void CanCheckThatPrimaryKeyIsExist()
 		{
 			string tableName = GetRandomName("CheckThatPrimaryKeyIsExist");
 			string pkName = GetRandomName("PK_CheckThatPrimaryKeyIsExist");
@@ -431,7 +431,7 @@
 		#region foreign key
 
 		[Test]
-		public void CanAddForeignKey()
+		public virtual void CanAddForeignKey()
 		{
 			// создаем таблицы и добавляем внешний ключ
 			string primaryTable = GetRandomName("AddForeignKey_Primary");
@@ -458,7 +458,7 @@
 		}
 
 		[Test]
-		public void CanAddComplexForeignKey()
+		public virtual void CanAddComplexForeignKey()
 		{
 			// создаем таблицы и добавляем внешний ключ
 			string primaryTable = GetRandomName("AddForeignKey_Primary");
@@ -500,7 +500,7 @@
 		}
 
 		[Test]
-		public void CanAddForeignKeyWithDeleteCascade()
+		public virtual void CanAddForeignKeyWithDeleteCascade()
 		{
 			string primaryTable = GetRandomName("AddForeignKey_Primary");
 			string refTable = GetRandomName("AddForeignKey_Ref");
@@ -526,7 +526,7 @@
 		}
 
 		[Test]
-		public void CanAddForeignKeyWithUpdateCascade()
+		public virtual void CanAddForeignKeyWithUpdateCascade()
 		{
 			string primaryTable = GetRandomName("AddForeignKey_Primary");
 			string refTable = GetRandomName("AddForeignKey_Ref");
@@ -556,7 +556,7 @@
 		}
 
 		[Test]
-		public void CanAddForeignKeyWithDeleteSetNull()
+		public virtual void CanAddForeignKeyWithDeleteSetNull()
 		{
 			string primaryTable = GetRandomName("AddForeignKey_Primary");
 			string refTable = GetRandomName("AddForeignKey_Ref");
@@ -582,7 +582,7 @@
 		}
 
 		[Test]
-		public void CanAddForeignKeyWithUpdateSetNull()
+		public virtual void CanAddForeignKeyWithUpdateSetNull()
 		{
 			string primaryTable = GetRandomName("AddForeignKey_Primary");
 			string refTable = GetRandomName("AddForeignKey_Ref");
@@ -612,7 +612,7 @@
 		}
 
 		[Test]
-		public void CanAddForeignKeyWithDeleteSetDefault()
+		public virtual void CanAddForeignKeyWithDeleteSetDefault()
 		{
 			string primaryTable = GetRandomName("AddForeignKey_Primary");
 			string refTable = GetRandomName("AddForeignKey_Ref");
@@ -641,7 +641,7 @@
 		}
 
 		[Test]
-		public void CanAddForeignKeyWithUpdateSetDefault()
+		public virtual void CanAddForeignKeyWithUpdateSetDefault()
 		{
 			string primaryTable = GetRandomName("AddForeignKey_Primary");
 			string refTable = GetRandomName("AddForeignKey_Ref");
@@ -677,7 +677,7 @@
 		#region unique constraint
 
 		[Test]
-		public void CanAddComplexUniqueConstraint()
+		public virtual void CanAddComplexUniqueConstraint()
 		{
 			string tableName = GetRandomName("AddComplexUniqueConstraint");
 			string ucName = GetRandomName("UC_AddComplexUniqueConstraint");
@@ -712,7 +712,7 @@
 		}
 
 		[Test]
-		public void CanCheckThatUniqueConstraintIsExist()
+		public virtual void CanCheckThatUniqueConstraintIsExist()
 		{
 			string tableName = GetRandomName("AddUniqueConstraint");
 			string ucName = GetRandomName("UK_AddUniqueConstraint");
@@ -737,7 +737,7 @@
 		#region check constraint
 
 		[Test]
-		public void CanAddCheckConstraint()
+		public virtual void CanAddCheckConstraint()
 		{
 			string tableName = GetRandomName("AddCheckConstraint");
 			string constraintName = GetRandomName("CC_AddCheckConstraint");
@@ -755,7 +755,7 @@
 		}
 
 		[Test]
-		public void CanVerifyThatCheckConstraintIsExist()
+		public virtual void CanVerifyThatCheckConstraintIsExist()
 		{
 			string tableName = GetRandomName("CheckConstraintIsExist");
 			string constraintName = GetRandomName("CC_CheckConstraintIsExist");
