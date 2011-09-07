@@ -1,21 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using ECM7.Migrator.Exceptions;
+using System.Linq;
+
 using ECM7.Migrator.Framework;
 using MySql.Data.MySqlClient;
 
 namespace ECM7.Migrator.Providers.MySql
 {
+	using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
+
 	/// <summary>
 	/// Summary description for MySqlTransformationProvider.
 	/// </summary>
 	public class MySqlTransformationProvider : TransformationProvider<MySqlConnection>
 	{
-		/// <summary>
-		/// Инициализация
-		/// </summary>
-		/// <param name="connection">Подключение к БД</param>
 		public MySqlTransformationProvider(MySqlConnection connection)
 			: base(connection)
 		{
@@ -54,12 +53,12 @@ namespace ECM7.Migrator.Providers.MySql
 			typeMap.Put(DbType.String, 16777215, "MEDIUMTEXT");
 			typeMap.Put(DbType.Time, "TIME");
 
-			propertyMap.RegisterProperty(ColumnProperty.Unsigned, "UNSIGNED");
-			propertyMap.RegisterProperty(ColumnProperty.Identity, "AUTO_INCREMENT");
+			propertyMap.RegisterPropertySql(ColumnProperty.Unsigned, "UNSIGNED");
+			propertyMap.RegisterPropertySql(ColumnProperty.Identity, "AUTO_INCREMENT");
 
 		}
 
-		#region Overrides of SqlGenerator
+		#region Особенности СУБД
 
 		public override bool IdentityNeedsType
 		{
@@ -71,33 +70,42 @@ namespace ECM7.Migrator.Providers.MySql
 			get { return "`{0}`"; }
 		}
 
-		protected override string GetSqlDefaultValue(object defaultValue)
-		{
-			if (defaultValue.GetType().Equals(typeof(bool)))
-			{
-				defaultValue = ((bool)defaultValue) ? 1 : 0;
-			}
-			return String.Format("DEFAULT {0}", defaultValue);
-		}
-
 		#endregion
 
 		#region custom sql
 
-		public override void RemoveConstraint(string table, string name)
+		protected override string GetSqlChangeColumn(string table, string columnSql)
 		{
-			if (ConstraintExists(table, name))
-			{
-				string sql = FormatSql("ALTER TABLE {0:NAME} DROP KEY {1:NAME}", table, name);
-				ExecuteNonQuery(sql);
-			}
+			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1}", table, columnSql);
 		}
+
+		protected override string GetSqlDefaultValue(object defaultValue)
+		{
+			if (defaultValue is bool)
+			{
+				defaultValue = ((bool)defaultValue) ? 1 : 0;
+			}
+
+			return String.Format("DEFAULT {0}", defaultValue);
+		}
+
+		protected override string GetSqlRemoveConstraint(string table, string name)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} DROP KEY {1:NAME}", table, name);
+		}
+
+		protected override string GetSqlAddTable(string table, string engine, string columnsSql)
+		{
+			string dbEngine = engine.Nvl("INNODB");
+			return FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", table, columnsSql, dbEngine);
+		}
+
+		#endregion
+
+			#region DDL
 
 		public override bool IndexExists(string indexName, string tableName)
 		{
-			if (!TableExists(tableName))
-				return false;
-
 			string sql = FormatSql("SHOW INDEXES FROM {0:NAME}", tableName);
 
 			using (IDataReader reader = ExecuteReader(sql))
@@ -116,9 +124,6 @@ namespace ECM7.Migrator.Providers.MySql
 
 		public override bool ConstraintExists(string table, string name)
 		{
-			if (!TableExists(table))
-				return false;
-
 			string sqlConstraint = FormatSql("SHOW KEYS FROM {0:NAME}", table);
 
 			using (IDataReader reader = ExecuteReader(sqlConstraint))
@@ -151,76 +156,39 @@ namespace ECM7.Migrator.Providers.MySql
 
 		public override bool TableExists(string table)
 		{
-			throw new NotImplementedException("Нужно реализовать проверку существования таблицы в MySql");
+			return GetTables().Contains(table.ToLower());
 		}
 
 		public override bool ColumnExists(string table, string column)
 		{
-			throw new NotImplementedException("Нужно реализовать проверку существования колонки");
-		}
-
-		protected override string GetSqlChangeColumn(string table, string columnSql)
-		{
-			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1}", table, columnSql);
-		}
-
-		protected override string GetSqlAddTable(string table, string engine, string columnsSql)
-		{
-			string dbEngine = engine.Nvl("INNODB");
-			return FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", table, columnsSql, dbEngine);
+			string sql = FormatSql("SHOW COLUMNS FROM {0:NAME} WHERE Field='{1}'", table, column);
+			using (IDataReader reader = ExecuteReader(sql))
+			{
+				return reader.Read();
+			}
 		}
 
 		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
-			if (ColumnExists(tableName, newColumnName))
-				throw new MigrationException(String.Format("Table '{0}' has column named '{1}' already", tableName, newColumnName));
-
-			if (ColumnExists(tableName, oldColumnName))
-			{
-				string definition = null;
-				string sql = FormatSql("SHOW COLUMNS FROM {0:NAME} WHERE Field='{1}'", tableName, oldColumnName);
-				using (IDataReader reader = ExecuteReader(sql))
-				{
-					if (reader.Read())
-					{
-						// TODO: Could use something similar to construct the columns in GetColumns
-						definition = reader["Type"].ToString();
-						if ("NO" == reader["Null"].ToString())
-						{
-							definition += " " + "NOT NULL";
-						}
-
-						if (!reader.IsDBNull(reader.GetOrdinal("Key")))
-						{
-							string key = reader["Key"].ToString();
-							if ("PRI" == key)
-							{
-								definition += " " + "PRIMARY KEY";
-							}
-							else if ("UNI" == key)
-							{
-								definition += " " + "UNIQUE";
-							}
-						}
-
-						if (!reader.IsDBNull(reader.GetOrdinal("Extra")))
-						{
-							definition += " " + reader["Extra"];
-						}
-					}
-				}
-
-				if (!String.IsNullOrEmpty(definition))
-				{
-					ExecuteNonQuery(FormatSql("ALTER TABLE {0:NAME} CHANGE {1:NAME} {2:NAME} {3}", tableName, oldColumnName, newColumnName, definition));
-				}
-			}
+			throw new NotSupportedException("MySql doesn't support column rename");
 		}
 
 		public override void AddCheckConstraint(string name, string table, string checkSql)
 		{
 			throw new NotSupportedException("MySql doesn't support check constraints");
 		}
+
+		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, Framework.ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, Framework.ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
+		{
+			if (onDeleteConstraint == ForeignKeyConstraint.SetDefault || 
+				onUpdateConstraint == ForeignKeyConstraint.SetDefault)
+			{
+				throw new NotSupportedException("MySQL не поддерживает SET DEFAULT для внешних ключей");
+			}
+
+			base.AddForeignKey(name, primaryTable, primaryColumns, refTable, refColumns, onDeleteConstraint, onUpdateConstraint);
+		}
+
 		#endregion
 	}
 }

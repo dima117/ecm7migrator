@@ -1,18 +1,10 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using NUnit.Framework;
-
-	[TestFixture, Category("SQLite")]
 	public class SQLiteTransformationProviderTest
 	{
 		public string ConnectionStrinSettingsName
 		{
 			get { return "SQLiteConnectionString"; }
-		}
-
-		public bool UseTransaction
-		{
-			get { return true; }
 		}
 
 		protected string BatchSql

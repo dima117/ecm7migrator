@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using ECM7.Migrator.Exceptions;
+
 using ECM7.Migrator.Framework;
-using ECM7.Migrator.Framework.Logging;
 
 namespace ECM7.Migrator.Providers.Firebird
 {
@@ -45,30 +44,74 @@ namespace ECM7.Migrator.Providers.Firebird
 			typeMap.Put(DbType.Time, "TIMESTAMP");
 		}
 
-		#region Overrides of SqlGenerator
+		#region Особенности СУБД
 
 		public override string BatchSeparator
 		{
-			get { return ";"; }
-		}
-
-		protected override string GetSqlDefaultValue(object defaultValue)
-		{
-			if (defaultValue.GetType().Equals(typeof(bool)))
-			{
-				defaultValue = ((bool)defaultValue) ? 1 : 0;
-			}
-			return String.Format("DEFAULT {0}", defaultValue);
+			get { return "/"; }
 		}
 
 		#endregion
 
-		#region custom sql
+		#region override SqlRunner methods
 
 		protected override IDataReader OpenDataReader(IDbCommand cmd)
 		{
 			return new InternalDataReader(cmd);
 		}
+
+		#endregion
+
+		#region generate sql
+
+		protected override string GetSqlDefaultValue(object defaultValue)
+		{
+			if (defaultValue is bool)
+			{
+				defaultValue = ((bool)defaultValue) ? 1 : 0;
+			}
+
+			return String.Format("DEFAULT {0}", defaultValue);
+		}
+
+		protected override string GetSqlRemoveIndex(string indexName, string tableName)
+		{
+			return FormatSql("DROP INDEX {0:NAME}", indexName);
+		}
+
+		protected override string GetSqlAddColumn(string table, string columnSql)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql);
+		}
+
+		protected override string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TO {2:NAME}",
+				tableName, oldColumnName, newColumnName);
+		}
+
+		protected override string GetSqlRemoveColumn(string table, string column)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} DROP {1:NAME} ", table, column);
+		}
+
+		public override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
+		{
+			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+
+			sqlBuilder.AddColumnName(NamesQuoteTemplate);
+			sqlBuilder.AddColumnType(IdentityNeedsType);
+			sqlBuilder.AddDefaultValueSql(GetSqlDefaultValue);
+			sqlBuilder.AddNotNullSql(NeedsNotNullForIdentity);
+			sqlBuilder.AddPrimaryKeySql(compoundPrimaryKey);
+			sqlBuilder.AddUniqueSql();
+
+			return sqlBuilder.ToString();
+		}
+
+		#endregion
+
+		#region DDL
 
 		public override string[] GetTables()
 		{
@@ -81,7 +124,7 @@ namespace ECM7.Migrator.Providers.Firebird
 			{
 				while (reader.Read())
 				{
-					string tableName = reader.GetString(0);
+					string tableName = reader.GetString(0).Trim();
 					result.Add(tableName);
 				}
 			}
@@ -130,52 +173,9 @@ namespace ECM7.Migrator.Providers.Firebird
 			return cnt > 0;
 		}
 
-		public override void RemoveIndex(string indexName, string tableName)
-		{
-			if (!IndexExists(indexName, tableName))
-			{
-				MigratorLogManager.Log.WarnFormat("Index {0} is not exists", indexName);
-				return;
-			}
-
-			string sql = FormatSql("DROP INDEX {0:NAME}", indexName);
-			ExecuteNonQuery(sql);
-		}
-
-		protected override string GetSqlAddColumn(string table, string columnSql)
-		{
-			return FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql);
-		}
-
-		protected override string GetSqlRemoveColumn(string table, string column)
-		{
-			return FormatSql("ALTER TABLE {0:NAME} DROP {1:NAME} ", table, column);
-		}
-
 		public override void RenameTable(string oldName, string newName)
 		{
 			throw new NotSupportedException("Firebird не поддерживает переименование таблиц");
-		}
-
-		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
-		{
-			string sql = FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TO {2:NAME}",
-				tableName, oldColumnName, newColumnName);
-			ExecuteNonQuery(sql);
-		}
-
-		public override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
-		{
-			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
-
-			sqlBuilder.AddColumnName(NamesQuoteTemplate);
-			sqlBuilder.AddColumnType(IdentityNeedsType);
-			sqlBuilder.AddDefaultValueSql(GetSqlDefaultValue);
-			sqlBuilder.AddNotNullSql(NeedsNotNullForIdentity);
-			sqlBuilder.AddPrimaryKeySql(compoundPrimaryKey);
-			sqlBuilder.AddUniqueSql();
-
-			return sqlBuilder.ToString();
 		}
 
 		#endregion

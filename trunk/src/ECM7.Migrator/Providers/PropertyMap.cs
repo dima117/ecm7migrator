@@ -5,7 +5,7 @@
 
 	public class PropertyMap : Dictionary<ColumnProperty, string>
 	{
-		public void RegisterProperty(ColumnProperty property, string sql)
+		public void RegisterPropertySql(ColumnProperty property, string sql)
 		{
 			this[property] = sql;
 		}

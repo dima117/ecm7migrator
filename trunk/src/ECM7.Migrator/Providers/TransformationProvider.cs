@@ -22,6 +22,7 @@ namespace ECM7.Migrator.Providers
 		protected readonly IFormatProvider sqlFormatProvider;
 		protected readonly PropertyMap propertyMap = new PropertyMap();
 		protected readonly TypeMap typeMap = new TypeMap();
+		protected readonly ForeignKeyActionMap fkActionMap = new ForeignKeyActionMap();
 
 
 		protected TransformationProvider(TConnection connection)
@@ -29,10 +30,15 @@ namespace ECM7.Migrator.Providers
 		{
 			sqlFormatProvider = new SqlFormatter(obj => string.Format(NamesQuoteTemplate, obj));
 
-			propertyMap.RegisterProperty(ColumnProperty.Null, "NULL");
-			propertyMap.RegisterProperty(ColumnProperty.NotNull, "NOT NULL");
-			propertyMap.RegisterProperty(ColumnProperty.Unique, "UNIQUE");
-			propertyMap.RegisterProperty(ColumnProperty.PrimaryKey, "PRIMARY KEY");
+			propertyMap.RegisterPropertySql(ColumnProperty.Null, "NULL");
+			propertyMap.RegisterPropertySql(ColumnProperty.NotNull, "NOT NULL");
+			propertyMap.RegisterPropertySql(ColumnProperty.Unique, "UNIQUE");
+			propertyMap.RegisterPropertySql(ColumnProperty.PrimaryKey, "PRIMARY KEY");
+
+			fkActionMap.RegisterSql(ForeignKeyConstraint.Cascade, "CASCADE");
+			fkActionMap.RegisterSql(ForeignKeyConstraint.SetDefault, "SET DEFAULT");
+			fkActionMap.RegisterSql(ForeignKeyConstraint.SetNull, "SET NULL");
+			fkActionMap.RegisterSql(ForeignKeyConstraint.NoAction, "NO ACTION");
 		}
 
 		#region common
@@ -124,21 +130,6 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
 		}
 
-		protected virtual string GetSqlForeignKey(ForeignKeyConstraint constraint)
-		{
-			switch (constraint)
-			{
-				case ForeignKeyConstraint.Cascade:
-					return "CASCADE";
-				case ForeignKeyConstraint.SetDefault:
-					return "SET DEFAULT";
-				case ForeignKeyConstraint.SetNull:
-					return "SET NULL";
-				default:
-					return "NO ACTION";
-			}
-		}
-
 		protected virtual string GetSqlChangeColumn(string table, string columnSql)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1}", table, columnSql);
@@ -163,6 +154,11 @@ namespace ECM7.Migrator.Providers
 		protected virtual string GetSqlRemoveIndex(string indexName, string tableName)
 		{
 			return FormatSql("DROP INDEX {0:NAME} ON {1:NAME}", indexName, tableName);
+		}
+
+		protected virtual string GetSqlRemoveConstraint(string table, string name)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} DROP CONSTRAINT {1:NAME}", table, name);
 		}
 
 		#endregion
@@ -285,11 +281,11 @@ namespace ECM7.Migrator.Providers
 			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
 			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
-			string onDeleteConstraintResolved = this.GetSqlForeignKey(onDeleteConstraint);
-			string onUpdateConstraintResolved = this.GetSqlForeignKey(onUpdateConstraint);
+			string onDeleteConstraintResolved = fkActionMap.GetSqlOnDelete(onDeleteConstraint);
+			string onUpdateConstraintResolved = fkActionMap.GetSqlOnUpdate(onUpdateConstraint);
 
 			string sql = FormatSql(
-				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} FOREIGN KEY ({2:COLS}) REFERENCES {3:NAME} ({4:COLS}) ON UPDATE {5} ON DELETE {6}",
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} FOREIGN KEY ({2:COLS}) REFERENCES {3:NAME} ({4:COLS}) {5} {6}",
 				primaryTable, name, primaryColumns, refTable, refColumns, onUpdateConstraintResolved, onDeleteConstraintResolved);
 
 			ExecuteNonQuery(sql);
@@ -323,8 +319,7 @@ namespace ECM7.Migrator.Providers
 
 		public virtual void RemoveConstraint(string table, string name)
 		{
-			string format = FormatSql(
-				"ALTER TABLE {0:NAME} DROP CONSTRAINT {1:NAME}", table, name);
+			string format = GetSqlRemoveConstraint(table, name);
 
 			ExecuteNonQuery(format);
 		}

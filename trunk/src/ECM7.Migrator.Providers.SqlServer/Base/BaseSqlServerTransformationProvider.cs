@@ -46,7 +46,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			typeMap.Put(DbType.Time, "DATETIME");
 			typeMap.Put(DbType.Xml, "XML");
 
-			propertyMap.RegisterProperty(ColumnProperty.Identity, "IDENTITY");
+			propertyMap.RegisterPropertySql(ColumnProperty.Identity, "IDENTITY");
 		}
 
 		#region generate sql

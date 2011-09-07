@@ -44,7 +44,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			typeMap.Put(DbType.Boolean, "INTEGER");
 			typeMap.Put(DbType.Guid, "UNIQUEIDENTIFIER");
 
-			propertyMap.RegisterProperty(ColumnProperty.Identity, "AUTOINCREMENT");
+			propertyMap.RegisterPropertySql(ColumnProperty.Identity, "AUTOINCREMENT");
 		}
 
 		#region Overrides of SqlGenerator
