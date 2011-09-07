@@ -45,7 +45,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			typeMap.Put(DbType.String, 1073741823, "text");
 			typeMap.Put(DbType.Time, "time");
 
-			propertyMap.RegisterProperty(ColumnProperty.Identity, "serial");
+			propertyMap.RegisterPropertySql(ColumnProperty.Identity, "serial");
 		}
 
 		#region Особенности СУБД

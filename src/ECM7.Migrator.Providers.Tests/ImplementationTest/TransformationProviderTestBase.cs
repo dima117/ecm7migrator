@@ -15,6 +15,9 @@
 
 	using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
+	// todo: написать тесты на удаление колонок к ограничениями
+	// todo: написать тесты на первичный ключ с автоинкрементом
+
 	public abstract class TransformationProviderTestBase<TProvider> where TProvider : ITransformationProvider
 	{
 		#region common
@@ -149,9 +152,9 @@
 			using (var reader = provider.ExecuteReader(sql))
 			{
 				Assert.IsTrue(reader.Read());
-				Assert.AreEqual(1984, reader.GetInt32(0));
-				Assert.AreEqual("test moo", reader.GetString(1));
-				Assert.AreEqual(123.57m, reader.GetDecimal(2));
+				Assert.AreEqual(1984, reader["ID"]);
+				Assert.AreEqual("test moo", reader["StringColumn"]);
+				Assert.AreEqual(123.57m, Convert.ToDecimal(reader["DecimalColumn"]));
 				Assert.IsFalse(reader.Read());
 			}
 
@@ -268,18 +271,18 @@
 			provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "4", "testmoo" });
 
 			Assert.Throws<SQLException>(() =>
-				provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "6", "testmoo1" }));
+				provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "6", "testmoo123" }));
 
 			string sql = provider.FormatSql("select * from {0:NAME}", tableName);
 			using (var reader = provider.ExecuteReader(sql))
 			{
 				Assert.IsTrue(reader.Read());
-				Assert.AreEqual(2, reader.GetInt32(0));
-				Assert.AreEqual("test", reader.GetString(1));
+				Assert.AreEqual(2, reader[0]);
+				Assert.AreEqual("test", reader[1]);
 
 				Assert.IsTrue(reader.Read());
-				Assert.AreEqual(4, reader.GetInt32(0));
-				Assert.AreEqual("testmoo", reader.GetString(1));
+				Assert.AreEqual(4, reader[0]);
+				Assert.AreEqual("testmoo", reader[1]);
 
 				Assert.IsFalse(reader.Read());
 			}
@@ -901,9 +904,9 @@
 			using (IDataReader reader = provider.ExecuteReader(sql))
 			{
 				Assert.IsTrue(reader.Read());
-				Assert.AreEqual(42, reader.GetInt32(0));
+				Assert.AreEqual(42, reader["TestInteger"]);
 				Assert.IsTrue(reader.Read());
-				Assert.AreEqual(42, reader.GetInt32(0));
+				Assert.AreEqual(42, reader["TestInteger"]);
 				Assert.IsFalse(reader.Read());
 			}
 
@@ -1100,7 +1103,7 @@
 
 		#region helpers
 
-		protected string GetRandomName(string baseName = "")
+		protected virtual string GetRandomName(string baseName = "")
 		{
 			string guid = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
 			return "{0}{1}".FormatWith(baseName, guid);

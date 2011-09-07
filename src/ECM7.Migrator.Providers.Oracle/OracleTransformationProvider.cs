@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Data;
 
@@ -9,17 +8,11 @@ using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Providers.Oracle
 {
-	using Framework.Logging;
-
 	/// <summary>
 	/// Провайдер трансформации для Oracle
 	/// </summary>
 	public class OracleTransformationProvider : TransformationProvider<OracleConnection>
 	{
-		/// <summary>
-		/// Инициализация
-		/// </summary>
-		/// <param name="connection">Подключение к БД</param>
 		public OracleTransformationProvider(OracleConnection connection)
 			: base(connection)
 		{
@@ -53,19 +46,35 @@ namespace ECM7.Migrator.Providers.Oracle
 			typeMap.Put(DbType.String, 1073741823, "NCLOB");
 			typeMap.Put(DbType.Time, "DATE");
 
-			propertyMap.RegisterProperty(ColumnProperty.Null, String.Empty);
+			propertyMap.RegisterPropertySql(ColumnProperty.Null, String.Empty);
+
+			fkActionMap.RegisterSql(ForeignKeyConstraint.NoAction, string.Empty);
 		}
 
-		#region Overrides of SqlGenerator
-
-		protected override string NamesQuoteTemplate
-		{
-			get { return "\"{0}\""; }
-		}
+		#region Особенности СУБД
 
 		public override string BatchSeparator
 		{
 			get { return "/"; }
+		}
+
+		#endregion
+
+		#region generate sql
+
+		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
+		{
+			if (onUpdateConstraint != ForeignKeyConstraint.NoAction)
+			{
+				throw new NotSupportedException("Oracle не поддерживает действий при обновлении внешнего ключа");
+			}
+
+			if (onDeleteConstraint.In(ForeignKeyConstraint.SetDefault))
+			{
+				throw new NotSupportedException("Oracle не поддерживает SET DEFAULT при удалении записи, на которую ссылается внешний ключ");
+			}
+
+			base.AddForeignKey(name, primaryTable, primaryColumns, refTable, refColumns, onDeleteConstraint, onUpdateConstraint);
 		}
 
 		protected override string GetSqlDefaultValue(object defaultValue)
@@ -93,109 +102,49 @@ namespace ECM7.Migrator.Providers.Oracle
 			return sqlBuilder.ToString();
 		}
 
-		#endregion
-
-		#region custom sql
-
-
-		public override void AddForeignKey(string name, 
-			string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, 
-			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, 
-			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
-		{
-			Require.AreEqual(onUpdateConstraint, ForeignKeyConstraint.NoAction, "Oracle не поддерживает каскадное обновление");
-
-			List<string> command = new List<string>
-				{
-					FormatSql("ALTER TABLE {0:NAME}", primaryTable),
-					FormatSql("ADD CONSTRAINT {0:NAME}", name),
-					FormatSql("FOREIGN KEY ({0:COLS})", primaryColumns.ToList()),
-					FormatSql("REFERENCES {0:NAME} ({1:COLS})", refTable, refColumns)
-				};
-
-			switch (onDeleteConstraint)
-			{
-				case ForeignKeyConstraint.Cascade:
-					command.Add("ON DELETE CASCADE");
-					break;
-			}
-
-			string commandText = command.ToSeparatedString(" ");
-			ExecuteNonQuery(commandText);
-		}
-
-		public override bool IndexExists(string indexName, string tableName)
-		{
-			string sql =
-				("select count(*) from user_indexes " +
-				"where INDEX_NAME = '{0}' " +
-				"and TABLE_NAME = '{1}'")
-				.FormatWith(indexName, tableName);
-
-			int count = Convert.ToInt32(ExecuteScalar(sql));
-			return count > 0;
-		}
-
-		public override void RemoveIndex(string indexName, string tableName)
-		{
-			if (!IndexExists(indexName, tableName))
-			{
-				MigratorLogManager.Log.WarnFormat("Index {0} is not exists", indexName);
-				return;
-			}
-
-			string sql = FormatSql("DROP INDEX {0:NAME}", indexName);
-
-			ExecuteNonQuery(sql);
-		}
-
 		protected override string GetSqlAddColumn(string table, string columnSql)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} ADD ({1})", table, columnSql);
 		}
 
-		public override bool ConstraintExists(string table, string name)
+		protected override string GetSqlChangeColumn(string table, string columnSql)
 		{
-			string sql =
-				string.Format(
-					"SELECT COUNT(constraint_name) FROM user_constraints WHERE constraint_name = '{0}' AND table_name = '{1}'",
-					name, table);
-
-			MigratorLogManager.Log.ExecuteSql(sql);
-			object scalar = ExecuteScalar(sql);
-			return Convert.ToInt32(scalar) == 1;
+			return FormatSql("ALTER TABLE {0:NAME} MODIFY ({1})", table, columnSql);
 		}
 
-		public override bool ColumnExists(string table, string column)
+		protected override string GetSqlRemoveIndex(string indexName, string tableName)
 		{
-			if (!TableExists(table))
-				return false;
-
-			string sql =
-				string.Format(
-					"SELECT COUNT(column_name) FROM user_tab_columns WHERE table_name = '{0}' AND column_name = '{1}'",
-					table, column);
-
-			MigratorLogManager.Log.ExecuteSql(sql);
-			object scalar = ExecuteScalar(sql);
-			return Convert.ToInt32(scalar) == 1;
+			return FormatSql("DROP INDEX {0:NAME}", indexName);
 		}
+
+		#endregion
+
+		#region DDL
 
 		public override bool TableExists(string table)
 		{
 			string sql = string.Format(
 				"SELECT COUNT(table_name) FROM user_tables WHERE table_name = '{0}'", table);
-			MigratorLogManager.Log.ExecuteSql(sql);
+
 			object count = ExecuteScalar(sql);
-			return Convert.ToInt32(count) == 1;
+			return Convert.ToInt32(count) > 0;
+		}
+
+		public override bool ColumnExists(string table, string column)
+		{
+			string sql = FormatSql(
+				"SELECT COUNT(column_name) FROM user_tab_columns WHERE table_name = '{0}' AND column_name = '{1}'",
+					table, column);
+
+			object scalar = ExecuteScalar(sql);
+			return Convert.ToInt32(scalar) > 0;
 		}
 
 		public override string[] GetTables()
 		{
 			List<string> tables = new List<string>();
 
-			using (IDataReader reader =
-				ExecuteReader("SELECT table_name FROM user_tables"))
+			using (IDataReader reader = ExecuteReader("SELECT table_name FROM user_tables"))
 			{
 				while (reader.Read())
 				{
@@ -206,9 +155,25 @@ namespace ECM7.Migrator.Providers.Oracle
 			return tables.ToArray();
 		}
 
-		protected override string GetSqlChangeColumn(string table, string columnSql)
+		public override bool IndexExists(string indexName, string tableName)
 		{
-			return FormatSql("ALTER TABLE {0:NAME} MODIFY ({1})", table, columnSql);
+			string sql = FormatSql(
+				"select count(*) from user_indexes where INDEX_NAME = '{0}' and TABLE_NAME = '{1}'",
+					indexName, tableName);
+
+			int count = Convert.ToInt32(ExecuteScalar(sql));
+			return count > 0;
+		}
+
+		public override bool ConstraintExists(string table, string name)
+		{
+			string sql =
+				string.Format(
+					"SELECT COUNT(constraint_name) FROM user_constraints WHERE constraint_name = '{0}' AND table_name = '{1}'",
+					name, table);
+
+			object scalar = ExecuteScalar(sql);
+			return Convert.ToInt32(scalar) > 0;
 		}
 
 		#endregion

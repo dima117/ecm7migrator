@@ -1,12 +1,5 @@
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System.Data;
-
-	using ECM7.Migrator.Framework;
-
-	using NUnit.Framework;
-
-	[TestFixture, Category("MySql")]
 	public class MySqlTransformationProviderTest
 	{
 		protected string BatchSql
@@ -23,12 +16,6 @@ namespace ECM7.Migrator.Providers.Tests
 			}
 		}
 
-		public bool UseTransaction
-		{
-			get { return false; }
-		}
-
-		[Test]
 		public void AddTableWithMyISAMEngine()
 		{
 			//provider.AddTable("Test", "MyISAM",
