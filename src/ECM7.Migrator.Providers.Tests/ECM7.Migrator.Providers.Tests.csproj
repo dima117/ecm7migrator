@@ -81,12 +81,11 @@
     <Compile Include="ImplementationTest\MySqlTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\OracleTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\PostgreSQLTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\SQLiteTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\SqlServerCeTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\SqlServerTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\TransformationProviderTestBase.cs" />
-    <Compile Include="MySqlTransformationProviderTest.cs" />
     <Compile Include="ProviderFactoryTest.cs" />
-    <Compile Include="SQLiteTransformationProviderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">
