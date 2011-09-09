@@ -47,7 +47,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			propertyMap.RegisterPropertySql(ColumnProperty.Identity, "AUTOINCREMENT");
 		}
 
-		#region Overrides of SqlGenerator
+		#region Особенности СУБД
 
 		public override bool NeedsNotNullForIdentity
 		{
@@ -68,17 +68,11 @@ namespace ECM7.Migrator.Providers.SQLite
 
 		#region custom sql
 
-		/// <summary>
-		/// Check that the index with the specified name already exists
-		/// </summary>
 		public override bool IndexExists(string indexName, string tableName)
 		{
 			throw new NotSupportedException("SQLite не поддерживает индексы");
 		}
 
-		/// <summary>
-		/// Добавление внешнего ключа
-		/// </summary>
 		public override void AddForeignKey(
 			string name,
 			string primaryTable,
@@ -93,22 +87,11 @@ namespace ECM7.Migrator.Providers.SQLite
 			throw new NotSupportedException("SQLite не поддерживает внешние ключи");
 		}
 		
-		/// <summary>
-		/// Remove an existing column from a table
-		/// </summary>
-		/// <param name="table">The name of the table to remove the column from</param>
-		/// <param name="column">The column to remove</param>
 		public override void RemoveColumn(string table, string column)
 		{
 			throw new NotSupportedException("SQLite не поддерживает удаление колонок");
 		}
 
-		/// <summary>
-		/// Rename an existing table
-		/// </summary>
-		/// <param name="tableName">The name of the table</param>
-		/// <param name="oldColumnName">The old name of the column</param>
-		/// <param name="newColumnName">The new name of the column</param>
 		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
 			throw new NotSupportedException("SLQite не поддерживает переименование колонок");
