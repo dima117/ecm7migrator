@@ -109,6 +109,44 @@ namespace ECM7.Migrator.Providers.Firebird
 			return sqlBuilder.ToString();
 		}
 
+		#region ChangeColumn
+
+		protected string GetSqlColumnDefForChangeType(Column column)
+		{
+			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+
+			sqlBuilder
+				.AddColumnName(NamesQuoteTemplate)
+				.AddRawSql("TYPE")
+				.AddColumnType(IdentityNeedsType);
+
+			return sqlBuilder.ToString();
+		}
+
+		protected string GetSqlColumnDefForChangeDefault(Column column)
+		{
+			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+
+			sqlBuilder.AddColumnName(NamesQuoteTemplate);
+
+			if (column.DefaultValue != null)
+			{
+				sqlBuilder
+					.AddRawSql("SET")
+					.AddDefaultValueSql(GetSqlDefaultValue);
+			}
+			else
+			{
+				sqlBuilder
+					.AddRawSql("DROP DEFAULT");
+			}
+
+			return sqlBuilder.ToString();
+		}
+
+		#endregion
+		
+
 		#endregion
 
 		#region DDL
@@ -176,6 +214,19 @@ namespace ECM7.Migrator.Providers.Firebird
 		public override void RenameTable(string oldName, string newName)
 		{
 			throw new NotSupportedException("Firebird не поддерживает переименование таблиц");
+		}
+
+		public override void ChangeColumn(string table, Column column)
+		{
+			ExecuteNonQuery(
+				GetSqlChangeColumn(
+					table, 
+					GetSqlColumnDefForChangeType(column)));
+
+			ExecuteNonQuery(
+				GetSqlChangeColumn(
+					table, 
+					GetSqlColumnDefForChangeDefault(column)));
 		}
 
 		#endregion

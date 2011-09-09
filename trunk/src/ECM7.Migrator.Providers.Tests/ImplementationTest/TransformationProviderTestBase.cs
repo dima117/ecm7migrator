@@ -189,7 +189,7 @@
 			provider.AddTable(tableName,
 				new Column("PersonId", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("AddressId", DbType.Int32, ColumnProperty.PrimaryKey),
-				new Column("Name", DbType.String, 30, ColumnProperty.Null));
+				new Column("Name", DbType.String.WithSize(30), ColumnProperty.Null));
 
 			provider.Insert(tableName,
 				new[] { "PersonId", "AddressId", "Name" },
@@ -271,7 +271,7 @@
 			provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "4", "testmoo" });
 
 			Assert.Throws<SQLException>(() =>
-				provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "6", "testmoo123" }));
+				provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "6", "1234567890123456789012" }));
 
 			string sql = provider.FormatSql("select * from {0:NAME}", tableName);
 			using (var reader = provider.ExecuteReader(sql))
@@ -328,14 +328,14 @@
 			provider.Insert(tableName, new[] { "TestStringColumn" }, new[] { "test" });
 
 			Assert.Throws<SQLException>(() =>
-				provider.Insert(tableName, new[] { "TestStringColumn" }, new[] { "moo-test" }));
+				provider.Insert(tableName, new[] { "TestStringColumn" }, new[] { "1234567890123456" }));
 
-			provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(18)));
-			provider.Insert(tableName, new[] { "TestStringColumn" }, new[] { "moo-test" });
+			provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(18), ColumnProperty.NotNull, "'moo'"));
+			provider.Insert(tableName, new[] { "TestStringColumn" }, new[] { "1234567890123456" });
 
 			string sql = provider.FormatSql(
 				"select count({0:NAME}) from {1:NAME} where {0:NAME} = '{2}'",
-				"TestStringColumn", tableName, "moo-test");
+				"TestStringColumn", tableName, "1234567890123456");
 
 			Assert.AreEqual(1, provider.ExecuteScalar(sql));
 			provider.RemoveTable(tableName);

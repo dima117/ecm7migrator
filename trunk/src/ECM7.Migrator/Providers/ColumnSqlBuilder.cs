@@ -26,65 +26,83 @@
 
 		#region добавление элементов SQL-выражения для колонки
 
-		public void AddColumnName(string namesQuoteTemplate)
+		public ColumnSqlBuilder AddColumnName(string namesQuoteTemplate)
 		{
 			var columnName = namesQuoteTemplate.FormatWith(column.Name);
 			vals.Add(columnName);
+
+			return this;
 		}
 
-		public void AddColumnType(bool identityNeedsType)
+		public ColumnSqlBuilder AddColumnType(bool identityNeedsType)
 		{
 			string type = column.IsIdentity && !identityNeedsType
 				? string.Empty
 				: typeMap.Get(column.ColumnType);
 
 			if (!type.IsNullOrEmpty())
+			{
 				vals.Add(type);
+			}
+
+			return this;
 		}
 
-		public void AddSqlForIdentityWhichNotNeedsType(bool identityNeedsType)
+		public ColumnSqlBuilder AddSqlForIdentityWhichNotNeedsType(bool identityNeedsType)
 		{
 			if (!identityNeedsType)
 			{
 				propertyMap.AddValueIfSelected(column, ColumnProperty.Identity, vals);
 			}
+
+			return this;
 		}
 
-		public void AddUnsignedSql()
+		public ColumnSqlBuilder AddUnsignedSql()
 		{
 			propertyMap.AddValueIfSelected(column, ColumnProperty.Unsigned, vals);
+
+			return this;
 		}
 
-		public void AddNotNullSql(bool needsNotNullForIdentity)
+		public ColumnSqlBuilder AddNotNullSql(bool needsNotNullForIdentity)
 		{
 			if (!column.ColumnProperty.HasProperty(ColumnProperty.PrimaryKey) || needsNotNullForIdentity)
 			{
 				propertyMap.AddValueIfSelected(column, ColumnProperty.NotNull, vals);
 			}
+
+			return this;
 		}
 
-		public void AddPrimaryKeySql(bool compoundPrimaryKey)
+		public ColumnSqlBuilder AddPrimaryKeySql(bool compoundPrimaryKey)
 		{
 			if (!compoundPrimaryKey)
 			{
 				propertyMap.AddValueIfSelected(column, ColumnProperty.PrimaryKey, vals);
 			}
+
+			return this;
 		}
 
-		public void AddSqlForIdentityWhichNeedsType(bool identityNeedsType)
+		public ColumnSqlBuilder AddSqlForIdentityWhichNeedsType(bool identityNeedsType)
 		{
 			if (identityNeedsType)
 			{
 				propertyMap.AddValueIfSelected(column, ColumnProperty.Identity, vals);
 			}
+
+			return this;
 		}
 
-		public void AddUniqueSql()
+		public ColumnSqlBuilder AddUniqueSql()
 		{
 			propertyMap.AddValueIfSelected(column, ColumnProperty.Unique, vals);
+
+			return this;
 		}
 
-		public void AddDefaultValueSql(Func<object, string> defaultValueMapper)
+		public ColumnSqlBuilder AddDefaultValueSql(Func<object, string> defaultValueMapper)
 		{
 			if (column.DefaultValue != null)
 			{
@@ -92,13 +110,24 @@
 
 				vals.Add(defaultValueSql);
 			}
+
+			return this;
+		}
+
+		public ColumnSqlBuilder AddRawSql(string sql)
+		{
+			vals.Add(sql);
+
+			return this;
 		}
 
 		#endregion
 
-		public void Clear()
+		public ColumnSqlBuilder Clear()
 		{
 			vals.Clear();
+
+			return this;
 		}
 
 		public override string ToString()
