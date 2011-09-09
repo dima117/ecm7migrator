@@ -156,7 +156,12 @@ namespace ECM7.Migrator.Providers.MySql
 
 		public override bool TableExists(string table)
 		{
-			return GetTables().Contains(table.ToLower());
+			string sql = FormatSql("SHOW TABLES LIKE '{0}'", table);
+			using (IDataReader reader = ExecuteReader(sql))
+			{
+				return reader.Read();
+			}
+
 		}
 
 		public override bool ColumnExists(string table, string column)
