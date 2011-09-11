@@ -1,5 +1,7 @@
 ﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 {
+	using System;
+
 	using ECM7.Migrator.Providers.SQLite;
 
 	using NUnit.Framework;
@@ -32,6 +34,84 @@
 				insert into [BatchSqlTest] ([Id], [TestId]) values (55, 555)
 				";
 			}
+		}
+
+		#endregion
+
+		#region indexes
+
+		[Test]
+		public override void CanAddAndRemoveIndex()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddAndRemoveIndex());
+		}
+
+		[Test]
+		public override void CanAddAndRemoveComplexIndex()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddAndRemoveComplexIndex());
+		}
+
+		[Test]
+		public override void CanAddAndRemoveUniqueIndex()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddAndRemoveUniqueIndex());
+		}
+
+		#endregion
+
+		#region foreign keys
+
+		[Test]
+		public override void CanAddForeignKey()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddForeignKey());
+		}
+
+		[Test]
+		public override void CanAddForeignKeyWithDeleteCascade()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddForeignKeyWithDeleteCascade());
+		}
+
+		[Test]
+		public override void CanAddForeignKeyWithDeleteSetDefault()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddForeignKeyWithDeleteSetDefault());
+		}
+
+		[Test]
+		public override void CanAddForeignKeyWithDeleteSetNull()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddForeignKeyWithDeleteSetNull());
+		}
+
+		[Test]
+		public override void CanAddForeignKeyWithUpdateCascade()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddForeignKeyWithUpdateCascade());
+		}
+
+		[Test]
+		public override void CanAddForeignKeyWithUpdateSetDefault()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddForeignKeyWithUpdateSetDefault());
+		}
+
+		[Test]
+		public override void CanAddForeignKeyWithUpdateSetNull()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddForeignKeyWithUpdateSetNull());
 		}
 
 		#endregion

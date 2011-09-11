@@ -320,6 +320,7 @@
 		[Test]
 		public virtual void CanChangeColumn()
 		{
+			// todo: разбить на 3 теста: изменение типа колонки, значения по умолчанию и разрешение/запрещение NULL
 			string tableName = GetRandomName("ChangeColumnTest");
 
 			provider.AddTable(tableName, new Column("TestStringColumn", DbType.String.WithSize(4)));
@@ -338,6 +339,53 @@
 				"TestStringColumn", tableName, "1234567890123456");
 
 			Assert.AreEqual(1, provider.ExecuteScalar(sql));
+			provider.RemoveTable(tableName);
+		}
+
+		[Test]
+		public virtual void CanChangeDefaultValueForColumn()
+		{
+			string tableName = GetRandomName("ChangeDefault");
+
+			provider.AddTable(
+				tableName, 
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("TestStringColumn", DbType.String.WithSize(40), ColumnProperty.NotNull));
+
+			// нет значения по умолчанию
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(tableName, new[] { "Id" }, new[] { "1" }));
+
+			// добавляем значнеие по умолчанию
+			provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(40), ColumnProperty.NotNull, "'moo-default'"));
+			provider.Insert(tableName, new[] { "Id" }, new[] { "2" });
+
+			// изменяем значение по умолчанию
+			provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(40), ColumnProperty.NotNull, "'mi-default'"));
+			provider.Insert(tableName, new[] { "Id" }, new[] { "3" });
+
+			// удаляем значение по умолчанию
+			provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(40), ColumnProperty.NotNull));
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(tableName, new[] { "Id" }, new[] { "4" }));
+
+			string sql = provider.FormatSql(
+				"select {0:NAME}, {1:NAME} from {2:NAME} order by {0:NAME}",
+				"Id", "TestStringColumn", tableName);
+
+			using (var reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(2, reader[0]);
+				Assert.AreEqual("moo-default", reader[1]);
+
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(3, reader[0]);
+				Assert.AreEqual("mi-default", reader[1]);
+
+				Assert.IsFalse(reader.Read());
+			}
+
 			provider.RemoveTable(tableName);
 		}
 
@@ -783,7 +831,7 @@
 		#region index
 
 		[Test]
-		public void CanAddAndRemoveIndex()
+		public virtual void CanAddAndRemoveIndex()
 		{
 			string tableName = GetRandomName("AddIndex");
 
@@ -804,7 +852,7 @@
 		}
 
 		[Test]
-		public void CanAddAndRemoveUniqueIndex()
+		public virtual void CanAddAndRemoveUniqueIndex()
 		{
 			string tableName = GetRandomName("AddUniqueIndex");
 
@@ -826,7 +874,7 @@
 		}
 
 		[Test]
-		public void CanAddAndRemoveComplexIndex()
+		public virtual void CanAddAndRemoveComplexIndex()
 		{
 			string tableName = GetRandomName("AddComplexIndex");
 
@@ -941,7 +989,7 @@
 		}
 
 		[Test]
-		public void CanUpdateDataWithWhere()
+		public virtual void CanUpdateDataWithWhere()
 		{
 			string tableName = GetRandomName("UpdateDataWithWhere");
 
@@ -977,7 +1025,7 @@
 		#region delete
 
 		[Test]
-		public void CanDeleteData()
+		public virtual void CanDeleteData()
 		{
 			string tableName = GetRandomName("DeleteData");
 
@@ -1000,7 +1048,7 @@
 		}
 
 		[Test]
-		public void CanDeleteAllData()
+		public virtual void CanDeleteAllData()
 		{
 			string tableName = GetRandomName("DeleteAllData");
 
@@ -1026,7 +1074,7 @@
 		#region for migrator core
 
 		[Test]
-		public void SchemaInfoTableShouldBeCreatedWhenGetAppliedMigrations()
+		public virtual void SchemaInfoTableShouldBeCreatedWhenGetAppliedMigrations()
 		{
 			const string KEY = "mi mi mi";
 			const string SCHEMA_INFO_TABLE_NAME = "SchemaInfo";
@@ -1041,7 +1089,7 @@
 		}
 
 		[Test]
-		public void SchemaInfoTableShouldBeCreatedWhenMigrationApplied()
+		public virtual void SchemaInfoTableShouldBeCreatedWhenMigrationApplied()
 		{
 			const string KEY = "mi mi mi";
 			const string SCHEMA_INFO_TABLE_NAME = "SchemaInfo";
@@ -1055,7 +1103,7 @@
 		}
 
 		[Test]
-		public void SchemaInfoTableShouldBeCreatedWhenMigrationUnApplied()
+		public virtual void SchemaInfoTableShouldBeCreatedWhenMigrationUnApplied()
 		{
 			const string KEY = "mi mi mi";
 			const string SCHEMA_INFO_TABLE_NAME = "SchemaInfo";
@@ -1069,7 +1117,7 @@
 		}
 
 		[Test]
-		public void CanGetAppliedMigrations()
+		public virtual void CanGetAppliedMigrations()
 		{
 			// todo: разбить этот тест на несколько
 			// todo: проверить обновление структуры таблицы "SchemaInfo"
