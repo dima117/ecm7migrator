@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+﻿using ECM7.Migrator.Exceptions;
+
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 {
 	using System;
 	using System.Data;
@@ -36,7 +38,6 @@
 
 		#region override tests
 
-#pragma warning disable 1911
 
 		[Test]
 		public override void CanVerifyThatCheckConstraintIsExist()
@@ -74,12 +75,10 @@
 				base.CanAddForeignKeyWithUpdateSetDefault());
 		}
 
-#pragma warning restore 1911
-
 		[Test]
 		public void AddTableWithMyISAMEngine()
 		{
-			string tableName = this.GetRandomName("MyISAMTable");
+			string tableName = GetRandomName("MyISAMTable");
 
 			Assert.IsFalse(provider.TableExists(tableName));
 
@@ -114,6 +113,27 @@
 
 			provider.RemoveTable(tableName);
 			Assert.IsFalse(provider.TableExists(tableName));
+		}
+
+		[Test]
+		public override void CanAddTableWithCompoundPrimaryKey()
+		{
+			// в отличие от стандартного теста, сравнение имен ключей происходит без учета регистра
+			string tableName = GetRandomName("TableWCPK");
+
+			provider.AddTable(tableName,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("ID2", DbType.Int32, ColumnProperty.PrimaryKey)
+			);
+
+			Assert.IsTrue(provider.ConstraintExists(tableName, "PRIMARY"));
+
+			provider.Insert(tableName, new[] { "ID", "ID2" }, new[] { "5", "6" });
+
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(tableName, new[] { "ID", "ID2" }, new[] { "5", "6" }));
+
+			provider.RemoveTable(tableName);
 		}
 
 		#endregion

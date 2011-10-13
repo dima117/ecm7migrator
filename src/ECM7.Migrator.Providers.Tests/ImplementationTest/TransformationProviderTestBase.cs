@@ -18,6 +18,7 @@
 	// todo: написать тесты на удаление колонок к ограничениями
 	// todo: написать тесты на первичный ключ с автоинкрементом
 
+	[TestFixture]
 	public abstract class TransformationProviderTestBase<TProvider> where TProvider : ITransformationProvider
 	{
 		#region common
@@ -164,7 +165,7 @@
 		[Test]
 		public virtual void CanAddTableWithCompoundPrimaryKey()
 		{
-			string tableName = this.GetRandomName("TableWCPK");
+			string tableName = GetRandomName("TableWCPK");
 
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -318,10 +319,9 @@
 		}
 
 		[Test]
-		public virtual void CanChangeColumn()
+		public virtual void CanChangeColumnType()
 		{
-			// todo: разбить на 3 теста: изменение типа колонки, значения по умолчанию и разрешение/запрещение NULL
-			string tableName = GetRandomName("ChangeColumnTest");
+			string tableName = GetRandomName("ChangeColumnTypeTest");
 
 			provider.AddTable(tableName, new Column("TestStringColumn", DbType.String.WithSize(4)));
 
@@ -331,7 +331,7 @@
 			Assert.Throws<SQLException>(() =>
 				provider.Insert(tableName, new[] { "TestStringColumn" }, new[] { "1234567890123456" }));
 
-			provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(18), ColumnProperty.NotNull, "'moo'"));
+			provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(18)));
 			provider.Insert(tableName, new[] { "TestStringColumn" }, new[] { "1234567890123456" });
 
 			string sql = provider.FormatSql(
@@ -341,6 +341,26 @@
 			Assert.AreEqual(1, provider.ExecuteScalar(sql));
 			provider.RemoveTable(tableName);
 		}
+
+		[Test]
+		public virtual void CanChangeNotNullProperty()
+		{
+			string tableName = GetRandomName("ChangeNotNullPropertyTest");
+
+			provider.AddTable(tableName, new Column("TestStringColumn", DbType.String.WithSize(4)));
+
+			provider.Insert(tableName, new[] { "TestStringColumn" }, new string[] { null });
+			provider.Delete(tableName);
+
+			provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(4), ColumnProperty.NotNull));
+
+			Assert.Throws<SQLException>(()=>
+				provider.Insert(tableName, new[] { "TestStringColumn" }, new string[] { null }));
+
+			provider.RemoveTable(tableName);
+		}
+
+
 
 		[Test]
 		public virtual void CanChangeDefaultValueForColumn()
