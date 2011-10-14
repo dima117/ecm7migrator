@@ -3,6 +3,7 @@
 namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 {
 	using System;
+	using System.Linq;
 	using System.Data;
 
 	using ECM7.Migrator.Framework;
@@ -99,7 +100,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 		public override void CanAddAndDropTable()
 		{
 			// в стандартный тест добавлена проверка выбранной подсистемы низкого уровня MySQL (по умолчанию InnoDB)
-			string tableName = this.GetRandomName("InnoDBTable");
+			string tableName = GetRandomName("InnoDBTable");
 
 			Assert.IsFalse(provider.TableExists(tableName));
 
@@ -115,6 +116,34 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 			Assert.IsFalse(provider.TableExists(tableName));
 		}
 
+		[Test]
+		public override void CanGetTables()
+		{
+			// в стандартный тест добавлено сравнение имен таблиц без учета регистра
+			string table1 = GetRandomName("tableMoo");
+			string table2 = GetRandomName("tableHru");
+
+			var tables = provider.GetTables();
+			Assert.IsFalse(tables.Contains(table1));
+			Assert.IsFalse(tables.Contains(table2));
+
+			provider.AddTable(table1, new Column("ID", DbType.Int32));
+			provider.AddTable(table2, new Column("ID", DbType.Int32));
+
+			var tables2 = provider.GetTables();
+
+			Assert.AreEqual(tables.Length + 2, tables2.Length);
+			Assert.IsTrue(tables2.Contains(table1, StringComparer.CurrentCultureIgnoreCase));
+			Assert.IsTrue(tables2.Contains(table2, StringComparer.CurrentCultureIgnoreCase));
+
+			provider.RemoveTable(table1);
+			provider.RemoveTable(table2);
+		}
+
+		#region primary key
+
+		// исправление проверки наличия первичного ключа
+		// т.к. в MySQL первичный ключ всегда называется "PRIMARY"
 		[Test]
 		public override void CanAddTableWithCompoundPrimaryKey()
 		{
@@ -136,6 +165,26 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 			provider.RemoveTable(tableName);
 		}
 
+		[Test]
+		public override void CanCheckThatPrimaryKeyIsExist()
+		{
+			string tableName = GetRandomName("CheckThatPrimaryKeyIsExist");
+			string pkName = GetRandomName("PK_CheckThatPrimaryKeyIsExist");
+
+			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.NotNull));
+			Assert.IsFalse(provider.ConstraintExists(tableName, pkName));
+
+			provider.AddPrimaryKey(pkName, tableName, "ID");
+			Assert.IsTrue(provider.ConstraintExists(tableName, "PRIMARY"));
+
+			provider.RemoveConstraint(tableName, "PRIMARY");
+			Assert.IsFalse(provider.ConstraintExists(tableName, "PRIMARY"));
+
+			provider.RemoveTable(tableName);
+		}
+
+		#endregion		
+		
 		#endregion
 	}
 }

@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace ECM7.Migrator.Providers.SQLite
 {
 	using System;
@@ -32,6 +34,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			typeMap.Put(DbType.UInt64, "INTEGER");
 			typeMap.Put(DbType.Currency, "NUMERIC");
 			typeMap.Put(DbType.Decimal, "NUMERIC");
+
 			typeMap.Put(DbType.Double, "NUMERIC");
 			typeMap.Put(DbType.Single, "NUMERIC");
 			typeMap.Put(DbType.VarNumeric, "NUMERIC");
@@ -64,6 +67,16 @@ namespace ECM7.Migrator.Providers.SQLite
 			get { return "GO"; }
 		}
 
+		protected override string GetSqlDefaultValue(object defaultValue)
+		{
+			if (defaultValue is bool)
+			{
+				defaultValue = ((bool)defaultValue) ? 1 : 0;
+			}
+
+			return String.Format("DEFAULT {0}", defaultValue);
+		}
+
 		#endregion
 
 		#region custom sql
@@ -86,7 +99,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			// todo: проверить, что при отдельном добавлении внешнего ключа генерируется исключение
 			throw new NotSupportedException("SQLite не поддерживает внешние ключи");
 		}
-		
+
 		public override void RemoveColumn(string table, string column)
 		{
 			throw new NotSupportedException("SQLite не поддерживает удаление колонок");
@@ -117,7 +130,21 @@ namespace ECM7.Migrator.Providers.SQLite
 
 		public override bool ColumnExists(string table, string column)
 		{
-			throw new NotImplementedException("Нужно реализовать проверку существования колонки");
+			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}", column, table);
+
+			try
+			{
+				using (IDataReader reader = ExecuteReader(sql))
+				{
+					return true;
+
+				}
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+
 		}
 
 		/// <summary>

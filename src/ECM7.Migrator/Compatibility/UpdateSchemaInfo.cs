@@ -16,8 +16,8 @@ namespace ECM7.Migrator.Compatibility
 		{
 			provider.AddTable(
 				"SchemaTmp",
-				new Column("Version", DbType.Int64, ColumnProperty.NotNull),
-				new Column("Key", DbType.String.WithSize(200), ColumnProperty.NotNull, "''"));
+				new Column("Version", DbType.Int64, ColumnProperty.PrimaryKey),
+				new Column("Key", DbType.String.WithSize(200), ColumnProperty.PrimaryKey, "''"));
 
 			string sql = provider.FormatSql(
 				"INSERT INTO {0:NAME} ({1:NAME}) SELECT {1:NAME} FROM {2:NAME}",
@@ -27,7 +27,6 @@ namespace ECM7.Migrator.Compatibility
 			
 			provider.RemoveTable("SchemaInfo");
 			provider.RenameTable("SchemaTmp", "SchemaInfo");
-			provider.AddPrimaryKey("PK_SchemaInfo", "SchemaInfo", "Version", "Key");
 		}
 	}
 }
