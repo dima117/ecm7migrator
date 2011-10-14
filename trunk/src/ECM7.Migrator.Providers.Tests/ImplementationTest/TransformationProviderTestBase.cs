@@ -118,7 +118,7 @@
 		[Test]
 		public virtual void CanAddAndDropTable()
 		{
-			string tableName = this.GetRandomName("MooTable");
+			string tableName = GetRandomName("MooTable");
 
 			Assert.IsFalse(provider.TableExists(tableName));
 
@@ -134,7 +134,7 @@
 		[Test]
 		public virtual void CanCreateTableWithNecessaryCols()
 		{
-			string tableName = this.GetRandomName("Mimimi");
+			string tableName = GetRandomName("Mimimi");
 
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32),
@@ -211,8 +211,8 @@
 		[Test]
 		public virtual void CanRenameTable()
 		{
-			string table1 = this.GetRandomName("tableMoo");
-			string table2 = this.GetRandomName("tableHru");
+			string table1 = GetRandomName("tableMoo");
+			string table2 = GetRandomName("tableHru");
 
 			Assert.IsFalse(provider.TableExists(table1));
 			Assert.IsFalse(provider.TableExists(table2));
@@ -235,8 +235,8 @@
 		[Test]
 		public virtual void CanGetTables()
 		{
-			string table1 = this.GetRandomName("tableMoo");
-			string table2 = this.GetRandomName("tableHru");
+			string table1 = GetRandomName("tableMoo");
+			string table2 = GetRandomName("tableHru");
 
 			var tables = provider.GetTables();
 			Assert.IsFalse(tables.Contains(table1));
@@ -262,7 +262,7 @@
 		[Test]
 		public virtual void CanAddColumn()
 		{
-			string tableName = this.GetRandomName("AddColumnTest");
+			string tableName = GetRandomName("AddColumnTest");
 
 			provider.AddTable(tableName, new Column("ID", DbType.Int32));
 
@@ -294,7 +294,7 @@
 		[Test]
 		public virtual void CanAddBooleanColumnWithDefault()
 		{
-			string tableName = this.GetRandomName("AddBooleanColumnTest");
+			string tableName = GetRandomName("AddBooleanColumnTest");
 
 			provider.AddTable(tableName, new Column("ID", DbType.Int32));
 
@@ -435,6 +435,19 @@
 			provider.RemoveColumn(tableName, "TestColumn1");
 
 			Assert.IsFalse(provider.ColumnExists(tableName, "TestColumn1"));
+
+			provider.RemoveTable(tableName);
+		}
+
+		[Test]
+		public void CanCheckThatColumnExists()
+		{
+			string tableName = GetRandomName("RemoveColumnTest");
+
+			provider.AddTable(tableName, new Column("MooMooMi", DbType.Int32));
+
+			Assert.IsFalse(provider.ColumnExists(tableName, "asdfgfhgj"));
+			Assert.IsTrue(provider.ColumnExists(tableName, "MooMooMi"));
 
 			provider.RemoveTable(tableName);
 		}

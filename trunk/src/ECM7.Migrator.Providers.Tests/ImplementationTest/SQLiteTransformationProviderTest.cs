@@ -114,6 +114,31 @@
 				base.CanAddForeignKeyWithUpdateSetNull());
 		}
 
+		[Test]
+		public override void CanAddComplexForeignKey()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanAddComplexForeignKey());
+		}
+
+		#endregion
+
+		#region change column
+
+		[Test]
+		public override void CanChangeDefaultValueForColumn()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanChangeDefaultValueForColumn());
+		}
+
+		[Test]
+		public override void CanChangeNotNullProperty()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanChangeNotNullProperty());
+		}
+
 		#endregion
 	}
 }
