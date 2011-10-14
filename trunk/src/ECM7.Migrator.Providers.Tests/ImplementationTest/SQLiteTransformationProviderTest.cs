@@ -40,26 +40,26 @@
 
 		#region indexes
 
-		[Test]
-		public override void CanAddAndRemoveIndex()
-		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddAndRemoveIndex());
-		}
+		//[Test]
+		//public override void CanAddAndRemoveIndex()
+		//{
+		//    Assert.Throws<NotSupportedException>(() =>
+		//        base.CanAddAndRemoveIndex());
+		//}
 
-		[Test]
-		public override void CanAddAndRemoveComplexIndex()
-		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddAndRemoveComplexIndex());
-		}
+		//[Test]
+		//public override void CanAddAndRemoveComplexIndex()
+		//{
+		//    Assert.Throws<NotSupportedException>(() =>
+		//        base.CanAddAndRemoveComplexIndex());
+		//}
 
-		[Test]
-		public override void CanAddAndRemoveUniqueIndex()
-		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddAndRemoveUniqueIndex());
-		}
+		//[Test]
+		//public override void CanAddAndRemoveUniqueIndex()
+		//{
+		//    Assert.Throws<NotSupportedException>(() =>
+		//        base.CanAddAndRemoveUniqueIndex());
+		//}
 
 		#endregion
 

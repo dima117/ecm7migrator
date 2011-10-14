@@ -83,7 +83,19 @@ namespace ECM7.Migrator.Providers.SQLite
 
 		public override bool IndexExists(string indexName, string tableName)
 		{
-			throw new NotSupportedException("SQLite не поддерживает индексы");
+			string sql = FormatSql(
+				"SELECT [name] FROM [sqlite_master] WHERE [type]='index' and [name]='{0}' and [tbl_name] = '{1}'", 
+				indexName, tableName);
+
+			using (IDataReader reader = ExecuteReader(sql))
+			{
+				return reader.Read();
+			}
+		}
+
+		protected override string GetSqlRemoveIndex(string indexName, string tableName)
+		{
+			return FormatSql("DROP INDEX {0:NAME}", indexName);
 		}
 
 		public override void AddForeignKey(
