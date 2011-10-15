@@ -122,7 +122,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			throw new NotSupportedException("SLQite не поддерживает переименование колонок");
 		}
 
-		public override void ChangeColumn(string table, Column column)
+		public override void ChangeColumn(string table, string column, ColumnType columnType, bool allowNull)
 		{
 			throw new NotSupportedException("SLQite не поддерживает изменение колонок");
 		}

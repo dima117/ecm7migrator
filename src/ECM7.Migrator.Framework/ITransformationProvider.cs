@@ -89,8 +89,18 @@ namespace ECM7.Migrator.Framework
 		/// Change the definition of an existing column.
 		/// </summary>
 		/// <param name="table">The name of the table that will get the new column</param>
-		/// <param name="column">An instance of a <see cref="Column">Column</see> with the specified properties and the name of an existing column</param>
-		void ChangeColumn(string table, Column column);
+		/// <param name="column">Название изменяемой колонки таблицы</param>
+		/// <param name="columnType">Новый тип колонки</param>
+		/// <param name="allowNull">Признак: разрешено значение NULL</param>
+		void ChangeColumn(string table, string column, ColumnType columnType, bool allowNull);
+
+		/// <summary>
+		/// Изменение значения по умолчанию
+		/// </summary>
+		/// <param name="table">Название таблицы</param>
+		/// <param name="column">Название колонки</param>
+		/// <param name="newDefaultValue">Новое значение по умолчанию</param>
+		void ChangeDefaultValue(string table, string column, object newDefaultValue);
 
 		/// <summary>
 		/// Check to see if a column exists

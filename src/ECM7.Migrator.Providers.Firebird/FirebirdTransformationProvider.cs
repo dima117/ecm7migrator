@@ -216,17 +216,19 @@ namespace ECM7.Migrator.Providers.Firebird
 			throw new NotSupportedException("Firebird не поддерживает переименование таблиц");
 		}
 
-		public override void ChangeColumn(string table, Column column)
+		public override void ChangeColumn(string table, string column, ColumnType columnType, bool allowNull)
 		{
-			ExecuteNonQuery(
-				GetSqlChangeColumn(
-					table, 
-					GetSqlColumnDefForChangeType(column)));
+			//ExecuteNonQuery(
+			//    GetSqlChangeColumn(
+			//        table, 
+			//        GetSqlColumnDefForChangeType(column)));
 
-			ExecuteNonQuery(
-				GetSqlChangeColumn(
-					table, 
-					GetSqlColumnDefForChangeDefault(column)));
+			//ExecuteNonQuery(
+			//    GetSqlChangeColumn(
+			//        table, 
+			//        GetSqlColumnDefForChangeDefault(column)));
+
+			throw new NotImplementedException();
 		}
 
 		#endregion
