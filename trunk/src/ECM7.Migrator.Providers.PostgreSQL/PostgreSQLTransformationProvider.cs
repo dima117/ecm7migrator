@@ -74,6 +74,17 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			return FormatSql("DROP INDEX {0:NAME}", indexName);
 		}
 
+		protected override string GetSqlChangeColumnType(string table, string column, string columnTypeSql)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TYPE {2}", table, column, columnTypeSql);
+		}
+
+		protected virtual string GetSqlChangeNotNull(string table, string column, bool allowNull)
+		{
+			string notNullSql = allowNull ? "DROP NOT NULL" : "SET NOT NULL";
+			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} {2}", table, column, notNullSql);
+		}
+
 		public override bool IndexExists(string indexName, string tableName)
 		{
 			StringBuilder builder = new StringBuilder();
@@ -123,16 +134,12 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 		}
 
-		public override void ChangeColumn(string table, Column column)
+		public override void ChangeColumn(string table, string column, ColumnType columnType, bool allowNull)
 		{
-			string tempColumn = "temp_" + column.Name;
-			RenameColumn(table, column.Name, tempColumn);
-			AddColumn(table, column);
+			string columnTypeSql = typeMap.Get(columnType);
+			ExecuteNonQuery(GetSqlChangeColumnType(table, column, columnTypeSql));
 
-			string sql = FormatSql("UPDATE {0:NAME} SET {1:NAME}={2:NAME}", table, column.Name, tempColumn);
-			ExecuteNonQuery(sql);
-
-			RemoveColumn(table, tempColumn);
+			ExecuteNonQuery(GetSqlChangeNotNull(table, column, allowNull));
 		}
 
 		public override string[] GetTables()

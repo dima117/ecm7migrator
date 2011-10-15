@@ -94,7 +94,7 @@ namespace ECM7.Migrator.Providers.Oracle
 
 			sqlBuilder.AddColumnName(NamesQuoteTemplate);
 			sqlBuilder.AddColumnType(IdentityNeedsType);
-			sqlBuilder.AddDefaultValueSql(this.GetSqlDefaultValue);
+			sqlBuilder.AddDefaultValueSql(GetSqlDefaultValue);
 			sqlBuilder.AddNotNullSql(NeedsNotNullForIdentity);
 			sqlBuilder.AddPrimaryKeySql(compoundPrimaryKey);
 			sqlBuilder.AddUniqueSql();
@@ -107,9 +107,10 @@ namespace ECM7.Migrator.Providers.Oracle
 			return FormatSql("ALTER TABLE {0:NAME} ADD ({1})", table, columnSql);
 		}
 
-		protected override string GetSqlChangeColumn(string table, string columnSql)
+		protected override string GetSqlChangeColumnType(string table, string column, string columnTypeSql)
 		{
-			return FormatSql("ALTER TABLE {0:NAME} MODIFY ({1})", table, columnSql);
+			//return FormatSql("ALTER TABLE {0:NAME} MODIFY ({1})", table, columnSql);
+			throw new NotImplementedException();
 		}
 
 		protected override string GetSqlRemoveIndex(string indexName, string tableName)

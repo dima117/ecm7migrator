@@ -74,9 +74,10 @@ namespace ECM7.Migrator.Providers.MySql
 
 		#region custom sql
 
-		protected override string GetSqlChangeColumn(string table, string columnSql)
+		protected override string GetSqlChangeColumnType(string table, string column, string columnTypeSql)
 		{
-			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1}", table, columnSql);
+			//return FormatSql("ALTER TABLE {0:NAME} MODIFY {1}", table, columnSql);
+			throw new NotImplementedException();
 		}
 
 		protected override string GetSqlDefaultValue(object defaultValue)

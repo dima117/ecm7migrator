@@ -107,7 +107,7 @@ namespace ECM7.Migrator.Providers
 			// identity нуждается в типе
 			sqlBuilder.AddSqlForIdentityWhichNeedsType(IdentityNeedsType);
 			sqlBuilder.AddUniqueSql();
-			sqlBuilder.AddDefaultValueSql(this.GetSqlDefaultValue);
+			sqlBuilder.AddDefaultValueSql(GetSqlDefaultValue);
 
 			return sqlBuilder.ToString();
 		}
@@ -130,9 +130,9 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
 		}
 
-		protected virtual string GetSqlChangeColumn(string table, string columnSql)
+		protected virtual string GetSqlChangeColumnType(string table, string column, string columnTypeSql)
 		{
-			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1}", table, columnSql);
+			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} {2}", table, column, columnTypeSql);
 		}
 
 		protected virtual string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
@@ -238,12 +238,18 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sqlAddColumn);
 		}
 
-		public virtual void ChangeColumn(string table, Column column)
+		public virtual void ChangeColumn(string table, string column, ColumnType columnType, bool allowNull)
 		{
-			string sqlColumnDef = GetSqlColumnDef(column, false);
-			string sqlChangeColumn = GetSqlChangeColumn(table, sqlColumnDef);
+			string columnTypeSql = typeMap.Get(columnType);
+			string allowNullSql = allowNull ? " NULL" : " NOT NULL";
+
+			string sqlChangeColumn = GetSqlChangeColumnType(table, column, columnTypeSql) + allowNullSql;
 
 			ExecuteNonQuery(sqlChangeColumn);
+		}
+
+		public virtual void ChangeDefaultValue(string table, string column, object newDefaultValue)
+		{
 		}
 
 		public virtual void RenameColumn(string tableName, string oldColumnName, string newColumnName)
