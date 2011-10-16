@@ -107,10 +107,11 @@ namespace ECM7.Migrator.Providers.Oracle
 			return FormatSql("ALTER TABLE {0:NAME} ADD ({1})", table, columnSql);
 		}
 
-		protected override string GetSqlChangeColumnType(string table, string column, string columnTypeSql)
+		protected override string GetSqlChangeColumnType(string table, string column, ColumnType columnType)
 		{
-			//return FormatSql("ALTER TABLE {0:NAME} MODIFY ({1})", table, columnSql);
-			throw new NotImplementedException();
+			string columnTypeSql = typeMap.Get(columnType);
+
+			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1:NAME} {2}", table, column, columnTypeSql);
 		}
 
 		protected override string GetSqlRemoveIndex(string indexName, string tableName)

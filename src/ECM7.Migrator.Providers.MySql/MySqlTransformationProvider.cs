@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-
 using ECM7.Migrator.Framework;
 using MySql.Data.MySqlClient;
 
@@ -74,10 +72,11 @@ namespace ECM7.Migrator.Providers.MySql
 
 		#region custom sql
 
-		protected override string GetSqlChangeColumnType(string table, string column, string columnTypeSql)
+		protected override string GetSqlChangeColumnType(string table, string column, ColumnType columnType)
 		{
-			//return FormatSql("ALTER TABLE {0:NAME} MODIFY {1}", table, columnSql);
-			throw new NotImplementedException();
+			string columnTypeSql = typeMap.Get(columnType);
+
+			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1:NAME} {2}", table, column, columnTypeSql);
 		}
 
 		protected override string GetSqlDefaultValue(object defaultValue)

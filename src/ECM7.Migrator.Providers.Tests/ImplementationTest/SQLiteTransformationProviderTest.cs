@@ -38,31 +38,6 @@
 
 		#endregion
 
-		#region indexes
-
-		//[Test]
-		//public override void CanAddAndRemoveIndex()
-		//{
-		//    Assert.Throws<NotSupportedException>(() =>
-		//        base.CanAddAndRemoveIndex());
-		//}
-
-		//[Test]
-		//public override void CanAddAndRemoveComplexIndex()
-		//{
-		//    Assert.Throws<NotSupportedException>(() =>
-		//        base.CanAddAndRemoveComplexIndex());
-		//}
-
-		//[Test]
-		//public override void CanAddAndRemoveUniqueIndex()
-		//{
-		//    Assert.Throws<NotSupportedException>(() =>
-		//        base.CanAddAndRemoveUniqueIndex());
-		//}
-
-		#endregion
-
 		#region foreign keys
 
 		[Test]
@@ -124,6 +99,13 @@
 		#endregion
 
 		#region change column
+
+		[Test]
+		public override void CanChangeColumnType()
+		{
+			Assert.Throws<NotSupportedException>(() =>
+				base.CanChangeColumnType());
+		}
 
 		[Test]
 		public override void CanChangeDefaultValueForColumn()

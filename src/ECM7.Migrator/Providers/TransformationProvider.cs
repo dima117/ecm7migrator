@@ -130,11 +130,36 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
 		}
 
-		protected virtual string GetSqlChangeColumnType(string table, string column, string columnTypeSql)
+		protected virtual string GetSqlChangeColumnType(string table, string column, ColumnType columnType)
 		{
+			string columnTypeSql = typeMap.Get(columnType);
+
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} {2}", table, column, columnTypeSql);
 		}
 
+		protected virtual string GetSqlChangeNotNullConstraint(string table, string column, NotNullConstraint notNullConstraint, ref string sqlChangeColumnType)
+		{
+			// если изменение типа колонки и признака NOT NULL происходит одним запросом,
+			// то изменяем параметр sqlChangeColumnType и возвращаем NULL
+			// иначе возвращаем запрос, меняющий признак NOT NULL
+
+			switch (notNullConstraint)
+			{
+				case NotNullConstraint.Null:
+					sqlChangeColumnType += " null";
+					break;
+				case NotNullConstraint.NotNull:
+					sqlChangeColumnType += " not null";
+					break;
+				case NotNullConstraint.Undefined:
+					break;
+				default:
+					throw new NotSupportedException("Некорректное значение параметра notNullConstraint");
+			}
+
+			return null;
+		}
+		
 		protected virtual string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} RENAME COLUMN {1:NAME} TO {2:NAME}",
@@ -230,7 +255,7 @@ namespace ECM7.Migrator.Providers
 
 		#region columns
 
-		public void AddColumn(string table, Column column)
+		public virtual void AddColumn(string table, Column column)
 		{
 			string sqlColumnDef = GetSqlColumnDef(column, false);
 			string sqlAddColumn = GetSqlAddColumn(table, sqlColumnDef);
@@ -238,14 +263,21 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sqlAddColumn);
 		}
 
-		public virtual void ChangeColumn(string table, string column, ColumnType columnType, bool allowNull)
+		public virtual void ChangeColumn(string table, string column, ColumnType columnType, NotNullConstraint notNullConstraint)
 		{
-			string columnTypeSql = typeMap.Get(columnType);
-			string allowNullSql = allowNull ? " NULL" : " NOT NULL";
+			string sqlChangeColumn = GetSqlChangeColumnType(table, column, columnType);
+			string sqlChangeNotNullConstraint = GetSqlChangeNotNullConstraint(
+				table, column, notNullConstraint, ref sqlChangeColumn);
 
-			string sqlChangeColumn = GetSqlChangeColumnType(table, column, columnTypeSql) + allowNullSql;
+			if (!sqlChangeColumn.IsNullOrEmpty(true))
+			{
+				ExecuteNonQuery(sqlChangeColumn);
+			}
 
-			ExecuteNonQuery(sqlChangeColumn);
+			if (!sqlChangeNotNullConstraint.IsNullOrEmpty(true))
+			{
+				ExecuteNonQuery(sqlChangeNotNullConstraint);
+			}
 		}
 
 		public virtual void ChangeDefaultValue(string table, string column, object newDefaultValue)
@@ -362,9 +394,9 @@ namespace ECM7.Migrator.Providers
 
 		public virtual int Insert(string table, string[] columns, string[] values)
 		{
-			var quotedValues = values.Select(val => 
-				null == val 
-					? "null" 
+			var quotedValues = values.Select(val =>
+				null == val
+					? "null"
 					: string.Format("'{0}'", val.Replace("'", "''")));
 
 			// todo: сделать, чтобы методы insert и update получали массив object

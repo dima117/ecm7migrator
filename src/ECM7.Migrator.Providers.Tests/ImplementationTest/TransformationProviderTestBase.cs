@@ -72,7 +72,7 @@
 		[Test]
 		public void CanExecuteBatches()
 		{
-			provider.AddTable("BatchSqlTest", 
+			provider.AddTable("BatchSqlTest",
 				new Column("Id", DbType.Int32),
 				new Column("TestId", DbType.Int32));
 
@@ -319,37 +319,34 @@
 		}
 
 		[Test]
-		public virtual void CanChangeColumnType()
+		public virtual void CanChangeColumnWithoutChangeNotNullConstraint()
 		{
-			string tableName = GetRandomName("ChangeColumnTypeTest");
-			string columnName = GetRandomName("TestDecimalColumn");
-			string selectSql = provider.FormatSql("select {0:NAME} from {1:NAME}", columnName, tableName);
-
-			provider.AddTable(tableName, new Column(columnName, DbType.Decimal.WithSize(18, 4)));
-			provider.Insert(tableName, columnName.AsArray(), "123.4567".AsArray());
-			Assert.AreEqual(123.4567, provider.ExecuteScalar(selectSql));
-
-			provider.ChangeColumn(tableName, columnName, DbType.Int32, true);
-			Assert.AreEqual(123, provider.ExecuteScalar(selectSql));
-
-			provider.RemoveTable(tableName);
+			throw new NotImplementedException("тест не написан");
 		}
 
 		[Test]
-		public virtual void CanSetTheSameNotNullSign()
+		public virtual void CanChangeColumnType()
 		{
 			string tableName = GetRandomName("ChangeColumnTypeTest");
-			string column1Name = GetRandomName("Column1");
-			string column2Name = GetRandomName("Column2");
-			
-			provider.AddTable(tableName,
-				new Column(column1Name, DbType.Int32, ColumnProperty.NotNull),
-				new Column(column2Name, DbType.Int32, ColumnProperty.Null)
-			);
+			string columnName1 = GetRandomName("TestDecimalColumn1");
+			string columnName2 = GetRandomName("TestDecimalColumn2");
+			string selectSql = provider.FormatSql("select {0:NAME} from {1:NAME}", columnName2, tableName);
 
-			provider.ChangeColumn(tableName, column1Name, DbType.Int32, false);
-			provider.ChangeColumn(tableName, column2Name, DbType.Int32, true);
-		
+			provider.AddTable(tableName,
+				new Column(columnName1, DbType.Decimal.WithSize(8, 4)),
+				new Column(columnName2, DbType.Decimal.WithSize(8, 4)));
+
+			provider.Insert(tableName, new[] { columnName1, columnName2 }, new[] { "123.4568", "123.4568" });
+			Assert.AreEqual(123.4568, provider.ExecuteScalar(selectSql));
+
+			// делаем по извращенски с 2 колонками, т.к. у оракла ограничение: изменяемая колонка должна быть пустой
+			provider.Update(tableName, columnName2.AsArray(), new string[] { null });
+			provider.ChangeColumn(tableName, columnName2, DbType.Int32, NotNullConstraint.Undefined);
+			string updateSql = provider.FormatSql("update {0:NAME} set {1:NAME} = {2:NAME}", tableName, columnName2, columnName1);
+			provider.ExecuteNonQuery(updateSql);
+
+			Assert.AreEqual(123, provider.ExecuteScalar(selectSql));
+
 			provider.RemoveTable(tableName);
 		}
 
@@ -360,13 +357,19 @@
 
 			provider.AddTable(tableName, new Column("TestStringColumn", DbType.String.WithSize(4)));
 
+			// проверяем, что можно вставить null
 			provider.Insert(tableName, new[] { "TestStringColumn" }, new string[] { null });
 			provider.Delete(tableName);
 
-			provider.ChangeColumn(tableName, "TestStringColumn", DbType.String.WithSize(4), false);
-
-			Assert.Throws<SQLException>(()=>
+			// ставим ограничение NOT NULL и проверяем, что вставка NULL генерирует исключение
+			provider.ChangeColumn(tableName, "TestStringColumn", DbType.String.WithSize(4), NotNullConstraint.NotNull);
+			Assert.Throws<SQLException>(() =>
 				provider.Insert(tableName, new[] { "TestStringColumn" }, new string[] { null }));
+
+			// удаляем ограничение NOT NULL и проверяем, что можно вставить NULL
+			provider.ChangeColumn(tableName, "TestStringColumn", DbType.String.WithSize(4), NotNullConstraint.Null);
+			provider.Insert(tableName, new[] { "TestStringColumn" }, new string[] { null });
+
 
 			provider.RemoveTable(tableName);
 		}
