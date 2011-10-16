@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-
-using ECM7.Migrator.Framework;
-
-namespace ECM7.Migrator.Providers.Firebird
+﻿namespace ECM7.Migrator.Providers.Firebird
 {
-	using ECM7.Migrator.Providers.Firebird.Internal;
+	using System;
+	using System.Collections.Generic;
+	using System.Data;
 
+	using ECM7.Migrator.Framework;
+	using ECM7.Migrator.Providers.Firebird.Internal;
 	using FirebirdSql.Data.FirebirdClient;
 
 	public class FirebirdTransformationProvider : TransformationProvider<FbConnection>
@@ -111,41 +109,31 @@ namespace ECM7.Migrator.Providers.Firebird
 
 		#region ChangeColumn
 
-		protected string GetSqlColumnDefForChangeType(Column column)
+		protected override string GetSqlChangeColumnType(string table, string column, ColumnType columnType)
 		{
-			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+			string sqlColumnType = typeMap.Get(columnType);
 
-			sqlBuilder
-				.AddColumnName(NamesQuoteTemplate)
-				.AddRawSql("TYPE")
-				.AddColumnType(IdentityNeedsType);
-
-			return sqlBuilder.ToString();
+			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TYPE {2}", table, column, sqlColumnType);
 		}
 
-		protected string GetSqlColumnDefForChangeDefault(Column column)
+		protected override string GetSqlChangeNotNullConstraint(string table, string column, NotNullConstraint notNullConstraint, ref string sqlChangeColumnType)
 		{
-			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+			const string SQL_TEMPLATE = "UPDATE RDB$RELATION_FIELDS SET RDB$NULL_FLAG = {0} WHERE RDB$FIELD_NAME = '{1}' AND RDB$RELATION_NAME = '{2}';";
 
-			sqlBuilder.AddColumnName(NamesQuoteTemplate);
-
-			if (column.DefaultValue != null)
+			switch (notNullConstraint)
 			{
-				sqlBuilder
-					.AddRawSql("SET")
-					.AddDefaultValueSql(GetSqlDefaultValue);
+				case NotNullConstraint.Null:
+					return FormatSql(SQL_TEMPLATE, "NULL", column, table);
+				case NotNullConstraint.NotNull:
+					return FormatSql(SQL_TEMPLATE, "1", column, table);
+				case NotNullConstraint.Undefined:
+					return null;
+				default:
+					throw new NotSupportedException("Некорректное значение параметра notNullConstraint");
 			}
-			else
-			{
-				sqlBuilder
-					.AddRawSql("DROP DEFAULT");
-			}
-
-			return sqlBuilder.ToString();
 		}
 
 		#endregion
-		
 
 		#endregion
 
@@ -214,21 +202,6 @@ namespace ECM7.Migrator.Providers.Firebird
 		public override void RenameTable(string oldName, string newName)
 		{
 			throw new NotSupportedException("Firebird не поддерживает переименование таблиц");
-		}
-
-		public override void ChangeColumn(string table, string column, ColumnType columnType, bool allowNull)
-		{
-			//ExecuteNonQuery(
-			//    GetSqlChangeColumn(
-			//        table, 
-			//        GetSqlColumnDefForChangeType(column)));
-
-			//ExecuteNonQuery(
-			//    GetSqlChangeColumn(
-			//        table, 
-			//        GetSqlColumnDefForChangeDefault(column)));
-
-			throw new NotImplementedException();
 		}
 
 		#endregion

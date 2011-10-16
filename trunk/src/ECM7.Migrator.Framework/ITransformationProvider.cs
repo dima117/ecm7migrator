@@ -91,8 +91,8 @@ namespace ECM7.Migrator.Framework
 		/// <param name="table">The name of the table that will get the new column</param>
 		/// <param name="column">Название изменяемой колонки таблицы</param>
 		/// <param name="columnType">Новый тип колонки</param>
-		/// <param name="allowNull">Признак: разрешено значение NULL</param>
-		void ChangeColumn(string table, string column, ColumnType columnType, bool allowNull);
+		/// <param name="notNullConstraint">Признак: разрешено значение NULL</param>
+		void ChangeColumn(string table, string column, ColumnType columnType, NotNullConstraint notNullConstraint);
 
 		/// <summary>
 		/// Изменение значения по умолчанию
