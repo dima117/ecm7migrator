@@ -137,25 +137,13 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} {2}", table, column, columnTypeSql);
 		}
 
-		protected virtual string GetSqlChangeNotNullConstraint(string table, string column, NotNullConstraint notNullConstraint, ref string sqlChangeColumnType)
+		protected virtual string GetSqlChangeNotNullConstraint(string table, string column, bool notNull, ref string sqlChangeColumnType)
 		{
 			// если изменение типа колонки и признака NOT NULL происходит одним запросом,
 			// то изменяем параметр sqlChangeColumnType и возвращаем NULL
 			// иначе возвращаем запрос, меняющий признак NOT NULL
 
-			switch (notNullConstraint)
-			{
-				case NotNullConstraint.Null:
-					sqlChangeColumnType += " null";
-					break;
-				case NotNullConstraint.NotNull:
-					sqlChangeColumnType += " not null";
-					break;
-				case NotNullConstraint.Undefined:
-					break;
-				default:
-					throw new NotSupportedException("Некорректное значение параметра notNullConstraint");
-			}
+			sqlChangeColumnType += notNull ? " NOT NULL" : " NULL";
 
 			return null;
 		}
@@ -263,11 +251,11 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sqlAddColumn);
 		}
 
-		public virtual void ChangeColumn(string table, string column, ColumnType columnType, NotNullConstraint notNullConstraint)
+		public virtual void ChangeColumn(string table, string column, ColumnType columnType, bool notNull)
 		{
 			string sqlChangeColumn = GetSqlChangeColumnType(table, column, columnType);
 			string sqlChangeNotNullConstraint = GetSqlChangeNotNullConstraint(
-				table, column, notNullConstraint, ref sqlChangeColumn);
+				table, column, notNull, ref sqlChangeColumn);
 
 			if (!sqlChangeColumn.IsNullOrEmpty(true))
 			{

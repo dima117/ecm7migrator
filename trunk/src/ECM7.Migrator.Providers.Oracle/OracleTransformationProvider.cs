@@ -114,6 +114,27 @@ namespace ECM7.Migrator.Providers.Oracle
 			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1:NAME} {2}", table, column, columnTypeSql);
 		}
 
+		protected override string GetSqlChangeNotNullConstraint(string table, string column, bool notNull, ref string sqlChangeColumnType)
+		{
+			string sqlCheckNotNull =
+				FormatSql("select \"NULLABLE\" from \"USER_TAB_COLUMNS\" where \"TABLE_NAME\" = '{0}' and \"COLUMN_NAME\" = '{1}'",
+				          table, column);
+
+			using (var reader = ExecuteReader(sqlCheckNotNull))
+			{
+				if (reader.Read())
+				{
+					bool columnAlreadyNotNull = reader[0].ToString().Equals("n", StringComparison.CurrentCultureIgnoreCase);
+					if (notNull == columnAlreadyNotNull)
+					{
+						return null;
+					}
+				}
+			}
+
+			return base.GetSqlChangeNotNullConstraint(table, column, notNull, ref sqlChangeColumnType);
+		}
+
 		protected override string GetSqlRemoveIndex(string indexName, string tableName)
 		{
 			return FormatSql("DROP INDEX {0:NAME}", indexName);

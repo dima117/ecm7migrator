@@ -116,21 +116,13 @@
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TYPE {2}", table, column, sqlColumnType);
 		}
 
-		protected override string GetSqlChangeNotNullConstraint(string table, string column, NotNullConstraint notNullConstraint, ref string sqlChangeColumnType)
+		protected override string GetSqlChangeNotNullConstraint(string table, string column, bool notNull, ref string sqlChangeColumnType)
 		{
 			const string SQL_TEMPLATE = "UPDATE RDB$RELATION_FIELDS SET RDB$NULL_FLAG = {0} WHERE RDB$FIELD_NAME = '{1}' AND RDB$RELATION_NAME = '{2}';";
 
-			switch (notNullConstraint)
-			{
-				case NotNullConstraint.Null:
-					return FormatSql(SQL_TEMPLATE, "NULL", column, table);
-				case NotNullConstraint.NotNull:
-					return FormatSql(SQL_TEMPLATE, "1", column, table);
-				case NotNullConstraint.Undefined:
-					return null;
-				default:
-					throw new NotSupportedException("Некорректное значение параметра notNullConstraint");
-			}
+			string sqlNotNull = notNull ? "1" : "NULL";
+
+			return FormatSql(SQL_TEMPLATE, sqlNotNull, column, table);
 		}
 
 		#endregion
