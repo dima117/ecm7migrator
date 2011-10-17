@@ -324,7 +324,7 @@
 			string tableName = GetRandomName("TestTable");
 			string columnName1 = GetRandomName("TestNullableColumn");
 			string columnName2 = GetRandomName("TestNotNullableColumn");
-		
+
 			provider.AddTable(tableName,
 				new Column(columnName1, DbType.Int32, ColumnProperty.Null),
 				new Column(columnName2, DbType.Int32, ColumnProperty.NotNull)
@@ -332,7 +332,7 @@
 
 			provider.ChangeColumn(tableName, columnName1, DbType.Int32, false);
 			provider.ChangeColumn(tableName, columnName2, DbType.Int32, true);
-		
+
 			provider.RemoveTable(tableName);
 		}
 
@@ -391,49 +391,48 @@
 		[Test]
 		public virtual void CanChangeDefaultValueForColumn()
 		{
-			throw new NotImplementedException("написать нормальный тест");
-			//string tableName = GetRandomName("ChangeDefault");
+			string tableName = GetRandomName("ChangeDefault");
 
-			//provider.AddTable(
-			//    tableName, 
-			//    new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
-			//    new Column("TestStringColumn", DbType.String.WithSize(40), ColumnProperty.NotNull));
+			provider.AddTable(
+				tableName,
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("TestStringColumn", DbType.String.WithSize(40), ColumnProperty.NotNull));
 
-			//// нет значения по умолчанию
-			//Assert.Throws<SQLException>(() =>
-			//    provider.Insert(tableName, new[] { "Id" }, new[] { "1" }));
+			// нет значения по умолчанию
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(tableName, new[] { "Id" }, new[] { "1" }));
 
-			//// добавляем значнеие по умолчанию
-			//provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(40), ColumnProperty.NotNull, "'moo-default'"));
-			//provider.Insert(tableName, new[] { "Id" }, new[] { "2" });
+			// добавляем значнеие по умолчанию
+			provider.ChangeDefaultValue(tableName, "TestStringColumn", "'moo-default'");
+			provider.Insert(tableName, new[] { "Id" }, new[] { "2" });
 
-			//// изменяем значение по умолчанию
-			//provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(40), ColumnProperty.NotNull, "'mi-default'"));
-			//provider.Insert(tableName, new[] { "Id" }, new[] { "3" });
+			// изменяем значение по умолчанию
+			provider.ChangeDefaultValue(tableName, "TestStringColumn", "'mi-default'");
+			provider.Insert(tableName, new[] { "Id" }, new[] { "3" });
 
-			//// удаляем значение по умолчанию
-			//provider.ChangeColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(40), ColumnProperty.NotNull));
-			//Assert.Throws<SQLException>(() =>
-			//    provider.Insert(tableName, new[] { "Id" }, new[] { "4" }));
+			// удаляем значение по умолчанию
+			provider.ChangeDefaultValue(tableName, "TestStringColumn", null);
+			Assert.Throws<SQLException>(() =>
+				provider.Insert(tableName, new[] { "Id" }, new[] { "4" }));
 
-			//string sql = provider.FormatSql(
-			//    "select {0:NAME}, {1:NAME} from {2:NAME} order by {0:NAME}",
-			//    "Id", "TestStringColumn", tableName);
+			string sql = provider.FormatSql(
+				"select {0:NAME}, {1:NAME} from {2:NAME} order by {0:NAME}",
+				"Id", "TestStringColumn", tableName);
 
-			//using (var reader = provider.ExecuteReader(sql))
-			//{
-			//    Assert.IsTrue(reader.Read());
-			//    Assert.AreEqual(2, reader[0]);
-			//    Assert.AreEqual("moo-default", reader[1]);
+			using (var reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(2, reader[0]);
+				Assert.AreEqual("moo-default", reader[1]);
 
-			//    Assert.IsTrue(reader.Read());
-			//    Assert.AreEqual(3, reader[0]);
-			//    Assert.AreEqual("mi-default", reader[1]);
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(3, reader[0]);
+				Assert.AreEqual("mi-default", reader[1]);
 
-			//    Assert.IsFalse(reader.Read());
-			//}
+				Assert.IsFalse(reader.Read());
+			}
 
-			//provider.RemoveTable(tableName);
+			provider.RemoveTable(tableName);
 		}
 
 		[Test]
