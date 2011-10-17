@@ -319,9 +319,21 @@
 		}
 
 		[Test]
-		public virtual void CanChangeColumnWithoutChangeNotNullConstraint()
+		public virtual void CanSetNotNullRepeatedly()
 		{
-			throw new NotImplementedException("тест не написан");
+			string tableName = GetRandomName("TestTable");
+			string columnName1 = GetRandomName("TestNullableColumn");
+			string columnName2 = GetRandomName("TestNotNullableColumn");
+		
+			provider.AddTable(tableName,
+				new Column(columnName1, DbType.Int32, ColumnProperty.Null),
+				new Column(columnName2, DbType.Int32, ColumnProperty.NotNull)
+			);
+
+			provider.ChangeColumn(tableName, columnName1, DbType.Int32, false);
+			provider.ChangeColumn(tableName, columnName2, DbType.Int32, true);
+		
+			provider.RemoveTable(tableName);
 		}
 
 		[Test]
@@ -341,7 +353,7 @@
 
 			// делаем по извращенски с 2 колонками, т.к. у оракла ограничение: изменяемая колонка должна быть пустой
 			provider.Update(tableName, columnName2.AsArray(), new string[] { null });
-			provider.ChangeColumn(tableName, columnName2, DbType.Int32, NotNullConstraint.Undefined);
+			provider.ChangeColumn(tableName, columnName2, DbType.Int32, false);
 			string updateSql = provider.FormatSql("update {0:NAME} set {1:NAME} = {2:NAME}", tableName, columnName2, columnName1);
 			provider.ExecuteNonQuery(updateSql);
 
@@ -362,12 +374,12 @@
 			provider.Delete(tableName);
 
 			// ставим ограничение NOT NULL и проверяем, что вставка NULL генерирует исключение
-			provider.ChangeColumn(tableName, "TestStringColumn", DbType.String.WithSize(4), NotNullConstraint.NotNull);
+			provider.ChangeColumn(tableName, "TestStringColumn", DbType.String.WithSize(4), true);
 			Assert.Throws<SQLException>(() =>
 				provider.Insert(tableName, new[] { "TestStringColumn" }, new string[] { null }));
 
 			// удаляем ограничение NOT NULL и проверяем, что можно вставить NULL
-			provider.ChangeColumn(tableName, "TestStringColumn", DbType.String.WithSize(4), NotNullConstraint.Null);
+			provider.ChangeColumn(tableName, "TestStringColumn", DbType.String.WithSize(4), false);
 			provider.Insert(tableName, new[] { "TestStringColumn" }, new string[] { null });
 
 

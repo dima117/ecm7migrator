@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace ECM7.Migrator.Providers.SQLite
 {
 	using System;
@@ -122,7 +120,7 @@ namespace ECM7.Migrator.Providers.SQLite
 			throw new NotSupportedException("SLQite не поддерживает переименование колонок");
 		}
 
-		public override void ChangeColumn(string table, string column, ColumnType columnType, NotNullConstraint notNullConstraint)
+		public override void ChangeColumn(string table, string column, ColumnType columnType, bool notNull)
 		{
 			throw new NotSupportedException("SLQite не поддерживает изменение колонок");
 		}
@@ -149,7 +147,6 @@ namespace ECM7.Migrator.Providers.SQLite
 				using (IDataReader reader = ExecuteReader(sql))
 				{
 					return true;
-
 				}
 			}
 			catch (Exception)

@@ -81,25 +81,15 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TYPE {2}", table, column, columnTypeSql);
 		}
 
-		protected override string GetSqlChangeNotNullConstraint(string table, string column, NotNullConstraint notNullConstraint, ref string sqlChangeColumnType)
+		protected override string GetSqlChangeNotNullConstraint(string table, string column, bool notNull, ref string sqlChangeColumnType)
 		{
 			// если изменение типа колонки и признака NOT NULL происходит одним запросом,
 			// то изменяем параметр sqlChangeColumnType и возвращаем NULL
 			// иначе возвращаем запрос, меняющий признак NOT NULL
 
-			const string SQL_TEMPLATE = "ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} {2}";
+			string sqlNotNull = notNull ? "SET NOT NULL" : "DROP NOT NULL";
 
-			switch (notNullConstraint)
-			{
-				case NotNullConstraint.Null:
-					return FormatSql(SQL_TEMPLATE, table, column, "DROP NOT NULL");
-				case NotNullConstraint.NotNull:
-					return FormatSql(SQL_TEMPLATE, table, column, "SET NOT NULL");
-				case NotNullConstraint.Undefined:
-					return null;
-				default:
-					throw new NotSupportedException("Некорректное значение параметра notNullConstraint");
-			}
+			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} {2}", table, column, sqlNotNull);
 		}
 
 
