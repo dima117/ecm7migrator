@@ -84,6 +84,10 @@ namespace ECM7.Migrator.Providers.Oracle
 			{
 				defaultValue = (bool)defaultValue ? 1 : 0;
 			}
+			else if (defaultValue == null)
+			{
+				defaultValue = "NULL";
+			}
 
 			return base.GetSqlDefaultValue(defaultValue);
 		}
@@ -118,7 +122,7 @@ namespace ECM7.Migrator.Providers.Oracle
 		{
 			string sqlCheckNotNull =
 				FormatSql("select \"NULLABLE\" from \"USER_TAB_COLUMNS\" where \"TABLE_NAME\" = '{0}' and \"COLUMN_NAME\" = '{1}'",
-				          table, column);
+						  table, column);
 
 			using (var reader = ExecuteReader(sqlCheckNotNull))
 			{
@@ -133,6 +137,11 @@ namespace ECM7.Migrator.Providers.Oracle
 			}
 
 			return base.GetSqlChangeNotNullConstraint(table, column, notNull, ref sqlChangeColumnType);
+		}
+
+		protected override string GetSqlChangeDefaultValue(string table, string column, object newDefaultValue)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1:NAME} {2}", table, column, GetSqlDefaultValue(newDefaultValue));
 		}
 
 		protected override string GetSqlRemoveIndex(string indexName, string tableName)

@@ -148,6 +148,15 @@ namespace ECM7.Migrator.Providers
 			return null;
 		}
 		
+		protected virtual string GetSqlChangeDefaultValue(string table, string column, object newDefaultValue)
+		{
+			string defaultValueSql = newDefaultValue == null
+			                         	? "DROP DEFAULT"
+			                         	: "SET " + GetSqlDefaultValue(newDefaultValue);
+
+			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} {2}", table, column, defaultValueSql);
+		}
+
 		protected virtual string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} RENAME COLUMN {1:NAME} TO {2:NAME}",
@@ -270,6 +279,9 @@ namespace ECM7.Migrator.Providers
 
 		public virtual void ChangeDefaultValue(string table, string column, object newDefaultValue)
 		{
+			string sqlChangeDefaultValue = GetSqlChangeDefaultValue(table, column, newDefaultValue);
+
+			ExecuteNonQuery(sqlChangeDefaultValue);
 		}
 
 		public virtual void RenameColumn(string tableName, string oldColumnName, string newColumnName)
