@@ -54,6 +54,16 @@ namespace ECM7.Migrator.Providers.SqlServer
 			throw new NotSupportedException("SqlServerCe doesn't support check constraints");
 		}
 
+		public override void ChangeDefaultValue(string table, string column, object newDefaultValue)
+		{
+			if (newDefaultValue != null)
+			{
+				base.ChangeDefaultValue(table, column, null);
+			}
+
+			base.ChangeDefaultValue(table, column, newDefaultValue);
+		}
+
 		public override bool IndexExists(string indexName, string tableName)
 		{
 			string sql = string.Format(
