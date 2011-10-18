@@ -110,6 +110,11 @@ namespace ECM7.Migrator.Providers.SQLite
 			throw new NotSupportedException("SQLite не поддерживает внешние ключи");
 		}
 
+		public override void AddCheckConstraint(string name, string table, string checkSql)
+		{
+			throw new NotSupportedException("SQLite не поддерживает создание CHECK CONSTRAINTS после создания колонки");
+		}
+
 		public override void RemoveColumn(string table, string column)
 		{
 			throw new NotSupportedException("SQLite не поддерживает удаление колонок");
