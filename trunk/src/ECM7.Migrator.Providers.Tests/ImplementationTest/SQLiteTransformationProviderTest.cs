@@ -89,6 +89,19 @@
 				base.CanAddForeignKeyWithUpdateSetNull());
 		}
 
+		// check constraints
+		[Test]
+		public override void CanAddCheckConstraint()
+		{
+			Assert.Throws<NotSupportedException>(() => base.CanAddCheckConstraint());
+		}
+
+		[Test]
+		public override void CanVerifyThatCheckConstraintIsExist()
+		{
+			Assert.Throws<NotSupportedException>(() => base.CanVerifyThatCheckConstraintIsExist());
+		}
+
 		[Test]
 		public override void CanAddComplexForeignKey()
 		{
