@@ -130,6 +130,11 @@ namespace ECM7.Migrator.Providers.SQLite
 			throw new NotSupportedException("SLQite не поддерживает изменение колонок");
 		}
 
+		public override void ChangeDefaultValue(string table, string column, object newDefaultValue)
+		{
+			throw new NotSupportedException("SLQite не поддерживает изменение колонок");
+		}
+
 		/// <summary>
 		/// Check if a table already exists
 		/// </summary>
