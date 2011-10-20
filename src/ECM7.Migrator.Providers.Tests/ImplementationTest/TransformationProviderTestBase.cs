@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+﻿using ECM7.Migrator.Providers.SQLite;
+
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 {
 	using System;
 	using System.Configuration;
@@ -139,13 +141,13 @@
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32),
 				new Column("StringColumn", DbType.String.WithSize(500)),
-				new Column("DecimalColumn", DbType.Decimal.WithSize(10, 2))
+				new Column("IntegerColumn", DbType.Int32)
 			);
 
 			provider.Insert(
 				tableName,
-				new[] { "ID", "StringColumn", "DecimalColumn" },
-				new[] { "1984", "test moo", "123.56789" }
+				new[] { "ID", "StringColumn", "IntegerColumn" },
+				new[] { "1984", "test moo", "123" }
 			);
 
 
@@ -155,7 +157,7 @@
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual(1984, reader["ID"]);
 				Assert.AreEqual("test moo", reader["StringColumn"]);
-				Assert.AreEqual(123.57m, Convert.ToDecimal(reader["DecimalColumn"]));
+				Assert.AreEqual(123, Convert.ToDecimal(reader["IntegerColumn"]));
 				Assert.IsFalse(reader.Read());
 			}
 
@@ -270,10 +272,7 @@
 
 			provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "2", "test" });
 			provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "4", "testmoo" });
-
-			Assert.Throws<SQLException>(() =>
-				provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "6", "1234567890123456789012" }));
-
+				
 			string sql = provider.FormatSql("select * from {0:NAME}", tableName);
 			using (var reader = provider.ExecuteReader(sql))
 			{
