@@ -20,7 +20,7 @@
 			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
 			typeMap.Put(DbType.AnsiStringFixedLength, 32767, "CHAR($l)");
 			typeMap.Put(DbType.AnsiString, "VARCHAR(255)");
-			typeMap.Put(DbType.AnsiString, 32767, "VARCHAR($l)");
+			typeMap.Put(DbType.AnsiString, int.MaxValue, "VARCHAR($l)");
 			typeMap.Put(DbType.Binary, "VARCHAR(8000)");
 			typeMap.Put(DbType.Binary, 8000, "VARCHAR($l)");
 			typeMap.Put(DbType.Boolean, "SMALLINT");

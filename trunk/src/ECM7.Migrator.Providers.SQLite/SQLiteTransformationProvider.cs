@@ -115,6 +115,16 @@ namespace ECM7.Migrator.Providers.SQLite
 			throw new NotSupportedException("SQLite не поддерживает создание CHECK CONSTRAINTS после создания колонки");
 		}
 
+		public override void AddPrimaryKey(string name, string table, params string[] columns)
+		{
+			throw new NotSupportedException("SLQite не поддерживает добавление ограничений после создания колонки");
+		}
+
+		public override void AddUniqueConstraint(string name, string table, params string[] columns)
+		{
+			throw new NotSupportedException("SLQite не поддерживает добавление ограничений после создания колонки");
+		}
+
 		public override void RemoveColumn(string table, string column)
 		{
 			throw new NotSupportedException("SQLite не поддерживает удаление колонок");
