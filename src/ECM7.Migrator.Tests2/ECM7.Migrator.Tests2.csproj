@@ -54,6 +54,7 @@
       <Link>AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ConfigurationTest.cs" />
+    <Compile Include="Console\CommandLineParamsTest.cs" />
     <Compile Include="ExecuteMigrationTest.cs" />
     <Compile Include="MigrationAssemblyTest.cs" />
     <Compile Include="MigrationKeyTests.cs" />
@@ -63,6 +64,10 @@
     <Compile Include="Providers\TypeNamesTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ECM7.Migrator.Console\ECM7.Migrator.Console.csproj">
+      <Project>{FBE3A83A-D0F8-4D72-AF8D-9EF772569A31}</Project>
+      <Name>ECM7.Migrator.Console</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ECM7.Migrator.Framework\ECM7.Migrator.Framework.csproj">
       <Project>{5270F048-E580-486C-B14C-E5B9F6E539D4}</Project>
       <Name>ECM7.Migrator.Framework</Name>

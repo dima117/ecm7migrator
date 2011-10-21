@@ -32,11 +32,6 @@
 		/// </summary>
 		public string AssemblyFile { get; set; }
 
-		/// <summary>
-		/// Ключ миграций
-		/// </summary>
-		public string Key { get; set; }
-
 		#endregion
 	}
 }
