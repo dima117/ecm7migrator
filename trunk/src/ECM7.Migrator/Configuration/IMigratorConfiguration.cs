@@ -26,11 +26,6 @@
 		string Assembly { get; }
 
 		/// <summary>
-		/// Ключ миграций
-		/// </summary>
-		string Key { get; }
-
-		/// <summary>
 		/// Путь к файлу с миграциями
 		/// </summary>
 		string AssemblyFile { get; }

@@ -71,6 +71,8 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CommandLineParams.cs" />
+    <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="MigratorConsoleMode.cs" />
   </ItemGroup>
