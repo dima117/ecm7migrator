@@ -24,14 +24,14 @@
     [Migration(7)]
     public class AbstractTestMigration : Migration
     {
-        override public void Up()
+        public override void Apply()
         {
             Database.AddTable("CustomerAddress",
                 new Column("customer_id", DbType.Int32, ColumnProperty.PrimaryKey),
                 new Column("address_id", DbType.Int32, ColumnProperty.PrimaryKey));
         }
 
-        override public void Down()
+        public override void Revert()
         {
             Database.RemoveTable("CustomerAddress");
         }
