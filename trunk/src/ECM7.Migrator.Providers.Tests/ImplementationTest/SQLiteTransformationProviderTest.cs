@@ -116,6 +116,18 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 			Assert.Throws<NotSupportedException>(base.CanAddPrimaryKey);
 		}
 
+		[Test]
+		public override void CanCheckThatPrimaryKeyIsExist()
+		{
+			Assert.Throws<NotSupportedException>(base.CanCheckThatPrimaryKeyIsExist);
+		}
+		
+		[Test]
+		public override void CanCheckThatUniqueConstraintIsExist()
+		{
+			Assert.Throws<NotSupportedException>(base.CanCheckThatUniqueConstraintIsExist);
+		}
+
 		#endregion
 
 		#region change column
