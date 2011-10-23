@@ -6,7 +6,7 @@
 
 = Порядок действий =
 
-  * загрузите [http://nant.sourceforge.net|NAnt] и распакуйте загруженный архив;
-  * загрузите [http://nantcontrib.sourceforge.net|NAntContrib] и распакуйте файлы из архива в ту же папку, куда был распакован файл NAnt.exe; 
+  * загрузите [http://nant.sourceforge.net NAnt] и распакуйте загруженный архив;
+  * загрузите [http://nantcontrib.sourceforge.net/ NAntContrib] и распакуйте файлы из архива в ту же папку, куда был распакован файл NAnt.exe; 
   * добавьте в системную переменную Path путь к папке, в которой находится NAnt.exe;
-  * загрузите из http://code.google.com/p/ecm7migrator/ исходные коды мигратора и запустите файл build.bat
+  * загрузите из [http://code.google.com/p/ecm7migrator/ исходные коды] мигратора и запустите файл build.bat
