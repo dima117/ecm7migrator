@@ -57,7 +57,7 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// Название
 		/// </summary>
-		public string Name
+		public virtual string Name
 		{
 			get { return StringUtils.ToHumanName(GetType().Name); }
 		}
@@ -70,8 +70,10 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// Defines transformations to revert things done in <c>Up</c>.
 		/// </summary>
-		public abstract void Down();
-
+		public virtual void Down()
+		{
+		}
+		
 		/// <summary>
 		/// Represents the database.
 		/// <see cref="ITransformationProvider"></see>.
