@@ -44,36 +44,31 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 		public override void CanVerifyThatCheckConstraintIsExist()
 		{
 			// todo: пройтись по всем тестам с NotSupportedException и проверить необходимость выдачи исключения
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanVerifyThatCheckConstraintIsExist());
+			Assert.Throws<NotSupportedException>(base.CanVerifyThatCheckConstraintIsExist);
 		}
 
 		[Test]
 		public override void CanAddCheckConstraint()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddCheckConstraint());
+			Assert.Throws<NotSupportedException>(base.CanAddCheckConstraint);
 		}
 
 		[Test]
 		public override void CanRenameColumn()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanRenameColumn());
+			Assert.Throws<NotSupportedException>(base.CanRenameColumn);
 		}
 
 		[Test]
 		public override void CanAddForeignKeyWithDeleteSetDefault()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddForeignKeyWithDeleteSetDefault());
+			Assert.Throws<NotSupportedException>(base.CanAddForeignKeyWithDeleteSetDefault);
 		}
 
 		[Test]
 		public override void CanAddForeignKeyWithUpdateSetDefault()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddForeignKeyWithUpdateSetDefault());
+			Assert.Throws<NotSupportedException>(base.CanAddForeignKeyWithUpdateSetDefault);
 		}
 
 		[Test]
