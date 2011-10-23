@@ -34,10 +34,10 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 		[SetUp]
 		public virtual void SetUp()
 		{
-			if (!isInitialized)
+			if (!TransformationProviderTestBase<ITransformationProvider>.isInitialized)
 			{
 				BasicConfigurator.Configure();
-				isInitialized = true;
+				TransformationProviderTestBase<ITransformationProvider>.isInitialized = true;
 			}
 
 			string constr = ConfigurationManager.AppSettings[ConnectionStrinSettingsName];
@@ -174,9 +174,9 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 				new Column("ID2", DbType.Int32, ColumnProperty.PrimaryKey)
 			);
 
-			Assert.IsTrue(provider.ConstraintExists(tableName, "PK_" + tableName));
-
 			provider.Insert(tableName, new[] { "ID", "ID2" }, new[] { "5", "6" });
+			provider.Insert(tableName, new[] { "ID", "ID2" }, new[] { "5", "7" });
+			provider.Insert(tableName, new[] { "ID", "ID2" }, new[] { "7", "6" });
 
 			Assert.Throws<SQLException>(() =>
 				provider.Insert(tableName, new[] { "ID", "ID2" }, new[] { "5", "6" }));
