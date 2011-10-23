@@ -19,15 +19,15 @@ namespace ECM7.Migrator.TestAssembly
 		/// <summary>
 		/// Defines tranformations to port the database to the current version.
 		/// </summary>
-		public void Up()
+		public void Apply()
 		{
 			Database.ExecuteNonQuery("up");
 		}
 
 		/// <summary>
-		/// Defines transformations to revert things done in <c>Up</c>.
+		/// Defines transformations to revert things done in <c>Apply</c>.
 		/// </summary>
-		public void Down()
+		public void Revert()
 		{
 			Database.ExecuteNonQuery("down");
 		}

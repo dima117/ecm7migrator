@@ -3,8 +3,8 @@ namespace ECM7.Migrator.Framework
 	/// <summary>
 	/// A migration is a group of transformation applied to the database schema
 	/// (or sometimes data) to port the database from one version to another.
-	/// The <c>Up()</c> method must apply the modifications (eg.: create a table)
-	/// and the <c>Down()</c> method must revert, or rollback the modifications
+	/// The <c>Apply()</c> method must apply the modifications (eg.: create a table)
+	/// and the <c>Revert()</c> method must revert, or rollback the modifications
 	/// (eg.: delete a table).
 	/// <para>
 	/// Each migration must be decorated with the <c>[Migration(0)]</c> attribute.
@@ -38,14 +38,14 @@ namespace ECM7.Migrator.Framework
 	/// [Migration(3)]
 	/// public class AddCustomerTable : Migration
 	/// {
-	/// 	public override void Up()
+	/// 	public override void Apply()
 	/// 	{
 	/// 		Database.AddTable("Customer",
 	///		                  new Column("Name", typeof(string), 50),
 	///		                  new Column("Address", typeof(string), 100)
 	///		                 );
 	/// 	}
-	/// 	public override void Down()
+	/// 	public override void Revert()
 	/// 	{
 	/// 		Database.RemoveTable("Customer");
 	/// 	}
@@ -65,12 +65,12 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// Defines tranformations to port the database to the current version.
 		/// </summary>
-		public abstract void Up();
+		public abstract void Apply();
 
 		/// <summary>
-		/// Defines transformations to revert things done in <c>Up</c>.
+		/// Defines transformations to revert things done in <c>Apply</c>.
 		/// </summary>
-		public virtual void Down()
+		public virtual void Revert()
 		{
 		}
 		

@@ -20,11 +20,11 @@ namespace ECM7.Migrator.Framework
 		/// <summary>
 		/// Defines tranformations to port the database to the current version.
 		/// </summary>
-		void Up();
+		void Apply();
 
 		/// <summary>
-		/// Defines transformations to revert things done in <c>Up</c>.
+		/// Defines transformations to revert things done in <c>Apply</c>.
 		/// </summary>
-		void Down();
+		void Revert();
 	}
 }

@@ -80,7 +80,7 @@ namespace ECM7.Migrator
 		/// </summary>
 		public ReadOnlyCollection<MigrationInfo> AvailableMigrations
 		{
-			get { return this.migrationAssembly.MigrationsTypes; }
+			get { return migrationAssembly.MigrationsTypes; }
 		}
 
 		/// <summary>
@@ -96,19 +96,19 @@ namespace ECM7.Migrator
 		/// Runs all migration between the actual version and the
 		/// specified version.
 		/// If <c>version</c> is greater then the current version,
-		/// the <c>Up()</c> method will be invoked.
+		/// the <c>Apply()</c> method will be invoked.
 		/// If <c>version</c> lower then the current version,
-		/// the <c>Down()</c> method of previous migration will be invoked.
+		/// the <c>Revert()</c> method of previous migration will be invoked.
 		/// If <c>dryrun</c> is set, don't write any changes to the database.
 		/// </summary>
 		/// <param name="databaseVersion">The version that must became the current one</param>
 		public void Migrate(long databaseVersion = -1)
 		{
 
-			long targetVersion = databaseVersion < 0 ? this.migrationAssembly.LastVersion : databaseVersion;
+			long targetVersion = databaseVersion < 0 ? migrationAssembly.LastVersion : databaseVersion;
 
 			IList<long> appliedMigrations = provider.GetAppliedMigrations(Key);
-			IList<long> availableMigrations = this.migrationAssembly.MigrationsTypes
+			IList<long> availableMigrations = migrationAssembly.MigrationsTypes
 				.Select(mInfo => mInfo.Version).ToList();
 
 			MigrationPlan plan = BuildMigrationPlan(targetVersion, appliedMigrations, availableMigrations);
@@ -131,34 +131,34 @@ namespace ECM7.Migrator
 		/// <param name="currentDatabaseVersion">Текущая версия БД</param>
 		public void ExecuteMigration(long targetVersion, long currentDatabaseVersion)
 		{
-			IMigration migration = this.migrationAssembly.InstantiateMigration(targetVersion, this.provider);
+			IMigration migration = migrationAssembly.InstantiateMigration(targetVersion, provider);
 			Require.IsNotNull(migration, "Не найдена миграция версии {0}", targetVersion);
 
 			try
 			{
-				this.provider.BeginTransaction();
+				provider.BeginTransaction();
 
 				if (targetVersion <= currentDatabaseVersion)
 				{
 					MigratorLogManager.Log.MigrateDown(targetVersion, migration.Name);
-					migration.Down();
-					this.provider.MigrationUnApplied(targetVersion, Key);
+					migration.Revert();
+					provider.MigrationUnApplied(targetVersion, Key);
 				}
 				else
 				{
 					MigratorLogManager.Log.MigrateUp(targetVersion, migration.Name);
-					migration.Up();
-					this.provider.MigrationApplied(targetVersion, Key);
+					migration.Apply();
+					provider.MigrationApplied(targetVersion, Key);
 				}
 
-				this.provider.Commit();
+				provider.Commit();
 			}
 			catch (Exception ex)
 			{
 				MigratorLogManager.Log.Exception(targetVersion, migration.Name, ex);
 
 				// при ошибке откатываем изменения
-				this.provider.Rollback();
+				provider.Rollback();
 				MigratorLogManager.Log.RollingBack(currentDatabaseVersion);
 				throw;
 			}

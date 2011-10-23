@@ -57,22 +57,22 @@ namespace ECM7.Migrator.Tests2
 		[Migration(1, Ignore = true)]
 		internal class Migration1 : Migration
 		{
-			override public void Up() { }
-			override public void Down() { }
+			override public void Apply() { }
+			override public void Revert() { }
 		}
 
 		[Migration(2, Ignore = true)]
 		internal class Migration2 : Migration
 		{
-			override public void Up() { }
-			override public void Down() { }
+			override public void Apply() { }
+			override public void Revert() { }
 		}
 
 		[Migration(3, Ignore = true)]
 		internal class Migration3 : Migration
 		{
-			override public void Up() { }
-			override public void Down() { }
+			override public void Apply() { }
+			override public void Revert() { }
 		}
 	}
 }
