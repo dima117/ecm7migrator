@@ -13,7 +13,7 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 		public abstract string ConnectionString { get; }
 		public abstract string ParameterName { get; }
 		public virtual int MaxStringFixedLength { get { return 8000; } }
-		public virtual int MaxStringVariableLength { get { return 50000; } }
+		public virtual int MaxStringVariableLength { get { return 32000; } }
 		public virtual long MaxInt64Value { get { return long.MaxValue; } }
 		public virtual long MinInt64Value { get { return long.MinValue; } }
 

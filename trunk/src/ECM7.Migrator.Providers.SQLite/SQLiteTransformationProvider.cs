@@ -184,7 +184,7 @@ namespace ECM7.Migrator.Providers.SQLite
 		/// <returns><c>true</c> if the constraint exists.</returns>
 		public override bool ConstraintExists(string table, string name)
 		{
-			return false;
+			throw new NotSupportedException();
 		}
 
 		/// <summary>
