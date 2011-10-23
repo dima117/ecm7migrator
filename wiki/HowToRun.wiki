@@ -33,16 +33,32 @@ ECM7.Migrator.Console "ECM7.Migrator.Providers.SqlServer.SqlServerTransformation
 ----
 == Nant ==
 
-=== Пример build-файла ===
+Для выполнения миграций через NAnt используйте таск migrate из сборки ECM7.Migrator.NAnt.
+
+=== Описание параметров ===
+
+  * *provider* - полное имя класса провайдера СУБД или его краткое название;
+  * *connection-string* - строка подключения;
+  * *connection-string-name* - название строки подключения в секции connectionStrings конфигурационного файла приложения;
+  * *assembly*- название сборки с миграциями (загружается через Assembly.Load);
+  * *assembly-file* - путь к файлу сборки с миграциями (загружается через Assembly.LoadFrom);
+  * *to* - версия назначения, до которой будет обновлена БД (значение по умолчанию "-1" соответствует последней доступной версии).
+
+Параметры *connection-string* и *connection-string-name* являются взаимоисключающими. Если указаны оба параметра, то используется значение параметра *connection-string*.
+
+Параметры *assembly* и *assembly-file* являются взаимоисключающими. Если указаны оба параметра, то используется значение параметра *assembly*.
+
+
+=== Пример ===
 
 {{{
 <loadtasks assembly="/ECM7.Migrator.NAnt.dll" />
 <target name="migrate" description="Migrate the database" depends="build">
   <property name="version" value="-1? overwrite="false" />
   <migrate
-    dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
-    connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
-    migrations="bin/MyProject.dll"
+    provider="ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider, ECM7.Migrator.Providers.SqlServer"
+    connection-string="Database=MyDB;Data Source=localhost;User Id=;Password=;"
+    assembly-file="bin/MyProject.dll"
     to="${version}" />
 </target>
 }}}
@@ -54,6 +70,7 @@ ECM7.Migrator.Console "ECM7.Migrator.Providers.SqlServer.SqlServerTransformation
 Для перехода на заданную версию БД наберите
 
 `nant migrate -D:version=5`
+
 
 ----
 == MsBuild== 
