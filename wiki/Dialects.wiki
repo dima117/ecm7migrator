@@ -7,11 +7,11 @@ Add your content here.
 
 = Доступные диалекты =
 
-|| *СУБД* || *Диалект* || *Короткое имя диалекта* || *Сборка* || *Необходимые дополнительные сборки* ||
-||MS SQL Server 2000 || || SqlServer || || ||
-||MS SQL Server 2005 || || SqlServer2005 || || ||
-||MS SQL Server CE || || SqlServerCe || || ||
-||Oracle 10g || || Oracle || || ||
-||MySQL Server 5.0, 5.1 || || MySql || || ||
-||PostgreSQL || || PostgreSQL || || ||
-||SQLite 3 || || SQLite || || ||
+|| *СУБД* || *Диалект* || *Короткое имя диалекта* || *Сборка* ||
+||MS SQL Server 2005, 2008, 2008R2, Azure ||ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider || SqlServer ||ECM7.Migrator.Providers.SqlServer.dll ||
+||MS SQL Server CE 4 ||ECM7.Migrator.Providers.SqlServer.SqlServerCeTransformationProvider ||SqlServerCe ||ECM7.Migrator.Providers.SqlServer.dll ||
+||Oracle ||ECM7.Migrator.Providers.Oracle.OracleTransformationProvider ||Oracle ||ECM7.Migrator.Providers.Oracle ||
+||MySQL ||ECM7.Migrator.Providers.MySql.MySqlTransformationProvider || MySql ||ECM7.Migrator.Providers.MySql ||
+||PostgreSQL ||ECM7.Migrator.Providers.PostgreSQL.PostgreSQLTransformationProvider ||PostgreSQL ||ECM7.Migrator.Providers.PostgreSQL ||
+||SQLite 3 ||ECM7.Migrator.Providers.SQLite.SQLiteTransformationProvider ||SQLite ||ECM7.Migrator.Providers.SQLite ||
+||Firebird ||ECM7.Migrator.Providers.Firebird.FirebirdTransformationProvider ||Firebird ||ECM7.Migrator.Providers.Firebird ||
