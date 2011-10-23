@@ -1,4 +1,7 @@
-﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+﻿using System.Data;
+using ECM7.Migrator.Framework;
+
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 {
 	using System;
 
@@ -156,7 +159,14 @@
 		[Test]
 		public override void CantRemoveUnexistingColumn()
 		{
-			Assert.Throws<NotSupportedException>(base.CantRemoveUnexistingColumn);
+			string tableName = GetRandomName("RemoveUnexistingColumn");
+
+			provider.AddTable(tableName, new Column("ID", DbType.Int32));
+
+			Assert.Throws<NotSupportedException>(() =>
+				provider.RemoveColumn(tableName, GetRandomName()));
+
+			provider.RemoveTable(tableName);
 		}
 
 
