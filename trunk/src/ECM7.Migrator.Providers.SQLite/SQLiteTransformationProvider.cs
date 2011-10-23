@@ -105,8 +105,6 @@ namespace ECM7.Migrator.Providers.SQLite
 			ECM7.Migrator.Framework.ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
 			ECM7.Migrator.Framework.ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
-			// todo: написать тесты на отсутствие поддержки внешних ключей в SQLite
-			// todo: проверить, что при отдельном добавлении внешнего ключа генерируется исключение
 			throw new NotSupportedException("SQLite не поддерживает внешние ключи");
 		}
 

@@ -1,6 +1,4 @@
-﻿using ECM7.Migrator.Providers.SQLite;
-
-namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 {
 	using System;
 	using System.Configuration;
