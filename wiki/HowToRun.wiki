@@ -21,9 +21,9 @@ ECM7.Migrator.Console <провайдер> <строка подключения>
 }}}
 
 Назначение дополнительных параметров:
--version: версия назначения (если не указывать этот параметр или указать значение *-1*, то будет выполнена миграция БД до последней доступной версии);
--list: если указан данный параметр, то будут отображен список доступных миграций без их выполнения;
--help: если указан данный параметр, то будет выведена краткая справка по консольному приложению.
+  * -version: версия назначения (если не указывать этот параметр или указать значение *-1*, то будет выполнена миграция БД до последней доступной версии);
+  * -list: если указан данный параметр, то будут отображен список доступных миграций без их выполнения;
+  * -help: если указан данный параметр, то будет выведена краткая справка по консольному приложению.
 
 Пример запуска консольного приложения:
 {{{
@@ -33,7 +33,7 @@ ECM7.Migrator.Console "ECM7.Migrator.Providers.SqlServer.SqlServerTransformation
 ----
 == Nant ==
 
-=== Простой пример ===
+=== Пример build-файла ===
 
 {{{
 <loadtasks assembly="/ECM7.Migrator.NAnt.dll" />
@@ -54,41 +54,6 @@ ECM7.Migrator.Console "ECM7.Migrator.Providers.SqlServer.SqlServerTransformation
 Для перехода на заданную версию БД наберите
 
 `nant migrate -D:version=5`
-
-=== Компиляция "миграций" во время запуска ===
-
-Вместо использования скомпилированной dll при запуске изменений, вы можете также указать путь к папке с исходным кодом "миграций". "Миграции" будут скомпилированы "на лету" и запущены на выполнение.
-
-По умолчанию используется язык С#. Если вы используете другой язык, укажите его в параметре _language_.
-
-{{{
-<loadtasks assembly="/Migrator.NAnt.dll" />
-<target name="migrate" description="Migrate the database" depends="build">
-  <property name="version" value="-1? overwrite="false" />
-  <migrate
-    dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
-    connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
-    directory="migrations"
-    to="${version}" />
-</target>
-}}}
-
-=== Сохранение исполняемого SQL в файл ===
-
-Для сохранения в файл сгенерированного SQL необходимо указать имя файла при помощи параметра _scriptFile_.
-
-{{{
-<loadtasks assembly="/Migrator.NAnt.dll" />
-<target name="migrate" description="Migrate the database" depends="build">
-  <property name="version" value="-1? overwrite="false" />
-  <migrate
-    dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
-    connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
-    directory="migrations"
-    to="${version}" 
-    scriptFile="migrations.sql"/>
-</target>
-}}}
 
 ----
 == MsBuild== 
