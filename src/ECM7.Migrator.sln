@@ -12,7 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B6FFECE8-ADE2-4694-A363-651AAFD51F94}"
 	ProjectSection(SolutionItems) = preProject
 		ECM7.Migrator.build = ECM7.Migrator.build
-		ECM7Migrator.2.0.nuspec = ECM7Migrator.2.0.nuspec
+		ECM7Migrator.2.5.nuspec = ECM7Migrator.2.5.nuspec
 		Settings.StyleCop = Settings.StyleCop
 	EndProjectSection
 EndProject
