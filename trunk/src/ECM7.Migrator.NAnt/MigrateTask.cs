@@ -1,14 +1,14 @@
+
+
+using NAnt.Core;
+using NAnt.Core.Attributes;
+
 namespace ECM7.Migrator.NAnt
 {
 	using System.IO;
 	using Configuration;
 
 	using ECM7.Migrator.Framework.Logging;
-
-	using global::NAnt.Core;
-	using global::NAnt.Core.Attributes;
-
-	using log4net.Config;
 	using log4net.Layout;
 
 	/// <summary>
@@ -63,12 +63,6 @@ namespace ECM7.Migrator.NAnt
 		/// </summary>
 		[TaskAttribute("assembly-file")]
 		public FileInfo AssemblyFileInfo { get; set; }
-
-		/// <summary>
-		/// Ключ миграций
-		/// </summary>
-		[TaskAttribute("key")]
-		public string Key { get; set; }
 
 		/// <summary>
 		/// Путь к файлу сборки с миграциями

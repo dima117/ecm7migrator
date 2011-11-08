@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.Tests2
+﻿using ECM7.Migrator.Framework;
+
+namespace ECM7.Migrator.Tests2
 {
 	using System;
 
@@ -39,6 +41,24 @@
 		{
 			string strDate = new DateTime(2011, 4, 26).ToString("yyyy-MM:dd", formatter);
 			Assert.AreEqual("2011-04:26", strDate);
+		}
+
+		[Test]
+		public void CanFormatSchemaQualifiedObjectName()
+		{
+			var table = "Moo".WithSchema("Xxx");
+			string sql = "select * from {0:NAME}".FormatWith(formatter, table);
+
+			Assert.AreEqual(sql, "select * from <Xxx>.<Moo>");
+		}
+
+		[Test]
+		public void CanFormatObjectNameWithoutSchema()
+		{
+			var table = new SchemaQualifiedObjectName {Name = "Moo"};
+			string sql = "select * from {0:NAME}".FormatWith(formatter, table);
+
+			Assert.AreEqual(sql, "select * from <Moo>");
 		}
 	}
 }
