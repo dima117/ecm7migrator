@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.Providers
+﻿using ECM7.Migrator.Framework;
+
+namespace ECM7.Migrator.Providers
 {
 	using System;
 	using System.Collections.Generic;
@@ -58,7 +60,22 @@
 
 				if (ufmt == "NAME")
 				{
-					return this.converter(arg);
+					if (arg is SchemaQualifiedObjectName)
+					{
+						var typedArg = arg as SchemaQualifiedObjectName;
+
+						string name = converter(typedArg.Name);
+
+						if (!typedArg.Schema.IsNullOrEmpty(true))
+						{
+							string schema = converter(typedArg.Schema);
+							return "{0}.{1}".FormatWith(schema, name);
+						}
+
+						return name;
+					}
+
+					return converter(arg);
 				}
 
 				return HandleOtherFormats(format, arg);

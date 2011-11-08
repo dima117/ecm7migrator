@@ -60,8 +60,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="NAnt.Core, Version=0.86.2898.0, Culture=neutral">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NAnt.Core">
       <HintPath>..\References\NAnt.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />

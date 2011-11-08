@@ -84,6 +84,7 @@
     <Compile Include="Migration.cs" />
     <Compile Include="MigrationAssemblyAttribute.cs" />
     <Compile Include="MigrationAttribute.cs" />
+    <Compile Include="SchemaQualifiedObjectName.cs" />
     <Compile Include="StringUtils.cs" />
   </ItemGroup>
   <ItemGroup>
