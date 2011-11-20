@@ -79,17 +79,17 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 
 		#region generate sql
 
-		protected override string GetSqlAddColumn(string table, string columnSql)
+		protected override string GetSqlAddColumn(SchemaQualifiedObjectName table, string columnSql)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql);
 		}
 
-		protected override string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
+		protected override string GetSqlRenameColumn(SchemaQualifiedObjectName tableName, string oldColumnName, string newColumnName)
 		{
 			return FormatSql("EXEC sp_rename '{0}.{1}', '{2}', 'COLUMN'", tableName, oldColumnName, newColumnName);
 		}
 
-		protected override string GetSqlRenameTable(string oldName, string newName)
+		protected override string GetSqlRenameTable(SchemaQualifiedObjectName oldName, string newName)
 		{
 			return FormatSql("EXEC sp_rename '{0}', '{1}'", oldName, newName);
 		}
@@ -98,24 +98,25 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 
 		#region DDL
 
-		public override bool IndexExists(string indexName, string tableName)
+		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
-			string sql = string.Format("SELECT COUNT(*) FROM [sys].[indexes] WHERE [name] = '{0}'", indexName);
+			string sql = FormatSql(
+				"SELECT COUNT(*) FROM [sys].[indexes] WHERE [name] = '{0}' AND [object_id] = object_id(N'{1:NAME}')", indexName, tableName);
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
 		}
 
-		public override bool ConstraintExists(string table, string name)
+		public override bool ConstraintExists(SchemaQualifiedObjectName table, string name)
 		{
-			string sql = string.Format(
+			string sql = FormatSql(
 				"SELECT TOP 1 [name] FROM [sys].[objects] " +
-				"WHERE [parent_object_id] = object_id('{0}') " +
-				"AND [object_id] = object_id('{1}') " +
+				"WHERE [parent_object_id] = object_id('{0:NAME}') " +
+				"AND [object_id] = object_id('{1:NAME}') " +
 				"AND [type] IN ('D', 'F', 'PK', 'UQ')" +
 				"UNION ALL " +
-				"select [CONSTRAINT_NAME] AS [name] " +
-				"from [INFORMATION_SCHEMA].[CHECK_CONSTRAINTS]" +
-				"WHERE [CONSTRAINT_NAME] = '{1}'", table, name);
+				"SELECT TOP 1 [name] FROM [sys].[check_constraints] " +
+				"WHERE [parent_object_id] = OBJECT_ID(N'{0:NAME}') AND " +
+				"[object_id] = OBJECT_ID(N'{1:NAME}')", table, name);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -123,18 +124,34 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			}
 		}
 
-		public override bool ColumnExists(string table, string column)
+		public override bool ColumnExists(SchemaQualifiedObjectName table, string column)
 		{
-			using (IDataReader reader =
-				ExecuteReader(String.Format("SELECT * FROM [INFORMATION_SCHEMA].[COLUMNS] WHERE [TABLE_NAME]='{0}' AND [COLUMN_NAME]='{1}'", table, column)))
+			string sql = FormatSql(
+				"SELECT * FROM [INFORMATION_SCHEMA].[COLUMNS] " +
+				"WHERE [TABLE_NAME]='{0}' AND [COLUMN_NAME]='{1}'",
+				table.Name, column);
+
+			if (!table.Schema.IsNullOrEmpty(true))
+			{
+				sql += FormatSql(" AND [TABLE_SCHEMA] = '{0}'", table.Schema);
+			}
+
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
 			}
 		}
 
-		public override bool TableExists(string table)
+		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
-			string sql = FormatSql("SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME]='{0}'", table);
+			string sql = FormatSql(
+				"SELECT * FROM [INFORMATION_SCHEMA].[TABLES] " +
+				"WHERE [TABLE_NAME]='{0}'", table.Name);
+
+			if (!table.Schema.IsNullOrEmpty(true))
+			{
+				sql += FormatSql(" AND [TABLE_SCHEMA] = '{0}'", table.Schema);
+			}
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -160,7 +177,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			return tables.ToArray();
 		}
 
-		public override void RemoveColumn(string table, string column)
+		public override void RemoveColumn(SchemaQualifiedObjectName table, string column)
 		{
 			DeleteColumnConstraints(table, column);
 			base.RemoveColumn(table, column);
@@ -168,11 +185,11 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 
 		// Deletes all constraints linked to a column. 
 		// Sql Server doesn't seems to do this.
-		private void DeleteColumnConstraints(string table, string column)
+		private void DeleteColumnConstraints(SchemaQualifiedObjectName table, string column)
 		{
-			string sqlContrainte = FindConstraints(table, column);
+			string sqlContraints = FindConstraints(table, column);
 			List<string> constraints = new List<string>();
-			using (IDataReader reader = ExecuteReader(sqlContrainte))
+			using (IDataReader reader = ExecuteReader(sqlContraints))
 			{
 				while (reader.Read())
 				{
@@ -186,20 +203,25 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			}
 		}
 
-		protected virtual string FindConstraints(string table, string column)
+		protected virtual string FindConstraints(SchemaQualifiedObjectName table, string column)
 		{
 			StringBuilder sqlBuilder = new StringBuilder();
 
 			sqlBuilder.Append("SELECT [CONSTRAINT_NAME] ");
 			sqlBuilder.Append("FROM [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE] ");
-			sqlBuilder.AppendFormat("WHERE [TABLE_NAME] = '{0}' and [COLUMN_NAME] = '{1}' ", table, column);
+			sqlBuilder.AppendFormat("WHERE [TABLE_NAME] = '{0}' and [COLUMN_NAME] = '{1}' ", table.Name, column);
+
+			if (!table.Schema.IsNullOrEmpty(true))
+			{
+				sqlBuilder.AppendFormat("AND [TABLE_SCHEMA] = '{0}' ", table.Schema);
+			}
 
 			sqlBuilder.Append("UNION ALL ");
 			sqlBuilder.Append("SELECT [dobj].[name] as [CONSTRAINT_NAME] ");
 			sqlBuilder.Append("FROM [sys].[columns] [col] ");
 			sqlBuilder.Append("INNER JOIN [sys].[objects] [dobj] ");
 			sqlBuilder.Append("ON [dobj].[object_id] = [col].[default_object_id] AND [dobj].[type] = 'D' ");
-			sqlBuilder.AppendFormat("WHERE [col].[object_id] = object_id(N'{0}') AND [col].[name] = '{1}'", table, column);
+			sqlBuilder.Append(FormatSql("WHERE [col].[object_id] = object_id(N'{0:NAME}') AND [col].[name] = '{1}'", table, column));
 
 			return sqlBuilder.ToString();
 		}

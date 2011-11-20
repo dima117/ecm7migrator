@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers.SqlServer
 {
@@ -16,14 +17,14 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		#region change default value
 
-		protected override string GetSqlChangeDefaultValue(string table, string column, object newDefaultValue)
+		protected override string GetSqlChangeDefaultValue(SchemaQualifiedObjectName table, string column, object newDefaultValue)
 		{
 			string dfConstraintName = "DF_{0}".FormatWith(Guid.NewGuid().ToString("N"));
 			string sqlDefaultValue = GetSqlDefaultValue(newDefaultValue);
 			return FormatSql("ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} {2} FOR {3:NAME}", table, dfConstraintName, sqlDefaultValue, column);
 		}
 
-		public virtual string GetDefaultConstraintName(string table, string column)
+		public virtual string GetDefaultConstraintName(SchemaQualifiedObjectName table, string column)
 		{
 			StringBuilder sqlBuilder = new StringBuilder();
 
@@ -44,7 +45,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 			}
 		}
 
-		public override void ChangeDefaultValue(string table, string column, object newDefaultValue)
+		public override void ChangeDefaultValue(SchemaQualifiedObjectName table, string column, object newDefaultValue)
 		{
 			string defaultConstraintName = GetDefaultConstraintName(table, column);
 

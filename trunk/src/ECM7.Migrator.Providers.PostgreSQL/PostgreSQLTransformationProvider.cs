@@ -64,24 +64,24 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		#region custom sql
 
-		protected override string GetSqlRemoveTable(string table)
+		protected override string GetSqlRemoveTable(SchemaQualifiedObjectName table)
 		{
 			return FormatSql("DROP TABLE {0:NAME} CASCADE", table);
 		}
 
-		protected override string GetSqlRemoveIndex(string indexName, string tableName)
+		protected override string GetSqlRemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			return FormatSql("DROP INDEX {0:NAME}", indexName);
 		}
 
-		protected override string GetSqlChangeColumnType(string table, string column, ColumnType columnType)
+		protected override string GetSqlChangeColumnType(SchemaQualifiedObjectName table, string column, ColumnType columnType)
 		{
 			string columnTypeSql = typeMap.Get(columnType);
 
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TYPE {2}", table, column, columnTypeSql);
 		}
 
-		protected override string GetSqlChangeNotNullConstraint(string table, string column, bool notNull, ref string sqlChangeColumnType)
+		protected override string GetSqlChangeNotNullConstraint(SchemaQualifiedObjectName table, string column, bool notNull, ref string sqlChangeColumnType)
 		{
 			// если изменение типа колонки и признака NOT NULL происходит одним запросом,
 			// то изменяем параметр sqlChangeColumnType и возвращаем NULL
@@ -93,8 +93,10 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		}
 
 
-		public override bool IndexExists(string indexName, string tableName)
+		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
+			string nspname = tableName.Schema.IsNullOrEmpty(true) ? "public" : tableName.Schema;
+
 			StringBuilder builder = new StringBuilder();
 
 			builder.Append("SELECT count(*) FROM pg_class c ");
@@ -103,18 +105,23 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			builder.Append("LEFT JOIN pg_user u ON u.usesysid = c.relowner ");
 			builder.Append("LEFT JOIN pg_namespace n ON n.oid = c.relnamespace ");
 			builder.Append("WHERE c.relkind = 'i' ");
-			builder.Append("AND n.nspname NOT IN ('pg_catalog', 'pg_toast') ");
-			builder.Append("AND pg_table_is_visible(c.oid) ");
-			builder.AppendFormat("and c.relname = '{0}' ", indexName);
-			builder.AppendFormat("and c2.relname = '{0}' ", tableName);
+			builder.AppendFormat("AND n.nspname = '{0}' ", nspname);
+			builder.AppendFormat("AND c2.relname = '{0}' ", tableName.Name);
+			builder.AppendFormat("AND c.relname = '{0}' ", indexName);
 
 			int count = Convert.ToInt32(ExecuteScalar(builder.ToString()));
 			return count > 0;
 		}
 
-		public override bool ConstraintExists(string table, string name)
+		public override bool ConstraintExists(SchemaQualifiedObjectName table, string name)
 		{
-			string sql = string.Format("SELECT \"constraint_name\" FROM \"information_schema\".\"table_constraints\" WHERE \"table_schema\" = 'public' AND \"constraint_name\" = '{0}'", name);
+			string nspname = table.Schema.IsNullOrEmpty(true) ? "public" : table.Schema;
+
+
+			string sql = FormatSql(
+					"SELECT {0:NAME} FROM {1:NAME}.{2:NAME} WHERE {3:NAME} = '{4}' AND {5:NAME} = '{6}' AND {7:NAME} = '{8}'",
+						"constraint_name", "information_schema", "table_constraints", "table_schema",
+						nspname, "constraint_name", name, "table_name", table.Name);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -122,9 +129,14 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 		}
 
-		public override bool ColumnExists(string table, string column)
+		public override bool ColumnExists(SchemaQualifiedObjectName table, string column)
 		{
-			string sql = String.Format("SELECT \"column_name\" FROM \"information_schema\".\"columns\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}' AND \"column_name\" = '{1}'", table, column);
+			string nspname = table.Schema.IsNullOrEmpty(true) ? "public" : table.Schema;
+
+			string sql = FormatSql(
+				"SELECT {0:NAME} FROM {1:NAME}.{2:NAME} WHERE {3:NAME} = '{4}' AND {5:NAME} = '{6}' AND {7:NAME} = '{8}'",
+				"column_name", "information_schema", "columns", "table_schema",
+				nspname, "table_name", table.Name, "column_name", column);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -132,9 +144,13 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 		}
 
-		public override bool TableExists(string table)
+		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
-			string sql = String.Format("SELECT \"table_name\" FROM \"information_schema\".\"tables\" WHERE \"table_schema\" = 'public' AND \"table_name\" = '{0}'", table);
+			string nspname = table.Schema.IsNullOrEmpty(true) ? "public" : table.Schema;
+
+			string sql = FormatSql(
+				"SELECT {0:NAME} FROM {1:NAME}.{2:NAME} WHERE {3:NAME} = '{4}' AND {5:NAME} = '{6}'",
+				"table_name", "information_schema", "tables", "table_schema", nspname, "table_name", table.Name);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -142,14 +158,23 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			}
 		}
 
-		public override string[] GetTables()
+		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			List<string> tables = new List<string>();
-			using (IDataReader reader = ExecuteReader("SELECT \"table_name\" FROM \"information_schema\".\"tables\" WHERE \"table_schema\" = 'public'"))
+			string nspname = schema.IsNullOrEmpty(true) ? "public" : schema;
+
+			string sql = FormatSql(
+				"SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME} WHERE {4:NAME} = '{5}'",
+				"table_name", "table_schema", "information_schema", "tables", "table_schema", nspname);
+
+			var tables = new List<SchemaQualifiedObjectName>();
+
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				while (reader.Read())
 				{
-					tables.Add((string)reader[0]);
+					string tableName = (string)reader[0];
+					string tableSchema = (string)reader[1];
+					tables.Add(tableName.WithSchema(tableSchema));
 				}
 			}
 			return tables.ToArray();
