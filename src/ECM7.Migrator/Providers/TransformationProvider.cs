@@ -17,6 +17,8 @@ namespace ECM7.Migrator.Providers
 	public abstract class TransformationProvider<TConnection> : SqlRunner<TConnection>, ITransformationProvider
 		where TConnection : IDbConnection
 	{
+		// todo: написать тесты, проверяющие работу со схемами данных
+
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
 
 		protected readonly IFormatProvider sqlFormatProvider;
@@ -81,12 +83,12 @@ namespace ECM7.Migrator.Providers
 
 		#region generate sql
 
-		protected virtual string GetSqlAddTable(string table, string engine, string columnsSql)
+		protected virtual string GetSqlAddTable(SchemaQualifiedObjectName table, string engine, string columnsSql)
 		{
 			return FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
 		}
 
-		protected virtual string GetSqlRemoveTable(string table)
+		protected virtual string GetSqlRemoveTable(SchemaQualifiedObjectName table)
 		{
 			return FormatSql("DROP TABLE {0:NAME}", table);
 		}
@@ -112,10 +114,8 @@ namespace ECM7.Migrator.Providers
 			return sqlBuilder.ToString();
 		}
 
-		protected virtual string GetSqlPrimaryKey(string tableName, List<string> primaryKeyColumns)
+		protected virtual string GetSqlPrimaryKey(string pkName, List<string> primaryKeyColumns)
 		{
-			string pkName = "PK_" + tableName;
-
 			return FormatSql("CONSTRAINT {0:NAME} PRIMARY KEY ({1:COLS})", pkName, primaryKeyColumns);
 
 		}
@@ -125,19 +125,19 @@ namespace ECM7.Migrator.Providers
 			return string.Format("DEFAULT {0}", defaultValue);
 		}
 
-		protected virtual string GetSqlAddColumn(string table, string columnSql)
+		protected virtual string GetSqlAddColumn(SchemaQualifiedObjectName table, string columnSql)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} ADD COLUMN {1}", table, columnSql);
 		}
 
-		protected virtual string GetSqlChangeColumnType(string table, string column, ColumnType columnType)
+		protected virtual string GetSqlChangeColumnType(SchemaQualifiedObjectName table, string column, ColumnType columnType)
 		{
 			string columnTypeSql = typeMap.Get(columnType);
 
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} {2}", table, column, columnTypeSql);
 		}
 
-		protected virtual string GetSqlChangeNotNullConstraint(string table, string column, bool notNull, ref string sqlChangeColumnType)
+		protected virtual string GetSqlChangeNotNullConstraint(SchemaQualifiedObjectName table, string column, bool notNull, ref string sqlChangeColumnType)
 		{
 			// если изменение типа колонки и признака NOT NULL происходит одним запросом,
 			// то изменяем параметр sqlChangeColumnType и возвращаем NULL
@@ -147,8 +147,8 @@ namespace ECM7.Migrator.Providers
 
 			return null;
 		}
-		
-		protected virtual string GetSqlChangeDefaultValue(string table, string column, object newDefaultValue)
+
+		protected virtual string GetSqlChangeDefaultValue(SchemaQualifiedObjectName table, string column, object newDefaultValue)
 		{
 			string defaultValueSql = newDefaultValue == null
 			                         	? "DROP DEFAULT"
@@ -157,28 +157,28 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} {2}", table, column, defaultValueSql);
 		}
 
-		protected virtual string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
+		protected virtual string GetSqlRenameColumn(SchemaQualifiedObjectName tableName, string oldColumnName, string newColumnName)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} RENAME COLUMN {1:NAME} TO {2:NAME}",
 					tableName, oldColumnName, newColumnName);
 		}
 
-		protected virtual string GetSqlRemoveColumn(string table, string column)
+		protected virtual string GetSqlRemoveColumn(SchemaQualifiedObjectName table, string column)
 		{
-			return FormatSql("ALTER TABLE {0:NAME} DROP COLUMN {1:NAME} ", table, column);
+			return FormatSql("ALTER TABLE {0:NAME} DROP COLUMN {1:NAME}", table, column);
 		}
 
-		protected virtual string GetSqlRenameTable(string oldName, string newName)
+		protected virtual string GetSqlRenameTable(SchemaQualifiedObjectName oldName, string newName)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", oldName, newName);
 		}
 
-		protected virtual string GetSqlRemoveIndex(string indexName, string tableName)
+		protected virtual string GetSqlRemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			return FormatSql("DROP INDEX {0:NAME} ON {1:NAME}", indexName, tableName);
 		}
 
-		protected virtual string GetSqlRemoveConstraint(string table, string name)
+		protected virtual string GetSqlRemoveConstraint(SchemaQualifiedObjectName table, string name)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} DROP CONSTRAINT {1:NAME}", table, name);
 		}
@@ -189,12 +189,12 @@ namespace ECM7.Migrator.Providers
 
 		#region tables
 
-		public void AddTable(string name, params Column[] columns)
+		public void AddTable(SchemaQualifiedObjectName name, params Column[] columns)
 		{
 			AddTable(name, null, columns);
 		}
 
-		public virtual void AddTable(string name, string engine, params Column[] columns)
+		public virtual void AddTable(SchemaQualifiedObjectName name, string engine, params Column[] columns)
 		{
 			// список колонок, входящих в первичный ключ
 			List<string> pks = columns
@@ -222,7 +222,8 @@ namespace ECM7.Migrator.Providers
 			// SQL для составного первичного ключа
 			if (compoundPrimaryKey)
 			{
-				string primaryKeyQuerySection = GetSqlPrimaryKey(name, pks);
+				string pkName = "PK_" + name.Name;
+				string primaryKeyQuerySection = GetSqlPrimaryKey(pkName, pks);
 				querySections.Add(primaryKeyQuerySection);
 			}
 
@@ -232,17 +233,17 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(createTableSql);
 		}
 
-		public abstract string[] GetTables();
+		public abstract SchemaQualifiedObjectName[] GetTables(string schema = null);
 
-		public abstract bool TableExists(string table);
+		public abstract bool TableExists(SchemaQualifiedObjectName table);
 
-		public virtual void RenameTable(string oldName, string newName)
+		public virtual void RenameTable(SchemaQualifiedObjectName oldName, string newName)
 		{
 			string sql = GetSqlRenameTable(oldName, newName);
 			ExecuteNonQuery(sql);
 		}
 
-		public virtual void RemoveTable(string name)
+		public virtual void RemoveTable(SchemaQualifiedObjectName name)
 		{
 			string sql = GetSqlRemoveTable(name);
 			ExecuteNonQuery(sql);
@@ -252,7 +253,7 @@ namespace ECM7.Migrator.Providers
 
 		#region columns
 
-		public virtual void AddColumn(string table, Column column)
+		public virtual void AddColumn(SchemaQualifiedObjectName table, Column column)
 		{
 			string sqlColumnDef = GetSqlColumnDef(column, false);
 			string sqlAddColumn = GetSqlAddColumn(table, sqlColumnDef);
@@ -260,7 +261,7 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sqlAddColumn);
 		}
 
-		public virtual void ChangeColumn(string table, string column, ColumnType columnType, bool notNull)
+		public virtual void ChangeColumn(SchemaQualifiedObjectName table, string column, ColumnType columnType, bool notNull)
 		{
 			string sqlChangeColumn = GetSqlChangeColumnType(table, column, columnType);
 			string sqlChangeNotNullConstraint = GetSqlChangeNotNullConstraint(
@@ -277,22 +278,22 @@ namespace ECM7.Migrator.Providers
 			}
 		}
 
-		public virtual void ChangeDefaultValue(string table, string column, object newDefaultValue)
+		public virtual void ChangeDefaultValue(SchemaQualifiedObjectName table, string column, object newDefaultValue)
 		{
 			string sqlChangeDefaultValue = GetSqlChangeDefaultValue(table, column, newDefaultValue);
 
 			ExecuteNonQuery(sqlChangeDefaultValue);
 		}
 
-		public virtual void RenameColumn(string tableName, string oldColumnName, string newColumnName)
+		public virtual void RenameColumn(SchemaQualifiedObjectName tableName, string oldColumnName, string newColumnName)
 		{
 			string sql = GetSqlRenameColumn(tableName, oldColumnName, newColumnName);
 			ExecuteNonQuery(sql);
 		}
 
-		public abstract bool ColumnExists(string table, string column);
+		public abstract bool ColumnExists(SchemaQualifiedObjectName table, string column);
 
-		public virtual void RemoveColumn(string table, string column)
+		public virtual void RemoveColumn(SchemaQualifiedObjectName table, string column)
 		{
 			string sql = GetSqlRemoveColumn(table, column);
 			ExecuteNonQuery(sql);
@@ -303,7 +304,8 @@ namespace ECM7.Migrator.Providers
 		#region constraints
 
 		public void AddForeignKey(string name,
-			string primaryTable, string primaryColumn, string refTable, string refColumn,
+			SchemaQualifiedObjectName primaryTable, string primaryColumn, 
+			SchemaQualifiedObjectName refTable, string refColumn,
 			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
 			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
@@ -314,8 +316,8 @@ namespace ECM7.Migrator.Providers
 		}
 
 		public virtual void AddForeignKey(string name,
-			string primaryTable, string[] primaryColumns,
-			string refTable, string[] refColumns,
+			SchemaQualifiedObjectName primaryTable, string[] primaryColumns,
+			SchemaQualifiedObjectName refTable, string[] refColumns,
 			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
 			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
@@ -329,7 +331,7 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sql);
 		}
 
-		public virtual void AddPrimaryKey(string name, string table, params string[] columns)
+		public virtual void AddPrimaryKey(string name, SchemaQualifiedObjectName table, params string[] columns)
 		{
 			string sql = FormatSql(
 				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} PRIMARY KEY ({2:COLS})", table, name, columns);
@@ -337,7 +339,7 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sql);
 		}
 
-		public virtual void AddUniqueConstraint(string name, string table, params string[] columns)
+		public virtual void AddUniqueConstraint(string name, SchemaQualifiedObjectName table, params string[] columns)
 		{
 			string sql = FormatSql(
 				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} UNIQUE({2:COLS})", table, name, columns);
@@ -345,7 +347,7 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sql);
 		}
 
-		public virtual void AddCheckConstraint(string name, string table, string checkSql)
+		public virtual void AddCheckConstraint(string name, SchemaQualifiedObjectName table, string checkSql)
 		{
 			string sql = FormatSql(
 				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} CHECK ({2}) ", table, name, checkSql);
@@ -353,9 +355,9 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sql);
 		}
 
-		public abstract bool ConstraintExists(string table, string name);
+		public abstract bool ConstraintExists(SchemaQualifiedObjectName table, string name);
 
-		public virtual void RemoveConstraint(string table, string name)
+		public virtual void RemoveConstraint(SchemaQualifiedObjectName table, string name)
 		{
 			string format = GetSqlRemoveConstraint(table, name);
 
@@ -366,7 +368,7 @@ namespace ECM7.Migrator.Providers
 
 		#region indexes
 
-		public virtual void AddIndex(string name, bool unique, string table, params string[] columns)
+		public virtual void AddIndex(string name, bool unique, SchemaQualifiedObjectName table, params string[] columns)
 		{
 			Require.That(columns.Length > 0, "Not specified columns of the table to create an index");
 
@@ -377,9 +379,9 @@ namespace ECM7.Migrator.Providers
 			ExecuteNonQuery(sql);
 		}
 
-		public abstract bool IndexExists(string indexName, string tableName);
+		public abstract bool IndexExists(string indexName, SchemaQualifiedObjectName tableName);
 
-		public virtual void RemoveIndex(string indexName, string tableName)
+		public virtual void RemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			string sql = GetSqlRemoveIndex(indexName, tableName);
 
@@ -392,7 +394,7 @@ namespace ECM7.Migrator.Providers
 
 		#region DML
 
-		public virtual int Insert(string table, string[] columns, string[] values)
+		public virtual int Insert(SchemaQualifiedObjectName table, string[] columns, string[] values)
 		{
 			var quotedValues = values.Select(val =>
 				null == val
@@ -406,7 +408,7 @@ namespace ECM7.Migrator.Providers
 			return ExecuteNonQuery(sql);
 		}
 
-		public virtual int Update(string table, string[] columns, string[] values, string whereSql = null)
+		public virtual int Update(SchemaQualifiedObjectName table, string[] columns, string[] values, string whereSql = null)
 		{
 			var quotedValues = values
 				.Select(val =>
@@ -427,7 +429,7 @@ namespace ECM7.Migrator.Providers
 			return ExecuteNonQuery(sql);
 		}
 
-		public virtual int Delete(string table, string whereSql = null)
+		public virtual int Delete(SchemaQualifiedObjectName table, string whereSql = null)
 		{
 			string format = whereSql.IsNullOrEmpty(true)
 								? "DELETE FROM {0:NAME}"

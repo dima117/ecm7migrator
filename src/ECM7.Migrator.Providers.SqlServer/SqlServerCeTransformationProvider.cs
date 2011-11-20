@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.SqlServerCe;
+using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers.SqlServer
 {
@@ -33,26 +34,29 @@ namespace ECM7.Migrator.Providers.SqlServer
 			typeMap.Put(DbType.Double, "FLOAT");
 		}
 
-		public override bool ConstraintExists(string table, string name)
+		public override bool ConstraintExists(SchemaQualifiedObjectName table, string name)
 		{
-			string sql = string.Format("SELECT [cont].[constraint_name] FROM [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS] [cont] WHERE [cont].[Constraint_Name]='{0}'", name);
+			string sql = FormatSql(
+				"SELECT [CONSTRAINT_NAME] FROM [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS] " +
+				"WHERE [CONSTRAINT_NAME] = '{0}' AND [TABLE_NAME] = '{1}'", name, table.Name);
+
 			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
 			}
 		}
 
-		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
+		public override void RenameColumn(SchemaQualifiedObjectName tableName, string oldColumnName, string newColumnName)
 		{
 			throw new NotSupportedException("SqlServerCe doesn't support column renaming");
 		}
 
-		public override void AddCheckConstraint(string name, string table, string checkSql)
+		public override void AddCheckConstraint(string name, SchemaQualifiedObjectName table, string checkSql)
 		{
 			throw new NotSupportedException("SqlServerCe doesn't support check constraints");
 		}
 
-		public override void ChangeDefaultValue(string table, string column, object newDefaultValue)
+		public override void ChangeDefaultValue(SchemaQualifiedObjectName table, string column, object newDefaultValue)
 		{
 			if (newDefaultValue != null)
 			{
@@ -62,25 +66,26 @@ namespace ECM7.Migrator.Providers.SqlServer
 			base.ChangeDefaultValue(table, column, newDefaultValue);
 		}
 
-		public override bool IndexExists(string indexName, string tableName)
+		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
-			string sql = string.Format(
-				"select count(*) from [INFORMATION_SCHEMA].[INDEXES] where [TABLE_NAME] = '{0}' and [INDEX_NAME] = '{1}'", tableName, indexName);
+			string sql = FormatSql(
+				"SELECT COUNT(*) FROM [INFORMATION_SCHEMA].[INDEXES] " +
+				"WHERE [TABLE_NAME] = '{0}' and [INDEX_NAME] = '{1}'", tableName.Name, indexName);
 
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
 		}
 
-		protected override string GetSqlRemoveIndex(string indexName, string tableName)
+		protected override string GetSqlRemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
-			return FormatSql("DROP INDEX {0:NAME}.{1:NAME}", tableName, indexName);
+			return FormatSql("DROP INDEX {0:NAME}.{1:NAME}", tableName.Name, indexName);
 		}
 
-		protected override string FindConstraints(string table, string column)
+		protected override string FindConstraints(SchemaQualifiedObjectName table, string column)
 		{
 			return
-				string.Format("SELECT [cont].[constraint_name] FROM [INFORMATION_SCHEMA].[KEY_COLUMN_USAGE] [cont] "
-					+ "WHERE [cont].[Table_Name]='{0}' AND [cont].[column_name] = '{1}'", table, column);
+				string.Format("SELECT [CONSTRAINT_NAME] FROM [INFORMATION_SCHEMA].[KEY_COLUMN_USAGE] "
+					+ "WHERE [TABLE_NAME]='{0}' AND [COLUMN_NAME] = '{1}'", table.Name, column);
 		}
 
 		#endregion
