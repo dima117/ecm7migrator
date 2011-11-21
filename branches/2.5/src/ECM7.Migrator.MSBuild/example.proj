@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<ClassLibraryOutputDirectory>bin\$(Configuration)</ClassLibraryOutputDirectory>
+        <MigrationsProject>src\Migrations.csproj</MigrationsProject>
+    </PropertyGroup>
+
+	<UsingTask AssemblyFile="ECM7.Migrator.MSBuild.dll" TaskName="ECM7.Migrator.MSBuild.Migrate" />
+
+	<!--<Import Project="Migrator.Targets" />
+
+    <ItemGroup>
+        <MigrationProjectReferences Include="$(MigrationsProject)" />
+    </ItemGroup>
+
+	<Target Name="ShowWellKnownMD">
+		<Message Text="moo moo moo" />
+	</Target>
+
+		<Target Name="Build-Migrations">
+        <MSBuild Projects="@(MigrationProjectReferences)" Targets="Build">
+            <Output TaskParameter="TargetOutputs" ItemName="MigrationAssemblies" />
+        </MSBuild>
+
+        <Message Text="Built: @(MigrationAssemblies)"/>
+    </Target>-->
+
+    <Target Name="Migrate">
+        <Migrate
+			Provider="SqlServer"
+            Connectionstring="Data Source=.;Initial Catalog=ecm7test2;Integrated Security=SSPI;"
+            AssemblyFile="ECM7.Database.dll"/>
+    </Target>
+</Project>
