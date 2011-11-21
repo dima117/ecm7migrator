@@ -1,0 +1,45 @@
+#summary "Быстрое" начало работы с ECM7 Migrator
+
+== Использование ECM7 Migrator в Visual Studio ==
+
+Вот основные шаги, которые необходимо выполнить для того, чтобы использовать в своем проекте ECM7 Migrator:
+   # Добавляем новый проект Class library.
+   # Обеспечиваем доступ из проекта к библиотекам, необходимым для работы ECM7 Migrator:
+      * ECM7.Migrator.dll;
+      * ECM7.Migrator.Framework.dll;
+      * ECM7.Common.dll;
+      * провайдер для нужной СУБД (например, ECM7.Migrator.Providers.SqlServer.dll).
+   # Добавляем в проект ссылку на библиотеку ECM7.Migrator.Framework.dll.
+   # Создаем "миграции" - классы, задающие набор изменений БД. Подробнее о написании классов миграций смотрите на странице WritingMigrations.
+   # Компилируем наш проект и выполняем изменения в БД одним из способов:
+      * используем NAnt;
+      * используем MsBuild;
+      * используем консольное приложение ECM7.Migrator.exe;
+      * используем API из библиотеки ECM7.Migrator.dll.
+
+== Пример класса "миграции" ==
+
+{{{
+
+    [Migration(7)]
+    public class AbstractTestMigration : Migration
+    {
+        override public void Up()
+        {
+            Database.AddTable("CustomerAddress",
+                new Column("customer_id", DbType.Int32, ColumnProperty.PrimaryKey),
+                new Column("address_id", DbType.Int32, ColumnProperty.PrimaryKey));
+        }
+
+        override public void Down()
+        {
+            Database.RemoveTable("CustomerAddress");
+        }
+    }
+
+}}}
+
+Каждая миграция должна быть очень маленькой и выполнять только один небольшой этап из последовательности изменений БД. Например, в одной миграции можно создать таблицу из нескольких колонок или выполнить SQL запрос, меняющий данные в таблицах.
+Старайтесь делать миграции настолько маленькими, насколько это возможно, т.к. это облегчит переход между версиями БД.
+
+>> WritingMigrations

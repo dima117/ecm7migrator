@@ -1,0 +1,17 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+Add your content here.
+
+
+= Доступные диалекты =
+
+|| *СУБД* || *Диалект* || *Короткое имя диалекта* || *Сборка* || *Необходимые дополнительные сборки* ||
+||MS SQL Server 2000 || || SqlServer || || ||
+||MS SQL Server 2005 || || SqlServer2005 || || ||
+||MS SQL Server CE || || SqlServerCe || || ||
+||Oracle 10g || || Oracle || || ||
+||MySQL Server 5.0, 5.1 || || MySql || || ||
+||PostgreSQL || || PostgreSQL || || ||
+||SQLite 3 || || SQLite || || ||
