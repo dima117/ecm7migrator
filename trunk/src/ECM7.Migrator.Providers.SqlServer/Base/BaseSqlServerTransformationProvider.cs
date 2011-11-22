@@ -108,6 +108,8 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 
 		public override bool ConstraintExists(SchemaQualifiedObjectName table, string name)
 		{
+			SchemaQualifiedObjectName fullConstraintName = name.WithSchema(table.Schema);
+
 			string sql = FormatSql(
 				"SELECT TOP 1 [name] FROM [sys].[objects] " +
 				"WHERE [parent_object_id] = object_id('{0:NAME}') " +
@@ -116,7 +118,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 				"UNION ALL " +
 				"SELECT TOP 1 [name] FROM [sys].[check_constraints] " +
 				"WHERE [parent_object_id] = OBJECT_ID(N'{0:NAME}') AND " +
-				"[object_id] = OBJECT_ID(N'{1:NAME}')", table, name);
+				"[object_id] = OBJECT_ID(N'{1:NAME}')", table, fullConstraintName);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -159,23 +161,29 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			}
 		}
 
-		public override string[] GetTables()
+		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			List<string> tables = new List<string>();
-			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}.{2:NAME}",
-				"table_name", "information_schema", "tables");
+			string nspname = schema.IsNullOrEmpty(true) ? "dbo" : schema;
+
+			var tables = new List<SchemaQualifiedObjectName>();
+
+			string sql = FormatSql("SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME} where {4:NAME} = '{5}'",
+				"TABLE_NAME", "TABLE_SCHEMA", "INFORMATION_SCHEMA", "TABLES", "TABLE_SCHEMA", nspname);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
 				while (reader.Read())
 				{
 					string tableName = reader.GetString(0);
-					tables.Add(tableName);
+					string tableSchema = reader.GetString(1);
+					tables.Add(tableName.WithSchema(tableSchema));
 				}
 			}
 
 			return tables.ToArray();
 		}
+
+		// todo: написать тесты на схемы 
 
 		public override void RemoveColumn(SchemaQualifiedObjectName table, string column)
 		{

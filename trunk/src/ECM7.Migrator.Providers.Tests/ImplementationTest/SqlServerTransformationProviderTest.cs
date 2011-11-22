@@ -1,9 +1,8 @@
-﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+﻿using ECM7.Migrator.Providers.SqlServer;
+using NUnit.Framework;
+
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 {
-	using ECM7.Migrator.Providers.SqlServer;
-
-	using NUnit.Framework;
-
 	[TestFixture]
 	public class SqlServerTransformationProviderTest 
 		: TransformationProviderTestBase<SqlServerTransformationProvider>

@@ -118,7 +118,7 @@
 		[Test]
 		public virtual void CanAddAndDropTable()
 		{
-			string tableName = GetRandomName("MooTable");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("MooTable");
 
 			Assert.IsFalse(provider.TableExists(tableName));
 
@@ -134,7 +134,7 @@
 		[Test]
 		public virtual void CanCreateTableWithNecessaryCols()
 		{
-			string tableName = GetRandomName("Mimimi");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("Mimimi");
 
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32),
@@ -165,7 +165,7 @@
 		[Test]
 		public virtual void CanAddTableWithCompoundPrimaryKey()
 		{
-			string tableName = GetRandomName("TableWCPK");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("TableWCPK");
 
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -185,7 +185,7 @@
 		[Test]
 		public virtual void TableWithCompoundPrimaryKeyShouldKeepNullForOtherProperties()
 		{
-			string tableName = GetRandomName("Test");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("Test");
 
 			provider.AddTable(tableName,
 				new Column("PersonId", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -211,14 +211,14 @@
 		[Test]
 		public virtual void CanRenameTable()
 		{
-			string table1 = GetRandomName("tableMoo");
-			string table2 = GetRandomName("tableHru");
+			SchemaQualifiedObjectName table1 = GetRandomTableName("tableMoo");
+			SchemaQualifiedObjectName table2 = GetRandomTableName("tableHru");
 
 			Assert.IsFalse(provider.TableExists(table1));
 			Assert.IsFalse(provider.TableExists(table2));
 
 			provider.AddTable(table1, new Column("ID", DbType.Int32));
-			provider.RenameTable(table1, table2);
+			provider.RenameTable(table1, table2.Name);
 
 			Assert.IsTrue(provider.TableExists(table2));
 
@@ -235,17 +235,17 @@
 		[Test]
 		public virtual void CanGetTables()
 		{
-			string table1 = GetRandomName("tableMoo");
-			string table2 = GetRandomName("tableHru");
+			SchemaQualifiedObjectName table1 = GetRandomTableName("tableMoo");
+			SchemaQualifiedObjectName table2 = GetRandomTableName("tableHru");
 
-			var tables = provider.GetTables();
+			var tables = provider.GetTables(DefaultSchema);
 			Assert.IsFalse(tables.Contains(table1));
 			Assert.IsFalse(tables.Contains(table2));
 
 			provider.AddTable(table1, new Column("ID", DbType.Int32));
 			provider.AddTable(table2, new Column("ID", DbType.Int32));
 
-			var tables2 = provider.GetTables();
+			var tables2 = provider.GetTables(DefaultSchema);
 
 			Assert.AreEqual(tables.Length + 2, tables2.Length);
 			Assert.IsTrue(tables2.Contains(table1));
@@ -262,7 +262,7 @@
 		[Test]
 		public virtual void CanAddColumn()
 		{
-			string tableName = GetRandomName("AddColumnTest");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("AddColumnTest");
 
 			provider.AddTable(tableName, new Column("ID", DbType.Int32));
 
@@ -270,7 +270,7 @@
 
 			provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "2", "test" });
 			provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "4", "testmoo" });
-				
+
 			string sql = provider.FormatSql("select * from {0:NAME}", tableName);
 			using (var reader = provider.ExecuteReader(sql))
 			{
@@ -291,7 +291,7 @@
 		[Test]
 		public virtual void CanAddBooleanColumnWithDefault()
 		{
-			string tableName = GetRandomName("AddBooleanColumnTest");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("AddBooleanColumnTest");
 
 			provider.AddTable(tableName, new Column("ID", DbType.Int32));
 
@@ -318,7 +318,7 @@
 		[Test]
 		public virtual void CanSetNotNullRepeatedly()
 		{
-			string tableName = GetRandomName("TestTable");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("TestTable");
 			string columnName1 = GetRandomName("TestNullableColumn");
 			string columnName2 = GetRandomName("TestNotNullableColumn");
 
@@ -336,7 +336,7 @@
 		[Test]
 		public virtual void CanChangeColumnType()
 		{
-			string tableName = GetRandomName("ChangeColumnTypeTest");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("ChangeColumnTypeTest");
 			string columnName1 = GetRandomName("TestDecimalColumn1");
 			string columnName2 = GetRandomName("TestDecimalColumn2");
 			string selectSql = provider.FormatSql("select {0:NAME} from {1:NAME}", columnName2, tableName);
@@ -362,7 +362,7 @@
 		[Test]
 		public virtual void CanChangeNotNullProperty()
 		{
-			string tableName = GetRandomName("ChangeNotNullPropertyTest");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("ChangeNotNullPropertyTest");
 
 			provider.AddTable(tableName, new Column("TestStringColumn", DbType.String.WithSize(4)));
 
@@ -388,7 +388,7 @@
 		[Test]
 		public virtual void CanChangeDefaultValueForColumn()
 		{
-			string tableName = GetRandomName("ChangeDefault");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("ChangeDefault");
 
 			provider.AddTable(
 				tableName,
@@ -435,7 +435,7 @@
 		[Test]
 		public virtual void CanRenameColumn()
 		{
-			string tableName = GetRandomName("RenameColumnTest");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("RenameColumnTest");
 
 			provider.AddTable(tableName, new Column("TestColumn1", DbType.Int32));
 			provider.RenameColumn(tableName, "TestColumn1", "TestColumn2");
@@ -449,7 +449,7 @@
 		[Test]
 		public virtual void CanRemoveColumn()
 		{
-			string tableName = GetRandomName("RemoveColumnTest");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("RemoveColumnTest");
 
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32),
@@ -465,7 +465,7 @@
 		[Test]
 		public void CanCheckThatColumnExists()
 		{
-			string tableName = GetRandomName("RemoveColumnTest");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("RemoveColumnTest");
 
 			provider.AddTable(tableName, new Column("MooMooMi", DbType.Int32));
 
@@ -478,7 +478,7 @@
 		[Test]
 		public virtual void CantRemoveUnexistingColumn()
 		{
-			string tableName = GetRandomName("RemoveUnexistingColumn");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("RemoveUnexistingColumn");
 
 			provider.AddTable(tableName, new Column("ID", DbType.Int32));
 
@@ -497,7 +497,7 @@
 		[Test]
 		public virtual void CanAddPrimaryKey()
 		{
-			string tableName = GetRandomName("AddPrimaryKey");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("AddPrimaryKey");
 			string pkName = GetRandomName("PK_AddPrimaryKey");
 
 			provider.AddTable(tableName,
@@ -518,7 +518,7 @@
 		[Test]
 		public virtual void CanCheckThatPrimaryKeyIsExist()
 		{
-			string tableName = GetRandomName("CheckThatPrimaryKeyIsExist");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("CheckThatPrimaryKeyIsExist");
 			string pkName = GetRandomName("PK_CheckThatPrimaryKeyIsExist");
 
 			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.NotNull));
@@ -541,8 +541,8 @@
 		public virtual void CanAddForeignKey()
 		{
 			// создаем таблицы и добавляем внешний ключ
-			string primaryTable = GetRandomName("AddForeignKey_Primary");
-			string refTable = GetRandomName("AddForeignKey_Ref");
+			SchemaQualifiedObjectName primaryTable = GetRandomTableName("AddForeignKey_Primary");
+			SchemaQualifiedObjectName refTable = GetRandomTableName("AddForeignKey_Ref");
 			string foreignKeyName = GetRandomName("FK_TestSimpleKey");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
@@ -568,8 +568,8 @@
 		public virtual void CanAddComplexForeignKey()
 		{
 			// создаем таблицы и добавляем внешний ключ
-			string primaryTable = GetRandomName("AddForeignKey_Primary");
-			string refTable = GetRandomName("AddForeignKey_Ref");
+			SchemaQualifiedObjectName primaryTable = GetRandomTableName("AddForeignKey_Primary");
+			SchemaQualifiedObjectName refTable = GetRandomTableName("AddForeignKey_Ref");
 			string foreignKeyName = GetRandomName("FK_TestComplexKeyabd");
 
 			provider.AddTable(refTable,
@@ -609,8 +609,8 @@
 		[Test]
 		public virtual void CanAddForeignKeyWithDeleteCascade()
 		{
-			string primaryTable = GetRandomName("AddForeignKey_Primary");
-			string refTable = GetRandomName("AddForeignKey_Ref");
+			SchemaQualifiedObjectName primaryTable = GetRandomTableName("AddForeignKey_Primary");
+			SchemaQualifiedObjectName refTable = GetRandomTableName("AddForeignKey_Ref");
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
@@ -635,8 +635,8 @@
 		[Test]
 		public virtual void CanAddForeignKeyWithUpdateCascade()
 		{
-			string primaryTable = GetRandomName("AddForeignKey_Primary");
-			string refTable = GetRandomName("AddForeignKey_Ref");
+			SchemaQualifiedObjectName primaryTable = GetRandomTableName("AddForeignKey_Primary");
+			SchemaQualifiedObjectName refTable = GetRandomTableName("AddForeignKey_Ref");
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
@@ -665,8 +665,8 @@
 		[Test]
 		public virtual void CanAddForeignKeyWithDeleteSetNull()
 		{
-			string primaryTable = GetRandomName("AddForeignKey_Primary");
-			string refTable = GetRandomName("AddForeignKey_Ref");
+			SchemaQualifiedObjectName primaryTable = GetRandomTableName("AddForeignKey_Primary");
+			SchemaQualifiedObjectName refTable = GetRandomTableName("AddForeignKey_Ref");
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
@@ -691,8 +691,8 @@
 		[Test]
 		public virtual void CanAddForeignKeyWithUpdateSetNull()
 		{
-			string primaryTable = GetRandomName("AddForeignKey_Primary");
-			string refTable = GetRandomName("AddForeignKey_Ref");
+			SchemaQualifiedObjectName primaryTable = GetRandomTableName("AddForeignKey_Primary");
+			SchemaQualifiedObjectName refTable = GetRandomTableName("AddForeignKey_Ref");
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
@@ -721,8 +721,8 @@
 		[Test]
 		public virtual void CanAddForeignKeyWithDeleteSetDefault()
 		{
-			string primaryTable = GetRandomName("AddForeignKey_Primary");
-			string refTable = GetRandomName("AddForeignKey_Ref");
+			SchemaQualifiedObjectName primaryTable = GetRandomTableName("AddForeignKey_Primary");
+			SchemaQualifiedObjectName refTable = GetRandomTableName("AddForeignKey_Ref");
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
@@ -750,8 +750,8 @@
 		[Test]
 		public virtual void CanAddForeignKeyWithUpdateSetDefault()
 		{
-			string primaryTable = GetRandomName("AddForeignKey_Primary");
-			string refTable = GetRandomName("AddForeignKey_Ref");
+			SchemaQualifiedObjectName primaryTable = GetRandomTableName("AddForeignKey_Primary");
+			SchemaQualifiedObjectName refTable = GetRandomTableName("AddForeignKey_Ref");
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
@@ -786,7 +786,7 @@
 		[Test]
 		public virtual void CanAddComplexUniqueConstraint()
 		{
-			string tableName = GetRandomName("AddComplexUniqueConstraint");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("AddComplexUniqueConstraint");
 			string ucName = GetRandomName("UC_AddComplexUniqueConstraint");
 
 			provider.AddTable(tableName,
@@ -821,7 +821,7 @@
 		[Test]
 		public virtual void CanCheckThatUniqueConstraintIsExist()
 		{
-			string tableName = GetRandomName("AddUniqueConstraint");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("AddUniqueConstraint");
 			string ucName = GetRandomName("UK_AddUniqueConstraint");
 
 			provider.AddTable(tableName,
@@ -846,7 +846,7 @@
 		[Test]
 		public virtual void CanAddCheckConstraint()
 		{
-			string tableName = GetRandomName("AddCheckConstraint");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("AddCheckConstraint");
 			string constraintName = GetRandomName("CC_AddCheckConstraint");
 			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
 
@@ -864,7 +864,7 @@
 		[Test]
 		public virtual void CanVerifyThatCheckConstraintIsExist()
 		{
-			string tableName = GetRandomName("CheckConstraintIsExist");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("CheckConstraintIsExist");
 			string constraintName = GetRandomName("CC_CheckConstraintIsExist");
 
 			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
@@ -889,7 +889,7 @@
 		[Test]
 		public virtual void CanAddAndRemoveIndex()
 		{
-			string tableName = GetRandomName("AddIndex");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("AddIndex");
 
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -910,7 +910,7 @@
 		[Test]
 		public virtual void CanAddAndRemoveUniqueIndex()
 		{
-			string tableName = GetRandomName("AddUniqueIndex");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("AddUniqueIndex");
 
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -932,7 +932,7 @@
 		[Test]
 		public virtual void CanAddAndRemoveComplexIndex()
 		{
-			string tableName = GetRandomName("AddComplexIndex");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("AddComplexIndex");
 
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -964,7 +964,7 @@
 		[Test]
 		public virtual void CanInsertData()
 		{
-			string tableName = GetRandomName("InsertTest");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("InsertTest");
 			provider.AddTable(tableName,
 				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("Title", DbType.String.WithSize(30), ColumnProperty.Null),
@@ -993,7 +993,7 @@
 		[Test]
 		public virtual void CanUpdateData()
 		{
-			string tableName = GetRandomName("UpdateData");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("UpdateData");
 
 			provider.AddTable(tableName,
 				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -1020,7 +1020,7 @@
 		[Test]
 		public virtual void CanUpdateWithNullData()
 		{
-			string tableName = GetRandomName("UpdateWithNullData");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("UpdateWithNullData");
 
 			provider.AddTable(tableName,
 				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -1047,7 +1047,7 @@
 		[Test]
 		public virtual void CanUpdateDataWithWhere()
 		{
-			string tableName = GetRandomName("UpdateDataWithWhere");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("UpdateDataWithWhere");
 
 			provider.AddTable(tableName,
 				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -1083,7 +1083,7 @@
 		[Test]
 		public virtual void CanDeleteData()
 		{
-			string tableName = GetRandomName("DeleteData");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("DeleteData");
 
 			provider.AddTable(tableName, new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey));
 			provider.Insert(tableName, "Id".AsArray(), "1023".AsArray());
@@ -1106,7 +1106,7 @@
 		[Test]
 		public virtual void CanDeleteAllData()
 		{
-			string tableName = GetRandomName("DeleteAllData");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("DeleteAllData");
 
 			provider.AddTable(tableName, new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey));
 			provider.Insert(tableName, "Id".AsArray(), "1111".AsArray());
@@ -1211,6 +1211,16 @@
 		{
 			string guid = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
 			return "{0}{1}".FormatWith(baseName, guid);
+		}
+
+		protected virtual SchemaQualifiedObjectName GetRandomTableName(string baseName = "")
+		{
+			return GetRandomName(baseName).WithSchema(DefaultSchema);
+		}
+
+		protected virtual string DefaultSchema
+		{
+			get { return "moo"; }
 		}
 
 		#endregion
