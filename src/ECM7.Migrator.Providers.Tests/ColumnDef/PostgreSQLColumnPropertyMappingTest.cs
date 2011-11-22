@@ -1,26 +1,26 @@
-﻿using System.Data.SqlClient;
-using ECM7.Migrator.Providers.SqlServer;
+﻿using ECM7.Migrator.Providers.PostgreSQL;
+using Npgsql;
 using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ColumnDef
 {
 	[TestFixture]
-	public class SqlServerColumnPropertyMappingTest
-		: ColumnPropertyMappingTest<SqlServerTransformationProvider, SqlConnection>
+	public class PostgreSQLColumnPropertyMappingTest
+		: ColumnPropertyMappingTest<PostgreSQLTransformationProvider, NpgsqlConnection>
 	{
+		#region Overrides of ColumnPropertyMappingTest<PostgreSQLTransformationProvider,NpgsqlConnection>
+
 		public override string CStringName
 		{
-			get { return "SqlServerConnectionString"; }
+			get { return "NpgsqlConnectionString"; }
 		}
-
-		#region Тестовые фрагменты SQL
 
 		/// <summary>
 		/// new Column("Foo", DbType.String.WithSize(30))
 		/// </summary>
 		public override string SimpleColumnSql
 		{
-			get { return "[Foo] NVARCHAR(30)"; }
+			get { return "\"Foo\" varchar(30)"; }
 		}
 
 		/// <summary>
@@ -28,7 +28,7 @@ namespace ECM7.Migrator.Providers.Tests.ColumnDef
 		/// </summary>
 		public override string FullColumnSql
 		{
-			get { return "[Moo] DECIMAL(10, 4) NOT NULL UNIQUE DEFAULT 124"; }
+			get { return "\"Moo\" decimal(10, 4) NOT NULL UNIQUE DEFAULT 124"; }
 		}
 
 		/// <summary>
@@ -36,7 +36,7 @@ namespace ECM7.Migrator.Providers.Tests.ColumnDef
 		/// </summary>
 		public override string ColumnSqlWithPrimaryKey
 		{
-			get { return "[Bar] BIGINT NOT NULL PRIMARY KEY"; }
+			get { return "\"Bar\" int8 NOT NULL PRIMARY KEY"; }
 		}
 
 		/// <summary>
@@ -44,23 +44,17 @@ namespace ECM7.Migrator.Providers.Tests.ColumnDef
 		/// </summary>
 		public override string ColumnSqlWithPrimaryKeyAndIdentity
 		{
-			get { return "[Boo] INT NOT NULL PRIMARY KEY IDENTITY"; }
+			get { return "\"Boo\" serial NOT NULL PRIMARY KEY"; }
 		}
 
-		/// <summary>
-		/// new Column("Mimimi", DbType.Int16, ColumnProperty.PrimaryKey)
-		/// </summary>
 		public override string ColumnSqlWithCompoundPrimaryKey
 		{
-			get { return "[Mimimi] SMALLINT NOT NULL"; }
+			get { return "\"Mimimi\" int2 NOT NULL"; }
 		}
 
-		/// <summary>
-		/// new Column("Xxx", DbType.Boolean, ColumnProperty.Null, true)
-		/// </summary>
 		public override string BooleanColumnSqlWithDefaultValueSql
 		{
-			get { return "[Xxx] BIT DEFAULT 1"; }
+			get { return "\"Xxx\" boolean DEFAULT True"; }
 		}
 
 		#endregion

@@ -3,8 +3,6 @@ using System.Data.SqlClient;
 namespace ECM7.Migrator.Providers.Tests
 {
 	using System.Configuration;
-	using System.Data;
-
 	using ECM7.Common.Utils.Exceptions;
 	using ECM7.Migrator.Providers;
 	using ECM7.Migrator.Providers.PostgreSQL;

@@ -71,7 +71,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		protected override string GetSqlRemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
-			return FormatSql("DROP INDEX {0:NAME}", indexName);
+			SchemaQualifiedObjectName ixName = indexName.WithSchema(tableName.Schema);
+			return FormatSql("DROP INDEX {0:NAME}", ixName);
 		}
 
 		protected override string GetSqlChangeColumnType(SchemaQualifiedObjectName table, string column, ColumnType columnType)

@@ -1,15 +1,18 @@
-﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+﻿using System;
+using ECM7.Migrator.Providers.SqlServer;
+using NUnit.Framework;
+
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 {
-	using System;
-
-	using ECM7.Migrator.Providers.SqlServer;
-
-	using NUnit.Framework;
-
 	[TestFixture]
 	public class SqlServerCeTransformationProviderTest
 		: TransformationProviderTestBase<SqlServerCeTransformationProvider>
 	{
+		protected override string DefaultSchema
+		{
+			get { return null; }
+		}
+
 		#region Overrides of TransformationProviderTestBase<SqlServerCeTransformationProvider>
 
 		public override string ConnectionStrinSettingsName
@@ -42,22 +45,19 @@
 		[Test]
 		public override void CanAddCheckConstraint()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddCheckConstraint());
+			Assert.Throws<NotSupportedException>(base.CanAddCheckConstraint);
 		}
 
 		[Test]
 		public override void CanVerifyThatCheckConstraintIsExist()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanVerifyThatCheckConstraintIsExist());
+			Assert.Throws<NotSupportedException>(base.CanVerifyThatCheckConstraintIsExist);
 		}
 
 		[Test]
 		public override void CanRenameColumn()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanRenameColumn());
+			Assert.Throws<NotSupportedException>(base.CanRenameColumn);
 		}
 
 		#endregion
