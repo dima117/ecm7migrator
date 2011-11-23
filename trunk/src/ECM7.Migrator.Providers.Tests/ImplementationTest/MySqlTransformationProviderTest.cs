@@ -115,6 +115,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 		public override void CanGetTables()
 		{
 			// в стандартный тест добавлено сравнение имен таблиц без учета регистра
+			// todo: добавить сравнение таблиц без учета регистра
 			string table1 = GetRandomName("tableMoo");
 			string table2 = GetRandomName("tableHru");
 
@@ -128,8 +129,8 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 			var tables2 = provider.GetTables();
 
 			Assert.AreEqual(tables.Length + 2, tables2.Length);
-			Assert.IsTrue(tables2.Contains(table1, StringComparer.CurrentCultureIgnoreCase));
-			Assert.IsTrue(tables2.Contains(table2, StringComparer.CurrentCultureIgnoreCase));
+			Assert.IsTrue(tables2.Contains(table1));
+			Assert.IsTrue(tables2.Contains(table2));
 
 			provider.RemoveTable(table1);
 			provider.RemoveTable(table2);

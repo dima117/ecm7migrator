@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlServerCe;
 using ECM7.Migrator.Framework;
@@ -64,6 +65,26 @@ namespace ECM7.Migrator.Providers.SqlServer
 			}
 
 			base.ChangeDefaultValue(table, column, newDefaultValue);
+		}
+
+		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
+		{
+			var tables = new List<SchemaQualifiedObjectName>();
+
+			string sql = FormatSql("SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME}",
+				"TABLE_NAME", "TABLE_SCHEMA", "INFORMATION_SCHEMA", "TABLES");
+
+			using (IDataReader reader = ExecuteReader(sql))
+			{
+				while (reader.Read())
+				{
+					string tableName = reader.GetString(0);
+					string tableSchema = reader.GetString(1);
+					tables.Add(tableName.WithSchema(tableSchema));
+				}
+			}
+
+			return tables.ToArray();
 		}
 
 		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
