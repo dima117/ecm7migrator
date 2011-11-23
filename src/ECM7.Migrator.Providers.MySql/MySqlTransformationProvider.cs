@@ -72,7 +72,7 @@ namespace ECM7.Migrator.Providers.MySql
 
 		#region custom sql
 
-		protected override string GetSqlChangeColumnType(string table, string column, ColumnType columnType)
+		protected override string GetSqlChangeColumnType(SchemaQualifiedObjectName table, string column, ColumnType columnType)
 		{
 			string columnTypeSql = typeMap.Get(columnType);
 
@@ -89,12 +89,12 @@ namespace ECM7.Migrator.Providers.MySql
 			return String.Format("DEFAULT {0}", defaultValue);
 		}
 
-		protected override string GetSqlRemoveConstraint(string table, string name)
+		protected override string GetSqlRemoveConstraint(SchemaQualifiedObjectName table, string name)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} DROP KEY {1:NAME}", table, name);
 		}
 
-		protected override string GetSqlAddTable(string table, string engine, string columnsSql)
+		protected override string GetSqlAddTable(SchemaQualifiedObjectName table, string engine, string columnsSql)
 		{
 			string dbEngine = engine.Nvl("INNODB");
 			return FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", table, columnsSql, dbEngine);
@@ -104,7 +104,7 @@ namespace ECM7.Migrator.Providers.MySql
 
 			#region DDL
 
-		public override bool IndexExists(string indexName, string tableName)
+		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			string sql = FormatSql("SHOW INDEXES FROM {0:NAME}", tableName);
 
@@ -122,7 +122,7 @@ namespace ECM7.Migrator.Providers.MySql
 			return false;
 		}
 
-		public override bool ConstraintExists(string table, string name)
+		public override bool ConstraintExists(SchemaQualifiedObjectName table, string name)
 		{
 			string sqlConstraint = FormatSql("SHOW KEYS FROM {0:NAME}", table);
 
@@ -140,23 +140,32 @@ namespace ECM7.Migrator.Providers.MySql
 			return false;
 		}
 
-		public override string[] GetTables()
+		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			List<string> tables = new List<string>();
-			using (IDataReader reader = ExecuteReader("SHOW TABLES"))
+			string sql = schema.IsNullOrEmpty(true)
+			             	? "SHOW TABLES"
+			             	: FormatSql("SHOW TABLES IN {0:NAME}", schema);
+
+			var tables = new List<SchemaQualifiedObjectName>();
+
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				while (reader.Read())
 				{
-					tables.Add((string)reader[0]);
+					string tableName = (string) reader[0];
+					tables.Add(tableName.WithSchema(schema));
 				}
 			}
 
 			return tables.ToArray();
 		}
 
-		public override bool TableExists(string table)
+		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
-			string sql = FormatSql("SHOW TABLES LIKE '{0}'", table);
+			string sql = table.Schema.IsNullOrEmpty(true)
+			             	? FormatSql("SHOW TABLES LIKE '{0}'", table)
+			             	: FormatSql("SHOW TABLES IN {0:NAME} LIKE '{1}'", table.Schema, table.Name);
+
 			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
@@ -164,26 +173,27 @@ namespace ECM7.Migrator.Providers.MySql
 
 		}
 
-		public override bool ColumnExists(string table, string column)
+		public override bool ColumnExists(SchemaQualifiedObjectName table, string column)
 		{
 			string sql = FormatSql("SHOW COLUMNS FROM {0:NAME} WHERE Field='{1}'", table, column);
+
 			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
 			}
 		}
 
-		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
+		public override void RenameColumn(SchemaQualifiedObjectName tableName, string oldColumnName, string newColumnName)
 		{
 			throw new NotSupportedException("MySql doesn't support column rename");
 		}
 
-		public override void AddCheckConstraint(string name, string table, string checkSql)
+		public override void AddCheckConstraint(string name, SchemaQualifiedObjectName table, string checkSql)
 		{
 			throw new NotSupportedException("MySql doesn't support check constraints");
 		}
 
-		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, Framework.ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, Framework.ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
+		public override void AddForeignKey(string name, SchemaQualifiedObjectName primaryTable, string[] primaryColumns, SchemaQualifiedObjectName refTable, string[] refColumns, Framework.ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, Framework.ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
 			if (onDeleteConstraint == ForeignKeyConstraint.SetDefault || 
 				onUpdateConstraint == ForeignKeyConstraint.SetDefault)
