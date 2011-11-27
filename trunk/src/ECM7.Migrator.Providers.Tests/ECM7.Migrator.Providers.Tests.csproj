@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -73,9 +73,11 @@
     <Compile Include="ConditionByProviderTests.cs" />
     <Compile Include="DataTypes\DataTypesTestBase.cs" />
     <Compile Include="DataTypes\MySqlDataTypesTest.cs" />
+    <Compile Include="DataTypes\OracleDataTypesTest.cs" />
     <Compile Include="DataTypes\PostgreSQLDataTypesTest.cs" />
     <Compile Include="DataTypes\SqlServerDataTypesTest.cs" />
     <Compile Include="ImplementationTest\MySqlTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\OracleTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\PostgreSQLTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\SqlServerCeTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\SqlServerTransformationProviderTest.cs" />
@@ -89,6 +91,10 @@
     <ProjectReference Include="..\ECM7.Migrator.Providers.MySql\ECM7.Migrator.Providers.MySql.csproj">
       <Project>{86CC1CD8-981F-42DA-AA2E-FE51576557AB}</Project>
       <Name>ECM7.Migrator.Providers.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ECM7.Migrator.Providers.Oracle\ECM7.Migrator.Providers.Oracle.csproj">
+      <Project>{CBA55443-9437-4396-AF4C-9A2A9A7628E5}</Project>
+      <Name>ECM7.Migrator.Providers.Oracle</Name>
     </ProjectReference>
     <ProjectReference Include="..\ECM7.Migrator.Providers.PostgreSQL\ECM7.Migrator.Providers.PostgreSQL.csproj">
       <Project>{FFE9E6C3-E4F6-465B-AEC0-7EC35E293072}</Project>

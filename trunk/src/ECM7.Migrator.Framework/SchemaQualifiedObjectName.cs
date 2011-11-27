@@ -15,6 +15,14 @@
 		public string Schema { get; set; }
 
 		/// <summary>
+		/// Признак, что схема не указана
+		/// </summary>
+		public bool SchemaIsEmpty
+		{
+			get { return Schema.IsNullOrEmpty(true); }
+		}
+
+		/// <summary>
 		/// Приведение типов string -> SchemaQualifiedObjectName
 		/// </summary>
 		public static implicit operator SchemaQualifiedObjectName(string name)

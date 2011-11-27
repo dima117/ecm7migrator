@@ -62,7 +62,7 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		#region generate sql
 
-		public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable, string[] refColumns, ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
+		public override void AddForeignKey(string name, SchemaQualifiedObjectName primaryTable, string[] primaryColumns, SchemaQualifiedObjectName refTable, string[] refColumns, ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
 			if (onUpdateConstraint != ForeignKeyConstraint.NoAction)
 			{
@@ -106,23 +106,30 @@ namespace ECM7.Migrator.Providers.Oracle
 			return sqlBuilder.ToString();
 		}
 
-		protected override string GetSqlAddColumn(string table, string columnSql)
+		protected override string GetSqlAddColumn(SchemaQualifiedObjectName table, string columnSql)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} ADD ({1})", table, columnSql);
 		}
 
-		protected override string GetSqlChangeColumnType(string table, string column, ColumnType columnType)
+		protected override string GetSqlChangeColumnType(SchemaQualifiedObjectName table, string column, ColumnType columnType)
 		{
 			string columnTypeSql = typeMap.Get(columnType);
 
 			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1:NAME} {2}", table, column, columnTypeSql);
 		}
 
-		protected override string GetSqlChangeNotNullConstraint(string table, string column, bool notNull, ref string sqlChangeColumnType)
+		protected override string GetSqlChangeNotNullConstraint(SchemaQualifiedObjectName table, string column, bool notNull, ref string sqlChangeColumnType)
 		{
-			string sqlCheckNotNull =
-				FormatSql("select \"NULLABLE\" from \"USER_TAB_COLUMNS\" where \"TABLE_NAME\" = '{0}' and \"COLUMN_NAME\" = '{1}'",
-						  table, column);
+			string colsTable = table.SchemaIsEmpty ? "USER_TAB_COLUMNS" : "ALL_TAB_COLUMNS";
+
+			string sqlCheckNotNull = FormatSql(
+				"select {0:NAME} from {1:NAME} where {2:NAME} = '{3}' and {4:NAME} = '{5}'",
+			      "NULLABLE", colsTable, "TABLE_NAME", table.Name, "COLUMN_NAME", column);
+			
+			if (!table.SchemaIsEmpty)
+			{
+				sqlCheckNotNull += FormatSql(" and {0:NAME} = '{1}'", "OWNER", table.Schema);
+			}
 
 			using (var reader = ExecuteReader(sqlCheckNotNull))
 			{
@@ -139,70 +146,102 @@ namespace ECM7.Migrator.Providers.Oracle
 			return base.GetSqlChangeNotNullConstraint(table, column, notNull, ref sqlChangeColumnType);
 		}
 
-		protected override string GetSqlChangeDefaultValue(string table, string column, object newDefaultValue)
+		protected override string GetSqlChangeDefaultValue(SchemaQualifiedObjectName table, string column, object newDefaultValue)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1:NAME} {2}", table, column, GetSqlDefaultValue(newDefaultValue));
 		}
 
-		protected override string GetSqlRemoveIndex(string indexName, string tableName)
+		protected override string GetSqlRemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
-			return FormatSql("DROP INDEX {0:NAME}", indexName);
+			return FormatSql("DROP INDEX {0:NAME}", indexName.WithSchema(tableName.Schema));
 		}
 
 		#endregion
 
 		#region DDL
 
-		public override bool TableExists(string table)
+		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
-			string sql = string.Format(
-				"SELECT COUNT(table_name) FROM user_tables WHERE table_name = '{0}'", table);
+			string tablesTableName = table.SchemaIsEmpty ? "USER_TABLES" : "ALL_TABLES";
+
+			string sql = FormatSql("SELECT COUNT(*) from {0:NAME} where {1:NAME} = '{2}'",
+				tablesTableName, "TABLE_NAME", table.Name);
+
+			if (!table.SchemaIsEmpty)
+			{
+				sql += FormatSql(" and {0:NAME} = '{1}'", "OWNER", table.Schema);
+			}
 
 			object count = ExecuteScalar(sql);
 			return Convert.ToInt32(count) > 0;
 		}
 
-		public override bool ColumnExists(string table, string column)
+		public override bool ColumnExists(SchemaQualifiedObjectName table, string column)
 		{
+			string columnsTableName = table.SchemaIsEmpty ? "USER_TAB_COLUMNS" : "ALL_TAB_COLUMNS";
+
 			string sql = FormatSql(
-				"SELECT COUNT(column_name) FROM user_tab_columns WHERE table_name = '{0}' AND column_name = '{1}'",
-					table, column);
+				"SELECT COUNT(*) from {0:NAME} where {1:NAME} = '{2}' and {3:NAME} = '{4}'",
+					columnsTableName, "TABLE_NAME", table.Name, "COLUMN_NAME", column);
+
+			if (!table.SchemaIsEmpty)
+			{
+				sql += FormatSql(" and {0:NAME} = '{1}'", "OWNER", table.Schema);
+			}
 
 			object scalar = ExecuteScalar(sql);
 			return Convert.ToInt32(scalar) > 0;
 		}
 
-		public override string[] GetTables()
+		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			List<string> tables = new List<string>();
+			string sql = schema.IsNullOrEmpty(true)
+				? FormatSql("SELECT {0:NAME} from {1:NAME}", "TABLE_NAME", "USER_TABLES")
+				: FormatSql("SELECT {0:NAME} from {1:NAME} where {2:NAME} = '{3}'", "TABLE_NAME", "ALL_TABLES", "OWNER", schema);
 
-			using (IDataReader reader = ExecuteReader("SELECT table_name FROM user_tables"))
+			var tables = new List<SchemaQualifiedObjectName>();
+
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				while (reader.Read())
 				{
-					tables.Add(reader[0].ToString());
+					string tableName = reader.GetString(0);
+					tables.Add(tableName.WithSchema(schema));
 				}
 			}
 
 			return tables.ToArray();
 		}
 
-		public override bool IndexExists(string indexName, string tableName)
+		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
+			string indexesTableName = tableName.SchemaIsEmpty ? "USER_INDEXES" : "ALL_INDEXES";
+
 			string sql = FormatSql(
-				"select count(*) from user_indexes where INDEX_NAME = '{0}' and TABLE_NAME = '{1}'",
-					indexName, tableName);
+				"select count(*) from {0:NAME} where {1:NAME} = '{2}' and {3:NAME} = '{4}'",
+				indexesTableName, "TABLE_NAME", tableName.Name, "INDEX_NAME", indexName);
+
+			if (!tableName.SchemaIsEmpty)
+			{
+				sql += FormatSql(" and {0:NAME} = '{1}'", "TABLE_OWNER", tableName.Schema);
+			}
 
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
 		}
 
-		public override bool ConstraintExists(string table, string name)
+		public override bool ConstraintExists(SchemaQualifiedObjectName table, string name)
 		{
-			string sql =
-				string.Format(
-					"SELECT COUNT(constraint_name) FROM user_constraints WHERE constraint_name = '{0}' AND table_name = '{1}'",
-					name, table);
+			string constraintsTableName = table.SchemaIsEmpty ? "USER_CONSTRAINTS" : "ALL_CONSTRAINTS";
+
+			string sql = FormatSql(
+					"SELECT COUNT(*) FROM {0:NAME} WHERE {1:NAME} = '{2}' AND {3:NAME} = '{4}'",
+						constraintsTableName, "CONSTRAINT_NAME", name, "TABLE_NAME", table.Name);
+
+			if (!table.SchemaIsEmpty)
+			{
+				sql += FormatSql(" and {0:NAME} = '{1}'", "OWNER", table.Schema);
+			}
 
 			object scalar = ExecuteScalar(sql);
 			return Convert.ToInt32(scalar) > 0;
