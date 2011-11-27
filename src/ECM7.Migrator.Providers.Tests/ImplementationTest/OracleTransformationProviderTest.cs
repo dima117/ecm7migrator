@@ -49,29 +49,25 @@
 		[Test]
 		public override void CanAddForeignKeyWithUpdateCascade()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddForeignKeyWithUpdateCascade());
+			Assert.Throws<NotSupportedException>(base.CanAddForeignKeyWithUpdateCascade);
 		}
 
 		[Test]
 		public override void CanAddForeignKeyWithUpdateSetDefault()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddForeignKeyWithUpdateSetDefault());
+			Assert.Throws<NotSupportedException>(base.CanAddForeignKeyWithUpdateSetDefault);
 		}
 
 		[Test]
 		public override void CanAddForeignKeyWithUpdateSetNull()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddForeignKeyWithUpdateSetNull());
+			Assert.Throws<NotSupportedException>(base.CanAddForeignKeyWithUpdateSetNull);
 		}
 
 		[Test]
 		public override void CanAddForeignKeyWithDeleteSetDefault()
 		{
-			Assert.Throws<NotSupportedException>(() =>
-				base.CanAddForeignKeyWithDeleteSetDefault());
+			Assert.Throws<NotSupportedException>(base.CanAddForeignKeyWithDeleteSetDefault);
 		}
 
 		protected override string GetRandomName(string baseName = "")
