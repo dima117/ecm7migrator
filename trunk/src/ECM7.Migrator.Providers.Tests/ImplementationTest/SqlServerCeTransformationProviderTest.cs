@@ -8,10 +8,10 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest
 	public class SqlServerCeTransformationProviderTest
 		: TransformationProviderTestBase<SqlServerCeTransformationProvider>
 	{
-		protected override string DefaultSchema
-		{
-			get { return null; }
-		}
+		//protected override string DefaultSchema
+		//{
+		//    get { return null; }
+		//}
 
 		#region Overrides of TransformationProviderTestBase<SqlServerCeTransformationProvider>
 
