@@ -1,13 +1,15 @@
 ﻿using System.Text;
 using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers.Validation;
 
 namespace ECM7.Migrator.Providers.SqlServer
 {
 	using System;
 	using System.Data.SqlClient;
 
-	using ECM7.Migrator.Providers.SqlServer.Base;
+	using Base;
 
+	[ProviderValidation(typeof(SqlConnection), false)]
 	public class SqlServerTransformationProvider : BaseSqlServerTransformationProvider<SqlConnection>
 	{
 		public SqlServerTransformationProvider(SqlConnection connection)

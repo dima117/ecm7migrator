@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlServerCe;
 using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers.Validation;
 
 namespace ECM7.Migrator.Providers.SqlServer
 {
-	using ECM7.Migrator.Providers.SqlServer.Base;
+	using Base;
 
 	/// <summary>
 	/// Migration transformations provider for Microsoft SQL Server.
 	/// </summary>
+	[ProviderValidation(typeof(SqlCeConnection), false)]
 	public class SqlServerCeTransformationProvider : BaseSqlServerTransformationProvider<SqlCeConnection>
 	{
 		#region custom sql
