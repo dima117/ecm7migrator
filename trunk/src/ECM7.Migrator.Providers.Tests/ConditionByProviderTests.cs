@@ -1,3 +1,4 @@
+using System;
 using System.Data.SqlClient;
 
 namespace ECM7.Migrator.Providers.Tests
@@ -69,8 +70,9 @@ namespace ECM7.Migrator.Providers.Tests
 			{
 				int i = -1;
 
-				provider.ConditionalExecuteAction()
-					.For <BaseSqlServerTransformationProvider<SqlConnection>>(db => i = 77);
+				throw new NotImplementedException("Испраить тест");
+				//provider.ConditionalExecuteAction()
+				//    .For <BaseSqlServerTransformationProvider<SqlConnection>>(db => i = 77);
 				Assert.AreEqual(77, i);
 
 			}

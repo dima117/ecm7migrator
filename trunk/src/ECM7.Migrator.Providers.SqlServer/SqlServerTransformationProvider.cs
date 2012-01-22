@@ -9,8 +9,8 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 	using Base;
 
-	[ProviderValidation(typeof(SqlConnection), false)]
-	public class SqlServerTransformationProvider : BaseSqlServerTransformationProvider<SqlConnection>
+	[ProviderValidation(typeof(SqlConnection), true)]
+	public class SqlServerTransformationProvider : BaseSqlServerTransformationProvider
 	{
 		public SqlServerTransformationProvider(SqlConnection connection)
 			: base(connection)

@@ -6,8 +6,8 @@ namespace ECM7.Migrator.Providers.Validation
 	public class ProviderValidationAttribute : ProxyAttribute
 	{
 		// параметры валидации
-		private readonly Type connectionType;
-		private readonly bool schemaNameSupported;
+		public readonly Type connectionType;
+		public readonly bool schemaNameSupported;
 
 		public ProviderValidationAttribute(Type connectionType, bool schemaNameSupported)
 		{

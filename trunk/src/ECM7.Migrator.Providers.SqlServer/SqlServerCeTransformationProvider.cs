@@ -13,7 +13,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 	/// Migration transformations provider for Microsoft SQL Server.
 	/// </summary>
 	[ProviderValidation(typeof(SqlCeConnection), false)]
-	public class SqlServerCeTransformationProvider : BaseSqlServerTransformationProvider<SqlCeConnection>
+	public class SqlServerCeTransformationProvider : BaseSqlServerTransformationProvider
 	{
 		#region custom sql
 

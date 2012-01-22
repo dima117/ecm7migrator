@@ -2,16 +2,16 @@ namespace ECM7.Migrator.Providers.Tests.ColumnDef
 {
 	using System.Configuration;
 
-	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Providers;
+	using Framework;
+	using Providers;
 
 	using System.Data;
 
 	using NUnit.Framework;
 
 	[TestFixture]
-	public abstract class ColumnPropertyMappingTest<TProvider, TConnection>
-		where TProvider : TransformationProvider<TConnection> where TConnection : IDbConnection
+	public abstract class ColumnPropertyMappingTest<TProvider>
+		where TProvider : TransformationProvider
 	{
 		public abstract string CStringName { get; }
 

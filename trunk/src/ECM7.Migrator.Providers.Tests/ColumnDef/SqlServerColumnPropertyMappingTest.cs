@@ -1,12 +1,11 @@
-﻿using System.Data.SqlClient;
-using ECM7.Migrator.Providers.SqlServer;
+﻿using ECM7.Migrator.Providers.SqlServer;
 using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ColumnDef
 {
 	[TestFixture]
 	public class SqlServerColumnPropertyMappingTest
-		: ColumnPropertyMappingTest<SqlServerTransformationProvider, SqlConnection>
+		: ColumnPropertyMappingTest<SqlServerTransformationProvider>
 	{
 		public override string CStringName
 		{

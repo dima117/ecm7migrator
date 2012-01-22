@@ -14,8 +14,7 @@ namespace ECM7.Migrator.Providers
 	/// Base class for every transformation providers.
 	/// A 'tranformation' is an operation that modifies the database.
 	/// </summary>
-	public abstract class TransformationProvider<TConnection> : SqlRunner<TConnection>, ITransformationProvider
-		where TConnection : IDbConnection
+	public abstract class TransformationProvider : SqlRunner, ITransformationProvider
 	{
 		// todo: написать тесты, провер€ющие работу со схемами данных
 
@@ -27,7 +26,7 @@ namespace ECM7.Migrator.Providers
 		protected readonly ForeignKeyActionMap fkActionMap = new ForeignKeyActionMap();
 
 
-		protected TransformationProvider(TConnection connection)
+		protected TransformationProvider(IDbConnection connection)
 			: base(connection)
 		{
 			sqlFormatProvider = new SqlFormatter(obj => string.Format(NamesQuoteTemplate, obj));
