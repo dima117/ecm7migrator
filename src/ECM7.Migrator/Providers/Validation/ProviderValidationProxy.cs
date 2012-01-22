@@ -28,7 +28,7 @@ namespace ECM7.Migrator.Providers.Validation
 
 		private void ConnectionTypeValidation(IConstructionCallMessage msg)
 		{
-			
+			// todo: РЕАЛИЗОВАТЬ ПРОВЕРКУ ПРОВАЙДЕРА!!!!!!!!!!!!!!!!!!
 		}
 
 		private void SchemaNameValidation(IMethodCallMessage msg)

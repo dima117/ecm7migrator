@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers.Validation;
 using Npgsql;
 
 namespace ECM7.Migrator.Providers.PostgreSQL
@@ -10,7 +11,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 	/// <summary>
 	/// Migration transformations provider for PostgreSQL
 	/// </summary>
-	public class PostgreSQLTransformationProvider : TransformationProvider<NpgsqlConnection>
+	[ProviderValidation(typeof(NpgsqlConnection), true)]
+	public class PostgreSQLTransformationProvider : TransformationProvider
 	{
 		/// <summary>
 		/// Инициализация

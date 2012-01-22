@@ -7,12 +7,12 @@
 	using System.Text;
 
 	using ECM7;
-	using ECM7.Migrator.Exceptions;
-	using ECM7.Migrator.Framework.Logging;
+	using Exceptions;
+	using Framework.Logging;
 
-	public class SqlRunner<TConnection> : IDisposable where TConnection : IDbConnection
+	public class SqlRunner : ContextBoundObject, IDisposable
 	{
-		protected SqlRunner(TConnection connection)
+		protected SqlRunner(IDbConnection connection)
 		{
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 			this.connection = connection;

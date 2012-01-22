@@ -2,16 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers.Validation;
 using MySql.Data.MySqlClient;
 
 namespace ECM7.Migrator.Providers.MySql
 {
-	using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
+	using ForeignKeyConstraint = Framework.ForeignKeyConstraint;
 
 	/// <summary>
 	/// Summary description for MySqlTransformationProvider.
 	/// </summary>
-	public class MySqlTransformationProvider : TransformationProvider<MySqlConnection>
+	[ProviderValidation(typeof(MySqlConnection), true)]
+	public class MySqlTransformationProvider : TransformationProvider
 	{
 		public MySqlTransformationProvider(MySqlConnection connection)
 			: base(connection)

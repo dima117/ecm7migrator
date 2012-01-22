@@ -4,17 +4,16 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 	using System.Collections.Generic;
 	using System.Data;
 
-	using ECM7.Migrator.Framework;
+	using Framework;
 
 	using System.Text;
 
 	/// <summary>
 	/// Migration transformations provider for Microsoft SQL Server.
 	/// </summary>
-	public abstract class BaseSqlServerTransformationProvider<TConnection> : TransformationProvider<TConnection>
-		where TConnection : IDbConnection
+	public abstract class BaseSqlServerTransformationProvider : TransformationProvider
 	{
-		protected BaseSqlServerTransformationProvider(TConnection connection)
+		protected BaseSqlServerTransformationProvider(IDbConnection connection)
 			: base(connection)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");

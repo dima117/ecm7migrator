@@ -1,10 +1,12 @@
-﻿namespace ECM7.Migrator.Providers
+﻿using ECM7.Migrator.Providers.Validation;
+
+namespace ECM7.Migrator.Providers
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Data;
 
-	using ECM7.Migrator.Framework;
+	using Framework;
 
 	public class ProviderFactory
 	{
@@ -34,17 +36,9 @@
 
 		public static ITransformationProvider Create(Type providerType, string connectionString)
 		{
-			Require.IsNotNullOrEmpty(connectionString, "Не задана строка подключения");
-
 			Type connectionType = GetConnectionType(providerType);
-			Require.That(typeof(IDbConnection).IsAssignableFrom(connectionType), "Тип подключения ({0}) должен реализовывать интерфейс IDbConnection", connectionType.FullName);
-
-			IDbConnection connection = Activator.CreateInstance(connectionType) as IDbConnection;
-			Require.IsNotNull(connection, "Не удалось создать подключение к БД");
-			// ReSharper disable PossibleNullReferenceException
-			connection.ConnectionString = connectionString;
-			// ReSharper restore PossibleNullReferenceException
-
+			IDbConnection connection = CreateConnection(connectionType, connectionString);
+			
 			return Create(providerType, connection);
 		}
 
@@ -88,20 +82,15 @@
 		/// <returns></returns>
 		public static Type GetConnectionType(Type providerType)
 		{
-			for (Type current = providerType; current != null; current = current.BaseType)
-			{
+			Require.IsNotNull(providerType, "Не задан класс провайдера");
 
-				if (current.IsGenericType && current.GetGenericTypeDefinition() == typeof(TransformationProvider<>))
-				{
-					var connectionType = current.GetGenericArguments()[0];
-					Require.That(typeof(IDbConnection).IsAssignableFrom(connectionType), "Тип подключения ({0}) должен реализовывать интерфейс IDbConnection", connectionType.FullName);
+			ProviderValidationAttribute attr = providerType.GetCustomAttribute<ProviderValidationAttribute>(true);
+			Require.IsNotNull(attr, "Для создаваемого провайдера не определен атрибут ProviderValidationAttribute");
 
-					return connectionType;
-				}
-			}
+			Type connectionType = attr.connectionType;
+			Require.That(typeof(IDbConnection).IsAssignableFrom(connectionType), "Тип подключения ({0}) должен реализовывать интерфейс IDbConnection", connectionType.FullName);
 
-			Require.Throw("Заданный тип провайдера ({0}) должен быть унаследован от класса TransformationProvider<TConnection>", providerType);
-			return null;
+			return connectionType;
 		}
 
 		/// <summary>
@@ -117,9 +106,27 @@
 			Type providerType = Type.GetType(providerTypeName);
 			Require.IsNotNull(providerType, "Не удалось загрузить класс провайдера: {0}", providerName.Nvl("null"));
 
-			Require.That(typeof(ITransformationProvider).IsAssignableFrom(providerType), "Тип провайдера ({0}) должен реализовывать интерфейс ITransformationProvider", providerType.FullName);
-
 			return providerType;
+		}
+
+		/// <summary>
+		/// Создаем подключение к БД
+		/// </summary>
+		/// <param name="connectionType">Тип подключения</param>
+		/// <param name="connectionString">СТрока подключения</param>
+		private static IDbConnection CreateConnection(Type connectionType, string connectionString)
+		{
+			Require.IsNotNullOrEmpty(connectionString, "Не задана строка подключения");
+		
+			Require.That(typeof(IDbConnection).IsAssignableFrom(connectionType),
+						 "Тип подключения ({0}) должен реализовывать интерфейс IDbConnection", connectionType.FullName);
+
+			IDbConnection connection = Activator.CreateInstance(connectionType) as IDbConnection;
+			Require.IsNotNull(connection, "Не удалось создать подключение к БД");
+			// ReSharper disable PossibleNullReferenceException
+			connection.ConnectionString = connectionString;
+			// ReSharper restore PossibleNullReferenceException
+			return connection;
 		}
 
 		#endregion

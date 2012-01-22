@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 
 using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers.Validation;
 using Oracle.DataAccess.Client;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
@@ -11,7 +12,8 @@ namespace ECM7.Migrator.Providers.Oracle
 	/// <summary>
 	/// Провайдер трансформации для Oracle
 	/// </summary>
-	public class OracleTransformationProvider : TransformationProvider<OracleConnection>
+	[ProviderValidation(typeof(OracleConnection), true)]
+	public class OracleTransformationProvider : TransformationProvider
 	{
 		public OracleTransformationProvider(OracleConnection connection)
 			: base(connection)

@@ -1,12 +1,11 @@
 ﻿using ECM7.Migrator.Providers.PostgreSQL;
-using Npgsql;
 using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ColumnDef
 {
 	[TestFixture]
 	public class PostgreSQLColumnPropertyMappingTest
-		: ColumnPropertyMappingTest<PostgreSQLTransformationProvider, NpgsqlConnection>
+		: ColumnPropertyMappingTest<PostgreSQLTransformationProvider>
 	{
 		#region Overrides of ColumnPropertyMappingTest<PostgreSQLTransformationProvider,NpgsqlConnection>
 
