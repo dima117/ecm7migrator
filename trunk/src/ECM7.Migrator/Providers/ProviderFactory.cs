@@ -105,6 +105,7 @@ namespace ECM7.Migrator.Providers
 
 			Type providerType = Type.GetType(providerTypeName);
 			Require.IsNotNull(providerType, "Не удалось загрузить класс провайдера: {0}", providerName.Nvl("null"));
+			Require.That(typeof(ITransformationProvider).IsAssignableFrom(providerType), "Тип провайдера ({0}) должен реализовывать интерфейс ITransformationProvider", providerType.FullName);
 
 			return providerType;
 		}
