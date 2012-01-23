@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.Providers.Firebird
+﻿using ECM7.Migrator.Providers.Validation;
+
+namespace ECM7.Migrator.Providers.Firebird
 {
 	using System;
 	using System.Collections.Generic;
@@ -8,7 +10,8 @@
 	using ECM7.Migrator.Providers.Firebird.Internal;
 	using FirebirdSql.Data.FirebirdClient;
 
-	public class FirebirdTransformationProvider : TransformationProvider<FbConnection>
+	[ProviderValidation(typeof(FbConnection), false)]
+	public class FirebirdTransformationProvider : TransformationProvider
 	{
 		/// <summary>
 		/// Инициализация
@@ -72,25 +75,25 @@
 			return String.Format("DEFAULT {0}", defaultValue);
 		}
 
-		protected override string GetSqlRemoveIndex(string indexName, string tableName)
+		protected override string GetSqlRemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			return FormatSql("DROP INDEX {0:NAME}", indexName);
 		}
 
-		protected override string GetSqlAddColumn(string table, string columnSql)
+		protected override string GetSqlAddColumn(SchemaQualifiedObjectName table, string columnSql)
 		{
-			return FormatSql("ALTER TABLE {0:NAME} ADD {1}", table, columnSql);
+			return FormatSql("ALTER TABLE {0:NAME} ADD {1}", table.Name, columnSql);
 		}
 
-		protected override string GetSqlRenameColumn(string tableName, string oldColumnName, string newColumnName)
+		protected override string GetSqlRenameColumn(SchemaQualifiedObjectName tableName, string oldColumnName, string newColumnName)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TO {2:NAME}",
-				tableName, oldColumnName, newColumnName);
+				tableName.Name, oldColumnName, newColumnName);
 		}
 
-		protected override string GetSqlRemoveColumn(string table, string column)
+		protected override string GetSqlRemoveColumn(SchemaQualifiedObjectName table, string column)
 		{
-			return FormatSql("ALTER TABLE {0:NAME} DROP {1:NAME} ", table, column);
+			return FormatSql("ALTER TABLE {0:NAME} DROP {1:NAME} ", table.Name, column);
 		}
 
 		public override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
@@ -109,20 +112,20 @@
 
 		#region ChangeColumn
 
-		protected override string GetSqlChangeColumnType(string table, string column, ColumnType columnType)
+		protected override string GetSqlChangeColumnType(SchemaQualifiedObjectName table, string column, ColumnType columnType)
 		{
 			string sqlColumnType = typeMap.Get(columnType);
 
-			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TYPE {2}", table, column, sqlColumnType);
+			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} TYPE {2}", table.Name, column, sqlColumnType);
 		}
 
-		protected override string GetSqlChangeNotNullConstraint(string table, string column, bool notNull, ref string sqlChangeColumnType)
+		protected override string GetSqlChangeNotNullConstraint(SchemaQualifiedObjectName table, string column, bool notNull, ref string sqlChangeColumnType)
 		{
 			const string SQL_TEMPLATE = "UPDATE RDB$RELATION_FIELDS SET RDB$NULL_FLAG = {0} WHERE RDB$FIELD_NAME = '{1}' AND RDB$RELATION_NAME = '{2}';";
 
 			string sqlNotNull = notNull ? "1" : "NULL";
 
-			return FormatSql(SQL_TEMPLATE, sqlNotNull, column, table);
+			return FormatSql(SQL_TEMPLATE, sqlNotNull, column, table.Name);
 		}
 
 		#endregion

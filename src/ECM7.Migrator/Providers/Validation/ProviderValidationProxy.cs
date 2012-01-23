@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Data;
 using System.Runtime.Remoting.Activation;
 using System.Runtime.Remoting.Contexts;
 using System.Runtime.Remoting.Messaging;
@@ -8,6 +8,9 @@ using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers.Validation
 {
+	/// <summary>
+	/// Валидация параметров провайдера
+	/// </summary>
 	public class ProviderValidationProxy : RealProxy
 	{
 		private readonly Context context;
@@ -26,11 +29,30 @@ namespace ECM7.Migrator.Providers.Validation
 			this.schemaNameSupported = schemaNameSupported;
 		}
 
+		/// <summary>
+		/// Проверка типа подключения при создании объекта
+		/// </summary>
+		/// <param name="msg">Дескриптор конструктора объекта</param>
 		private void ConnectionTypeValidation(IConstructionCallMessage msg)
 		{
-			// todo: РЕАЛИЗОВАТЬ ПРОВЕРКУ ПРОВАЙДЕРА!!!!!!!!!!!!!!!!!!
+			if (msg.ArgCount > 0)
+			{
+				foreach (var arg in msg.Args)
+				{
+					if (arg is IDbConnection)
+					{
+						Type type = arg.GetType();
+						Require.That(connectionType.IsAssignableFrom(type),
+							"Данный провайдер использует подключения типа [{0}]. При инициализации провайдера было указано подключение типа [{1}]", connectionType.FullName, type.FullName);
+					}
+				}
+			}
 		}
 
+		/// <summary>
+		/// Проверка имени схемы при вызове методов
+		/// </summary>
+		/// <param name="msg">Дескриптор вызываемого метода</param>
 		private void SchemaNameValidation(IMethodCallMessage msg)
 		{
 			if (!schemaNameSupported)

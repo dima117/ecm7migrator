@@ -1,3 +1,5 @@
+using ECM7.Migrator.Providers.Validation;
+
 namespace ECM7.Migrator.Providers.SQLite
 {
 	using System;
@@ -5,14 +7,15 @@ namespace ECM7.Migrator.Providers.SQLite
 	using System.Data;
 	using System.Data.SQLite;
 
-	using ECM7.Migrator.Framework;
+	using Framework;
 
-	using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
+	using ForeignKeyConstraint = Framework.ForeignKeyConstraint;
 
 	/// <summary>
 	/// Summary description for SQLiteTransformationProvider.
 	/// </summary>
-	public class SQLiteTransformationProvider : TransformationProvider<SQLiteConnection>
+	[ProviderValidation(typeof(SQLiteConnection), false)]
+	public class SQLiteTransformationProvider : TransformationProvider
 	{
 		/// <summary>
 		/// Инициализация
@@ -79,11 +82,11 @@ namespace ECM7.Migrator.Providers.SQLite
 
 		#region custom sql
 
-		public override bool IndexExists(string indexName, string tableName)
+		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			string sql = FormatSql(
-				"SELECT [name] FROM [sqlite_master] WHERE [type]='index' and [name]='{0}' and [tbl_name] = '{1}'", 
-				indexName, tableName);
+				"SELECT [name] FROM [sqlite_master] WHERE [type]='index' and [name]='{0}' and [tbl_name] = '{1}'",
+				indexName, tableName.Name);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -91,54 +94,54 @@ namespace ECM7.Migrator.Providers.SQLite
 			}
 		}
 
-		protected override string GetSqlRemoveIndex(string indexName, string tableName)
+		protected override string GetSqlRemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			return FormatSql("DROP INDEX {0:NAME}", indexName);
 		}
 
 		public override void AddForeignKey(
 			string name,
-			string primaryTable,
+			SchemaQualifiedObjectName primaryTable,
 			string[] primaryColumns,
-			string refTable,
+			SchemaQualifiedObjectName refTable,
 			string[] refColumns,
-			ECM7.Migrator.Framework.ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
-			ECM7.Migrator.Framework.ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
+			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
+			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
 			throw new NotSupportedException("SQLite не поддерживает внешние ключи");
 		}
 
-		public override void AddCheckConstraint(string name, string table, string checkSql)
+		public override void AddCheckConstraint(string name, SchemaQualifiedObjectName table, string checkSql)
 		{
 			throw new NotSupportedException("SQLite не поддерживает создание CHECK CONSTRAINTS после создания колонки");
 		}
 
-		public override void AddPrimaryKey(string name, string table, params string[] columns)
+		public override void AddPrimaryKey(string name, SchemaQualifiedObjectName table, params string[] columns)
 		{
 			throw new NotSupportedException("SLQite не поддерживает добавление ограничений после создания колонки");
 		}
 
-		public override void AddUniqueConstraint(string name, string table, params string[] columns)
+		public override void AddUniqueConstraint(string name, SchemaQualifiedObjectName table, params string[] columns)
 		{
 			throw new NotSupportedException("SLQite не поддерживает добавление ограничений после создания колонки");
 		}
 
-		public override void RemoveColumn(string table, string column)
+		public override void RemoveColumn(SchemaQualifiedObjectName table, string column)
 		{
 			throw new NotSupportedException("SQLite не поддерживает удаление колонок");
 		}
 
-		public override void RenameColumn(string tableName, string oldColumnName, string newColumnName)
+		public override void RenameColumn(SchemaQualifiedObjectName tableName, string oldColumnName, string newColumnName)
 		{
 			throw new NotSupportedException("SLQite не поддерживает переименование колонок");
 		}
 
-		public override void ChangeColumn(string table, string column, ColumnType columnType, bool notNull)
+		public override void ChangeColumn(SchemaQualifiedObjectName table, string column, ColumnType columnType, bool notNull)
 		{
 			throw new NotSupportedException("SLQite не поддерживает изменение колонок");
 		}
 
-		public override void ChangeDefaultValue(string table, string column, object newDefaultValue)
+		public override void ChangeDefaultValue(SchemaQualifiedObjectName table, string column, object newDefaultValue)
 		{
 			throw new NotSupportedException("SLQite не поддерживает изменение колонок");
 		}
@@ -147,22 +150,23 @@ namespace ECM7.Migrator.Providers.SQLite
 		/// Check if a table already exists
 		/// </summary>
 		/// <param name="table">The name of the table that you want to check on.</param>
-		public override bool TableExists(string table)
+		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
-			using (IDataReader reader =
-				ExecuteReader(String.Format("SELECT [name] FROM [sqlite_master] WHERE [type]='table' and [name]='{0}'", table)))
+			string sql = FormatSql("SELECT [name] FROM [sqlite_master] WHERE [type]='table' and [name]='{0}'", table.Name);
+
+			using (IDataReader reader = ExecuteReader(sql))
 			{
 				return reader.Read();
 			}
 		}
 
-		public override bool ColumnExists(string table, string column)
+		public override bool ColumnExists(SchemaQualifiedObjectName table, string column)
 		{
-			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}", column, table);
+			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}", column, table.Name);
 
 			try
 			{
-				using (IDataReader reader = ExecuteReader(sql))
+				using (ExecuteReader(sql))
 				{
 					return true;
 				}
@@ -180,7 +184,7 @@ namespace ECM7.Migrator.Providers.SQLite
 		/// <param name="table">Table owning the constraint</param>
 		/// <param name="name">Constraint name</param>
 		/// <returns><c>true</c> if the constraint exists.</returns>
-		public override bool ConstraintExists(string table, string name)
+		public override bool ConstraintExists(SchemaQualifiedObjectName table, string name)
 		{
 			throw new NotSupportedException();
 		}
@@ -189,16 +193,20 @@ namespace ECM7.Migrator.Providers.SQLite
 		/// Get the names of all of the tables
 		/// </summary>
 		/// <returns>The names of all the tables.</returns>
-		public override string[] GetTables()
+		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			List<string> tables = new List<string>();
+			Require.That(schema.IsNullOrEmpty(true), "SQLite не поддерживает схемы");
+
+			var tables = new List<SchemaQualifiedObjectName>();
 
 			const string SQL = "SELECT [name] FROM [sqlite_master] WHERE [type]='table' AND [name] <> 'sqlite_sequence' ORDER BY [name]";
+
 			using (IDataReader reader = ExecuteReader(SQL))
 			{
 				while (reader.Read())
 				{
-					tables.Add((string)reader[0]);
+					string tableName = reader.GetString(0);
+					tables.Add(new SchemaQualifiedObjectName { Name = tableName });
 				}
 			}
 
