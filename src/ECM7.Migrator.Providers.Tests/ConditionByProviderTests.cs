@@ -15,6 +15,13 @@ namespace ECM7.Migrator.Providers.Tests
 	[TestFixture]
 	public class ConditionByProviderTests
 	{
+		public class TestProvider : SqlServerTransformationProvider
+		{
+			public TestProvider(SqlConnection connection) : base(connection)
+			{
+			}
+		}
+
 		[Test]
 		public void CanExecuteActionForProvider()
 		{
@@ -66,13 +73,12 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanExecuteActionForProvidersWithBaseClass()
 		{
 			string cstring = ConfigurationManager.AppSettings["SqlServerConnectionString"];
-			using (var provider = ProviderFactory.Create<SqlServerTransformationProvider>(cstring))
+			using (var provider = ProviderFactory.Create<TestProvider>(cstring))
 			{
 				int i = -1;
 
-				throw new NotImplementedException("Испраить тест");
-				//provider.ConditionalExecuteAction()
-				//    .For <BaseSqlServerTransformationProvider<SqlConnection>>(db => i = 77);
+				provider.ConditionalExecuteAction()
+					.For<SqlServerTransformationProvider>(db => i = 77);
 				Assert.AreEqual(77, i);
 
 			}

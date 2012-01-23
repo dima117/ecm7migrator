@@ -134,67 +134,67 @@ namespace ECM7.Migrator.Providers.Firebird
 
 		#region DDL
 
-		public override string[] GetTables()
+		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
 			string sql = FormatSql(
 				"select rdb$relation_name from rdb$relations where rdb$system_flag = 0");
 
-			List<string> result = new List<string>();
+			var result = new List<SchemaQualifiedObjectName>();
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
 				while (reader.Read())
 				{
 					string tableName = reader.GetString(0).Trim();
-					result.Add(tableName);
+					result.Add(new SchemaQualifiedObjectName { Name = tableName });
 				}
 			}
 
 			return result.ToArray();
 		}
 
-		public override bool ColumnExists(string table, string column)
+		public override bool ColumnExists(SchemaQualifiedObjectName table, string column)
 		{
 			string sql = FormatSql(
 				"select count(*) from rdb$relation_fields " +
-				"where rdb$relation_name = '{0}' and rdb$field_name = '{1}'", table, column);
+				"where rdb$relation_name = '{0}' and rdb$field_name = '{1}'", table.Name, column);
 
 			int cnt = Convert.ToInt32(ExecuteScalar(sql));
 			return cnt > 0;
 		}
 
-		public override bool TableExists(string table)
+		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
 			string sql = FormatSql(
 				"select count(*) from rdb$relations " +
-				"where rdb$system_flag = 0 and rdb$relation_name = '{0}'", table);
+				"where rdb$system_flag = 0 and rdb$relation_name = '{0}'", table.Name);
 
 			int cnt = Convert.ToInt32(ExecuteScalar(sql));
 			return cnt > 0;
 		}
 
-		public override bool IndexExists(string indexName, string tableName)
+		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			string sql = FormatSql(
 				"select count(*) from rdb$indices " +
 				"where rdb$relation_name = '{0}' and rdb$index_name = '{1}' " +
-				"and not (rdb$index_name starting with 'rdb$')", tableName, indexName);
+				"and not (rdb$index_name starting with 'rdb$')", tableName.Name, indexName);
 
 			int cnt = Convert.ToInt32(ExecuteScalar(sql));
 			return cnt > 0;
 		}
 
-		public override bool ConstraintExists(string table, string name)
+		public override bool ConstraintExists(SchemaQualifiedObjectName table, string name)
 		{
 			string sql = FormatSql(
 				"select count(*) from rdb$relation_constraints " +
-				"where rdb$relation_name = '{0}' and rdb$constraint_name = '{1}'", table, name);
+				"where rdb$relation_name = '{0}' and rdb$constraint_name = '{1}'", table.Name, name);
 
 			int cnt = Convert.ToInt32(ExecuteScalar(sql));
 			return cnt > 0;
 		}
 
-		public override void RenameTable(string oldName, string newName)
+		public override void RenameTable(SchemaQualifiedObjectName oldName, string newName)
 		{
 			throw new NotSupportedException("Firebird не поддерживает переименование таблиц");
 		}

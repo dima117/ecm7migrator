@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Activation;
 using System.Runtime.Remoting.Messaging;
@@ -34,6 +35,8 @@ namespace ECM7.Migrator.Providers.Validation
 		/// </summary>
 		public void Initialize()
 		{
+			Debug.Print("Создаем {0}", (callMessage as IConstructionCallMessage).ActivationTypeName);
+
 			// валидация
 			if (validationOnInit != null)
 			{
