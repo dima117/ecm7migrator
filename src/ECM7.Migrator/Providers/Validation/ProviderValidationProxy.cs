@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.Remoting;
 using System.Runtime.Remoting.Activation;
 using System.Runtime.Remoting.Contexts;
 using System.Runtime.Remoting.Messaging;
@@ -69,7 +71,7 @@ namespace ECM7.Migrator.Providers.Validation
 				}
 			}
 		}
-		
+
 		public override IMessage Invoke(IMessage msg)
 		{
 			var call = new ObjectCall(this, msg, ConnectionTypeValidation, SchemaNameValidation);
@@ -81,6 +83,18 @@ namespace ECM7.Migrator.Providers.Validation
 			else if (msg is IMethodCallMessage)
 			{
 				context.DoCallBack(call.Execute);
+
+				var methodInfo = (msg as IMethodCallMessage).MethodBase;
+
+				// если вызываемый метод - Finalize или Dispose, то отключаем прокси от объекта
+				bool isDestructor = 
+					(methodInfo.Name == "Finalize" && methodInfo.GetParameters().Length == 0) ||
+					(methodInfo.Name == "Dispose" && methodInfo.DeclaringType == typeof(IDisposable));
+				
+				if (isDestructor)
+				{
+					DetachServer();
+				}
 			}
 			else
 			{
