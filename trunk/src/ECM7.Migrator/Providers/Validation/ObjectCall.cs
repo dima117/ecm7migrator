@@ -35,8 +35,6 @@ namespace ECM7.Migrator.Providers.Validation
 		/// </summary>
 		public void Initialize()
 		{
-			Debug.Print("Создаем {0}", (callMessage as IConstructionCallMessage).ActivationTypeName);
-
 			// валидация
 			if (validationOnInit != null)
 			{
