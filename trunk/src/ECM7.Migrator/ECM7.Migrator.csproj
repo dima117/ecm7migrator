@@ -117,6 +117,11 @@
     <Compile Include="Loader\MigrationInfo.cs" />
     <Compile Include="Loader\MigrationComparer.cs" />
     <Compile Include="Loader\MigrationAssembly.cs" />
+    <Compile Include="Messages.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Messages.resx</DependentUpon>
+    </Compile>
     <Compile Include="MigrationPlan.cs" />
     <Compile Include="Migrator.cs" />
     <Compile Include="Configuration\MigratorConfigurationSection.cs" />
@@ -159,6 +164,13 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Messages.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

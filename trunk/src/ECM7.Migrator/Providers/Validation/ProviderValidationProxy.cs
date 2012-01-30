@@ -66,7 +66,7 @@ namespace ECM7.Migrator.Providers.Validation
 
 					if (name != null)
 					{
-						Require.That(name.SchemaIsEmpty, "Схемы не поддерживаются");
+						Require.That(name.SchemaIsEmpty, Messages.SchemaNamesIsNotSupported);
 					}
 				}
 			}

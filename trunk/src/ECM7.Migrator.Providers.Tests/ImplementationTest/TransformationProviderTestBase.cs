@@ -1220,7 +1220,7 @@
 
 		protected virtual string DefaultSchema
 		{
-			get { return "moo"; }
+			get { return string.Empty; }
 		}
 
 		#endregion

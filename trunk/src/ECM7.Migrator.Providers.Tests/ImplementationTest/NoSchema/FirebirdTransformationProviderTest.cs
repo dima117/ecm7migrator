@@ -1,12 +1,10 @@
-﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+﻿using System;
+using System.Text;
+using ECM7.Migrator.Providers.Firebird;
+using NUnit.Framework;
+
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	using System;
-	using System.Text;
-
-	using ECM7.Migrator.Providers.Firebird;
-
-	using NUnit.Framework;
-
 	[TestFixture]
 	public class FirebirdTransformationProviderTest
 		: TransformationProviderTestBase<FirebirdTransformationProvider>

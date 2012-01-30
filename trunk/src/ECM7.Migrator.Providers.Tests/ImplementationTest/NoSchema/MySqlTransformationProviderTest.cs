@@ -1,16 +1,13 @@
 ﻿using ECM7.Migrator.Exceptions;
+using System;
+using System.Linq;
+using System.Data;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers.MySql;
+using NUnit.Framework;
 
-namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	using System;
-	using System.Linq;
-	using System.Data;
-
-	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Providers.MySql;
-
-	using NUnit.Framework;
-
 	[TestFixture]
 	public class MySqlTransformationProviderTest
 		: TransformationProviderTestBase<MySqlTransformationProvider>

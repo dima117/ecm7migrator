@@ -1,12 +1,10 @@
-﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+﻿using System;
+using System.Text;
+using ECM7.Migrator.Providers.Oracle;
+using NUnit.Framework;
+
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	using System;
-	using System.Text;
-
-	using ECM7.Migrator.Providers.Oracle;
-
-	using NUnit.Framework;
-
 	[TestFixture]
 	public class OracleTransformationProviderTest
 		: TransformationProviderTestBase<OracleTransformationProvider>
