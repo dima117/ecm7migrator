@@ -78,13 +78,14 @@
     <Compile Include="DataTypes\PostgreSQLDataTypesTest.cs" />
     <Compile Include="DataTypes\SQLiteDataTypesTest.cs" />
     <Compile Include="DataTypes\SqlServerDataTypesTest.cs" />
-    <Compile Include="ImplementationTest\FirebirdTransformationProviderTest.cs" />
-    <Compile Include="ImplementationTest\MySqlTransformationProviderTest.cs" />
-    <Compile Include="ImplementationTest\OracleTransformationProviderTest.cs" />
-    <Compile Include="ImplementationTest\PostgreSQLTransformationProviderTest.cs" />
-    <Compile Include="ImplementationTest\SQLiteTransformationProviderTest.cs" />
-    <Compile Include="ImplementationTest\SqlServerCeTransformationProviderTest.cs" />
-    <Compile Include="ImplementationTest\SqlServerTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\WithSchema\SchemaNamesNotSupportedTests.cs" />
+    <Compile Include="ImplementationTest\NoSchema\FirebirdTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\NoSchema\MySqlTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\NoSchema\OracleTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\NoSchema\PostgreSQLTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\NoSchema\SQLiteTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\NoSchema\SqlServerCeTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\NoSchema\SqlServerTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\TransformationProviderTestBase.cs" />
     <Compile Include="ProviderFactoryTest.cs" />
   </ItemGroup>

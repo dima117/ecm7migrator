@@ -1,14 +1,11 @@
 ﻿using System.Data;
 using ECM7.Migrator.Framework;
+using System;
+using ECM7.Migrator.Providers.SQLite;
+using NUnit.Framework;
 
-namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	using System;
-
-	using ECM7.Migrator.Providers.SQLite;
-
-	using NUnit.Framework;
-
 	[TestFixture]
 	public class SQLiteTransformationProviderTest
 		: TransformationProviderTestBase<SQLiteTransformationProvider>

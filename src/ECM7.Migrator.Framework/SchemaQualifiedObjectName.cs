@@ -37,6 +37,14 @@
 
 		#region Equals & GetHashCode
 
+		/// <summary>
+		/// "Нормализация" названия схемы (чтобы при сравнении считать разные варианты пустой схемы равными)
+		/// </summary>
+		private string NotNullSchemaName
+		{
+			get { return SchemaIsEmpty ? string.Empty : Schema; }
+		}
+
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
@@ -49,14 +57,14 @@
 		{
 			if (ReferenceEquals(null, other)) return false;
 			if (ReferenceEquals(this, other)) return true;
-			return Equals(other.Name, Name) && Equals(other.Schema, Schema);
+			return Equals(other.Name, Name) && Equals(other.NotNullSchemaName, NotNullSchemaName);
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				return ((Name != null ? Name.GetHashCode() : 0) * 397) ^ (Schema != null ? Schema.GetHashCode() : 0);
+				return ((Name != null ? Name.GetHashCode() : 0) * 397) ^ (NotNullSchemaName != null ? NotNullSchemaName.GetHashCode() : 0);
 			}
 		}
 

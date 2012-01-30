@@ -1,7 +1,7 @@
 ﻿using ECM7.Migrator.Providers.SqlServer;
 using NUnit.Framework;
 
-namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
 	[TestFixture]
 	public class SqlServerTransformationProviderTest 
