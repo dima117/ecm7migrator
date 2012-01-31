@@ -92,7 +92,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		public override void CanAddAndDropTable()
 		{
 			// в стандартный тест добавлена проверка выбранной подсистемы низкого уровня MySQL (по умолчанию InnoDB)
-			string tableName = GetRandomName("InnoDBTable");
+			SchemaQualifiedObjectName tableName = GetRandomTableName("InnoDBTable");
 
 			Assert.IsFalse(provider.TableExists(tableName));
 
@@ -108,26 +108,30 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			Assert.IsFalse(provider.TableExists(tableName));
 		}
 
+		/// <summary>
+		/// MySql возвращает имена таблиц в нижнем регистре, поэтому в стандартный тест 
+		/// добавлено сравнение имен таблиц без учета регистра
+		/// </summary>
 		[Test]
 		public override void CanGetTables()
 		{
-			// в стандартный тест добавлено сравнение имен таблиц без учета регистра
-			// todo: добавить сравнение таблиц без учета регистра
-			string table1 = GetRandomName("tableMoo");
-			string table2 = GetRandomName("tableHru");
+			var table1 = GetRandomTableName("tableMoo");
+			var table2 = GetRandomTableName("tableHru");
 
-			var tables = provider.GetTables();
+			var tables = provider.GetTables(DefaultSchema);
 			Assert.IsFalse(tables.Contains(table1));
 			Assert.IsFalse(tables.Contains(table2));
 
 			provider.AddTable(table1, new Column("ID", DbType.Int32));
 			provider.AddTable(table2, new Column("ID", DbType.Int32));
 
-			var tables2 = provider.GetTables();
+			var tables2 = provider.GetTables(DefaultSchema);
+
 
 			Assert.AreEqual(tables.Length + 2, tables2.Length);
-			Assert.IsTrue(tables2.Contains(table1));
-			Assert.IsTrue(tables2.Contains(table2));
+			Assert.IsTrue(tables.All(tab => tab.Schema == DefaultSchema));
+			Assert.IsTrue(tables2.Select(tab => tab.Name).Contains(table1.Name, StringComparer.InvariantCultureIgnoreCase));
+			Assert.IsTrue(tables2.Select(tab => tab.Name).Contains(table2.Name, StringComparer.InvariantCultureIgnoreCase));
 
 			provider.RemoveTable(table1);
 			provider.RemoveTable(table2);
