@@ -11,21 +11,34 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ImplementationTest.WithSchema
 {
+	/// <summary>
+	/// Тестирование провайдеров, не поддерживающих схемы
+	/// </summary>
 	[TestFixture]
 	public class SchemaNamesNotSupportedTests
 	{
 		#region helpers
 		
+		/// <summary>
+		/// Значение по умолчанию для заданного типа
+		/// </summary>
 		private static object GetDefaultValue(Type type)
 		{
 			return type.IsValueType ? Activator.CreateInstance(type) : null;
 		}
 
+		/// <summary>
+		/// Запись в лог
+		/// </summary>
 		private static void WriteLog(string format, MethodInfo method)
 		{
 			Debug.WriteLine(string.Format(format, method.Name));
 		}
 
+		/// <summary>
+		/// Проходим по всем методам провайдера и проверяем, что методы, 
+		/// принимающие в параметрах SchemaQualifiedObjectName, генерируют исключение
+		/// </summary>
 		private static void AllMethodTest(Type providerType, string cstringName)
 		{
 			string cstring = ConfigurationManager.AppSettings[cstringName];
@@ -80,18 +93,27 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.WithSchema
 
 		#endregion
 		
+		/// <summary>
+		/// Проверяем методы провайдера MSSQL CE
+		/// </summary>
 		[Test]
 		public void SqlServerCeTransformationProviderTest()
 		{
 			AllMethodTest(typeof(SqlServerCeTransformationProvider), "SqlServerCeConnectionString");
 		}
 
+		/// <summary>
+		/// Проверяем методы провайдера SQLite
+		/// </summary>
 		[Test]
 		public void SQLiteTransformationProviderTest()
 		{
 			AllMethodTest(typeof(SQLiteTransformationProvider), "SQLiteConnectionString");
 		}
 
+		/// <summary>
+		/// Проверяем методы провайдера Firebird
+		/// </summary>
 		[Test]
 		public void FirebirdTransformationProviderTest()
 		{

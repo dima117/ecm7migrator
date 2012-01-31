@@ -102,9 +102,18 @@ namespace ECM7.Migrator.Providers.MySql
 			return FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", table, columnsSql, dbEngine);
 		}
 
+		/// <summary>
+		/// MySql при переименовании может переносить таблицу в другую схему.
+		/// Поэтому к новому имени таблицы нужно явно добавить схему исходной таблицы.
+		/// </summary>
+		protected override string GetSqlRenameTable(SchemaQualifiedObjectName oldName, string newName)
+		{
+			return FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", oldName, newName.WithSchema(oldName.Schema));
+		}
+
 		#endregion
 
-			#region DDL
+		#region DDL
 
 		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
@@ -145,8 +154,8 @@ namespace ECM7.Migrator.Providers.MySql
 		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
 			string sql = schema.IsNullOrEmpty(true)
-			             	? "SHOW TABLES"
-			             	: FormatSql("SHOW TABLES IN {0:NAME}", schema);
+							? "SHOW TABLES"
+							: FormatSql("SHOW TABLES IN {0:NAME}", schema);
 
 			var tables = new List<SchemaQualifiedObjectName>();
 
@@ -154,7 +163,7 @@ namespace ECM7.Migrator.Providers.MySql
 			{
 				while (reader.Read())
 				{
-					string tableName = (string) reader[0];
+					string tableName = (string)reader[0];
 					tables.Add(tableName.WithSchema(schema));
 				}
 			}
@@ -165,8 +174,8 @@ namespace ECM7.Migrator.Providers.MySql
 		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
 			string sql = table.Schema.IsNullOrEmpty(true)
-			             	? FormatSql("SHOW TABLES LIKE '{0}'", table)
-			             	: FormatSql("SHOW TABLES IN {0:NAME} LIKE '{1}'", table.Schema, table.Name);
+							? FormatSql("SHOW TABLES LIKE '{0}'", table)
+							: FormatSql("SHOW TABLES IN {0:NAME} LIKE '{1}'", table.Schema, table.Name);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -197,7 +206,7 @@ namespace ECM7.Migrator.Providers.MySql
 
 		public override void AddForeignKey(string name, SchemaQualifiedObjectName primaryTable, string[] primaryColumns, SchemaQualifiedObjectName refTable, string[] refColumns, Framework.ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, Framework.ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
-			if (onDeleteConstraint == ForeignKeyConstraint.SetDefault || 
+			if (onDeleteConstraint == ForeignKeyConstraint.SetDefault ||
 				onUpdateConstraint == ForeignKeyConstraint.SetDefault)
 			{
 				throw new NotSupportedException("MySQL не поддерживает SET DEFAULT для внешних ключей");
