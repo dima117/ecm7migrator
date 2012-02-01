@@ -4,15 +4,10 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	[TestFixture]
+	[TestFixture, Category("MSSQL CE")]
 	public class SqlServerCeTransformationProviderTest
 		: TransformationProviderTestBase<SqlServerCeTransformationProvider>
 	{
-		//protected override string DefaultSchema
-		//{
-		//    get { return null; }
-		//}
-
 		#region Overrides of TransformationProviderTestBase<SqlServerCeTransformationProvider>
 
 		public override string ConnectionStrinSettingsName

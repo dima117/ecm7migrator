@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	[TestFixture]
+	[TestFixture, Category("Firebird")]
 	public class FirebirdTransformationProviderTest
 		: TransformationProviderTestBase<FirebirdTransformationProvider>
 	{
@@ -49,7 +49,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		[Test]
 		public override void CanRenameTable()
 		{
-			Assert.Throws<NotSupportedException>(() => base.CanRenameTable());
+			Assert.Throws<NotSupportedException>(base.CanRenameTable);
 		}
 
 		#endregion

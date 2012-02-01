@@ -228,7 +228,7 @@
 		[Test]
 		public virtual void CantRemoveUnexistingTable()
 		{
-			string randomTableName = GetRandomName();
+			var randomTableName = GetRandomTableName();
 			Assert.Throws<SQLException>(() => provider.RemoveTable(randomTableName));
 		}
 
@@ -479,11 +479,12 @@
 		public virtual void CantRemoveUnexistingColumn()
 		{
 			SchemaQualifiedObjectName tableName = GetRandomTableName("RemoveUnexistingColumn");
-
+			string column = GetRandomName();
+			
 			provider.AddTable(tableName, new Column("ID", DbType.Int32));
 
 			Assert.Throws<SQLException>(() =>
-				provider.RemoveColumn(tableName, GetRandomName()));
+				provider.RemoveColumn(tableName, column));
 
 			provider.RemoveTable(tableName);
 		}

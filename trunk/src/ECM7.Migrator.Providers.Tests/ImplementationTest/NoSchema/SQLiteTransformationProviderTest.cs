@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	[TestFixture]
+	[TestFixture, Category("SQLite")]
 	public class SQLiteTransformationProviderTest
 		: TransformationProviderTestBase<SQLiteTransformationProvider>
 	{
