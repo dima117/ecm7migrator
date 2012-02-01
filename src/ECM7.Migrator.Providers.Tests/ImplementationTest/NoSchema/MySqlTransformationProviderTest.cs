@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	[TestFixture]
+	[TestFixture, Category("MySql")]
 	public class MySqlTransformationProviderTest
 		: TransformationProviderTestBase<MySqlTransformationProvider>
 	{
@@ -99,7 +99,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			provider.AddTable(tableName, new Column("ID", DbType.Int32));
 			Assert.IsTrue(provider.TableExists(tableName));
 
-			string sql = provider.FormatSql("SELECT ENGINE FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` = '{0}'", tableName);
+			string sql = provider.FormatSql("SELECT `ENGINE` FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` = '{0}' AND `TABLE_SCHEMA` = '{1}'", tableName.Name, tableName.Schema);
 			object engine = provider.ExecuteScalar(sql);
 			Assert.AreEqual("InnoDB", engine);
 

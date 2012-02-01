@@ -79,6 +79,7 @@
     <Compile Include="DataTypes\SQLiteDataTypesTest.cs" />
     <Compile Include="DataTypes\SqlServerDataTypesTest.cs" />
     <Compile Include="ImplementationTest\WithSchema\MySqlTransformationProviderSchemaTest.cs" />
+    <Compile Include="ImplementationTest\WithSchema\PostgreSQLTransformationProvidersSchemaTest.cs" />
     <Compile Include="ImplementationTest\WithSchema\SchemaNamesNotSupportedTests.cs" />
     <Compile Include="ImplementationTest\NoSchema\FirebirdTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\NoSchema\MySqlTransformationProviderTest.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="ImplementationTest\NoSchema\SqlServerCeTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\NoSchema\SqlServerTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\TransformationProviderTestBase.cs" />
+    <Compile Include="ImplementationTest\WithSchema\SqlServerTransformationProviderSchemaTest.cs" />
     <Compile Include="ProviderFactoryTest.cs" />
   </ItemGroup>
   <ItemGroup>

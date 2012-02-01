@@ -176,8 +176,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 				while (reader.Read())
 				{
 					string tableName = (string)reader[0];
-					string tableSchema = (string)reader[1];
-					tables.Add(tableName.WithSchema(tableSchema));
+					tables.Add(tableName.WithSchema(schema));
 				}
 			}
 			return tables.ToArray();

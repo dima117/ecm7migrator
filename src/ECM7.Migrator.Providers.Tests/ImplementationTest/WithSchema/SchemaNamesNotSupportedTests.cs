@@ -96,7 +96,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.WithSchema
 		/// <summary>
 		/// Проверяем методы провайдера MSSQL CE
 		/// </summary>
-		[Test]
+		[Test, Category("MSSQL CE")]
 		public void SqlServerCeTransformationProviderTest()
 		{
 			AllMethodTest(typeof(SqlServerCeTransformationProvider), "SqlServerCeConnectionString");
@@ -105,7 +105,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.WithSchema
 		/// <summary>
 		/// Проверяем методы провайдера SQLite
 		/// </summary>
-		[Test]
+		[Test, Category("SQLite")]
 		public void SQLiteTransformationProviderTest()
 		{
 			AllMethodTest(typeof(SQLiteTransformationProvider), "SQLiteConnectionString");
@@ -114,7 +114,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.WithSchema
 		/// <summary>
 		/// Проверяем методы провайдера Firebird
 		/// </summary>
-		[Test]
+		[Test, Category("Firebird")]
 		public void FirebirdTransformationProviderTest()
 		{
 			AllMethodTest(typeof(FirebirdTransformationProvider), "FirebirdConnectionString");
