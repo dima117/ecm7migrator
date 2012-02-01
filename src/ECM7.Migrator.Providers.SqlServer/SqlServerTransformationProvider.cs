@@ -69,11 +69,11 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			string nspname = schema.IsNullOrEmpty(true) ? "dbo" : schema;
+			string nspname = schema.IsNullOrEmpty(true) ? "SCHEMA_NAME()" : string.Format("'{0}'", schema);
 
 			var tables = new List<SchemaQualifiedObjectName>();
 
-			string sql = FormatSql("SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME} where {4:NAME} = '{5}'",
+			string sql = FormatSql("SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME} where {4:NAME} = {5}",
 				"TABLE_NAME", "TABLE_SCHEMA", "INFORMATION_SCHEMA", "TABLES", "TABLE_SCHEMA", nspname);
 
 			using (IDataReader reader = ExecuteReader(sql))
@@ -86,6 +86,20 @@ namespace ECM7.Migrator.Providers.SqlServer
 			}
 
 			return tables.ToArray();
+		}
+
+		public override bool TableExists(SchemaQualifiedObjectName table)
+		{
+			string nspname = table.SchemaIsEmpty ? "SCHEMA_NAME()" : string.Format("'{0}'", table.Schema);
+
+			string sql = FormatSql(
+				"SELECT * FROM [INFORMATION_SCHEMA].[TABLES] " +
+				"WHERE [TABLE_NAME]='{0}' AND [TABLE_SCHEMA] = {1}", table.Name, nspname);
+
+			using (IDataReader reader = ExecuteReader(sql))
+			{
+				return reader.Read();
+			}
 		}
 	}
 }

@@ -88,6 +88,17 @@ namespace ECM7.Migrator.Providers.SqlServer
 			return tables.ToArray();
 		}
 
+		public override bool TableExists(SchemaQualifiedObjectName table)
+		{
+			string sql = FormatSql(
+				"SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME]='{0}'", table.Name);
+
+			using (IDataReader reader = ExecuteReader(sql))
+			{
+				return reader.Read();
+			}
+		}
+
 		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			string sql = FormatSql(

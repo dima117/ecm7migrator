@@ -149,10 +149,10 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
-			string nspname = table.Schema.IsNullOrEmpty(true) ? "public" : table.Schema;
+			string nspname = table.SchemaIsEmpty ? "current_schema()" : string.Format("'{0}'", table.Schema);
 
 			string sql = FormatSql(
-				"SELECT {0:NAME} FROM {1:NAME}.{2:NAME} WHERE {3:NAME} = '{4}' AND {5:NAME} = '{6}'",
+				"SELECT {0:NAME} FROM {1:NAME}.{2:NAME} WHERE {3:NAME} = {4} AND {5:NAME} = '{6}'",
 				"table_name", "information_schema", "tables", "table_schema", nspname, "table_name", table.Name);
 
 			using (IDataReader reader = ExecuteReader(sql))
@@ -163,10 +163,10 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			string nspname = schema.IsNullOrEmpty(true) ? "public" : schema;
+			string nspname = schema.IsNullOrEmpty(true) ? "current_schema()" : string.Format("'{0}'", schema);
 
 			string sql = FormatSql(
-				"SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME} WHERE {4:NAME} = '{5}'",
+				"SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME} WHERE {4:NAME} = {5}",
 				"table_name", "table_schema", "information_schema", "tables", "table_schema", nspname);
 
 			var tables = new List<SchemaQualifiedObjectName>();
