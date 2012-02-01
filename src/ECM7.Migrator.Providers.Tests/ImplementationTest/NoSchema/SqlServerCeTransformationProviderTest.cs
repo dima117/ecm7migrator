@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	[TestFixture, Category("MSSQL CE")]
+	[TestFixture, Category("SqlServerCe")]
 	public class SqlServerCeTransformationProviderTest
 		: TransformationProviderTestBase<SqlServerCeTransformationProvider>
 	{

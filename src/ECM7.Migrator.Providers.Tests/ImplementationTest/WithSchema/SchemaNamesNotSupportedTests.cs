@@ -96,7 +96,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.WithSchema
 		/// <summary>
 		/// Проверяем методы провайдера MSSQL CE
 		/// </summary>
-		[Test, Category("MSSQL CE")]
+		[Test, Category("SqlServerCe")]
 		public void SqlServerCeTransformationProviderTest()
 		{
 			AllMethodTest(typeof(SqlServerCeTransformationProvider), "SqlServerCeConnectionString");

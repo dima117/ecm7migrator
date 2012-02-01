@@ -82,7 +82,7 @@ namespace ECM7.Migrator.Providers.Tests
 
 		#region Shortcuts tests
 
-		[Test]
+		[Test, Category("SqlServer")]
 		public void SqlServerShortcutTest()
 		{
 			Assert.AreEqual(
@@ -90,7 +90,7 @@ namespace ECM7.Migrator.Providers.Tests
 				typeof(SqlServerTransformationProvider));
 		}
 
-		[Test]
+		[Test, Category("SqlServerCe")]
 		public void SqlServerCeShortcutTest()
 		{
 			Assert.AreEqual(
@@ -98,7 +98,7 @@ namespace ECM7.Migrator.Providers.Tests
 				typeof(SqlServerCeTransformationProvider));
 		}
 
-		[Test]
+		[Test, Category("Oracle")]
 		public void OracleShortcutTest()
 		{
 			Assert.AreEqual(
@@ -106,7 +106,7 @@ namespace ECM7.Migrator.Providers.Tests
 				typeof(OracleTransformationProvider));
 		}
 
-		[Test]
+		[Test, Category("MySql")]
 		public void MySqlShortcutTest()
 		{
 			Assert.AreEqual(
@@ -114,7 +114,7 @@ namespace ECM7.Migrator.Providers.Tests
 				typeof(MySqlTransformationProvider));
 		}
 
-		[Test]
+		[Test, Category("SQLite")]
 		public void SQLiteShortcutTest()
 		{
 			Assert.AreEqual(
@@ -122,7 +122,7 @@ namespace ECM7.Migrator.Providers.Tests
 				typeof(SQLiteTransformationProvider));
 		}
 
-		[Test]
+		[Test, Category("PostgreSQL")]
 		public void PostgreSQLShortcutTest()
 		{
 			Assert.AreEqual(
@@ -130,7 +130,7 @@ namespace ECM7.Migrator.Providers.Tests
 				typeof(PostgreSQLTransformationProvider));
 		}
 
-		[Test]
+		[Test, Category("Firebird")]
 		public void FirebirdShortcutTest()
 		{
 			Assert.AreEqual(
