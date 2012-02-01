@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	[TestFixture]
+	[TestFixture, Category("Oracle")]
 	public class OracleTransformationProviderTest
 		: TransformationProviderTestBase<OracleTransformationProvider>
 	{

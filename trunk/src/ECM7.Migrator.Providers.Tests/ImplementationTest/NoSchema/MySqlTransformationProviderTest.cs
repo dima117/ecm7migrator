@@ -68,6 +68,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			Assert.Throws<NotSupportedException>(base.CanAddForeignKeyWithUpdateSetDefault);
 		}
 
+		// todo: удалить параметр engine
 		[Test]
 		public void AddTableWithMyISAMEngine()
 		{
@@ -79,6 +80,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 
 			Assert.IsTrue(provider.TableExists(tableName));
 
+			// не учитываем название схемы, потому как схема по умолчанию зависит от названия БД, а название таблицы все равно уникальное
 			string sql = provider.FormatSql("SELECT ENGINE FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` = '{0}'", tableName);
 			object engine = provider.ExecuteScalar(sql);
 			Assert.AreEqual("MyISAM", engine);
@@ -99,7 +101,8 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			provider.AddTable(tableName, new Column("ID", DbType.Int32));
 			Assert.IsTrue(provider.TableExists(tableName));
 
-			string sql = provider.FormatSql("SELECT `ENGINE` FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` = '{0}' AND `TABLE_SCHEMA` = '{1}'", tableName.Name, tableName.Schema);
+			// не учитываем название схемы, потому как схема по умолчанию зависит от названия БД, а название таблицы все равно уникальное
+			string sql = provider.FormatSql("SELECT `ENGINE` FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` = '{0}'", tableName.Name);
 			object engine = provider.ExecuteScalar(sql);
 			Assert.AreEqual("InnoDB", engine);
 

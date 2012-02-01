@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Data;
+using System.Text;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Providers.Validation;
 
@@ -64,5 +66,26 @@ namespace ECM7.Migrator.Providers.SqlServer
 		}
 
 		#endregion
+
+		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
+		{
+			string nspname = schema.IsNullOrEmpty(true) ? "dbo" : schema;
+
+			var tables = new List<SchemaQualifiedObjectName>();
+
+			string sql = FormatSql("SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME} where {4:NAME} = '{5}'",
+				"TABLE_NAME", "TABLE_SCHEMA", "INFORMATION_SCHEMA", "TABLES", "TABLE_SCHEMA", nspname);
+
+			using (IDataReader reader = ExecuteReader(sql))
+			{
+				while (reader.Read())
+				{
+					string tableName = reader.GetString(0);
+					tables.Add(tableName.WithSchema(schema));
+				}
+			}
+
+			return tables.ToArray();
+		}
 	}
 }

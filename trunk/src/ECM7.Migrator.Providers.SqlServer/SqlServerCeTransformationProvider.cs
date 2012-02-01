@@ -73,16 +73,15 @@ namespace ECM7.Migrator.Providers.SqlServer
 		{
 			var tables = new List<SchemaQualifiedObjectName>();
 
-			string sql = FormatSql("SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME}",
-				"TABLE_NAME", "TABLE_SCHEMA", "INFORMATION_SCHEMA", "TABLES");
+			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME}.{2:NAME}",
+				"TABLE_NAME", "INFORMATION_SCHEMA", "TABLES");
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
 				while (reader.Read())
 				{
 					string tableName = reader.GetString(0);
-					string tableSchema = reader.GetString(1);
-					tables.Add(tableName.WithSchema(tableSchema));
+					tables.Add(tableName.WithSchema(schema));
 				}
 			}
 

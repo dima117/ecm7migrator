@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	[TestFixture, Category("MSSQL")]
+	[TestFixture, Category("SqlServer")]
 	public class SqlServerTransformationProviderTest 
 		: TransformationProviderTestBase<SqlServerTransformationProvider>
 	{
