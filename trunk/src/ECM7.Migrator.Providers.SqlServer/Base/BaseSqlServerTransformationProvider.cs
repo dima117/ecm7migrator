@@ -142,24 +142,6 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 				return reader.Read();
 			}
 		}
-
-		public override bool TableExists(SchemaQualifiedObjectName table)
-		{
-			string sql = FormatSql(
-				"SELECT * FROM [INFORMATION_SCHEMA].[TABLES] " +
-				"WHERE [TABLE_NAME]='{0}'", table.Name);
-
-			if (!table.Schema.IsNullOrEmpty(true))
-			{
-				sql += FormatSql(" AND [TABLE_SCHEMA] = '{0}'", table.Schema);
-			}
-
-			using (IDataReader reader = ExecuteReader(sql))
-			{
-				return reader.Read();
-			}
-		}
-
 		// todo: написать тесты на схемы 
 
 		public override void RemoveColumn(SchemaQualifiedObjectName table, string column)
