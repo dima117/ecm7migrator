@@ -68,49 +68,6 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			Assert.Throws<NotSupportedException>(base.CanAddForeignKeyWithUpdateSetDefault);
 		}
 
-		// todo: удалить параметр engine
-		[Test]
-		public void AddTableWithMyISAMEngine()
-		{
-			string tableName = GetRandomName("MyISAMTable");
-
-			Assert.IsFalse(provider.TableExists(tableName));
-
-			provider.AddTable(tableName, "MyISAM", new Column("ID", DbType.Int32));
-
-			Assert.IsTrue(provider.TableExists(tableName));
-
-			// не учитываем название схемы, потому как схема по умолчанию зависит от названия БД, а название таблицы все равно уникальное
-			string sql = provider.FormatSql("SELECT ENGINE FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` = '{0}'", tableName);
-			object engine = provider.ExecuteScalar(sql);
-			Assert.AreEqual("MyISAM", engine);
-
-			provider.RemoveTable(tableName);
-
-			Assert.IsFalse(provider.TableExists(tableName));
-		}
-
-		[Test]
-		public override void CanAddAndDropTable()
-		{
-			// в стандартный тест добавлена проверка выбранной подсистемы низкого уровня MySQL (по умолчанию InnoDB)
-			SchemaQualifiedObjectName tableName = GetRandomTableName("InnoDBTable");
-
-			Assert.IsFalse(provider.TableExists(tableName));
-
-			provider.AddTable(tableName, new Column("ID", DbType.Int32));
-			Assert.IsTrue(provider.TableExists(tableName));
-
-			// не учитываем название схемы, потому как схема по умолчанию зависит от названия БД, а название таблицы все равно уникальное
-			string sql = provider.FormatSql("SELECT `ENGINE` FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` = '{0}'", tableName.Name);
-			object engine = provider.ExecuteScalar(sql);
-			Assert.AreEqual("InnoDB", engine);
-
-
-			provider.RemoveTable(tableName);
-			Assert.IsFalse(provider.TableExists(tableName));
-		}
-
 		/// <summary>
 		/// MySql возвращает имена таблиц в нижнем регистре, поэтому в стандартный тест 
 		/// добавлено сравнение имен таблиц без учета регистра

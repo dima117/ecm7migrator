@@ -16,8 +16,6 @@ namespace ECM7.Migrator.Providers
 	/// </summary>
 	public abstract class TransformationProvider : SqlRunner, ITransformationProvider
 	{
-		// todo: написать тесты, провер€ющие работу со схемами данных
-
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
 
 		protected readonly IFormatProvider sqlFormatProvider;
@@ -82,7 +80,7 @@ namespace ECM7.Migrator.Providers
 
 		#region generate sql
 
-		protected virtual string GetSqlAddTable(SchemaQualifiedObjectName table, string engine, string columnsSql)
+		protected virtual string GetSqlAddTable(SchemaQualifiedObjectName table, string columnsSql)
 		{
 			return FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
 		}
@@ -172,6 +170,17 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("ALTER TABLE {0:NAME} RENAME TO {1:NAME}", oldName, newName);
 		}
 
+		protected virtual string GetSqlAddIndex(string name, bool unique, SchemaQualifiedObjectName table, params string[] columns)
+		{
+			Require.That(columns.Length > 0, "Not specified columns of the table to create an index");
+
+			string uniqueString = unique ? "UNIQUE" : string.Empty;
+			string sql = 
+				FormatSql("CREATE {0} INDEX {1:NAME} ON {2:NAME} ({3:COLS})", uniqueString, name, table, columns);
+
+			return sql;
+		}
+
 		protected virtual string GetSqlRemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			return FormatSql("DROP INDEX {0:NAME} ON {1:NAME}", indexName, tableName);
@@ -188,12 +197,7 @@ namespace ECM7.Migrator.Providers
 
 		#region tables
 
-		public void AddTable(SchemaQualifiedObjectName name, params Column[] columns)
-		{
-			AddTable(name, null, columns);
-		}
-
-		public virtual void AddTable(SchemaQualifiedObjectName name, string engine, params Column[] columns)
+		public virtual void AddTable(SchemaQualifiedObjectName name, params Column[] columns)
 		{
 			// список колонок, вход€щих в первичный ключ
 			List<string> pks = columns
@@ -227,7 +231,7 @@ namespace ECM7.Migrator.Providers
 			}
 
 			string sqlQuerySections = querySections.ToCommaSeparatedString();
-			string createTableSql = GetSqlAddTable(name, engine, sqlQuerySections);
+			string createTableSql = GetSqlAddTable(name, sqlQuerySections);
 
 			ExecuteNonQuery(createTableSql);
 		}
@@ -369,12 +373,7 @@ namespace ECM7.Migrator.Providers
 
 		public virtual void AddIndex(string name, bool unique, SchemaQualifiedObjectName table, params string[] columns)
 		{
-			Require.That(columns.Length > 0, "Not specified columns of the table to create an index");
-
-			string uniqueString = unique ? "UNIQUE" : string.Empty;
-			string sql = FormatSql("CREATE {0} INDEX {1:NAME} ON {2:NAME} ({3:COLS})",
-				uniqueString, name, table, columns);
-
+			string sql = GetSqlAddIndex(name, unique, table, columns);
 			ExecuteNonQuery(sql);
 		}
 

@@ -96,12 +96,6 @@ namespace ECM7.Migrator.Providers.MySql
 			return FormatSql("ALTER TABLE {0:NAME} DROP KEY {1:NAME}", table, name);
 		}
 
-		protected override string GetSqlAddTable(SchemaQualifiedObjectName table, string engine, string columnsSql)
-		{
-			string dbEngine = engine.Nvl("INNODB");
-			return FormatSql("CREATE TABLE {0:NAME} ({1}) ENGINE = {2}", table, columnsSql, dbEngine);
-		}
-
 		/// <summary>
 		/// MySql при переименовании может переносить таблицу в другую схему.
 		/// Поэтому к новому имени таблицы нужно явно добавить схему исходной таблицы.

@@ -891,19 +891,20 @@
 		public virtual void CanAddAndRemoveIndex()
 		{
 			SchemaQualifiedObjectName tableName = GetRandomTableName("AddIndex");
+			string indexName = GetRandomName("ix_moo_");
 
 			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("Name", DbType.String.WithSize(10)));
 
-			provider.AddIndex("ix_moo", false, tableName, new[] { "Name" });
-			Assert.IsTrue(provider.IndexExists("ix_moo", tableName));
+			provider.AddIndex(indexName, false, tableName, new[] { "Name" });
+			Assert.IsTrue(provider.IndexExists(indexName, tableName));
 
 			provider.Insert(tableName, new[] { "ID", "Name" }, new[] { "1", "test-name" });
 			provider.Insert(tableName, new[] { "ID", "Name" }, new[] { "2", "test-name" });
 
-			provider.RemoveIndex("ix_moo", tableName);
-			Assert.IsFalse(provider.IndexExists("ix_moo", tableName));
+			provider.RemoveIndex(indexName, tableName);
+			Assert.IsFalse(provider.IndexExists(indexName, tableName));
 
 			provider.RemoveTable(tableName);
 		}

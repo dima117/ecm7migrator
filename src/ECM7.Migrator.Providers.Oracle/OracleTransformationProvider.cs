@@ -153,6 +153,17 @@ namespace ECM7.Migrator.Providers.Oracle
 			return FormatSql("ALTER TABLE {0:NAME} MODIFY {1:NAME} {2}", table, column, GetSqlDefaultValue(newDefaultValue));
 		}
 
+		protected override string GetSqlAddIndex(string name, bool unique, SchemaQualifiedObjectName table, params string[] columns)
+		{
+			Require.That(columns.Length > 0, "Not specified columns of the table to create an index");
+
+			string uniqueString = unique ? "UNIQUE" : string.Empty;
+			string sql = FormatSql("CREATE {0} INDEX {1:NAME} ON {2:NAME} ({3:COLS})", 
+				uniqueString, name.WithSchema(table.Schema), table, columns);
+
+			return sql;
+		}
+
 		protected override string GetSqlRemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			return FormatSql("DROP INDEX {0:NAME}", indexName.WithSchema(tableName.Schema));
@@ -225,7 +236,7 @@ namespace ECM7.Migrator.Providers.Oracle
 
 			if (!tableName.SchemaIsEmpty)
 			{
-				sql += FormatSql(" and {0:NAME} = '{1}'", "TABLE_OWNER", tableName.Schema);
+				sql += FormatSql(" and {0:NAME} = '{1}' and {2:NAME} = '{1}'", "TABLE_OWNER", tableName.Schema, "OWNER");
 			}
 
 			int count = Convert.ToInt32(ExecuteScalar(sql));
