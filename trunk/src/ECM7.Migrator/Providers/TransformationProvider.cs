@@ -16,6 +16,7 @@ namespace ECM7.Migrator.Providers
 	/// </summary>
 	public abstract class TransformationProvider : SqlRunner, ITransformationProvider
 	{
+		// todo: проверить схемы в получении списка таблиц + проверке существования таблицы/колонки/индекса/ограничения
 		private const string SCHEMA_INFO_TABLE = "SchemaInfo";
 
 		protected readonly IFormatProvider sqlFormatProvider;
@@ -186,6 +187,31 @@ namespace ECM7.Migrator.Providers
 			return FormatSql("DROP INDEX {0:NAME} ON {1:NAME}", indexName, tableName);
 		}
 
+		protected virtual string GetSqlAddForeignKey(string name, SchemaQualifiedObjectName primaryTable, string[] primaryColumns, SchemaQualifiedObjectName refTable, string[] refColumns, string onUpdateConstraintSql, string onDeleteConstraintSql)
+		{
+			return FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} FOREIGN KEY ({2:COLS}) REFERENCES {3:NAME} ({4:COLS}) {5} {6}",
+				primaryTable, name, primaryColumns, refTable, refColumns, onUpdateConstraintSql, onDeleteConstraintSql);
+		}
+
+		protected virtual string GetSqlAddPrimaryKey(string name, SchemaQualifiedObjectName table, string[] columns)
+		{
+			return FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} PRIMARY KEY ({2:COLS})", table, name, columns);
+		}
+
+		protected string GetSqlAddUniqueConstraint(string name, SchemaQualifiedObjectName table, string[] columns)
+		{
+			return FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} UNIQUE({2:COLS})", table, name, columns);
+		}
+
+		protected string GetSqlAddCheckConstraint(string name, SchemaQualifiedObjectName table, string checkSql)
+		{
+			return FormatSql(
+				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} CHECK ({2}) ", table, name, checkSql);
+		}
+
 		protected virtual string GetSqlRemoveConstraint(SchemaQualifiedObjectName table, string name)
 		{
 			return FormatSql("ALTER TABLE {0:NAME} DROP CONSTRAINT {1:NAME}", table, name);
@@ -327,33 +353,26 @@ namespace ECM7.Migrator.Providers
 			string onDeleteConstraintResolved = fkActionMap.GetSqlOnDelete(onDeleteConstraint);
 			string onUpdateConstraintResolved = fkActionMap.GetSqlOnUpdate(onUpdateConstraint);
 
-			string sql = FormatSql(
-				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} FOREIGN KEY ({2:COLS}) REFERENCES {3:NAME} ({4:COLS}) {5} {6}",
-				primaryTable, name, primaryColumns, refTable, refColumns, onUpdateConstraintResolved, onDeleteConstraintResolved);
+			string sql = GetSqlAddForeignKey(name, primaryTable, primaryColumns, refTable, refColumns, onUpdateConstraintResolved, onDeleteConstraintResolved);
 
 			ExecuteNonQuery(sql);
 		}
 
 		public virtual void AddPrimaryKey(string name, SchemaQualifiedObjectName table, params string[] columns)
 		{
-			string sql = FormatSql(
-				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} PRIMARY KEY ({2:COLS})", table, name, columns);
-
+			string sql = GetSqlAddPrimaryKey(name, table, columns);
 			ExecuteNonQuery(sql);
 		}
 
 		public virtual void AddUniqueConstraint(string name, SchemaQualifiedObjectName table, params string[] columns)
 		{
-			string sql = FormatSql(
-				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} UNIQUE({2:COLS})", table, name, columns);
-
+			string sql = GetSqlAddUniqueConstraint(name, table, columns);
 			ExecuteNonQuery(sql);
 		}
 
 		public virtual void AddCheckConstraint(string name, SchemaQualifiedObjectName table, string checkSql)
 		{
-			string sql = FormatSql(
-				"ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} CHECK ({2}) ", table, name, checkSql);
+			string sql = GetSqlAddCheckConstraint(name, table, checkSql);
 
 			ExecuteNonQuery(sql);
 		}
@@ -382,7 +401,6 @@ namespace ECM7.Migrator.Providers
 		public virtual void RemoveIndex(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			string sql = GetSqlRemoveIndex(indexName, tableName);
-
 			ExecuteNonQuery(sql);
 		}
 
