@@ -72,15 +72,12 @@ namespace ECM7.Migrator.Framework
 		/// <param name="checkSql">The check constraint definition.</param>
 		void AddCheckConstraint(string name, SchemaQualifiedObjectName table, string checkSql);
 
-		void AddTable(SchemaQualifiedObjectName name, params Column[] columns);
-
 		/// <summary>
-		/// Add a table
+		/// Add new table
 		/// </summary>
-		/// <param name="name">The name of the table to add.</param>
-		/// <param name="engine">The name of the database engine to use. (MySQL)</param>
-		/// <param name="columns">The columns that are part of the table.</param>
-		void AddTable(SchemaQualifiedObjectName name, string engine, params Column[] columns);
+		/// <param name="name">Table name</param>
+		/// <param name="columns">Columns collection</param>
+		void AddTable(SchemaQualifiedObjectName name, params Column[] columns);
 
 		/// <summary>
 		/// Start a transction
