@@ -10,6 +10,11 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 	{
 		#region Overrides of TransformationProviderTestBase<SqlServerCeTransformationProvider>
 
+		protected override string GetSchemaForCompare()
+		{
+			return string.Empty;
+		}
+
 		public override string ConnectionStrinSettingsName
 		{
 			get { return "SqlServerCeConnectionString"; }

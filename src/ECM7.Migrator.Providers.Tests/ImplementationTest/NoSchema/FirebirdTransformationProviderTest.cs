@@ -11,6 +11,11 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 	{
 		#region Overrides of TransformationProviderTestBase<FirebirdTransformationProvider>
 
+		protected override string GetSchemaForCompare()
+		{
+			return string.Empty;
+		}
+
 		public override string ConnectionStrinSettingsName
 		{
 			get { return "FirebirdConnectionString"; }

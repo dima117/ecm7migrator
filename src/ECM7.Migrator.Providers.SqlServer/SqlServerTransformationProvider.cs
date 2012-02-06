@@ -81,7 +81,8 @@ namespace ECM7.Migrator.Providers.SqlServer
 				while (reader.Read())
 				{
 					string tableName = reader.GetString(0);
-					tables.Add(tableName.WithSchema(schema));
+					string tableSchema = reader.GetString(1);
+					tables.Add(tableName.WithSchema(tableSchema));
 				}
 			}
 
