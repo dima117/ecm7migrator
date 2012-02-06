@@ -4,10 +4,15 @@ using NUnit.Framework;
 namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
 	[TestFixture, Category("SqlServer")]
-	public class SqlServerTransformationProviderTest 
+	public class SqlServerTransformationProviderTest
 		: TransformationProviderTestBase<SqlServerTransformationProvider>
 	{
 		#region Overrides of TransformationProviderTestBase<SqlServerTransformationProvider>
+
+		protected override string GetSchemaForCompare()
+		{
+			return provider.ExecuteScalar("select SCHEMA_NAME()").ToString();
+		}
 
 		public override string ConnectionStrinSettingsName
 		{

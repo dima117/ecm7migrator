@@ -11,6 +11,11 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 	{
 		#region Overrides of TransformationProviderTestBase<OracleTransformationProvider>
 
+		protected override string GetSchemaForCompare()
+		{
+			return provider.ExecuteScalar("select user from dual").ToString();
+		}
+
 		public override string ConnectionStrinSettingsName
 		{
 			get { return "OracleConnectionString"; }

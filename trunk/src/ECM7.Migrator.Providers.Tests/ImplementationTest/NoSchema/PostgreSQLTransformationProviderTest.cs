@@ -10,6 +10,11 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 	{
 		#region Overrides of TransformationProviderTestBase<PostgreSQLTransformationProvider>
 
+		protected override string GetSchemaForCompare()
+		{
+			return provider.ExecuteScalar("select current_schema()").ToString();
+		}
+
 		public override string ConnectionStrinSettingsName
 		{
 			get { return "NpgsqlConnectionString"; }

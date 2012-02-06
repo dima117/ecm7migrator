@@ -1,6 +1,6 @@
-﻿using ECM7.Migrator.Exceptions;
+﻿using System.Collections.Generic;
+using ECM7.Migrator.Exceptions;
 using System;
-using System.Linq;
 using System.Data;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Providers.MySql;
@@ -13,6 +13,16 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		: TransformationProviderTestBase<MySqlTransformationProvider>
 	{
 		#region Overrides of TransformationProviderTestBase<MySqlTransformationProvider>
+
+		protected override string GetSchemaForCompare()
+		{
+			return provider.ExecuteScalar("SELECT SCHEMA()").ToString();
+		}
+
+		protected override bool IgnoreCase
+		{
+			get { return true; }
+		}
 
 		public override string ConnectionStrinSettingsName
 		{
@@ -35,7 +45,6 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		#endregion
 
 		#region override tests
-
 
 		[Test]
 		public override void CanVerifyThatCheckConstraintIsExist()
@@ -66,35 +75,6 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		public override void CanAddForeignKeyWithUpdateSetDefault()
 		{
 			Assert.Throws<NotSupportedException>(base.CanAddForeignKeyWithUpdateSetDefault);
-		}
-
-		/// <summary>
-		/// MySql возвращает имена таблиц в нижнем регистре, поэтому в стандартный тест 
-		/// добавлено сравнение имен таблиц без учета регистра
-		/// </summary>
-		[Test]
-		public override void CanGetTables()
-		{
-			var table1 = GetRandomTableName("tableMoo");
-			var table2 = GetRandomTableName("tableHru");
-
-			var tables = provider.GetTables(DefaultSchema);
-			Assert.IsFalse(tables.Contains(table1));
-			Assert.IsFalse(tables.Contains(table2));
-
-			provider.AddTable(table1, new Column("ID", DbType.Int32));
-			provider.AddTable(table2, new Column("ID", DbType.Int32));
-
-			var tables2 = provider.GetTables(DefaultSchema);
-
-
-			Assert.AreEqual(tables.Length + 2, tables2.Length);
-			Assert.IsTrue(tables.All(tab => tab.Schema == DefaultSchema));
-			Assert.IsTrue(tables2.Select(tab => tab.Name).Contains(table1.Name, StringComparer.InvariantCultureIgnoreCase));
-			Assert.IsTrue(tables2.Select(tab => tab.Name).Contains(table2.Name, StringComparer.InvariantCultureIgnoreCase));
-
-			provider.RemoveTable(table1);
-			provider.RemoveTable(table2);
 		}
 
 		#region primary key
@@ -140,8 +120,8 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			provider.RemoveTable(tableName);
 		}
 
-		#endregion		
-		
+		#endregion
+
 		#endregion
 	}
 }

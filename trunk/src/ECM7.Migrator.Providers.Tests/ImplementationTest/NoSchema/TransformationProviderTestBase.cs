@@ -1,26 +1,66 @@
-﻿namespace ECM7.Migrator.Providers.Tests.ImplementationTest
+﻿using System.Collections.Generic;
+using System;
+using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using ECM7.Migrator.Exceptions;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema;
+using log4net.Config;
+using NUnit.Framework;
+using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
+
+namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 {
-	using System;
-	using System.Configuration;
-	using System.Data;
-	using System.Linq;
-	using System.Reflection;
-
-	using ECM7.Migrator.Exceptions;
-	using ECM7.Migrator.Framework;
-
-	using log4net.Config;
-
-	using NUnit.Framework;
-
-	using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
-
 	// todo: написать тесты на удаление колонок к ограничениями
 	// todo: написать тесты на первичный ключ с автоинкрементом
 
 	[TestFixture]
 	public abstract class TransformationProviderTestBase<TProvider> where TProvider : ITransformationProvider
 	{
+		public class NameComparer : IEqualityComparer<string >
+		{
+			/// <summary>
+			/// "Нормализация" названия схемы (чтобы при сравнении считать разные варианты пустой схемы равными)
+			/// </summary>
+			private static string GetNotNullSchemaName(string name)
+			{
+				return name.IsNullOrEmpty(true) ? string.Empty : name.Trim();
+			}
+
+			private readonly StringComparer comparer;
+
+			public NameComparer(bool ignoreCase = false)
+			{
+				comparer = ignoreCase ? StringComparer.CurrentCultureIgnoreCase : StringComparer.CurrentCulture;
+			}
+
+			#region Implementation of IEqualityComparer<in SchemaQualifiedObjectName>
+
+			public bool Equals(string x, string y)
+			{
+				if (x == null || y == null)
+				{
+					return false;
+				}
+
+				string schema1 = GetNotNullSchemaName(x);
+				string schema2 = GetNotNullSchemaName(y);
+
+				return comparer.Equals(schema1, schema2);
+			}
+
+			public int GetHashCode(string obj)
+			{
+				string name = GetNotNullSchemaName(obj);
+
+				return name != null ? name.GetHashCode() : 0;
+			}
+
+			#endregion
+		}
+
 		#region common
 
 		protected ITransformationProvider provider;
@@ -235,21 +275,27 @@
 		[Test]
 		public virtual void CanGetTables()
 		{
+			string schema = GetSchemaForCreateTables();
+			string schemaForCompare = GetSchemaForCompare();
+
 			SchemaQualifiedObjectName table1 = GetRandomTableName("tableMoo");
 			SchemaQualifiedObjectName table2 = GetRandomTableName("tableHru");
 
-			var tables = provider.GetTables(DefaultSchema);
-			Assert.IsFalse(tables.Contains(table1));
-			Assert.IsFalse(tables.Contains(table2));
+			var tables = provider.GetTables(schema);
+
+			Assert.That(tables.All(t =>  StrComparer.Equals(t.Schema, schemaForCompare)));
+			Assert.IsFalse(tables.Select(t => t.Name).Contains(table1.Name, StrComparer));
+			Assert.IsFalse(tables.Select(t => t.Name).Contains(table2.Name, StrComparer));
 
 			provider.AddTable(table1, new Column("ID", DbType.Int32));
 			provider.AddTable(table2, new Column("ID", DbType.Int32));
 
-			var tables2 = provider.GetTables(DefaultSchema);
+			var tables2 = provider.GetTables(schema);
 
 			Assert.AreEqual(tables.Length + 2, tables2.Length);
-			Assert.IsTrue(tables2.Contains(table1));
-			Assert.IsTrue(tables2.Contains(table2));
+			Assert.That(tables2.All(t => StrComparer.Equals(t.Schema, schemaForCompare)));
+			Assert.IsTrue(tables2.Select(t => t.Name).Contains(table1.Name, StrComparer));
+			Assert.IsTrue(tables2.Select(t => t.Name).Contains(table2.Name, StrComparer));
 
 			provider.RemoveTable(table1);
 			provider.RemoveTable(table2);
@@ -480,7 +526,7 @@
 		{
 			SchemaQualifiedObjectName tableName = GetRandomTableName("RemoveUnexistingColumn");
 			string column = GetRandomName();
-			
+
 			provider.AddTable(tableName, new Column("ID", DbType.Int32));
 
 			Assert.Throws<SQLException>(() =>
@@ -1217,13 +1263,36 @@
 
 		protected virtual SchemaQualifiedObjectName GetRandomTableName(string baseName = "")
 		{
-			return GetRandomName(baseName).WithSchema(DefaultSchema);
+			return GetRandomName(baseName).WithSchema(GetSchemaForCreateTables());
 		}
 
-		protected virtual string DefaultSchema
+		protected virtual bool IgnoreCase
 		{
-			get { return string.Empty; }
+			get { return false; }
 		}
+
+		private IEqualityComparer<string> comparer;
+
+		protected IEqualityComparer<string> StrComparer
+		{
+			get { return comparer ?? (comparer = new NameComparer(IgnoreCase)); }
+		}
+
+		/// <summary>
+		/// Схема, которая используется для создания таблиц
+		/// </summary>
+		protected virtual string GetSchemaForCreateTables()
+		{
+			return string.Empty;
+		}
+
+		/// <summary>
+		/// Схема, которая используется дял проверки имен таблиц
+		/// (может отличаться от схемы, используемой для создания таблиц, т.к. в случае пустой схемы 
+		///  создаются таблицы в текущей схеме пользователя)
+		/// </summary>
+		/// <returns></returns>
+		protected abstract string GetSchemaForCompare();
 
 		#endregion
 	}

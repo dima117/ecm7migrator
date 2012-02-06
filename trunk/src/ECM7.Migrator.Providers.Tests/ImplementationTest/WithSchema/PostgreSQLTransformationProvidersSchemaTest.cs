@@ -6,9 +6,14 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.WithSchema
 	[TestFixture, Category("PostgreSQL")]
 	public class PostgreSQLTransformationProvidersSchemaTest : PostgreSQLTransformationProviderTest
 	{
-		protected override string DefaultSchema
+		protected override string GetSchemaForCreateTables()
 		{
-			get { return "Moo"; }
+			return "Moo";
+		}
+
+		protected override string GetSchemaForCompare()
+		{
+			return "Moo";
 		}
 	}
 }
