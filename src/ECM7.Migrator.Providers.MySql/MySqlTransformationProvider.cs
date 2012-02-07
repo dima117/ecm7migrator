@@ -147,9 +147,11 @@ namespace ECM7.Migrator.Providers.MySql
 
 		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			string sql = schema.IsNullOrEmpty(true)
-							? "SHOW TABLES"
-							: FormatSql("SHOW TABLES IN {0:NAME}", schema);
+			string schemaSql = schema.IsNullOrEmpty(true) ? "SCHEMA()" : "'{0}'".FormatWith(schema);
+
+			string sql = FormatSql(
+				"SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME} WHERE {1:NAME} = {4}",
+				"TABLE_NAME", "TABLE_SCHEMA", "information_schema", "TABLES", schemaSql);
 
 			var tables = new List<SchemaQualifiedObjectName>();
 
@@ -157,8 +159,9 @@ namespace ECM7.Migrator.Providers.MySql
 			{
 				while (reader.Read())
 				{
-					string tableName = (string)reader[0];
-					tables.Add(tableName.WithSchema(schema));
+					string tableName = reader.GetString(0);
+					string tableSchema = reader.GetString(1);
+					tables.Add(tableName.WithSchema(tableSchema));
 				}
 			}
 
@@ -198,7 +201,7 @@ namespace ECM7.Migrator.Providers.MySql
 			throw new NotSupportedException("MySql doesn't support check constraints");
 		}
 
-		public override void AddForeignKey(string name, SchemaQualifiedObjectName primaryTable, string[] primaryColumns, SchemaQualifiedObjectName refTable, string[] refColumns, Framework.ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, Framework.ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
+		public override void AddForeignKey(string name, SchemaQualifiedObjectName primaryTable, string[] primaryColumns, SchemaQualifiedObjectName refTable, string[] refColumns, ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction, ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
 			if (onDeleteConstraint == ForeignKeyConstraint.SetDefault ||
 				onUpdateConstraint == ForeignKeyConstraint.SetDefault)
