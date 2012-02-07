@@ -28,7 +28,7 @@
 			<fileset basedir="${build.dir}">
 				<include name="**\*.dll" />
 				<include name="**\*.exe" />
-				<exclude name="**\*.Tests*.dll" />
+				<exclude name="**\*.Test*.dll" />
 				<exclude name="**\Moq.dll" />
 				<exclude name="**\nunit.*.dll" />
 			</fileset>
@@ -51,10 +51,10 @@
 		<mkdir dir="${path::combine(nuget.source.dir, 'lib\net40')}" />
 		<mkdir dir="${path::combine(nuget.source.dir, 'tools')}" />
 
-		<copy todir="${nuget.source.dir}" file="ECM7Migrator.2.5.nuspec" />
+		<copy todir="${nuget.source.dir}" file="ECM7Migrator.${nuget.package.version}.nuspec" />
 
 		<xmlpoke
-			file="${path::combine(nuget.source.dir, 'ECM7Migrator.2.5.nuspec')}"
+			file="${path::combine(nuget.source.dir, 'ECM7Migrator.' + nuget.package.version + '.nuspec')}"
 			xpath="/package/metadata/version"
 			verbose="true"
 			value="${nuget.package.version}" />

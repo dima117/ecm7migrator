@@ -50,7 +50,9 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 			}
 
 			string tableName = "test{0}{1}".FormatWith(type.DataType, type.Length);
-			Provider.AddTable(tableName, new Column("testcolumn", type));
+			Provider.AddTable(tableName,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("testcolumn", type));
 			try
 			{
 				InsertTest(tableName, testValue);
@@ -78,7 +80,7 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 			using (IDbCommand command = Provider.GetCommand())
 			{
 				command.CommandText = Provider.FormatSql(
-					"insert into {0:NAME} ({1:NAME}) values ({2})", tableName, "testcolumn", ParameterName);
+					"insert into {0:NAME} ({1:NAME}, {2:NAME}) values (1, {3})", tableName, "ID", "testcolumn", ParameterName);
 
 				var parameter = command.CreateParameter();
 				parameter.ParameterName = ParameterName;

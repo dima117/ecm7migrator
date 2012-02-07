@@ -107,7 +107,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		public void CanExecuteBatches()
 		{
 			provider.AddTable("BatchSqlTest",
-				new Column("Id", DbType.Int32),
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("TestId", DbType.Int32));
 
 			provider.ExecuteNonQuery(BatchSql);
@@ -131,7 +131,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		public void CanExecuteScriptFromResources()
 		{
 			provider.AddTable("TestTwo",
-				new Column("Id", DbType.Int32),
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("TestId", DbType.Int32));
 
 			Assembly asm = Assembly.Load("ECM7.Migrator.TestAssembly");
@@ -156,7 +156,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 
 			Assert.IsFalse(provider.TableExists(tableName));
 
-			provider.AddTable(tableName, new Column("ID", DbType.Int32));
+			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
 
 			Assert.IsTrue(provider.TableExists(tableName));
 
@@ -171,7 +171,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			SchemaQualifiedObjectName tableName = GetRandomTableName("Mimimi");
 
 			provider.AddTable(tableName,
-				new Column("ID", DbType.Int32),
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("StringColumn", DbType.String.WithSize(500)),
 				new Column("IntegerColumn", DbType.Int32)
 			);
@@ -304,7 +304,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		{
 			SchemaQualifiedObjectName tableName = GetRandomTableName("AddColumnTest");
 
-			provider.AddTable(tableName, new Column("ID", DbType.Int32));
+			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
 
 			provider.AddColumn(tableName, new Column("TestStringColumn", DbType.String.WithSize(7)));
 
@@ -333,7 +333,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		{
 			SchemaQualifiedObjectName tableName = GetRandomTableName("AddBooleanColumnTest");
 
-			provider.AddTable(tableName, new Column("ID", DbType.Int32));
+			provider.AddTable(tableName, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
 
 			provider.AddColumn(tableName, new Column("Boolean1", DbType.Boolean, ColumnProperty.NotNull, true));
 			provider.AddColumn(tableName, new Column("Boolean2", DbType.Boolean, ColumnProperty.NotNull, false));
@@ -382,10 +382,11 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			string selectSql = provider.FormatSql("select {0:NAME} from {1:NAME}", columnName2, tableName);
 
 			provider.AddTable(tableName,
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column(columnName1, DbType.Decimal.WithSize(8, 4)),
 				new Column(columnName2, DbType.Decimal.WithSize(8, 4)));
 
-			provider.Insert(tableName, new[] { columnName1, columnName2 }, new[] { "123.4568", "123.4568" });
+			provider.Insert(tableName, new[] { "ID", columnName1, columnName2 }, new[] { "1", "123.4568", "123.4568" });
 			Assert.AreEqual(123.4568, provider.ExecuteScalar(selectSql));
 
 			// делаем по извращенски с 2 колонками, т.к. у оракла ограничение: изменяемая колонка должна быть пустой
@@ -404,20 +405,22 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		{
 			SchemaQualifiedObjectName tableName = GetRandomTableName("ChangeNotNullPropertyTest");
 
-			provider.AddTable(tableName, new Column("TestStringColumn", DbType.String.WithSize(4)));
+			provider.AddTable(tableName, 
+				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("TestStringColumn", DbType.String.WithSize(4)));
 
 			// проверяем, что можно вставить null
-			provider.Insert(tableName, new[] { "TestStringColumn" }, new string[] { null });
+			provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "1", null });
 			provider.Delete(tableName);
 
 			// ставим ограничение NOT NULL и проверяем, что вставка NULL генерирует исключение
 			provider.ChangeColumn(tableName, "TestStringColumn", DbType.String.WithSize(4), true);
 			Assert.Throws<SQLException>(() =>
-				provider.Insert(tableName, new[] { "TestStringColumn" }, new string[] { null }));
+				provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "2", null }));
 
 			// удаляем ограничение NOT NULL и проверяем, что можно вставить NULL
 			provider.ChangeColumn(tableName, "TestStringColumn", DbType.String.WithSize(4), false);
-			provider.Insert(tableName, new[] { "TestStringColumn" }, new string[] { null });
+			provider.Insert(tableName, new[] { "ID", "TestStringColumn" }, new[] { "3", null });
 
 
 			provider.RemoveTable(tableName);
