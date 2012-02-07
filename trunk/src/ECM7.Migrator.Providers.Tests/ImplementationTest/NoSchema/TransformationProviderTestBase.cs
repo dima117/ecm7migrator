@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using ECM7.Migrator.Exceptions;
 using ECM7.Migrator.Framework;
-using ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema;
 using log4net.Config;
 using NUnit.Framework;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
@@ -40,11 +39,6 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 
 			public bool Equals(string x, string y)
 			{
-				if (x == null || y == null)
-				{
-					return false;
-				}
-
 				string schema1 = GetNotNullSchemaName(x);
 				string schema2 = GetNotNullSchemaName(y);
 

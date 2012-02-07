@@ -175,15 +175,10 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
-			string tablesTableName = table.SchemaIsEmpty ? "USER_TABLES" : "ALL_TABLES";
+			string schemaName = table.SchemaIsEmpty ? "user" : "'{0}'".FormatWith(table.Schema);
 
-			string sql = FormatSql("SELECT COUNT(*) from {0:NAME} where {1:NAME} = '{2}'",
-				tablesTableName, "TABLE_NAME", table.Name);
-
-			if (!table.SchemaIsEmpty)
-			{
-				sql += FormatSql(" and {0:NAME} = '{1}'", "OWNER", table.Schema);
-			}
+			string sql = FormatSql("SELECT COUNT(*) from {0:NAME} where {1:NAME} = '{2}' and {3:NAME} = {4}",
+				"ALL_TABLES", "TABLE_NAME", table.Name, "OWNER", schemaName);
 
 			object count = ExecuteScalar(sql);
 			return Convert.ToInt32(count) > 0;
@@ -208,9 +203,11 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			string sql = schema.IsNullOrEmpty(true)
-				? FormatSql("SELECT {0:NAME} from {1:NAME}", "TABLE_NAME", "USER_TABLES")
-				: FormatSql("SELECT {0:NAME} from {1:NAME} where {2:NAME} = '{3}'", "TABLE_NAME", "ALL_TABLES", "OWNER", schema);
+			string schemaName = schema.IsNullOrEmpty(true) ? "user" : "'{0}'".FormatWith(schema);
+
+			string sql = FormatSql(
+				"SELECT {0:NAME}, {1:NAME} from {2:NAME} where {3:NAME} = {4}",
+				"TABLE_NAME", "OWNER", "ALL_TABLES", "OWNER", schemaName);
 
 			var tables = new List<SchemaQualifiedObjectName>();
 
@@ -219,7 +216,8 @@ namespace ECM7.Migrator.Providers.Oracle
 				while (reader.Read())
 				{
 					string tableName = reader.GetString(0);
-					tables.Add(tableName.WithSchema(schema));
+					string tableSchema = reader.GetString(1);
+					tables.Add(tableName.WithSchema(tableSchema));
 				}
 			}
 
