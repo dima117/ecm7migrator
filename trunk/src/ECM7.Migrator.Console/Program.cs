@@ -58,6 +58,8 @@ namespace ECM7.Migrator.Console
 
 				return -1;
 			}
+
+			
 		}
 
 		private static void WriteHeader()

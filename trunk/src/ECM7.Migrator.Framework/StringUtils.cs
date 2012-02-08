@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -13,8 +14,15 @@ namespace ECM7.Migrator.Framework
 		/// <returns></returns>
 		public static string ToHumanName(string className)
 		{
-			string name = Regex.Replace(className, "([A-Z])", " $1").Substring(1);
-			return name.Substring(0, 1).ToUpper() + name.Substring(1).ToLower();
+			if (string.IsNullOrWhiteSpace(className))
+			{
+				return string.Empty;
+			}
+
+			string name = Regex.Replace(className, "([a-z0-9])([A-Z])", "$1 $2").Replace('_', ' ');
+			name = Regex.Replace(name, "\\s+", " ").ToLower();
+
+			return char.ToUpper(name[0]) + name.Substring(1);
 		}
 
 		/// <summary>
@@ -26,7 +34,7 @@ namespace ECM7.Migrator.Framework
 		/// <returns></returns>
 		public static string ReplaceOnce(string template, string placeholder, string replacement)
 		{
-			int loc = template.IndexOf(placeholder);
+			int loc = template.IndexOf(placeholder, StringComparison.Ordinal);
 			if (loc < 0)
 			{
 				return template;
