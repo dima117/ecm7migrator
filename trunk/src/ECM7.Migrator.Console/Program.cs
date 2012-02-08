@@ -3,9 +3,9 @@ namespace ECM7.Migrator.Console
 	using System;
 	using System.Collections.Generic;
 	using System.Reflection;
-	using ECM7.Migrator.Configuration;
-	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Framework.Logging;
+	using Configuration;
+	using Framework;
+	using Framework.Logging;
 
 	using log4net.Appender;
 	using log4net.Layout;
@@ -47,12 +47,11 @@ namespace ECM7.Migrator.Console
 			}
 			catch (Exception exception)
 			{
-				for (Exception ex = exception; ex != null; ex = ex.InnerException)
-				{
-					Console.WriteLine(ex.Message);
-				}
+				Exception baseException = exception.GetBaseException();
 
-				Console.WriteLine(exception.StackTrace);
+				Console.WriteLine(baseException.Message);
+
+				Console.WriteLine(baseException.StackTrace);
 
 				Console.WriteLine("Try `ECM7.Migrator.Console --help' for more information");
 
@@ -127,15 +126,16 @@ namespace ECM7.Migrator.Console
 		/// </summary>
 		public static void PrintUsage(CommandLineParams parameters)
 		{
-			const int TAB = 17;
+			const int TAB = 20;
 
 			Console.WriteLine("usage:\nECM7.Migrator.Console.exe provider connectionString migrationsAssembly [options]");
 			Console.WriteLine();
-			Console.WriteLine("\t{0} {1}", "provider".PadRight(TAB), "Full name of provider type (include assembly name)");
+			Console.WriteLine("\t{0} {1}", "provider".PadRight(TAB), "Provider alias or full name of provider type (include assembly name)");
 			Console.WriteLine("\t{0} {1}", "connectionString".PadRight(TAB), "Connection string to the database");
 			Console.WriteLine("\t{0} {1}", "migrationAssembly".PadRight(TAB), "Path to the assembly containing the migrations");
 			Console.WriteLine("Options:");
 			parameters.options.WriteOptionDescriptions(Console.Out);
+
 			Console.WriteLine();
 		}
 	}
