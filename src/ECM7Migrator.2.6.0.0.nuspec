@@ -1,43 +1,44 @@
 <?xml version="1.0"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
-    <id>ECM7Migrator</id>
     <version>2.6.0.0</version>
-    <title>ECM7.Migrator</title>
     <authors>dima117</authors>
     <owners>dima117</owners>
-    <licenseUrl>http://www.mozilla.org/MPL/</licenseUrl>
+    <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
     <projectUrl>http://code.google.com/p/ecm7migrator/</projectUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Database migrations for .NET. Supported DBMS: MySQL 5.0 and later,  Oracle 10g or later,  SQLite 3 and later, MS SQL Server 2005 and later, MS SQL Server Ce 4, SQL Azure, Firebird 2.5 and later.</description>
-    <summary>Database migrations for .NET. This is a fork of the project Migrator.NET created in 2009.</summary>
-    <language>en-US</language>
-    <tags>database, DB, migrations, migrator,</tags>
     <dependencies>
       <dependency id="log4net" version="1.2.10" />
     </dependencies>
+    <id>ECM7Migrator</id>
+    <title>ECM7.Migrator</title>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Database migrations for .NET. Supported DBMS: MySQL 5.0 and later,  Oracle 10g or later,  SQLite 3 and later, MS SQL Server 2005 and later, MS SQL Server Ce 4, SQL Azure, Firebird 2.5 and later.</description>
+    <summary>Database migrations for .NET. This is a fork of the project Migrator.NET created in 2009.</summary>
+    <copyright>Dmitriy Andriyanov</copyright>
+    <language>en-US</language>
+    <tags>database, DB, migrations, migrator,</tags>
   </metadata>
   <files>
-    <file src="lib\net40\ECM7.Common.dll" target="lib\net40\ECM7.Common.dll" />
-    <file src="lib\net40\ECM7.Migrator.Framework.dll" target="lib\net40\ECM7.Migrator.Framework.dll" />
-    <file src="tools\ECM7.Common.dll" target="tools\ECM7.Common.dll" />
-    <file src="tools\ECM7.Migrator.Console.exe" target="tools\ECM7.Migrator.Console.exe" />
-    <file src="tools\ECM7.Migrator.dll" target="tools\ECM7.Migrator.dll" />
-    <file src="tools\ECM7.Migrator.Framework.dll" target="tools\ECM7.Migrator.Framework.dll" />
-    <file src="tools\ECM7.Migrator.MSBuild.dll" target="tools\ECM7.Migrator.MSBuild.dll" />
-    <file src="tools\ECM7.Migrator.NAnt.dll" target="tools\ECM7.Migrator.NAnt.dll" />
-    <file src="tools\ECM7.Migrator.Providers.MySql.dll" target="tools\ECM7.Migrator.Providers.MySql.dll" />
-    <file src="tools\ECM7.Migrator.Providers.Oracle.dll" target="tools\ECM7.Migrator.Providers.Oracle.dll" />
-    <file src="tools\ECM7.Migrator.Providers.PostgreSQL.dll" target="tools\ECM7.Migrator.Providers.PostgreSQL.dll" />
-    <file src="tools\ECM7.Migrator.Providers.SQLite.dll" target="tools\ECM7.Migrator.Providers.SQLite.dll" />
-    <file src="tools\ECM7.Migrator.Providers.SqlServer.dll" target="tools\ECM7.Migrator.Providers.SqlServer.dll" />
-    <file src="tools\log4net.dll" target="tools\log4net.dll" />
-    <file src="tools\Migrator.Targets" target="tools\Migrator.Targets" />
-    <file src="tools\Mono.Security.dll" target="tools\Mono.Security.dll" />
-    <file src="tools\MySql.Data.dll" target="tools\MySql.Data.dll" />
-    <file src="tools\Npgsql.dll" target="tools\Npgsql.dll" />
-    <file src="tools\Oracle.DataAccess.dll" target="tools\Oracle.DataAccess.dll" />
-    <file src="tools\System.Data.SQLite.dll" target="tools\System.Data.SQLite.dll" />
-    <file src="tools\System.Data.SqlServerCe.dll" target="tools\System.Data.SqlServerCe.dll" />
+    <file src="..\nuget.package\lib\net40\ECM7.Common.dll" target="lib\net40\ECM7.Common.dll" />
+    <file src="..\nuget.package\lib\net40\ECM7.Migrator.Framework.dll" target="lib\net40\ECM7.Migrator.Framework.dll" />
+    <file src="..\nuget.package\tools\ECM7.Common.dll" target="tools\ECM7.Common.dll" />
+    <file src="..\nuget.package\tools\ECM7.Migrator.Console.exe" target="tools\ECM7.Migrator.Console.exe" />
+    <file src="..\nuget.package\tools\ECM7.Migrator.dll" target="tools\ECM7.Migrator.dll" />
+    <file src="..\nuget.package\tools\ECM7.Migrator.Framework.dll" target="tools\ECM7.Migrator.Framework.dll" />
+    <file src="..\nuget.package\tools\ECM7.Migrator.MSBuild.dll" target="tools\ECM7.Migrator.MSBuild.dll" />
+    <file src="..\nuget.package\tools\ECM7.Migrator.NAnt.dll" target="tools\ECM7.Migrator.NAnt.dll" />
+    <file src="..\nuget.package\tools\ECM7.Migrator.Providers.MySql.dll" target="tools\ECM7.Migrator.Providers.MySql.dll" />
+    <file src="..\nuget.package\tools\ECM7.Migrator.Providers.Oracle.dll" target="tools\ECM7.Migrator.Providers.Oracle.dll" />
+    <file src="..\nuget.package\tools\ECM7.Migrator.Providers.PostgreSQL.dll" target="tools\ECM7.Migrator.Providers.PostgreSQL.dll" />
+    <file src="..\nuget.package\tools\ECM7.Migrator.Providers.SQLite.dll" target="tools\ECM7.Migrator.Providers.SQLite.dll" />
+    <file src="..\nuget.package\tools\ECM7.Migrator.Providers.SqlServer.dll" target="tools\ECM7.Migrator.Providers.SqlServer.dll" />
+    <file src="..\nuget.package\tools\log4net.dll" target="tools\log4net.dll" />
+    <file src="..\nuget.package\tools\Migrator.Targets" target="tools\Migrator.Targets" />
+    <file src="..\nuget.package\tools\Mono.Security.dll" target="tools\Mono.Security.dll" />
+    <file src="..\nuget.package\tools\MySql.Data.dll" target="tools\MySql.Data.dll" />
+    <file src="..\nuget.package\tools\Npgsql.dll" target="tools\Npgsql.dll" />
+    <file src="..\nuget.package\tools\Oracle.DataAccess.dll" target="tools\Oracle.DataAccess.dll" />
+    <file src="..\nuget.package\tools\System.Data.SQLite.dll" target="tools\System.Data.SQLite.dll" />
+    <file src="..\nuget.package\tools\System.Data.SqlServerCe.dll" target="tools\System.Data.SqlServerCe.dll" />
   </files>
 </package>
