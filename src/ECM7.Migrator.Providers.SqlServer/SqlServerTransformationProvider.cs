@@ -3,10 +3,10 @@ using System.Data;
 using System.Text;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Providers.Validation;
+using System;
 
 namespace ECM7.Migrator.Providers.SqlServer
 {
-	using System;
 	using System.Data.SqlClient;
 
 	using Base;

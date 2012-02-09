@@ -52,9 +52,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ECM7.Common, Version=0.11.0.1001, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\References\ECM7.Common.dll</HintPath>
-    </Reference>
+    <Reference Include="ECM7.Common, Version=0.15.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\log4net.dll</HintPath>
