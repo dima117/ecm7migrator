@@ -3,8 +3,10 @@
 == Использование ECM7 Migrator в Visual Studio ==
 
 === Подключение ECM7 Migrator к проекту ===
-Самый простой способ подключить ECM7 Migrator к Вашему проекту - установить его через [http://nuget.org nuget]. Откройте Package manager console в Visual Studio (Tools -> Library Package Manager -> Package Manager Console). Наберите и выполните следующую команду:
-`PM> Install-Package ECM7Migrator`
+Самый простой способ подключить ECM7 Migrator к Вашему проекту - установить его через [http://nuget.org nuget]. Откройте Package manager console в Visual Studio (`Tools -> Library Package Manager -> Package Manager Console`). Наберите и выполните следующую команду:
+{{{
+PM> Install-Package ECM7Migrator
+}}}
 
 
 == Пример класса "миграции" ==
