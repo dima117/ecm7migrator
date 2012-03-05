@@ -45,3 +45,6 @@ ECM7.Migrator.Console SqlServer "Data Source=.;Initial Catalog=test;Integrated S
     * `SqlServer` - название [Dialects провайдера СУБД], 
     * `Data Source=.;Initial Catalog=test;Integrated Security=SSPI;` - строка подключения,
     * `..\..\Migrations\bin\Debug\Migrations.dll` - путь  к скомпилированной сборке с миграциями.
+
+== Далее ==
+Ознакомьтесь с более подробной информацией о [WritingMigrations написании миграций].
