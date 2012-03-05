@@ -1,26 +1,23 @@
 #summary "Быстрое" начало работы с ECM7 Migrator
 
-== Использование ECM7 Migrator в Visual Studio ==
-
-=== Подключение ECM7 Migrator к проекту ===
+== Подключение ECM7 Migrator к проекту ==
 Самый простой способ подключить ECM7 Migrator к Вашему проекту - установить его через [http://nuget.org nuget]. Откройте Package manager console в Visual Studio (`Tools -> Library Package Manager -> Package Manager Console`). Наберите и выполните следующую команду:
 {{{
 PM> Install-Package ECM7Migrator
 }}}
-
+Все, можно писать миграции.
 
 == Пример класса "миграции" ==
 
 {{{
-
     [Migration(7)]
     public class AbstractTestMigration : Migration
     {
         public override void Apply()
         {
             Database.AddTable("CustomerAddress",
-                new Column("customer_id", DbType.Int32, ColumnProperty.PrimaryKey),
-                new Column("address_id", DbType.Int32, ColumnProperty.PrimaryKey));
+                new Column("customerId", DbType.Int32, ColumnProperty.PrimaryKey),
+                new Column("addressId", DbType.Int32, ColumnProperty.PrimaryKey));
         }
 
         public override void Revert()
@@ -28,10 +25,15 @@ PM> Install-Package ECM7Migrator
             Database.RemoveTable("CustomerAddress");
         }
     }
-
 }}}
 
-Каждая миграция должна быть очень маленькой и выполнять только один небольшой этап из последовательности изменений БД. Например, в одной миграции можно создать таблицу из нескольких колонок или выполнить SQL запрос, меняющий данные в таблицах.
-Старайтесь делать миграции настолько маленькими, насколько это возможно, т.к. это облегчит переход между версиями БД.
+Обратите внимание,
+  * для миграции указан номер версии (параметр атрибута `[Migration(7)]`), в которую перейдет БД после выполнения изменений, описанных в теле миграции;
+  * класс миграции унаследован от базового класса `Migration`;
+  * Ваш класс миграции должен реализовывать абстрактный метод `Apply` (применить изменения) и может реализовывать виртуальный метод `Revert` (откат изменений). Если Вам не требуется откат изменений, метод `Revert` можно не переопределять (в этом случае будет использоваться его пустая реализация из базового класса);
+  * для изменений БД используется свойство `Database` базового класса `Migration`. Это свойство содержит 'провайдер трансформации', предоставляющий методы для выполнения операций над БД: например, `AddTable` (добавление таблицы) или `ExecuteNonQuery` (выполнение произвольного SQL-запроса).
+
+Подробнее о написании миграций можно узнать [WritingMigrations здесь].
+
 
 >> WritingMigrations
