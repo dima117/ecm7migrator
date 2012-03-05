@@ -8,7 +8,6 @@ PM> Install-Package ECM7Migrator
 Все, можно писать миграции.
 
 == Пример класса "миграции" ==
-
 {{{
     [Migration(7)]
     public class AbstractTestMigration : Migration
@@ -35,5 +34,14 @@ PM> Install-Package ECM7Migrator
 
 Подробнее о написании миграций можно узнать [WritingMigrations здесь].
 
-
->> WritingMigrations
+== Выполнение миграций ==
+  # перейдите в папку `packages\ECM7Migrator.2.6.0.0\tools` (после подключения мигратора через nuget в этой папке будут находиться средства для выполнения миграций);
+  # запустите консольное приложение `ECM7.Migrator.Console.exe` со следующими параметрами
+{{{
+ECM7.Migrator.Console SqlServer "Data Source=.;Initial Catalog=test;Integrated Security=SSPI;" "..\..\Migrations\bin\Debug\Migrations.dll"
+}}}
+где:
+    * `ECM7.Migrator.Console` - это название запускаемого приложения (консольное приложение для выполнения миграций),
+    * `SqlServer` - название [Dialects провайдера СУБД], 
+    * `Data Source=.;Initial Catalog=test;Integrated Security=SSPI;` - строка подключения,
+    * `..\..\Migrations\bin\Debug\Migrations.dll` - путь  к скомпилированной сборке с миграциями.
