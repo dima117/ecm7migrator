@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-
-namespace ECM7.Migrator.Framework
+﻿namespace ECM7.Migrator.Framework
 {
-	using System;
-
 	public class SchemaQualifiedObjectName
 	{
 		/// <summary>
@@ -21,7 +17,7 @@ namespace ECM7.Migrator.Framework
 		/// </summary>
 		public bool SchemaIsEmpty
 		{
-			get { return Schema.IsNullOrEmpty(true); }
+			get { return string.IsNullOrWhiteSpace(Schema); }
 		}
 
 		/// <summary>
@@ -34,7 +30,7 @@ namespace ECM7.Migrator.Framework
 
 		public override string ToString()
 		{
-			return Schema.IsNullOrEmpty(true) ? Name : "{0}.{1}".FormatWith(Schema, Name);
+			return string.IsNullOrWhiteSpace(Schema) ? Name : string.Format("{0}.{1}", Schema, Name);
 		}
 
 		#region Equals & GetHashCode

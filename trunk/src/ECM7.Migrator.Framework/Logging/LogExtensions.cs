@@ -17,7 +17,6 @@
 		/// <param name="finalVersion">Новая версия БД</param>
 		public static void Started(this ILog log, long currentVersion, long finalVersion)
 		{
-			Require.IsNotNull(log, "Не задан объект, реализующий интерфейс ILog");
 			log.InfoFormat("Latest version applied : {0}.  Target version : {1}", currentVersion, finalVersion);
 		}
 
@@ -29,7 +28,6 @@
 		/// <param name="migrationName">Название миграции</param>
 		public static void MigrateUp(this ILog log, long version, string migrationName)
 		{
-			Require.IsNotNull(log, "Не задан объект, реализующий интерфейс ILog");
 			log.InfoFormat("Applying {0}: {1}", version, migrationName);
 		}
 
@@ -41,7 +39,6 @@
 		/// <param name="migrationName">Название миграции</param>
 		public static void MigrateDown(this ILog log, long version, string migrationName)
 		{
-			Require.IsNotNull(log, "Не задан объект, реализующий интерфейс ILog");
 			log.InfoFormat("Removing {0}: {1}", version, migrationName);
 		}
 
@@ -52,7 +49,6 @@
 		/// <param name="version">Версия миграции</param>
 		public static void Skipping(this ILog log, long version)
 		{
-			Require.IsNotNull(log, "Не задан объект, реализующий интерфейс ILog");
 			log.InfoFormat("{0} {1}", version, "<Migration not found>");
 		}
 
@@ -63,7 +59,6 @@
 		/// <param name="originalVersion">Версия БД, к которой производится откат</param>
 		public static void RollingBack(this ILog log, long originalVersion)
 		{
-			Require.IsNotNull(log, "Не задан объект, реализующий интерфейс ILog");
 			log.InfoFormat("Rolling back to migration {0}", originalVersion);
 		}
 
@@ -74,7 +69,6 @@
 		/// <param name="sql">Текст SQL запроса</param>
 		public static void ExecuteSql(this ILog log, string sql)
 		{
-			Require.IsNotNull(log, "Не задан объект, реализующий интерфейс ILog");
 			log.Info(sql);
 		}
 
@@ -98,8 +92,6 @@
 		/// <param name="ex">Исключение</param>
 		public static void Exception(this ILog log, string message, Exception ex)
 		{
-			Require.IsNotNull(log, "Не задан объект, реализующий интерфейс ILog");
-
 			string msg = message;
 			for (Exception current = ex; current != null; current = current.InnerException)
 			{
@@ -116,7 +108,6 @@
 		/// <param name="currentVersion">Конечная версия БД</param>
 		public static void Finished(this ILog log, long originalVersion, long currentVersion)
 		{
-			Require.IsNotNull(log, "Не задан объект, реализующий интерфейс ILog");
 			log.InfoFormat("Migrated to version {0}", currentVersion);
 		}
 	}

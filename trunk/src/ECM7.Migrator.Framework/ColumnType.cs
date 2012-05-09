@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System;
 
 namespace ECM7.Migrator.Framework
 {
@@ -52,9 +51,13 @@ namespace ECM7.Migrator.Framework
 
 		public override string ToString()
 		{
-			string length = (Length.HasValue && Scale.HasValue) ? "({0}, {1})".FormatWith(Length, Scale) :
-							(Length.HasValue) ? "({0})".FormatWith(Length) : string.Empty;
-			return "{0}{1}".FormatWith(DataType, length);
+			string length = (Length.HasValue && Scale.HasValue) 
+				? string.Format("({0}, {1})", Length, Scale) 
+				: Length.HasValue 
+					? string.Format("({0})", Length) 
+					: string.Empty;
+
+			return string.Format("{0}{1}", DataType, length);
 		}
 	}
 }
