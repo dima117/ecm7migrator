@@ -11,7 +11,8 @@ namespace ECM7.Migrator.Framework
 
 		public Column(string name, ColumnType type, ColumnProperty property = ColumnProperty.None, object defaultValue = null)
 		{
-			if (name.IsNullOrEmpty(true))
+			
+			if (string.IsNullOrWhiteSpace(name))
 			{
 				throw new ArgumentNullException("name");
 			}

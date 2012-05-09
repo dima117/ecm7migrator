@@ -52,10 +52,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ECM7.Common, Version=0.15.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\ECM7.Common.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>
@@ -70,6 +66,7 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AdditionalAssemblyInfo.cs" />
     <Compile Include="Column.cs" />
     <Compile Include="ColumnProperty.cs" />
     <Compile Include="ColumnType.cs" />

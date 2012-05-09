@@ -52,6 +52,7 @@ namespace ECM7.Migrator.Framework
 	/// }
 	/// </code>
 	/// </example>
+	/// 
 	public abstract class Migration : IMigration
 	{
 		/// <summary>
