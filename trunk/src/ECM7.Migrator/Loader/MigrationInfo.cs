@@ -8,6 +8,7 @@ namespace ECM7.Migrator.Loader
 	/// - обязательно  содержит класс миграции (!= null)
 	/// - обязательно  содержит версию, соответствующую данному классу
 	/// - обязательно  содержит значение свойства Ignore для данного класса
+	/// - обязательно  содержит значение свойства WithoutTransaction для данного класса
 	/// </summary>
 	public struct MigrationInfo
 	{
@@ -26,6 +27,7 @@ namespace ECM7.Migrator.Loader
 			Type = type;
 			Version = attribute.Version;
 			Ignore = attribute.Ignore;
+			WithoutTransaction = attribute.WithoutTransaction;
 		}
 
 		/// <summary>
@@ -42,5 +44,10 @@ namespace ECM7.Migrator.Loader
 		/// Признак: пропустить миграцию при выполнении
 		/// </summary>
 		public readonly bool Ignore;
+
+		/// <summary>
+		/// Признак: выполнить миграцию без транзакции
+		/// </summary>
+		public readonly bool WithoutTransaction;
 	}
 }

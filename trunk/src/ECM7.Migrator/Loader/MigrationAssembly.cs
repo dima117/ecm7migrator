@@ -64,15 +64,15 @@ namespace ECM7.Migrator.Loader
 		{
 			Require.IsNotNull(asm, "Не задана сборка с миграциями");
 
-			this.key = GetAssemblyKey(asm);
+			key = GetAssemblyKey(asm);
 
 			var mt = GetMigrationInfoList(asm);
-			var versions = mt.Select(info => info.Version);
+			var versions = mt.Select(info => info.Version).ToArray();
 
 			CheckForDuplicatedVersion(versions);
-			this.migrationsTypes = new ReadOnlyCollection<MigrationInfo>(mt);
+			migrationsTypes = new ReadOnlyCollection<MigrationInfo>(mt);
 
-			this.lastVersion = versions.IsEmpty() ? 0 : versions.Max();
+			lastVersion = versions.IsEmpty() ? 0 : versions.Max();
 		}
 
 		public static MigrationAssembly Load(Assembly asm)
@@ -143,31 +143,37 @@ namespace ECM7.Migrator.Loader
 			IEnumerable<long> list = migrationsTypes
 				.GroupBy(v => v)
 				.Where(x => x.Count() > 1)
-				.Select(x => x.Key);
+				.Select(x => x.Key)
+				.ToList();
 
-			if (!list.IsEmpty())
+			if (list.Any())
 			{
 				throw new DuplicatedVersionException(list);
 			}
 		}
 
+		public MigrationInfo GetMigrationInfo(long version)
+		{
+			var targetMigrationInfo = migrationsTypes
+				.Where(info => info.Version == version)
+				.ToList();
+
+			Require.That(targetMigrationInfo.Any(), "Не найдена миграция версии {0}", version);
+
+			return targetMigrationInfo.First();
+		}
+
 		/// <summary>
 		/// Создать миграцию по номеру версии
 		/// </summary>
-		/// <param name="version">Версия миграции</param>
+		/// <param name="migrationInfo">Информация о миграции</param>
 		/// <param name="provider">Провайдер СУБД для установки в качестве текущего провайдера миграции</param>
-		public IMigration InstantiateMigration(long version, ITransformationProvider provider)
+		public IMigration InstantiateMigration(MigrationInfo migrationInfo, ITransformationProvider provider)
 		{
 			Require.IsNotNull(provider, "Не задан провайдер СУБД");
-
-			var list = migrationsTypes.Where(info => info.Version == version).ToList();
-
-			if (list.Count == 0)
-			{
-				return null;
-			}
-
-			IMigration migration = (IMigration)Activator.CreateInstance(list[0].Type);
+			Require.IsNotNull(migrationInfo.Type, "Не задан класс миграции");
+			
+			IMigration migration = (IMigration)Activator.CreateInstance(migrationInfo.Type);
 			migration.Database = provider;
 			return migration;
 		}

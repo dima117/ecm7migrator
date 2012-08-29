@@ -44,7 +44,7 @@ namespace ECM7.Migrator.Tests2
 		}
 
 		/// <summary>
-		/// Проверка, что при отсутствии миграции с заданным номером версии возвращается null
+		/// Проверка, что при отсутствии миграции с заданным номером генерируется исключение
 		/// </summary>
 		[Test]
 		public void NullIfNoMigrationForVersion()
@@ -52,9 +52,8 @@ namespace ECM7.Migrator.Tests2
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
 
 			MigrationAssembly migrationAssembly = new MigrationAssembly(assembly);
-			Mock<ITransformationProvider> provider = new Moq.Mock<ITransformationProvider>();
 
-			Assert.IsNull(migrationAssembly.InstantiateMigration(99999999, provider.Object));
+			Assert.Throws<RequirementNotCompliedException>(() => migrationAssembly.GetMigrationInfo(99999999));
 		}
 
 		/// <summary>
@@ -66,7 +65,9 @@ namespace ECM7.Migrator.Tests2
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
 
 			var loader = new MigrationAssembly(assembly);
-			Assert.Throws<RequirementNotCompliedException>(() => loader.InstantiateMigration(1, null));
+
+			var mi = loader.GetMigrationInfo(1);
+			Assert.Throws<RequirementNotCompliedException>(() => loader.InstantiateMigration(mi, null));
 		}
 
 
@@ -120,7 +121,8 @@ namespace ECM7.Migrator.Tests2
 
 			Mock<ITransformationProvider> provider = new Moq.Mock<ITransformationProvider>();
 
-			IMigration migration = migrationAssembly.InstantiateMigration(2, provider.Object);
+			var mi = migrationAssembly.GetMigrationInfo(2);
+			IMigration migration = migrationAssembly.InstantiateMigration(mi, provider.Object);
 
 			Assert.IsNotNull(migration);
 			Assert.That(migration is SecondTestMigration);

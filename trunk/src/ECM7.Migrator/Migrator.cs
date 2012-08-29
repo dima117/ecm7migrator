@@ -34,7 +34,7 @@ namespace ECM7.Migrator
 		/// Загрузчик информации о миграциях
 		/// </summary>
 		private readonly MigrationAssembly migrationAssembly;
-		
+
 		/// <summary>
 		/// Ключ для фильтрации миграций
 		/// </summary>
@@ -57,7 +57,7 @@ namespace ECM7.Migrator
 		/// Инициализация
 		/// </summary>
 		public Migrator(string providerTypeName, string connectionString, Assembly asm)
-			:this(ProviderFactory.Create(providerTypeName, connectionString), asm)
+			: this(ProviderFactory.Create(providerTypeName, connectionString), asm)
 		{
 		}
 
@@ -131,12 +131,16 @@ namespace ECM7.Migrator
 		/// <param name="currentDatabaseVersion">Текущая версия БД</param>
 		public void ExecuteMigration(long targetVersion, long currentDatabaseVersion)
 		{
-			IMigration migration = migrationAssembly.InstantiateMigration(targetVersion, provider);
-			Require.IsNotNull(migration, "Не найдена миграция версии {0}", targetVersion);
+			var migrationInfo = migrationAssembly.GetMigrationInfo(targetVersion);
 
+			IMigration migration = migrationAssembly.InstantiateMigration(migrationInfo, provider);
+			
 			try
 			{
-				provider.BeginTransaction();
+				if (!migrationInfo.WithoutTransaction)
+				{
+					provider.BeginTransaction();
+				}
 
 				if (targetVersion <= currentDatabaseVersion)
 				{
@@ -151,15 +155,22 @@ namespace ECM7.Migrator
 					provider.MigrationApplied(targetVersion, Key);
 				}
 
-				provider.Commit();
+				if (!migrationInfo.WithoutTransaction)
+				{
+					provider.Commit();
+				}
 			}
 			catch (Exception ex)
 			{
 				MigratorLogManager.Log.Exception(targetVersion, migration.Name, ex);
 
-				// при ошибке откатываем изменения
-				provider.Rollback();
-				MigratorLogManager.Log.RollingBack(currentDatabaseVersion);
+				if (!migrationInfo.WithoutTransaction)
+				{
+					// при ошибке откатываем изменения
+					provider.Rollback();
+					MigratorLogManager.Log.RollingBack(currentDatabaseVersion);
+				}
+
 				throw;
 			}
 		}
@@ -170,7 +181,7 @@ namespace ECM7.Migrator
 		/// <param name="target">Версия назначения</param>
 		/// <param name="appliedMigrations">Список версий выполненных миграций</param>
 		/// <param name="availableMigrations">Список версий доступных миграций</param>
-		public static MigrationPlan BuildMigrationPlan(long target, IEnumerable<long> appliedMigrations, IEnumerable<long> availableMigrations)
+		public static MigrationPlan BuildMigrationPlan(long target, IList<long> appliedMigrations, IEnumerable<long> availableMigrations)
 		{
 			long startVersion = appliedMigrations.IsEmpty() ? 0 : appliedMigrations.Max();
 			HashSet<long> set = new HashSet<long>(appliedMigrations);
