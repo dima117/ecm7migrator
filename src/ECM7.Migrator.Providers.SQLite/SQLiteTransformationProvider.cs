@@ -21,8 +21,9 @@ namespace ECM7.Migrator.Providers.SQLite
 		/// Инициализация
 		/// </summary>
 		/// <param name="connection">Подключение к БД</param>
-		public SQLiteTransformationProvider(SQLiteConnection connection)
-			: base(connection)
+		/// <param name="commandTimeout">Максимальное время выполнения команды</param>
+		public SQLiteTransformationProvider(SQLiteConnection connection, int? commandTimeout)
+			: base(connection, commandTimeout)
 		{
 			typeMap.Put(DbType.Binary, "BLOB");
 			typeMap.Put(DbType.Byte, "INTEGER");

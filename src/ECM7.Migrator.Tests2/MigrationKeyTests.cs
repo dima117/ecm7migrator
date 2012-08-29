@@ -22,7 +22,7 @@
 
 
 			// провайдер
-			using (var provider = ProviderFactory.Create<SqlServerTransformationProvider>(constr))
+			using (var provider = ProviderFactory.Create<SqlServerTransformationProvider>(constr, null))
 			{
 				if (provider.TableExists("SchemaInfo"))
 				{

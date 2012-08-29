@@ -48,16 +48,16 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string providerTypeName, IDbConnection connection, Assembly asm)
-			: this(ProviderFactory.Create(providerTypeName, connection), asm)
+		public Migrator(string providerTypeName, IDbConnection connection, Assembly asm, int? commandTimeout = null)
+			: this(ProviderFactory.Create(providerTypeName, connection, commandTimeout), asm)
 		{
 		}
 
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string providerTypeName, string connectionString, Assembly asm)
-			: this(ProviderFactory.Create(providerTypeName, connectionString), asm)
+		public Migrator(string providerTypeName, string connectionString, Assembly asm, int? commandTimeout = null)
+			: this(ProviderFactory.Create(providerTypeName, connectionString, commandTimeout), asm)
 		{
 		}
 
@@ -181,13 +181,13 @@ namespace ECM7.Migrator
 		/// <param name="target">Версия назначения</param>
 		/// <param name="appliedMigrations">Список версий выполненных миграций</param>
 		/// <param name="availableMigrations">Список версий доступных миграций</param>
-		public static MigrationPlan BuildMigrationPlan(long target, IList<long> appliedMigrations, IEnumerable<long> availableMigrations)
+		public static MigrationPlan BuildMigrationPlan(long target, IList<long> appliedMigrations, IList<long> availableMigrations)
 		{
 			long startVersion = appliedMigrations.IsEmpty() ? 0 : appliedMigrations.Max();
 			HashSet<long> set = new HashSet<long>(appliedMigrations);
 
 			// проверки
-			var list = availableMigrations.Where(x => x < startVersion && !set.Contains(x));
+			var list = availableMigrations.Where(x => x < startVersion && !set.Contains(x)).ToList();
 			if (!list.IsEmpty())
 			{
 				throw new VersionException(

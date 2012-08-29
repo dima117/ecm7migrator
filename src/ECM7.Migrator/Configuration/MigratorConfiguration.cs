@@ -32,6 +32,11 @@
 		/// </summary>
 		public string AssemblyFile { get; set; }
 
+		/// <summary>
+		/// Максимальное время выполнения команды
+		/// </summary>
+		public int? CommandTimeout { get; set; }
+
 		#endregion
 	}
 }

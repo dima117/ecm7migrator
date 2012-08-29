@@ -12,10 +12,10 @@ namespace ECM7.Migrator.Console
 		{
 			options = new OptionSet()
 				.Add("v|ver|version=", "To specific version to migrate the database to (for migrae to latest version use -1)", (long v) => version = v)
+				.Add("t|timeout|cmdTimeout=", "Specify the timeout of command  execution (in seconds)", (int? ct) => config.CommandTimeout = ct)
 				.Add("list", "Show list of available migrations", v => { if (v != null) { mode = MigratorConsoleMode.List; } })
 				.Add("h|help|?", "Show help", v => { if (v != null) { mode = MigratorConsoleMode.Help; } });
-
-
+				
 			if (args.Length < 3)
 			{
 				mode = MigratorConsoleMode.Help;

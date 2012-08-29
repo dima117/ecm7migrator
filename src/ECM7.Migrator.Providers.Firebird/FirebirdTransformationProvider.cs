@@ -17,8 +17,9 @@ namespace ECM7.Migrator.Providers.Firebird
 		/// Инициализация
 		/// </summary>
 		/// <param name="connection">Подключение к БД</param>
-		public FirebirdTransformationProvider(FbConnection connection)
-			: base(connection)
+		/// <param name="commandTimeout">Максимальное время выполнения команды</param>
+		public FirebirdTransformationProvider(FbConnection connection, int? commandTimeout)
+			: base(connection, commandTimeout)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
 			typeMap.Put(DbType.AnsiStringFixedLength, short.MaxValue, "CHAR($l)");

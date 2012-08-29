@@ -12,17 +12,25 @@
 
 	public class SqlRunner : ContextBoundObject, IDisposable
 	{
-		protected SqlRunner(IDbConnection connection)
+		protected SqlRunner(IDbConnection connection, int? commandTimeout)
 		{
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 			this.connection = connection;
+			this.commandTimeout = commandTimeout;
 		}
 
 		private bool connectionNeedClose; // = false
 
 		private readonly IDbConnection connection;
 
+		private readonly int? commandTimeout;
+
 		private IDbTransaction transaction;
+
+		public int? CommandTimeout
+		{
+			get { return commandTimeout; }
+		}
 
 		public IDbConnection Connection
 		{
@@ -228,9 +236,16 @@
 		public virtual IDbCommand GetCommand(string sql = null)
 		{
 			EnsureHasConnection();
+
 			IDbCommand cmd = connection.CreateCommand();
 			cmd.CommandText = sql;
 			cmd.CommandType = CommandType.Text;
+
+			if (commandTimeout.HasValue)
+			{
+				cmd.CommandTimeout = commandTimeout.Value;
+			}
+
 			if (transaction != null)
 			{
 				cmd.Transaction = transaction;

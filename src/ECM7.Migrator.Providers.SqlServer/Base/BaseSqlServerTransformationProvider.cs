@@ -13,8 +13,8 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 	/// </summary>
 	public abstract class BaseSqlServerTransformationProvider : TransformationProvider
 	{
-		protected BaseSqlServerTransformationProvider(IDbConnection connection)
-			: base(connection)
+		protected BaseSqlServerTransformationProvider(IDbConnection connection, int? commandTimeout)
+			: base(connection, commandTimeout)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
 			typeMap.Put(DbType.AnsiStringFixedLength, 8000, "CHAR($l)");
