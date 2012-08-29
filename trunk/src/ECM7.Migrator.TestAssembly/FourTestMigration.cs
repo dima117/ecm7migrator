@@ -3,9 +3,9 @@
 	using ECM7.Migrator.Framework;
 
 	/// <summary>
-	/// Тестовая миграция 4
+	/// Тестовая миграция 4 (выполняется без транзакции)
 	/// </summary>
-	[Migration(4)]
+	[Migration(4, WithoutTransaction = true)]
 	public class FourTestMigration : Migration
 	{
 		/// <summary>
@@ -13,6 +13,7 @@
 		/// </summary>
 		public override void Apply()
 		{
+			Database.ExecuteNonQuery("up4");
 		}
 
 		/// <summary>
@@ -20,6 +21,7 @@
 		/// </summary>
 		public override void Revert()
 		{
+			Database.ExecuteNonQuery("down4");
 		}
 	}
 }

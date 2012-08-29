@@ -47,7 +47,7 @@ namespace ECM7.Migrator.Tests2
 		/// Проверка, что при отсутствии миграции с заданным номером генерируется исключение
 		/// </summary>
 		[Test]
-		public void NullIfNoMigrationForVersion()
+		public void ThrowIfNoMigrationForVersion()
 		{
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
 
@@ -89,7 +89,7 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void LaseVersionIsZeroIfNoMigrations()
 		{
-			Assembly assembly = this.GetType().Assembly; // загружаем текущую сборку - в ней нет миграций
+			Assembly assembly = GetType().Assembly; // загружаем текущую сборку - в ней нет миграций
 			MigrationAssembly migrationAssembly = new MigrationAssembly(assembly);
 			Assert.AreEqual(0, migrationAssembly.LastVersion);
 		}
@@ -119,7 +119,7 @@ namespace ECM7.Migrator.Tests2
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
 			MigrationAssembly migrationAssembly = new MigrationAssembly(assembly);
 
-			Mock<ITransformationProvider> provider = new Moq.Mock<ITransformationProvider>();
+			Mock<ITransformationProvider> provider = new Mock<ITransformationProvider>();
 
 			var mi = migrationAssembly.GetMigrationInfo(2);
 			IMigration migration = migrationAssembly.InstantiateMigration(mi, provider.Object);
