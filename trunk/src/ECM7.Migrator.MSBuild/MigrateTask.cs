@@ -3,8 +3,6 @@ namespace ECM7.Migrator.MSBuild
 	using Configuration;
 
 	using ECM7.Migrator.Framework.Logging;
-
-	using log4net.Config;
 	using log4net.Layout;
 
 	using Microsoft.Build.Framework;
@@ -61,6 +59,11 @@ namespace ECM7.Migrator.MSBuild
 		/// Путь к файлу с миграциями
 		/// </summary>
 		public string AssemblyFile { get; set; }
+
+		/// <summary>
+		/// Максимальное время выполнения команды
+		/// </summary>
+		public int? CommandTimeout { get; set; }
 
 		/// <summary>
 		/// Ключ миграций

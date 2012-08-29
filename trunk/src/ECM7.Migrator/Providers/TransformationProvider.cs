@@ -25,8 +25,8 @@ namespace ECM7.Migrator.Providers
 		protected readonly ForeignKeyActionMap fkActionMap = new ForeignKeyActionMap();
 
 
-		protected TransformationProvider(IDbConnection connection)
-			: base(connection)
+		protected TransformationProvider(IDbConnection connection, int? commandTimeout)
+			: base(connection, commandTimeout)
 		{
 			sqlFormatProvider = new SqlFormatter(obj => string.Format(NamesQuoteTemplate, obj));
 

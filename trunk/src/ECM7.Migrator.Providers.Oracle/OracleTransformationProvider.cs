@@ -15,8 +15,8 @@ namespace ECM7.Migrator.Providers.Oracle
 	[ProviderValidation(typeof(OracleConnection), true)]
 	public class OracleTransformationProvider : TransformationProvider
 	{
-		public OracleTransformationProvider(OracleConnection connection)
-			: base(connection)
+		public OracleTransformationProvider(OracleConnection connection, int? commandTimeout)
+			: base(connection, commandTimeout)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
 			typeMap.Put(DbType.AnsiStringFixedLength, 2000, "CHAR($l)");

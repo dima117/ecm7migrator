@@ -75,7 +75,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			string constr = ConfigurationManager.AppSettings[ConnectionStrinSettingsName];
 			Require.IsNotNullOrEmpty(constr, "Connection string \"{0}\" is not exist", ConnectionStrinSettingsName);
 
-			provider = ProviderFactory.Create<TProvider>(constr);
+			provider = ProviderFactory.Create<TProvider>(constr, null);
 		}
 
 		[TearDown]

@@ -1,4 +1,3 @@
-using System;
 using System.Data.SqlClient;
 
 namespace ECM7.Migrator.Providers.Tests
@@ -8,8 +7,6 @@ namespace ECM7.Migrator.Providers.Tests
 	using ECM7.Migrator.Providers;
 	using ECM7.Migrator.Providers.PostgreSQL;
 	using ECM7.Migrator.Providers.SqlServer;
-	using ECM7.Migrator.Providers.SqlServer.Base;
-
 	using NUnit.Framework;
 
 	[TestFixture]
@@ -17,7 +14,8 @@ namespace ECM7.Migrator.Providers.Tests
 	{
 		public class TestProvider : SqlServerTransformationProvider
 		{
-			public TestProvider(SqlConnection connection) : base(connection)
+			public TestProvider(SqlConnection connection, int? commandTimeout)
+				: base(connection, commandTimeout)
 			{
 			}
 		}
@@ -26,7 +24,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanExecuteActionForProvider()
 		{
 			string cstring = ConfigurationManager.AppSettings["SqlServerConnectionString"];
-			using (var provider = ProviderFactory.Create<SqlServerTransformationProvider>(cstring))
+			using (var provider = ProviderFactory.Create<SqlServerTransformationProvider>(cstring, null))
 			{
 				int i = 5;
 				provider.ConditionalExecuteAction()
@@ -41,7 +39,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanExecuteDifferentActionForDifferentProviders()
 		{
 			string cstring = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
-			using (var provider = ProviderFactory.Create<PostgreSQLTransformationProvider>(cstring))
+			using (var provider = ProviderFactory.Create<PostgreSQLTransformationProvider>(cstring, null))
 			{
 				int i = 0;
 				provider.ConditionalExecuteAction()
@@ -56,7 +54,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanExecuteActionForExcludedProviders()
 		{
 			string cstring = ConfigurationManager.AppSettings["SqlServerConnectionString"];
-			using (var provider = ProviderFactory.Create<SqlServerTransformationProvider>(cstring))
+			using (var provider = ProviderFactory.Create<SqlServerTransformationProvider>(cstring, null))
 			{
 				int i = -1;
 
@@ -73,7 +71,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanExecuteActionForProvidersWithBaseClass()
 		{
 			string cstring = ConfigurationManager.AppSettings["SqlServerConnectionString"];
-			using (var provider = ProviderFactory.Create<TestProvider>(cstring))
+			using (var provider = ProviderFactory.Create<TestProvider>(cstring, null))
 			{
 				int i = -1;
 
@@ -88,7 +86,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanExecuteActionForProviderByAlias()
 		{
 			string cstring = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
-			using (var provider = ProviderFactory.Create<PostgreSQLTransformationProvider>(cstring))
+			using (var provider = ProviderFactory.Create<PostgreSQLTransformationProvider>(cstring, null))
 			{
 				int i = 5;
 				provider.ConditionalExecuteAction()
@@ -104,7 +102,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void ProviderTypeShouldBeValidated()
 		{
 			string cstring = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
-			using (var provider = ProviderFactory.Create<PostgreSQLTransformationProvider>(cstring))
+			using (var provider = ProviderFactory.Create<PostgreSQLTransformationProvider>(cstring, null))
 			{
 				Assert.Throws<RequirementNotCompliedException>(() =>
 					new ConditionByProvider(provider).For<int>(null));

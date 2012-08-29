@@ -16,7 +16,7 @@
 		/// </summary>
 		public static Migrator InitByConfigFile(string configSectionName = "migrator")
 		{
-			Require.IsNotNullOrEmpty(configSectionName, true, "Не задана секция конфигурационногог файла");
+			Require.IsNotNullOrEmpty(configSectionName, true, "Не задана секция конфигурационного файла");
 			var config = ConfigurationManager.GetSection(configSectionName) as MigratorConfigurationSection;
 			return CreateMigrator(config);
 		}
@@ -38,7 +38,7 @@
 
 			string connectionString = GetConnectionString(config);
 
-			return new Migrator(config.Provider.Trim(), connectionString, assembly);
+			return new Migrator(config.Provider.Trim(), connectionString, assembly, config.CommandTimeout);
 		}
 
 		/// <summary>

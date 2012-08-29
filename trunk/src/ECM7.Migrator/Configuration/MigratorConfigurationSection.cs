@@ -8,7 +8,7 @@
 	public class MigratorConfigurationSection : ConfigurationSection, IMigratorConfiguration
 	{
 		/// <summary>
-		/// Диалект
+		/// Provider
 		/// </summary>
 		[ConfigurationProperty("provider", IsRequired = true)]
 		public string Provider
@@ -53,12 +53,21 @@
 		}
 
 		/// <summary>
-		/// Ключ миграций
+		/// Максимальное время выполнения команды
 		/// </summary>
-		[ConfigurationProperty("key")]
-		public string Key
+		public int? CommandTimeout
 		{
-			get { return (string)base["key"]; }
+			get
+			{
+				int result;
+				
+				if (int.TryParse((string)base["commandTimeout"], out result))
+				{
+					return result;
+				}
+
+				return null;
+			}
 		}
 	}
 }

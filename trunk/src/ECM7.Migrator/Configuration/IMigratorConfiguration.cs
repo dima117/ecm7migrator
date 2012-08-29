@@ -29,5 +29,10 @@
 		/// Путь к файлу с миграциями
 		/// </summary>
 		string AssemblyFile { get; }
+
+		/// <summary>
+		/// Максимальное время выполнения команды
+		/// </summary>
+		int? CommandTimeout { get; }
 	}
 }
