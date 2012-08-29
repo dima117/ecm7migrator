@@ -20,9 +20,6 @@ namespace ECM7.Migrator.Framework
     /// </summary>
     public class MigrationAttribute : Attribute
     {
-		private long _version;
-		private bool _ignore = false;
-
 		/// <summary>
 		/// Describe the migration
 		/// </summary>
@@ -32,22 +29,19 @@ namespace ECM7.Migrator.Framework
 			Version = version;
 		}
 
-		/// <summary>
-		/// The version reflected by the migration
-		/// </summary>
-		public long Version
-		{
-			get { return _version; }
-			private set { _version = value; }
-		}
+	    /// <summary>
+	    /// The version reflected by the migration
+	    /// </summary>
+	    public long Version { get; private set; }
+
+	    /// <summary>
+	    /// Set to <c>true</c> to ignore this migration.
+	    /// </summary>
+	    public bool Ignore { get; set; }
 
 		/// <summary>
-        /// Set to <c>true</c> to ignore this migration.
-        /// </summary>
-        public bool Ignore
-        {
-            get { return _ignore; }
-            set { _ignore = value; }
-        }
+		/// Execute migration without transaction
+		/// </summary>
+	    public bool WithoutTransaction  { get; set; }
     }
 }

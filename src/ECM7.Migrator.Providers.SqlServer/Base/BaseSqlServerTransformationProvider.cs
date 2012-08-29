@@ -27,7 +27,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			typeMap.Put(DbType.Boolean, "BIT");
 			typeMap.Put(DbType.Byte, "TINYINT");
 			typeMap.Put(DbType.Currency, "MONEY");
-			typeMap.Put(DbType.Date, "DATETIME");
+			typeMap.Put(DbType.Date, "DATE");
 			typeMap.Put(DbType.DateTime, "DATETIME");
 			typeMap.Put(DbType.Decimal, "DECIMAL");
 			typeMap.Put(DbType.Decimal, 38, "DECIMAL($l, $s)", 2);
