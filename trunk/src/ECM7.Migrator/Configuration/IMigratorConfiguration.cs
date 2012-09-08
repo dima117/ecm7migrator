@@ -33,6 +33,6 @@
 		/// <summary>
 		/// Максимальное время выполнения команды
 		/// </summary>
-		int? CommandTimeout { get; }
+		int CommandTimeout { get; }
 	}
 }

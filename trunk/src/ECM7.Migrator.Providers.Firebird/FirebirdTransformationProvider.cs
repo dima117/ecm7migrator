@@ -18,7 +18,7 @@ namespace ECM7.Migrator.Providers.Firebird
 		/// </summary>
 		/// <param name="connection">Подключение к БД</param>
 		/// <param name="commandTimeout">Максимальное время выполнения команды</param>
-		public FirebirdTransformationProvider(FbConnection connection, int? commandTimeout)
+		public FirebirdTransformationProvider(FbConnection connection, int commandTimeout)
 			: base(connection, commandTimeout)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
@@ -99,7 +99,7 @@ namespace ECM7.Migrator.Providers.Firebird
 
 		public override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
 		{
-			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+			var sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
 
 			sqlBuilder.AddColumnName(NamesQuoteTemplate);
 			sqlBuilder.AddColumnType(IdentityNeedsType);

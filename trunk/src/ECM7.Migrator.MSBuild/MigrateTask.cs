@@ -63,7 +63,7 @@ namespace ECM7.Migrator.MSBuild
 		/// <summary>
 		/// Максимальное время выполнения команды
 		/// </summary>
-		public int? CommandTimeout { get; set; }
+		public int CommandTimeout { get; set; }
 
 		/// <summary>
 		/// Ключ миграций

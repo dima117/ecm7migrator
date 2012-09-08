@@ -76,7 +76,7 @@ namespace ECM7.Migrator.NAnt
 		/// Максимальное время выполнения команды
 		/// </summary>
 		[TaskAttribute("command-timeout")]
-		public int? CommandTimeout { get; set; }
+		public int CommandTimeout { get; set; }
 
 		/// <summary>
 		/// Версия, до которой нужно обновить БД

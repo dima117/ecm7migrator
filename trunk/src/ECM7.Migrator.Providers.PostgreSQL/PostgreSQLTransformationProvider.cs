@@ -19,7 +19,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		/// </summary>
 		/// <param name="connection"></param>
 		/// <param name="commandTimeout">ћаксимальное врем€ выполнени€ команды</param>
-		public PostgreSQLTransformationProvider(NpgsqlConnection connection, int? commandTimeout)
+		public PostgreSQLTransformationProvider(NpgsqlConnection connection, int commandTimeout)
 			: base(connection, commandTimeout)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "char(255)");
@@ -101,7 +101,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		{
 			string nspname = tableName.Schema.IsNullOrEmpty(true) ? "public" : tableName.Schema;
 
-			StringBuilder builder = new StringBuilder();
+			var builder = new StringBuilder();
 
 			builder.Append("SELECT count(*) FROM pg_class c ");
 			builder.Append("JOIN pg_index i ON i.indexrelid = c.oid ");

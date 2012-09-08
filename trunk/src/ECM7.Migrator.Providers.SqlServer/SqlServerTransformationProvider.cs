@@ -14,7 +14,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 	[ProviderValidation(typeof(SqlConnection), true)]
 	public class SqlServerTransformationProvider : BaseSqlServerTransformationProvider
 	{
-		public SqlServerTransformationProvider(SqlConnection connection, int? commandTimeout)
+		public SqlServerTransformationProvider(SqlConnection connection, int commandTimeout)
 			: base(connection, commandTimeout)
 		{
 		}
@@ -30,7 +30,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		public virtual string GetDefaultConstraintName(SchemaQualifiedObjectName table, string column)
 		{
-			StringBuilder sqlBuilder = new StringBuilder();
+			var sqlBuilder = new StringBuilder();
 
 			sqlBuilder.Append("SELECT [dobj].[name] AS [CONSTRAINT_NAME] ");
 			sqlBuilder.Append("FROM [sys].[columns] [col] ");
