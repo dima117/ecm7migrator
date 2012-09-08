@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.Providers
+﻿using System.Diagnostics;
+
+namespace ECM7.Migrator.Providers
 {
 	using System;
 	using System.Data;
@@ -12,7 +14,7 @@
 
 	public class SqlRunner : ContextBoundObject, IDisposable
 	{
-		protected SqlRunner(IDbConnection connection, int? commandTimeout)
+		protected SqlRunner(IDbConnection connection, int commandTimeout)
 		{
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 			this.connection = connection;
@@ -23,7 +25,7 @@
 
 		private readonly IDbConnection connection;
 
-		private readonly int? commandTimeout;
+		private readonly int commandTimeout;
 
 		private IDbTransaction transaction;
 
@@ -104,7 +106,7 @@
 
 					string[] lines = sql.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
 
-					StringBuilder sqlBatch = new StringBuilder();
+					var sqlBatch = new StringBuilder();
 
 					foreach (string line in lines)
 					{
@@ -147,7 +149,7 @@
 				Require.IsNotNull(stream, "Не удалось загрузить указанный файл ресурсов");
 
 				// ReSharper disable AssignNullToNotNullAttribute
-				using (StreamReader reader = new StreamReader(stream))
+				using (var reader = new StreamReader(stream))
 				{
 					string sql = reader.ReadToEnd();
 					ExecuteNonQuery(sql);
@@ -241,9 +243,9 @@
 			cmd.CommandText = sql;
 			cmd.CommandType = CommandType.Text;
 
-			if (commandTimeout.HasValue)
+			if (commandTimeout > 0)
 			{
-				cmd.CommandTimeout = commandTimeout.Value;
+				cmd.CommandTimeout = commandTimeout;
 			}
 
 			if (transaction != null)

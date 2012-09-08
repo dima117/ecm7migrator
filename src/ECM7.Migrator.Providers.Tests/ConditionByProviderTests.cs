@@ -14,7 +14,7 @@ namespace ECM7.Migrator.Providers.Tests
 	{
 		public class TestProvider : SqlServerTransformationProvider
 		{
-			public TestProvider(SqlConnection connection, int? commandTimeout)
+			public TestProvider(SqlConnection connection, int commandTimeout)
 				: base(connection, commandTimeout)
 			{
 			}

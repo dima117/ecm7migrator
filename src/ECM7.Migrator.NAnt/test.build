@@ -13,6 +13,7 @@
 		  provider="SqlServer"
 		  connection-string="Data Source=.;Initial Catalog=ecm7test2;Integrated Security=SSPI;"
 		  assembly-file="ECM7.Database.dll"
+		  command-timeout="12346"
 		  to="-1" />
 	</target>
 

@@ -55,7 +55,7 @@
 		/// <summary>
 		/// Максимальное время выполнения команды
 		/// </summary>
-		public int? CommandTimeout
+		public int CommandTimeout
 		{
 			get
 			{
@@ -66,7 +66,7 @@
 					return result;
 				}
 
-				return null;
+				return default(int);
 			}
 		}
 	}

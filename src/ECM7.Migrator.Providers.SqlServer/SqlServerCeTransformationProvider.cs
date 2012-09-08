@@ -17,7 +17,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 	{
 		#region custom sql
 
-		public SqlServerCeTransformationProvider(SqlCeConnection connection, int? commandTimeout)
+		public SqlServerCeTransformationProvider(SqlCeConnection connection, int commandTimeout)
 			: base(connection, commandTimeout)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "NCHAR(255)");
