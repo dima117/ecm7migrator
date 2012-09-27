@@ -86,6 +86,12 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\config\ECM7.Migrator.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ECM7.Common, Version=0.19.0.0, Culture=neutral, PublicKeyToken=b3f8672e68b5b2c6, processorArchitecture=MSIL">
       <HintPath>..\References\ECM7.Common.dll</HintPath>
@@ -170,6 +176,11 @@
       <LastGenOutput>Messages.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\config\ECM7.Migrator.snk">
+      <Link>ECM7.Migrator.snk</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
