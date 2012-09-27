@@ -1,10 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{3FADFB5B-00FC-45D6-BDB2-8D87E0A49251}"
 	ProjectSection(SolutionItems) = preProject
 		config\app.config = config\app.config
 		config\AssemblyInfo.cs = config\AssemblyInfo.cs
+		config\ECM7.Migrator.snk = config\ECM7.Migrator.snk
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{97677CB5-C7A9-4AB1-9EE6-BA91427FD655}"
@@ -12,7 +13,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B6FFECE8-ADE2-4694-A363-651AAFD51F94}"
 	ProjectSection(SolutionItems) = preProject
 		ECM7.Migrator.build = ECM7.Migrator.build
-		ECM7Migrator.2.6.0.0.nuspec = ECM7Migrator.2.6.0.0.nuspec
+		ECM7Migrator.2.7.0.0.nuspec = ECM7Migrator.2.7.0.0.nuspec
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator", "ECM7.Migrator\ECM7.Migrator.csproj", "{1FEE70A4-AAD7-4C60-BE60-3F7DC03A8C4D}"
