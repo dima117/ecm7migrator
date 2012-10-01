@@ -55,13 +55,15 @@
 		/// <summary>
 		/// Максимальное время выполнения команды
 		/// </summary>
+		[ConfigurationProperty("commandTimeout")]
 		public int CommandTimeout
 		{
 			get
 			{
+				var value = (base["commandTimeout"] ?? string.Empty) as string;
 				int result;
-				
-				if (int.TryParse((string)base["commandTimeout"], out result))
+
+				if (int.TryParse(value, out result))
 				{
 					return result;
 				}
