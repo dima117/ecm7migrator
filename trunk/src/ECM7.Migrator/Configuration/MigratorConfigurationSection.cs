@@ -63,12 +63,7 @@
 				var value = (base["commandTimeout"] ?? string.Empty) as string;
 				int result;
 
-				if (int.TryParse(value, out result))
-				{
-					return result;
-				}
-
-				return default(int);
+				return int.TryParse(value, out result) ? result : default(int);
 			}
 		}
 	}
