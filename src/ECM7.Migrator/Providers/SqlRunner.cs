@@ -273,11 +273,6 @@ namespace ECM7.Migrator.Providers
 			}
 		}
 
-		~SqlRunner()
-		{
-			Dispose();
-		}
-
 		#endregion
 	}
 }
