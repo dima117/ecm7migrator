@@ -145,6 +145,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="readme.txt" />
     <Content Include="testdb.sdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
