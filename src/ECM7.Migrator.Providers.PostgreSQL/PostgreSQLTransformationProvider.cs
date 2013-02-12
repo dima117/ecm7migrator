@@ -99,7 +99,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
-			string nspname = tableName.Schema.IsNullOrEmpty(true) ? "public" : tableName.Schema;
+			string nspname = tableName.SchemaIsEmpty ? "current_schema()" : string.Format("'{0}'", tableName.Schema);
 
 			var builder = new StringBuilder();
 
@@ -109,7 +109,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			builder.Append("LEFT JOIN pg_user u ON u.usesysid = c.relowner ");
 			builder.Append("LEFT JOIN pg_namespace n ON n.oid = c.relnamespace ");
 			builder.Append("WHERE c.relkind = 'i' ");
-			builder.AppendFormat("AND n.nspname = '{0}' ", nspname);
+			builder.AppendFormat("AND n.nspname = {0} ", nspname);
 			builder.AppendFormat("AND c2.relname = '{0}' ", tableName.Name);
 			builder.AppendFormat("AND c.relname = '{0}' ", indexName);
 
@@ -119,11 +119,11 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override bool ConstraintExists(SchemaQualifiedObjectName table, string name)
 		{
-			string nspname = table.Schema.IsNullOrEmpty(true) ? "public" : table.Schema;
+			string nspname = table.SchemaIsEmpty ? "current_schema()" : string.Format("'{0}'", table.Schema);
 
 
 			string sql = FormatSql(
-					"SELECT {0:NAME} FROM {1:NAME}.{2:NAME} WHERE {3:NAME} = '{4}' AND {5:NAME} = '{6}' AND {7:NAME} = '{8}'",
+					"SELECT {0:NAME} FROM {1:NAME}.{2:NAME} WHERE {3:NAME} = {4} AND {5:NAME} = '{6}' AND {7:NAME} = '{8}'",
 						"constraint_name", "information_schema", "table_constraints", "table_schema",
 						nspname, "constraint_name", name, "table_name", table.Name);
 
@@ -135,10 +135,10 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override bool ColumnExists(SchemaQualifiedObjectName table, string column)
 		{
-			string nspname = table.Schema.IsNullOrEmpty(true) ? "public" : table.Schema;
+			string nspname = table.SchemaIsEmpty ? "current_schema()" : string.Format("'{0}'", table.Schema);
 
 			string sql = FormatSql(
-				"SELECT {0:NAME} FROM {1:NAME}.{2:NAME} WHERE {3:NAME} = '{4}' AND {5:NAME} = '{6}' AND {7:NAME} = '{8}'",
+				"SELECT {0:NAME} FROM {1:NAME}.{2:NAME} WHERE {3:NAME} = {4} AND {5:NAME} = '{6}' AND {7:NAME} = '{8}'",
 				"column_name", "information_schema", "columns", "table_schema",
 				nspname, "table_name", table.Name, "column_name", column);
 
