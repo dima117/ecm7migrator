@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.Configuration
+﻿using ECM7.Migrator.Utils;
+
+namespace ECM7.Migrator.Configuration
 {
 	using System;
 	using System.Configuration;

@@ -5,7 +5,7 @@ using System.Linq;
 
 using ECM7.Migrator.Compatibility;
 using ECM7.Migrator.Framework;
-
+using ECM7.Migrator.Utils;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
 namespace ECM7.Migrator.Providers

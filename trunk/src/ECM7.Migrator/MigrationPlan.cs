@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator
+﻿using ECM7.Migrator.Utils;
+
+namespace ECM7.Migrator
 {
 	using System.Collections;
 	using System.Collections.Generic;

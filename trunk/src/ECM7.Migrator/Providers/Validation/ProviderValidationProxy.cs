@@ -8,6 +8,7 @@ using System.Runtime.Remoting.Contexts;
 using System.Runtime.Remoting.Messaging;
 using System.Runtime.Remoting.Proxies;
 using ECM7.Migrator.Framework;
+using ECM7.Migrator.Utils;
 
 namespace ECM7.Migrator.Providers.Validation
 {
