@@ -16,7 +16,7 @@ namespace ECM7.Migrator.Tests2
 	{
 		private static string Convert(object arg)
 		{
-			return "<{0}>".FormatWith(arg);
+			return string.Format("<{0}>", arg);
 		}
 
 		private static readonly SqlFormatter formatter = new SqlFormatter(Convert);
@@ -24,15 +24,15 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void CanFormatObject()
 		{
-			string sql = "update {0:NAME} set {1:NAME} = '{2}', {1:NAME} = '{2}'".FormatWith(formatter, "test1", "column1", "value1");
+			string sql = string.Format(formatter, "update {0:NAME} set {1:NAME} = '{2}', {1:NAME} = '{2}'", "test1", "column1", "value1");
 			Assert.AreEqual(sql, "update <test1> set <column1> = 'value1', <column1> = 'value1'");
 		}
 
 		[Test]
 		public void CanFormatCollection2()
 		{
-			string sql = "insert into {0:NAME} ({1:COLS}) values ('{2}','{3}')"
-				.FormatWith(formatter, "test1", new[] { "column1", "column2" }, "value1", "value2");
+			string sql = string.Format(formatter, "insert into {0:NAME} ({1:COLS}) values ('{2}','{3}')", 
+				"test1", new[] { "column1", "column2" }, "value1", "value2");
 			Assert.AreEqual(sql, "insert into <test1> (<column1>,<column2>) values ('value1','value2')");
 		}
 
@@ -47,7 +47,7 @@ namespace ECM7.Migrator.Tests2
 		public void CanFormatSchemaQualifiedObjectName()
 		{
 			var table = "Moo".WithSchema("Xxx");
-			string sql = "select * from {0:NAME}".FormatWith(formatter, table);
+			string sql = string.Format(formatter, "select * from {0:NAME}", table);
 
 			Assert.AreEqual(sql, "select * from <Xxx>.<Moo>");
 		}
@@ -56,7 +56,7 @@ namespace ECM7.Migrator.Tests2
 		public void CanFormatObjectNameWithoutSchema()
 		{
 			var table = new SchemaQualifiedObjectName {Name = "Moo"};
-			string sql = "select * from {0:NAME}".FormatWith(formatter, table);
+			string sql = string.Format(formatter, "select * from {0:NAME}", table);
 
 			Assert.AreEqual(sql, "select * from <Moo>");
 		}
