@@ -59,10 +59,6 @@
     <AssemblyOriginatorKeyFile>..\config\ECM7.Migrator.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ECM7.Common, Version=0.15.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\ECM7.Common.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>

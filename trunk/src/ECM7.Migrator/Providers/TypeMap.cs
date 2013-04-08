@@ -2,13 +2,18 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Data;
-using ECM7.Common.DataStructure;
 using ECM7.Migrator.Framework;
 
 namespace ECM7.Migrator.Providers
 {
+	using TypesDictionary = Dictionary<DbType, SortedList<int, TypeDefinitionInfo>>;
 
-	using TypesDictionary = Dictionary<DbType, SortedList<int, Pair<string, int?>>>;
+	public class TypeDefinitionInfo
+	{
+		public string TypeDefinitionPattern { get; set; }
+
+		public int? DefaultScale { get; set; }
+	}
 
 
 	/// <summary>
@@ -80,11 +85,11 @@ namespace ECM7.Migrator.Providers
 			return result;
 		}
 
-		private void PutValue(DbType typecode, int length, Pair<string, int?> value)
+		private void PutValue(DbType typecode, int length, TypeDefinitionInfo value)
 		{
-			SortedList<int, Pair<string, int?>> map;
+			SortedList<int, TypeDefinitionInfo> map;
 			if (!typeMapping.TryGetValue(typecode, out map))
-				typeMapping[typecode] = map = new SortedList<int, Pair<string, int?>>();
+				typeMapping[typecode] = map = new SortedList<int, TypeDefinitionInfo>();
 
 			map[length] = value;
 		}
@@ -98,9 +103,9 @@ namespace ECM7.Migrator.Providers
 		/// Возвращает строку SQL для типа, определенную с учетом его размеров.
 		/// Если строку SQL определить не удалось, возвращается null.
 		/// </returns>
-		private Pair<string, int?> GetValue(DbType typecode, int size)
+		private TypeDefinitionInfo GetValue(DbType typecode, int size)
 		{
-			SortedList<int, Pair<string, int?>> map;
+			SortedList<int, TypeDefinitionInfo> map;
 			typeMapping.TryGetValue(typecode, out map);
 
 			if (map == null) return null;
@@ -146,7 +151,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (length.HasValue)
 			{
-				PutValue(typecode, length.Value, new Pair<string, int?>(name, defaultScale));
+				PutValue(typecode, length.Value, new TypeDefinitionInfo { TypeDefinitionPattern = name, DefaultScale = defaultScale });
 			}
 			else
 			{
@@ -189,15 +194,15 @@ namespace ECM7.Migrator.Providers
 
 		public string Get(DbType typecode, int? length, int? scale)
 		{
-			Pair<string, int?> result = null;
+			TypeDefinitionInfo result = null;
 
 			if (length.HasValue)
 				result = GetValue(typecode, length.Value);
 
 			if (result == null)
-				result = new Pair<string, int?>(GetDefaultValue(typecode), null);
+				result = new TypeDefinitionInfo { TypeDefinitionPattern = GetDefaultValue(typecode), DefaultScale = null };
 
-			return Replace(result.First, length, scale ?? result.Second);
+			return Replace(result.TypeDefinitionPattern, length, scale ?? result.DefaultScale);
 		}
 
 		#endregion

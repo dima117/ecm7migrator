@@ -93,9 +93,6 @@
     <AssemblyOriginatorKeyFile>..\config\ECM7.Migrator.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ECM7.Common, Version=0.19.0.0, Culture=neutral, PublicKeyToken=b3f8672e68b5b2c6, processorArchitecture=MSIL">
-      <HintPath>..\References\ECM7.Common.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\References\log4net.dll</HintPath>
     </Reference>
