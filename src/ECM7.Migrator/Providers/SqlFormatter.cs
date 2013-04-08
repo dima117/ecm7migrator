@@ -70,7 +70,7 @@ namespace ECM7.Migrator.Providers
 						if (!typedArg.Schema.IsNullOrEmpty(true))
 						{
 							string schema = converter(typedArg.Schema);
-							return "{0}.{1}".FormatWith(schema, name);
+							return string.Format("{0}.{1}", schema, name);
 						}
 
 						return name;

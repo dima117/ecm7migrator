@@ -17,7 +17,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ContainsKey(action) && !this[action].IsNullOrEmpty(true))
 			{
-				return "ON UPDATE {0}".FormatWith(this[action]);
+				return string.Format("ON UPDATE {0}", this[action]);
 			}
 
 			return string.Empty;
@@ -27,7 +27,7 @@ namespace ECM7.Migrator.Providers
 		{
 			if (ContainsKey(action) && !this[action].IsNullOrEmpty(true))
 			{
-				return "ON DELETE {0}".FormatWith(this[action]);
+				return string.Format("ON DELETE {0}", this[action]);
 			}
 
 			return string.Empty;

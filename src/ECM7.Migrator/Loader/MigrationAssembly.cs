@@ -125,7 +125,7 @@ namespace ECM7.Migrator.Loader
 
 			foreach (MigrationInfo mi in migrations)
 			{
-				string msg = "{0} {1}".FormatWith(mi.Version.ToString().PadLeft(5), StringUtils.ToHumanName(mi.Type.Name));
+				string msg = string.Format("{0} {1}", mi.Version.ToString().PadLeft(5), StringUtils.ToHumanName(mi.Type.Name));
 				logMessageBuilder.AppendLine(msg);
 			}
 
