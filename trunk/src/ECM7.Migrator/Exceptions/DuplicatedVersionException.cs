@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using ECM7.Migrator.Utils;
 
 namespace ECM7.Migrator.Exceptions
 {
@@ -13,7 +13,7 @@ namespace ECM7.Migrator.Exceptions
 		/// </summary>
 		/// <param name="versions">Дублирующиеся версии</param>
 		public DuplicatedVersionException(IEnumerable<long> versions)
-			: base("Migration version #{0} is duplicated".FormatWith(versions.ToCommaSeparatedString()), versions)
+			: base(string.Format("Migration version #{0} is duplicated", versions.ToCommaSeparatedString()), versions)
 		{
 		}
 	}

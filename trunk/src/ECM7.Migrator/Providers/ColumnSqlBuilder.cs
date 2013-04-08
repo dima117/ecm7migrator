@@ -30,7 +30,7 @@ namespace ECM7.Migrator.Providers
 
 		public ColumnSqlBuilder AddColumnName(string namesQuoteTemplate)
 		{
-			var columnName = namesQuoteTemplate.FormatWith(column.Name);
+			var columnName = string.Format(namesQuoteTemplate, column.Name);
 			vals.Add(columnName);
 
 			return this;
