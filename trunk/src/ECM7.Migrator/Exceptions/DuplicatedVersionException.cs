@@ -12,7 +12,7 @@ namespace ECM7.Migrator.Exceptions
 		/// Инициализация
 		/// </summary>
 		/// <param name="versions">Дублирующиеся версии</param>
-		public DuplicatedVersionException(IEnumerable<long> versions)
+		public DuplicatedVersionException(params long[] versions)
 			: base(string.Format("Migration version #{0} is duplicated", versions.ToCommaSeparatedString()), versions)
 		{
 		}

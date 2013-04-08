@@ -27,10 +27,10 @@ namespace ECM7.Migrator.Exceptions
 		/// </summary>
 		/// <param name="message">Сообщение об ошибке</param>
 		/// <param name="invalidVersions">Список некорректных версий</param>
-		public VersionException(string message = null, IEnumerable<long> invalidVersions = null)
+		public VersionException(string message = null, params long[] invalidVersions)
 			: base(message)
 		{
-			var list = invalidVersions == null ? new long[0] : versions.ToArray();
+			var list = invalidVersions == null ? new long[0] : invalidVersions.ToArray();
 
 			if (list.Any())
 			{
