@@ -23,7 +23,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		protected override string GetSqlChangeDefaultValue(SchemaQualifiedObjectName table, string column, object newDefaultValue)
 		{
-			string dfConstraintName = "DF_{0}".FormatWith(Guid.NewGuid().ToString("N"));
+			string dfConstraintName = string.Format("DF_{0}", Guid.NewGuid().ToString("N"));
 			string sqlDefaultValue = GetSqlDefaultValue(newDefaultValue);
 			return FormatSql("ALTER TABLE {0:NAME} ADD CONSTRAINT {1:NAME} {2} FOR {3:NAME}", table, dfConstraintName, sqlDefaultValue, column);
 		}
@@ -53,7 +53,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 		{
 			string defaultConstraintName = GetDefaultConstraintName(table, column);
 
-			if (!defaultConstraintName.IsNullOrEmpty(true))
+			if (!string.IsNullOrWhiteSpace(defaultConstraintName))
 			{
 				RemoveConstraint(table, defaultConstraintName);
 			}
@@ -69,7 +69,7 @@ namespace ECM7.Migrator.Providers.SqlServer
 
 		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			string nspname = schema.IsNullOrEmpty(true) ? "SCHEMA_NAME()" : string.Format("'{0}'", schema);
+			string nspname = string.IsNullOrWhiteSpace(schema) ? "SCHEMA_NAME()" : string.Format("'{0}'", schema);
 
 			var tables = new List<SchemaQualifiedObjectName>();
 

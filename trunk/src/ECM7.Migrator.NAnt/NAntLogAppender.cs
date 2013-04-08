@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.NAnt
+﻿using ECM7.Migrator.Utils;
+
+namespace ECM7.Migrator.NAnt
 {
 	using global::NAnt.Core;
 	using log4net.Appender;

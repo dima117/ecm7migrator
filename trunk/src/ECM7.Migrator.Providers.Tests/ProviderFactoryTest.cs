@@ -4,7 +4,6 @@ namespace ECM7.Migrator.Providers.Tests
 	using System.Configuration;
 	using System.Data.SqlClient;
 
-	using ECM7.Common.Utils.Exceptions;
 	using ECM7.Migrator.Providers;
 	using ECM7.Migrator.Providers.Firebird;
 	using ECM7.Migrator.Providers.MySql;
@@ -153,15 +152,13 @@ namespace ECM7.Migrator.Providers.Tests
 		[Test]
 		public void GetInvalidProviderTypeTest()
 		{
-			Assert.Throws<RequirementNotCompliedException>(() =>
-				ProviderFactory.GetProviderType(typeof(DateTime).FullName));
+			Assert.Throws<Exception>(() => ProviderFactory.GetProviderType(typeof(DateTime).FullName));
 		}
 
 		[Test]
 		public void GetInvalidProviderTypeTest2()
 		{
-			Assert.Throws<RequirementNotCompliedException>(() =>
-				ProviderFactory.GetProviderType("moo moo moo"));
+			Assert.Throws<Exception>(() => ProviderFactory.GetProviderType("moo moo moo"));
 		}
 
 		[Test]

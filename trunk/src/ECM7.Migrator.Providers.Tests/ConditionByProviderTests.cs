@@ -1,9 +1,9 @@
+using System;
 using System.Data.SqlClient;
 
 namespace ECM7.Migrator.Providers.Tests
 {
 	using System.Configuration;
-	using ECM7.Common.Utils.Exceptions;
 	using ECM7.Migrator.Providers;
 	using ECM7.Migrator.Providers.PostgreSQL;
 	using ECM7.Migrator.Providers.SqlServer;
@@ -104,11 +104,9 @@ namespace ECM7.Migrator.Providers.Tests
 			string cstring = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
 			using (var provider = ProviderFactory.Create<PostgreSQLTransformationProvider>(cstring, null))
 			{
-				Assert.Throws<RequirementNotCompliedException>(() =>
-					new ConditionByProvider(provider).For<int>(null));
+				Assert.Throws<Exception>(() => new ConditionByProvider(provider).For<int>(null));
 
-				Assert.Throws<RequirementNotCompliedException>(() =>
-					new ConditionByProvider(provider).For("System.DateTime", null));
+				Assert.Throws<Exception>(() => new ConditionByProvider(provider).For("System.DateTime", null));
 			}
 		}
 	}

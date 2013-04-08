@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.MSBuild
+﻿using ECM7.Migrator.Utils;
+
+namespace ECM7.Migrator.MSBuild
 {
 	using log4net.Appender;
 	using log4net.Core;

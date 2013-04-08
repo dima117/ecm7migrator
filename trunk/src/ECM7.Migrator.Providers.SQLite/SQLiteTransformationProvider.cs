@@ -1,4 +1,5 @@
 using ECM7.Migrator.Providers.Validation;
+using ECM7.Migrator.Utils;
 
 namespace ECM7.Migrator.Providers.SQLite
 {
@@ -196,7 +197,7 @@ namespace ECM7.Migrator.Providers.SQLite
 		/// <returns>The names of all the tables.</returns>
 		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			Require.That(schema.IsNullOrEmpty(true), "SQLite не поддерживает схемы");
+			Require.That(string.IsNullOrWhiteSpace(schema), "SQLite не поддерживает схемы");
 
 			var tables = new List<SchemaQualifiedObjectName>();
 

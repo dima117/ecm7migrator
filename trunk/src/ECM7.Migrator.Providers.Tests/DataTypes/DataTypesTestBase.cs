@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using ECM7.Migrator.Framework;
+using ECM7.Migrator.Utils;
 using NUnit.Framework;
 
 namespace ECM7.Migrator.Providers.Tests.DataTypes

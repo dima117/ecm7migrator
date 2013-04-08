@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using ECM7.Migrator.Exceptions;
 using ECM7.Migrator.Framework;
+using ECM7.Migrator.Utils;
 using log4net.Config;
 using NUnit.Framework;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
@@ -25,7 +26,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			/// </summary>
 			private static string GetNotNullSchemaName(string name)
 			{
-				return name.IsNullOrEmpty(true) ? string.Empty : name.Trim();
+				return string.IsNullOrWhiteSpace(name) ? string.Empty : name.Trim();
 			}
 
 			private readonly StringComparer comparer;
