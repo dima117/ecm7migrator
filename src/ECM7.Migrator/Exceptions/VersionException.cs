@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using ECM7.Common.Utils.Exceptions;
+using System.Linq;
 
 namespace ECM7.Migrator.Exceptions
 {
 	/// <summary>
 	/// Исключение, генерируемое при наличии некорректных версий
 	/// </summary>
-	public class VersionException : RequirementNotCompliedException
+	public class VersionException : Exception
 	{
 		/// <summary>
 		/// Список некорректных версий
@@ -19,23 +19,22 @@ namespace ECM7.Migrator.Exceptions
 		/// </summary>
 		public IList<long> Versions
 		{
-			get
-			{
-				return versions;
-			}
+			get { return versions; }
 		}
 
 		/// <summary>
 		/// Инициализация
 		/// </summary>
 		/// <param name="message">Сообщение об ошибке</param>
-		/// <param name="versionses">Список некорректных версий</param>
-		public VersionException(string message = null, IEnumerable<long> versionses = null)
+		/// <param name="invalidVersions">Список некорректных версий</param>
+		public VersionException(string message = null, IEnumerable<long> invalidVersions = null)
 			: base(message)
 		{
-			if (versionses != null && !versionses.IsEmpty())
+			var list = invalidVersions == null ? new long[0] : versions.ToArray();
+
+			if (list.Any())
 			{
-				versions.AddRange(versionses);
+				versions.AddRange(list);
 			}
 		}
 	}
