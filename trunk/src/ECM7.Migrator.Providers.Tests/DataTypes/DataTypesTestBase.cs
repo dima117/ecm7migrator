@@ -44,13 +44,12 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 
 			if (!Provider.TypeIsSupported(type.DataType))
 			{
-				Console.WriteLine(
-					"Тип {0} не поддерживаетя провайдером {1}"
-						.FormatWith(type, Provider.GetType().Name));
+				Console.WriteLine("Тип {0} не поддерживаетя провайдером {1}", type, Provider.GetType().Name);
 				return;
 			}
 
-			string tableName = "test{0}{1}".FormatWith(type.DataType, type.Length);
+			string tableName = string.Format("test{0}{1}", type.DataType, type.Length);
+
 			Provider.AddTable(tableName,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("testcolumn", type));
@@ -203,19 +202,19 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 		[Test]
 		public virtual void AnsiStringFixedLength100Test()
 		{
-			TestColumnType(DbType.AnsiStringFixedLength.WithSize(100), "a".Repeat(100));
+			TestColumnType(DbType.AnsiStringFixedLength.WithSize(100), new String('a', 100));
 		}
 
 		[Test]
 		public virtual void AnsiStringFixedLength1000Test()
 		{
-			TestColumnType(DbType.AnsiStringFixedLength.WithSize(1000), "b".Repeat(1000));
+			TestColumnType(DbType.AnsiStringFixedLength.WithSize(1000), new String('b', 1000));
 		}
 
 		[Test]
 		public virtual void AnsiStringFixedLengthMaxTest()
 		{
-			TestColumnType(DbType.AnsiStringFixedLength.WithSize(MaxStringFixedLength), "c".Repeat(MaxStringFixedLength));
+			TestColumnType(DbType.AnsiStringFixedLength.WithSize(MaxStringFixedLength), new String('c', MaxStringFixedLength));
 		}
 
 		#endregion
@@ -231,19 +230,19 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 		[Test]
 		public virtual void AnsiString100Test()
 		{
-			TestColumnType(DbType.AnsiString.WithSize(100), "a".Repeat(100));
+			TestColumnType(DbType.AnsiString.WithSize(100), new String('a', 100));
 		}
 
 		[Test]
 		public virtual void AnsiString1000Test()
 		{
-			TestColumnType(DbType.AnsiString.WithSize(1000), "b".Repeat(1000));
+			TestColumnType(DbType.AnsiString.WithSize(1000), new String('b', 1000));
 		}
 
 		[Test]
 		public virtual void AnsiStringMaxTest()
 		{
-			TestColumnType(DbType.AnsiString.WithSize(MaxStringVariableLength), "c".Repeat(MaxStringVariableLength));
+			TestColumnType(DbType.AnsiString.WithSize(MaxStringVariableLength), new String('c', MaxStringFixedLength));
 		}
 
 		#endregion
