@@ -28,5 +28,21 @@ namespace ECM7.Migrator.Utils
 		{
 			return collection.ToSeparatedString(",");
 		}
+
+		/// <summary>
+		/// Проверка, что коллекция == null или пуста
+		/// </summary>
+		public static bool IsEmpty<T>(this IEnumerable<T> collection)
+		{
+			return !HasElements(collection);
+		}
+
+		/// <summary>
+		/// Проверка, что число элементов коллекции > 0
+		/// </summary>
+		public static bool HasElements<T>(this IEnumerable<T> collection)
+		{
+			return collection != null && collection.Any();
+		}
 	}
 }
