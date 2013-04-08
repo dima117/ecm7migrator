@@ -149,7 +149,7 @@ namespace ECM7.Migrator.Loader
 
 			if (list.Any())
 			{
-				throw new DuplicatedVersionException(list);
+				throw new DuplicatedVersionException(list.ToArray());
 			}
 		}
 

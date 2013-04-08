@@ -192,7 +192,7 @@ namespace ECM7.Migrator
 			if (!list.IsEmpty())
 			{
 				throw new VersionException(
-					"Доступны невыполненные миграции, версия которых меньше текущей версии БД", list);
+					"Доступны невыполненные миграции, версия которых меньше текущей версии БД", list.ToArray());
 			}
 
 			set.UnionWith(availableMigrations);
