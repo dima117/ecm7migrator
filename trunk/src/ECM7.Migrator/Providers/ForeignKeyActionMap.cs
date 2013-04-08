@@ -15,7 +15,7 @@ namespace ECM7.Migrator.Providers
 
 		public string GetSqlOnUpdate(ForeignKeyConstraint action)
 		{
-			if (ContainsKey(action) && !this[action].IsNullOrEmpty(true))
+			if (ContainsKey(action) && !string.IsNullOrWhiteSpace(this[action]))
 			{
 				return string.Format("ON UPDATE {0}", this[action]);
 			}
@@ -25,7 +25,7 @@ namespace ECM7.Migrator.Providers
 
 		public string GetSqlOnDelete(ForeignKeyConstraint action)
 		{
-			if (ContainsKey(action) && !this[action].IsNullOrEmpty(true))
+			if (ContainsKey(action) && !string.IsNullOrWhiteSpace(this[action]))
 			{
 				return string.Format("ON DELETE {0}", this[action]);
 			}

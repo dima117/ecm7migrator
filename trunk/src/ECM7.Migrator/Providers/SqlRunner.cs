@@ -97,7 +97,7 @@ namespace ECM7.Migrator.Providers
 			try
 			{
 				// если задан разделитель пакетов запросов, запускаем пакеты по очереди
-				if (!BatchSeparator.IsNullOrEmpty(true) &&
+				if (!string.IsNullOrWhiteSpace(BatchSeparator) &&
 					sql.IndexOf(BatchSeparator, StringComparison.CurrentCultureIgnoreCase) >= 0)
 				{
 					sql += "\n" + BatchSeparator.Trim(); // make sure last batch is executed.
@@ -111,7 +111,7 @@ namespace ECM7.Migrator.Providers
 						if (line.ToUpperInvariant().Trim() == BatchSeparator.ToUpperInvariant())
 						{
 							string query = sqlBatch.ToString();
-							if (!query.IsNullOrEmpty(true))
+							if (!string.IsNullOrWhiteSpace(query))
 							{
 								result = ExecuteNonQueryInternal(query);
 							}

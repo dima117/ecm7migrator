@@ -51,11 +51,11 @@ namespace ECM7.Migrator.Configuration
 		{
 			string connectionString = null;
 
-			if (!config.ConnectionString.IsNullOrEmpty(true))
+			if (!string.IsNullOrWhiteSpace(config.ConnectionString))
 			{
 				connectionString = config.ConnectionString.Trim();
 			}
-			else if (!config.ConnectionStringName.IsNullOrEmpty(true))
+			else if (!string.IsNullOrWhiteSpace(config.ConnectionStringName))
 			{
 				string cstringName = config.ConnectionStringName.Trim();
 				connectionString = ConfigurationManager.ConnectionStrings[cstringName].ConnectionString;
@@ -74,13 +74,13 @@ namespace ECM7.Migrator.Configuration
 		{
 			Assembly assembly = null;
 
-			if (!config.Assembly.IsNullOrEmpty(true))
+			if (!string.IsNullOrWhiteSpace(config.Assembly))
 			{
 				assembly = Assembly.Load(config.Assembly);
 			}
 			else
 			{
-				if (!config.AssemblyFile.IsNullOrEmpty(true))
+				if (!string.IsNullOrWhiteSpace(config.AssemblyFile))
 				{
 					assembly = Assembly.LoadFrom(config.AssemblyFile);
 				}

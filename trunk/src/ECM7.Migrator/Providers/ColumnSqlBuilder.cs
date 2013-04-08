@@ -42,7 +42,7 @@ namespace ECM7.Migrator.Providers
 				? string.Empty
 				: typeMap.Get(column.ColumnType);
 
-			if (!type.IsNullOrEmpty())
+			if (!string.IsNullOrEmpty(type))
 			{
 				vals.Add(type);
 			}
