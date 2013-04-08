@@ -147,7 +147,7 @@ namespace ECM7.Migrator.Providers.MySql
 
 		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			string schemaSql = schema.IsNullOrEmpty(true) ? "SCHEMA()" : "'{0}'".FormatWith(schema);
+			string schemaSql = string.IsNullOrWhiteSpace(schema) ? "SCHEMA()" : string.Format("'{0}'", schema);
 
 			string sql = FormatSql(
 				"SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME} WHERE {1:NAME} = {4}",
@@ -170,7 +170,7 @@ namespace ECM7.Migrator.Providers.MySql
 
 		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
-			string sql = table.Schema.IsNullOrEmpty(true)
+			string sql = table.SchemaIsEmpty
 							? FormatSql("SHOW TABLES LIKE '{0}'", table)
 							: FormatSql("SHOW TABLES IN {0:NAME} LIKE '{1}'", table.Schema, table.Name);
 
