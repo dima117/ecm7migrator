@@ -140,6 +140,8 @@
     <Compile Include="Providers\Validation\ObjectCall.cs" />
     <Compile Include="Providers\Validation\ProviderValidationAttribute.cs" />
     <Compile Include="Providers\Validation\ProviderValidationProxy.cs" />
+    <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="Utils\Require.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />

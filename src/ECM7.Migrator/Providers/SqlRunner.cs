@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using ECM7.Migrator.Utils;
 
 namespace ECM7.Migrator.Providers
 {
@@ -7,8 +7,6 @@ namespace ECM7.Migrator.Providers
 	using System.IO;
 	using System.Reflection;
 	using System.Text;
-
-	using ECM7;
 	using Exceptions;
 	using Framework.Logging;
 

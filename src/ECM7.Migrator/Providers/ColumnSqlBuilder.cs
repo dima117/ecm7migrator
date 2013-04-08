@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.Providers
+﻿using ECM7.Migrator.Utils;
+
+namespace ECM7.Migrator.Providers
 {
 	using System;
 	using System.Collections.Generic;
