@@ -1,4 +1,6 @@
-﻿namespace ECM7.Migrator.Tests2
+﻿using ECM7.Migrator.Utils;
+
+namespace ECM7.Migrator.Tests2
 {
 	using System;
 	using System.Configuration;

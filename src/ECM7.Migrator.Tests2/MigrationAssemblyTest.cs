@@ -1,3 +1,4 @@
+using System;
 using ECM7.Migrator.Exceptions;
 
 namespace ECM7.Migrator.Tests2
@@ -6,7 +7,6 @@ namespace ECM7.Migrator.Tests2
 	using System.Linq;
 	using System.Reflection;
 
-	using ECM7.Common.Utils.Exceptions;
 	using ECM7.Migrator.Framework;
 	using ECM7.Migrator.Framework.Logging;
 	using ECM7.Migrator.Loader;
@@ -53,7 +53,7 @@ namespace ECM7.Migrator.Tests2
 
 			MigrationAssembly migrationAssembly = new MigrationAssembly(assembly);
 
-			Assert.Throws<RequirementNotCompliedException>(() => migrationAssembly.GetMigrationInfo(99999999));
+			Assert.Throws<Exception>(() => migrationAssembly.GetMigrationInfo(99999999));
 		}
 
 		/// <summary>
@@ -67,7 +67,7 @@ namespace ECM7.Migrator.Tests2
 			var loader = new MigrationAssembly(assembly);
 
 			var mi = loader.GetMigrationInfo(1);
-			Assert.Throws<RequirementNotCompliedException>(() => loader.InstantiateMigration(mi, null));
+			Assert.Throws<Exception>(() => loader.InstantiateMigration(mi, null));
 		}
 
 
@@ -136,7 +136,7 @@ namespace ECM7.Migrator.Tests2
 			MigratorLogManager.AddAppender(appender);
 
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
-			new MigrationAssembly(assembly);
+			var asm = new MigrationAssembly(assembly);
 
 			var list = appender
 				.GetEvents()

@@ -164,7 +164,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 
 		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			string nspname = schema.IsNullOrEmpty(true) ? "current_schema()" : string.Format("'{0}'", schema);
+			string nspname = string.IsNullOrWhiteSpace(schema) ? "current_schema()" : string.Format("'{0}'", schema);
 
 			string sql = FormatSql(
 				"SELECT {0:NAME}, {1:NAME} FROM {2:NAME}.{3:NAME} WHERE {4:NAME} = {5}",

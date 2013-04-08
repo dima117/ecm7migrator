@@ -132,7 +132,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 				"WHERE [TABLE_NAME]='{0}' AND [COLUMN_NAME]='{1}'",
 				table.Name, column);
 
-			if (!table.Schema.IsNullOrEmpty(true))
+			if (!table.SchemaIsEmpty)
 			{
 				sql += FormatSql(" AND [TABLE_SCHEMA] = '{0}'", table.Schema);
 			}
@@ -178,7 +178,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			sqlBuilder.Append("FROM [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE] ");
 			sqlBuilder.AppendFormat("WHERE [TABLE_NAME] = '{0}' and [COLUMN_NAME] = '{1}' ", table.Name, column);
 
-			if (!table.Schema.IsNullOrEmpty(true))
+			if (!table.SchemaIsEmpty)
 			{
 				sqlBuilder.AppendFormat("AND [TABLE_SCHEMA] = '{0}' ", table.Schema);
 			}

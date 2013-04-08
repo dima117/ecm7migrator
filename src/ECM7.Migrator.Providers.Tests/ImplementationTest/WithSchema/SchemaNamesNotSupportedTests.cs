@@ -2,7 +2,6 @@
 using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
-using ECM7.Common.Utils.Exceptions;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Providers.Firebird;
 using ECM7.Migrator.Providers.SQLite;
@@ -77,7 +76,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.WithSchema
 						var ex = Assert.Throws<TargetInvocationException>(() => method1.Invoke(provider, values));
 
 						Assert.IsNotNull(ex.InnerException);
-						Assert.IsInstanceOf<RequirementNotCompliedException>(ex.InnerException);
+						Assert.IsInstanceOf<Exception>(ex.InnerException);
 						Assert.AreEqual(ex.InnerException.Message, Messages.SchemaNamesIsNotSupported);
 
 						WriteLog("{0}: correct exception was thrown", method);
