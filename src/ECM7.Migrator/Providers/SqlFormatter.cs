@@ -67,7 +67,7 @@ namespace ECM7.Migrator.Providers
 
 						string name = converter(typedArg.Name);
 
-						if (!typedArg.Schema.IsNullOrEmpty(true))
+						if (!string.IsNullOrWhiteSpace(typedArg.Schema))
 						{
 							string schema = converter(typedArg.Schema);
 							return string.Format("{0}.{1}", schema, name);

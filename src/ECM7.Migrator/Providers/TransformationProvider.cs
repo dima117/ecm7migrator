@@ -296,12 +296,12 @@ namespace ECM7.Migrator.Providers
 			string sqlChangeNotNullConstraint = GetSqlChangeNotNullConstraint(
 				table, column, notNull, ref sqlChangeColumn);
 
-			if (!sqlChangeColumn.IsNullOrEmpty(true))
+			if (!string.IsNullOrWhiteSpace(sqlChangeColumn))
 			{
 				ExecuteNonQuery(sqlChangeColumn);
 			}
 
-			if (!sqlChangeNotNullConstraint.IsNullOrEmpty(true))
+			if (!string.IsNullOrWhiteSpace(sqlChangeNotNullConstraint))
 			{
 				ExecuteNonQuery(sqlChangeNotNullConstraint);
 			}
@@ -437,7 +437,7 @@ namespace ECM7.Migrator.Providers
 				.Select((col, i) => FormatSql("{0:NAME}={1}", col, quotedValues[i]))
 				.ToCommaSeparatedString();
 
-			string query = whereSql.IsNullOrEmpty(true)
+			string query = string.IsNullOrWhiteSpace(whereSql)
 								? "UPDATE {0:NAME} SET {1}"
 								: "UPDATE {0:NAME} SET {1} WHERE {2}";
 
@@ -447,7 +447,7 @@ namespace ECM7.Migrator.Providers
 
 		public virtual int Delete(SchemaQualifiedObjectName table, string whereSql = null)
 		{
-			string format = whereSql.IsNullOrEmpty(true)
+			string format = string.IsNullOrWhiteSpace(whereSql)
 								? "DELETE FROM {0:NAME}"
 								: "DELETE FROM {0:NAME} WHERE {1}";
 
