@@ -19,7 +19,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 	[TestFixture]
 	public abstract class TransformationProviderTestBase<TProvider> where TProvider : ITransformationProvider
 	{
-		public class NameComparer : IEqualityComparer<string >
+		public class NameComparer : IEqualityComparer<string>
 		{
 			/// <summary>
 			/// "Нормализация" названия схемы (чтобы при сравнении считать разные варианты пустой схемы равными)
@@ -278,7 +278,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 
 			var tables = provider.GetTables(schema);
 
-			Assert.That(tables.All(t =>  StrComparer.Equals(t.Schema, schemaForCompare)));
+			Assert.That(tables.All(t => StrComparer.Equals(t.Schema, schemaForCompare)));
 			Assert.IsFalse(tables.Select(t => t.Name).Contains(table1.Name, StrComparer));
 			Assert.IsFalse(tables.Select(t => t.Name).Contains(table2.Name, StrComparer));
 
@@ -339,7 +339,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			provider.AddColumn(tableName, new Column("Boolean1", DbType.Boolean, ColumnProperty.NotNull, true));
 			provider.AddColumn(tableName, new Column("Boolean2", DbType.Boolean, ColumnProperty.NotNull, false));
 
-			provider.Insert(tableName, "ID".AsArray(), "22".AsArray());
+			provider.Insert(tableName, new[] { "ID" }, new[] { "22" });
 
 			string sql = provider.FormatSql("select * from {0:NAME}", tableName);
 			using (var reader = provider.ExecuteReader(sql))
@@ -391,7 +391,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			Assert.AreEqual(123.4568, provider.ExecuteScalar(selectSql));
 
 			// делаем по извращенски с 2 колонками, т.к. у оракла ограничение: изменяемая колонка должна быть пустой
-			provider.Update(tableName, columnName2.AsArray(), new string[] { null });
+			provider.Update(tableName, new[] { columnName2 }, new string[] { null });
 			provider.ChangeColumn(tableName, columnName2, DbType.Int32, false);
 			string updateSql = provider.FormatSql("update {0:NAME} set {1:NAME} = {2:NAME}", tableName, columnName2, columnName1);
 			provider.ExecuteNonQuery(updateSql);
@@ -406,7 +406,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		{
 			SchemaQualifiedObjectName tableName = GetRandomTableName("ChangeNotNullPropertyTest");
 
-			provider.AddTable(tableName, 
+			provider.AddTable(tableName,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
 				new Column("TestStringColumn", DbType.String.WithSize(4)));
 
@@ -591,7 +591,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			string foreignKeyName = GetRandomName("FK_TestSimpleKey");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
-			provider.Insert(refTable, "ID".AsArray(), "17".AsArray());
+			provider.Insert(refTable, new[] { "ID" }, new[] { "17" });
 
 			provider.AddTable(primaryTable,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -659,7 +659,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
-			provider.Insert(refTable, "ID".AsArray(), "177".AsArray());
+			provider.Insert(refTable, new[] { "ID" }, new[] { "177" });
 
 			provider.AddTable(primaryTable,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -685,7 +685,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
-			provider.Insert(refTable, "ID".AsArray(), "654".AsArray());
+			provider.Insert(refTable, new[] { "ID" }, new[] { "654" });
 
 			provider.AddTable(primaryTable,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -697,7 +697,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 
 			provider.Insert(primaryTable, new[] { "ID", "RefID" }, new[] { "1", "654" });
 
-			provider.Update(refTable, "ID".AsArray(), "777".AsArray());
+			provider.Update(refTable, new[] { "ID" }, new[] { "777" });
 
 			string sql = provider.FormatSql("select {0:NAME} from {1:NAME}", "RefID", primaryTable);
 			Assert.AreEqual(777, provider.ExecuteScalar(sql));
@@ -715,7 +715,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
-			provider.Insert(refTable, "ID".AsArray(), "177".AsArray());
+			provider.Insert(refTable, new[] { "ID" }, new[] { "177" });
 
 			provider.AddTable(primaryTable,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -741,7 +741,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
-			provider.Insert(refTable, "ID".AsArray(), "654".AsArray());
+			provider.Insert(refTable, new[] { "ID" }, new[] { "654" });
 
 			provider.AddTable(primaryTable,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -753,7 +753,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 
 			provider.Insert(primaryTable, new[] { "ID", "RefID" }, new[] { "1", "654" });
 
-			provider.Update(refTable, "ID".AsArray(), "777".AsArray());
+			provider.Update(refTable, new[] { "ID" }, new[] { "777" });
 
 			string sql = provider.FormatSql("select {0:NAME} from {1:NAME}", "RefID", primaryTable);
 			Assert.AreEqual(DBNull.Value, provider.ExecuteScalar(sql));
@@ -771,8 +771,8 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
-			provider.Insert(refTable, "ID".AsArray(), "177".AsArray());
-			provider.Insert(refTable, "ID".AsArray(), "998".AsArray());
+			provider.Insert(refTable, new[] { "ID" }, new[] { "177" });
+			provider.Insert(refTable, new[] { "ID" }, new[] { "998" });
 
 			provider.AddTable(primaryTable,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -800,8 +800,8 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			string foreignKeyName = GetRandomName("FK_Test");
 
 			provider.AddTable(refTable, new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey));
-			provider.Insert(refTable, "ID".AsArray(), "999".AsArray());
-			provider.Insert(refTable, "ID".AsArray(), "654".AsArray());
+			provider.Insert(refTable, new[] { "ID" }, new[] { "999" });
+			provider.Insert(refTable, new[] { "ID" }, new[] { "654" });
 
 			provider.AddTable(primaryTable,
 				new Column("ID", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -814,7 +814,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			provider.Insert(primaryTable, new[] { "ID", "RefID" }, new[] { "1", "654" });
 
 			string whereSql = provider.FormatSql("{0:NAME} = 654", "ID");
-			provider.Update(refTable, "ID".AsArray(), "777".AsArray(), whereSql);
+			provider.Update(refTable, new[] { "ID" }, new[] { "777" }, whereSql);
 
 			string sql = provider.FormatSql("select {0:NAME} from {1:NAME}", "RefID", primaryTable);
 			Assert.AreEqual(999, provider.ExecuteScalar(sql));
@@ -898,10 +898,10 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			string checkSql = provider.FormatSql("{0:NAME} > 5", "ID");
 			provider.AddCheckConstraint(constraintName, tableName, checkSql);
 
-			provider.Insert(tableName, "ID".AsArray(), "11".AsArray());
+			provider.Insert(tableName, new[] { "ID" }, new[] { "11" });
 
 			Assert.Throws<SQLException>(() =>
-				provider.Insert(tableName, "ID".AsArray(), "4".AsArray()));
+				provider.Insert(tableName, new[] { "ID" }, new[] { "4" }));
 
 			provider.RemoveTable(tableName);
 		}
@@ -1103,7 +1103,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			provider.Insert(tableName, new[] { "Id", "TestInteger" }, new[] { "2", "456" });
 
 			string whereSql = provider.FormatSql("{0:NAME} = 2", "Id");
-			provider.Update(tableName, "TestInteger".AsArray(), "777".AsArray(), whereSql);
+			provider.Update(tableName, new[] { "TestInteger" }, new[] { "777" }, whereSql);
 
 			string sql = provider.FormatSql(
 				"SELECT {0:NAME}, {1:NAME} FROM {2:NAME} ORDER BY {0:NAME}", "Id", "TestInteger", tableName);
@@ -1132,8 +1132,8 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			SchemaQualifiedObjectName tableName = GetRandomTableName("DeleteData");
 
 			provider.AddTable(tableName, new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey));
-			provider.Insert(tableName, "Id".AsArray(), "1023".AsArray());
-			provider.Insert(tableName, "Id".AsArray(), "2047".AsArray());
+			provider.Insert(tableName, new[] { "Id" }, new[] { "1023" });
+			provider.Insert(tableName, new[] { "Id" }, new[] { "2047" });
 
 			string sqlWhere = provider.FormatSql("{0:NAME} = 2047", "Id");
 			provider.Delete(tableName, sqlWhere);
@@ -1155,8 +1155,8 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			SchemaQualifiedObjectName tableName = GetRandomTableName("DeleteAllData");
 
 			provider.AddTable(tableName, new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey));
-			provider.Insert(tableName, "Id".AsArray(), "1111".AsArray());
-			provider.Insert(tableName, "Id".AsArray(), "2222".AsArray());
+			provider.Insert(tableName, new[] { "Id" }, new[] { "1111" });
+			provider.Insert(tableName, new[] { "Id" }, new[] { "2222" });
 
 			provider.Delete(tableName);
 
@@ -1256,7 +1256,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		protected virtual string GetRandomName(string baseName = "")
 		{
 			string guid = Guid.NewGuid().ToString().Replace("-", string.Empty).ToLower();
-			return "{0}{1}".FormatWith(baseName, guid);
+			return string.Format("{0}{1}", baseName, guid);
 		}
 
 		protected virtual SchemaQualifiedObjectName GetRandomTableName(string baseName = "")
