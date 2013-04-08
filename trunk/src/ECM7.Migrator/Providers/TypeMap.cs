@@ -77,6 +77,7 @@ namespace ECM7.Migrator.Providers
 		private string GetDefaultValue(DbType typecode)
 		{
 			string result;
+
 			if (!defaults.TryGetValue(typecode, out result))
 			{
 				throw new ArgumentException("Provider does not support DbType." + typecode, "typecode");
@@ -88,8 +89,11 @@ namespace ECM7.Migrator.Providers
 		private void PutValue(DbType typecode, int length, TypeDefinitionInfo value)
 		{
 			SortedList<int, TypeDefinitionInfo> map;
+			
 			if (!typeMapping.TryGetValue(typecode, out map))
+			{
 				typeMapping[typecode] = map = new SortedList<int, TypeDefinitionInfo>();
+			}
 
 			map[length] = value;
 		}
@@ -108,9 +112,15 @@ namespace ECM7.Migrator.Providers
 			SortedList<int, TypeDefinitionInfo> map;
 			typeMapping.TryGetValue(typecode, out map);
 
-			if (map == null) return null;
+			if (map == null)
+			{
+				return null;
+			}
 
-			if (map.Count(pair => pair.Key >= size) == 0) return null;
+			if (!map.Any(pair => pair.Key >= size))
+			{
+				return null;
+			}
 
 			return map
 				.OrderBy(pair => pair.Key)
@@ -197,10 +207,14 @@ namespace ECM7.Migrator.Providers
 			TypeDefinitionInfo result = null;
 
 			if (length.HasValue)
+			{
 				result = GetValue(typecode, length.Value);
+			}
 
 			if (result == null)
+			{
 				result = new TypeDefinitionInfo { TypeDefinitionPattern = GetDefaultValue(typecode), DefaultScale = null };
+			}
 
 			return Replace(result.TypeDefinitionPattern, length, scale ?? result.DefaultScale);
 		}
@@ -224,10 +238,14 @@ namespace ECM7.Migrator.Providers
 		private static string Replace(string type, int? size, int? scale)
 		{
 			if (size.HasValue)
+			{
 				type = StringUtils.ReplaceOnce(type, LENGTH_PLACE_HOLDER, size.ToString());
+			}
 
 			if (scale.HasValue)
+			{
 				type = StringUtils.ReplaceOnce(type, SCALE_PLACE_HOLDER, scale.ToString());
+			}
 
 			return type;
 		}
