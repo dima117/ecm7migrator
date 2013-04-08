@@ -4,6 +4,7 @@ using System.Data;
 
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Providers.Validation;
+using ECM7.Migrator.Utils;
 using Oracle.DataAccess.Client;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
@@ -71,7 +72,7 @@ namespace ECM7.Migrator.Providers.Oracle
 				throw new NotSupportedException("Oracle не поддерживает действий при обновлении внешнего ключа");
 			}
 
-			if (onDeleteConstraint.In(ForeignKeyConstraint.SetDefault))
+			if (onDeleteConstraint == ForeignKeyConstraint.SetDefault)
 			{
 				throw new NotSupportedException("Oracle не поддерживает SET DEFAULT при удалении записи, на которую ссылается внешний ключ");
 			}
@@ -175,7 +176,7 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
-			string schemaName = table.SchemaIsEmpty ? "user" : "'{0}'".FormatWith(table.Schema);
+			string schemaName = table.SchemaIsEmpty ? "user" : string.Format("'{0}'", table.Schema);
 
 			string sql = FormatSql("SELECT COUNT(*) from {0:NAME} where {1:NAME} = '{2}' and {3:NAME} = {4}",
 				"ALL_TABLES", "TABLE_NAME", table.Name, "OWNER", schemaName);
@@ -203,7 +204,7 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override SchemaQualifiedObjectName[] GetTables(string schema = null)
 		{
-			string schemaName = schema.IsNullOrEmpty(true) ? "user" : "'{0}'".FormatWith(schema);
+			string schemaName = string.IsNullOrWhiteSpace(schema) ? "user" : string.Format("'{0}'", schema);
 
 			string sql = FormatSql(
 				"SELECT {0:NAME}, {1:NAME} from {2:NAME} where {3:NAME} = {4}",
