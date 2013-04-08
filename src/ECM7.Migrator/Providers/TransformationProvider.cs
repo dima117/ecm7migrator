@@ -149,8 +149,8 @@ namespace ECM7.Migrator.Providers
 		protected virtual string GetSqlChangeDefaultValue(SchemaQualifiedObjectName table, string column, object newDefaultValue)
 		{
 			string defaultValueSql = newDefaultValue == null
-			                         	? "DROP DEFAULT"
-			                         	: "SET " + GetSqlDefaultValue(newDefaultValue);
+										? "DROP DEFAULT"
+										: "SET " + GetSqlDefaultValue(newDefaultValue);
 
 			return FormatSql("ALTER TABLE {0:NAME} ALTER COLUMN {1:NAME} {2}", table, column, defaultValueSql);
 		}
@@ -176,7 +176,7 @@ namespace ECM7.Migrator.Providers
 			Require.That(columns.Length > 0, "Not specified columns of the table to create an index");
 
 			string uniqueString = unique ? "UNIQUE" : string.Empty;
-			string sql = 
+			string sql =
 				FormatSql("CREATE {0} INDEX {1:NAME} ON {2:NAME} ({3:COLS})", uniqueString, name, table, columns);
 
 			return sql;
@@ -333,14 +333,14 @@ namespace ECM7.Migrator.Providers
 		#region constraints
 
 		public void AddForeignKey(string name,
-			SchemaQualifiedObjectName primaryTable, string primaryColumn, 
+			SchemaQualifiedObjectName primaryTable, string primaryColumn,
 			SchemaQualifiedObjectName refTable, string refColumn,
 			ForeignKeyConstraint onDeleteConstraint = ForeignKeyConstraint.NoAction,
 			ForeignKeyConstraint onUpdateConstraint = ForeignKeyConstraint.NoAction)
 		{
 			AddForeignKey(name,
-				primaryTable, primaryColumn.AsArray(),
-				refTable, refColumn.AsArray(),
+				primaryTable, new[] { primaryColumn },
+				refTable, new[] { refColumn },
 				onDeleteConstraint, onUpdateConstraint);
 		}
 
