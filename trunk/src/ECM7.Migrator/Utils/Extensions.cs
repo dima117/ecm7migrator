@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace ECM7.Migrator.Utils
 {
@@ -43,6 +45,28 @@ namespace ECM7.Migrator.Utils
 		public static bool HasElements<T>(this IEnumerable<T> collection)
 		{
 			return collection != null && collection.Any();
+		}
+
+		/// <summary>
+		/// Типизированный метод поиска атрибутов
+		/// </summary>
+		/// <typeparam name="T">Тип атрибута</typeparam>
+		/// <param name="memberInfo">Тип объекта, в котором производится поиск</param>
+		/// <param name="inherit">Признак: искать в базовых классах</param>
+		public static T GetCustomAttribute<T>(this MemberInfo memberInfo, bool inherit = false) where T : Attribute
+		{
+			return Attribute.GetCustomAttribute(memberInfo, typeof(T), inherit) as T;
+		}
+
+		/// <summary>
+		/// Типизированный метод поиска атрибутов
+		/// </summary>
+		/// <typeparam name="T">Тип атрибута</typeparam>
+		/// <param name="assembly">Сборка, в которой производится поиск</param>
+		/// <param name="inherit">Признак: искать в базовых классах</param>
+		public static T GetCustomAttribute<T>(this Assembly assembly, bool inherit = false) where T : Attribute
+		{
+			return Attribute.GetCustomAttribute(assembly, typeof(T), inherit) as T;
 		}
 	}
 }
