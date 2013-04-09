@@ -7,7 +7,7 @@
     <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
     <projectUrl>http://code.google.com/p/ecm7migrator/</projectUrl>
     <dependencies>
-      <dependency id="log4net" version="1.2.10" />
+      <dependency id="NLog" version="2.0.1.2" />
     </dependencies>
     <id>ECM7Migrator</id>
     <title>ECM7.Migrator</title>
@@ -31,7 +31,7 @@
     <file src="..\nuget.package\tools\ECM7.Migrator.Providers.PostgreSQL.dll" target="tools\ECM7.Migrator.Providers.PostgreSQL.dll" />
     <file src="..\nuget.package\tools\ECM7.Migrator.Providers.SQLite.dll" target="tools\ECM7.Migrator.Providers.SQLite.dll" />
     <file src="..\nuget.package\tools\ECM7.Migrator.Providers.SqlServer.dll" target="tools\ECM7.Migrator.Providers.SqlServer.dll" />
-    <file src="..\nuget.package\tools\log4net.dll" target="tools\log4net.dll" />
+    <file src="..\nuget.package\tools\NLog.dll" target="tools\NLog.dll" />
     <file src="..\nuget.package\tools\Migrator.Targets" target="tools\Migrator.Targets" />
     <file src="..\nuget.package\tools\Mono.Security.dll" target="tools\Mono.Security.dll" />
     <file src="..\nuget.package\tools\MySql.Data.dll" target="tools\MySql.Data.dll" />

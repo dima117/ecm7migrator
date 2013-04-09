@@ -1,5 +1,6 @@
 using System;
 using ECM7.Migrator.Exceptions;
+using NLog.Layouts;
 using NLog.Targets;
 
 namespace ECM7.Migrator.Tests2
@@ -131,7 +132,7 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void MigrationsMustBeSortedByNumber()
 		{
-			MemoryTarget target = new MemoryTarget { Name = MigratorLogManager.LOGGER_NAME };
+			MemoryTarget target = new MemoryTarget { Name = MigratorLogManager.LOGGER_NAME, Layout = new SimpleLayout("${message}") };
 			MigratorLogManager.SetNLogTarget(target);
 
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");

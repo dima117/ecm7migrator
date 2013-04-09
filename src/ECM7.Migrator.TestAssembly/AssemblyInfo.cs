@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security;
 using ECM7.Migrator.Framework;
 
 [assembly: AssemblyTitle("ECM7.Migrator.TestAssembly")]

@@ -24,7 +24,7 @@ namespace ECM7.Migrator.NAnt
 		}
 
 		/// <summary>
-		/// Конвертируем уровень события log4net в уровень события nant
+		/// Конвертируем уровень события NLog в уровень события nant
 		/// </summary>
 		/// <param name="level"></param>
 		/// <returns></returns>
