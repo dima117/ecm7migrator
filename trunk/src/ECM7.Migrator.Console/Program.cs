@@ -1,3 +1,5 @@
+using NLog.Targets;
+
 namespace ECM7.Migrator.Console
 {
 	using System;
@@ -58,7 +60,7 @@ namespace ECM7.Migrator.Console
 				return -1;
 			}
 
-			
+
 		}
 
 		private static void WriteHeader()
@@ -86,6 +88,10 @@ namespace ECM7.Migrator.Console
 
 			MigratorLogManager.SetLevel("ALL");
 			MigratorLogManager.AddAppender(appender);
+
+			var simpleLayout = new NLog.Layouts.SimpleLayout("${longdate}:${message}");
+			var nlogTarget = new ConsoleTarget { Layout = simpleLayout };
+			MigratorLogManager.SetNLogTarget(nlogTarget);
 		}
 
 		/// <summary>

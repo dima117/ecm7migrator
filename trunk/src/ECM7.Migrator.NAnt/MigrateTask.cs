@@ -119,6 +119,10 @@ namespace ECM7.Migrator.NAnt
 
 			MigratorLogManager.SetLevel("ALL");
 			MigratorLogManager.AddAppender(appender);
+
+			var simpleLayout = new NLog.Layouts.SimpleLayout("${longdate}:${message}");
+			var nlogTarget = new NAntNLogTarget(this) { Layout = simpleLayout };
+			MigratorLogManager.SetNLogTarget(nlogTarget);
 		}
 	}
 }

@@ -123,6 +123,10 @@ namespace ECM7.Migrator.MSBuild
 
 			MigratorLogManager.SetLevel("ALL");
 			MigratorLogManager.AddAppender(appender);
+
+			var simpleLayout = new NLog.Layouts.SimpleLayout("${longdate}:${message}");
+			var nlogTarget = new MsBuildNLogTarget(Log) { Layout = simpleLayout };
+			MigratorLogManager.SetNLogTarget(nlogTarget);
 		}
 	}
 }
