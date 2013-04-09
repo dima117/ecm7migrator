@@ -21,6 +21,13 @@ namespace ECM7.Migrator.Framework.Logging
 			get { return log; }
 		}
 
+		private static readonly NLog.Logger logger = NLog.LogManager.GetLogger(LOGGER_NAME);
+
+		public static NLog.Logger Logger
+		{
+			get { return logger; }
+		}
+
 		public static void SetLevel(string levelName)
 		{
 			Logger l = Log.Logger as Logger;
