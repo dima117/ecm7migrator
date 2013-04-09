@@ -9,9 +9,6 @@ namespace ECM7.Migrator.Console
 	using Framework;
 	using Framework.Logging;
 
-	using log4net.Appender;
-	using log4net.Layout;
-
 	/// <summary>
 	/// Console application
 	/// </summary>
@@ -72,26 +69,9 @@ namespace ECM7.Migrator.Console
 
 		private static void ConfigureLogging()
 		{
-			PatternLayout layout = new PatternLayout
-				{
-					ConversionPattern = "%message%newline"
-				};
-			layout.ActivateOptions();
-
-			ConsoleAppender appender = new ConsoleAppender
-				{
-					Name = "ecm7migrator-console-appender",
-					Layout = layout
-				};
-
-			appender.ActivateOptions();
-
-			MigratorLogManager.SetLevel("ALL");
-			MigratorLogManager.AddAppender(appender);
-
-			var simpleLayout = new NLog.Layouts.SimpleLayout("${longdate}:${message}");
-			var nlogTarget = new ConsoleTarget { Layout = simpleLayout };
-			MigratorLogManager.SetNLogTarget(nlogTarget);
+			var layout = new NLog.Layouts.SimpleLayout("${longdate}:${message}");
+			var target = new ConsoleTarget { Layout = layout, Name = MigratorLogManager.LOGGER_NAME };
+			MigratorLogManager.SetNLogTarget(target);
 		}
 
 		/// <summary>

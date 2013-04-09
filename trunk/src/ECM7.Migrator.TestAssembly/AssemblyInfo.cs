@@ -14,4 +14,3 @@ using ECM7.Migrator.Framework;
 
 [assembly: MigrationAssembly("test-key111")]
 
-[assembly: AllowPartiallyTrustedCallers]

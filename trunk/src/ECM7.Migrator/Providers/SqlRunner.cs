@@ -65,7 +65,7 @@ namespace ECM7.Migrator.Providers
 
 				if (cmd != null)
 				{
-					MigratorLogManager.Log.WarnFormat("query failed: {0}", cmd.CommandText);
+					MigratorLogManager.Log.Warn("query failed: {0}", cmd.CommandText);
 					cmd.Dispose();
 				}
 
@@ -84,7 +84,7 @@ namespace ECM7.Migrator.Providers
 				}
 				catch (Exception ex)
 				{
-					MigratorLogManager.Log.WarnFormat("Query failed: {0}", cmd.CommandText);
+					MigratorLogManager.Log.Warn("Query failed: {0}", cmd.CommandText);
 					throw new SQLException(ex);
 				}
 			}

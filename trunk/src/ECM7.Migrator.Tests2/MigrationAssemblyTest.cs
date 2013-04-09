@@ -1,5 +1,6 @@
 using System;
 using ECM7.Migrator.Exceptions;
+using NLog.Targets;
 
 namespace ECM7.Migrator.Tests2
 {
@@ -11,8 +12,6 @@ namespace ECM7.Migrator.Tests2
 	using ECM7.Migrator.Framework.Logging;
 	using ECM7.Migrator.Loader;
 	using ECM7.Migrator.TestAssembly;
-
-	using log4net.Appender;
 
 	using Moq;
 
@@ -132,21 +131,18 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void MigrationsMustBeSortedByNumber()
 		{
-			MemoryAppender appender = new MemoryAppender();
-			MigratorLogManager.AddAppender(appender);
+			MemoryTarget target = new MemoryTarget { Name = MigratorLogManager.LOGGER_NAME };
+			MigratorLogManager.SetNLogTarget(target);
 
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");
 			var asm = new MigrationAssembly(assembly);
 
-			var list = appender
-				.GetEvents()
-				.Where(e => e.MessageObject.ToString().StartsWith("Loaded migrations:"))
+			var list = target.Logs
+				.Where(str => str.StartsWith("Loaded migrations:"))
 				.ToList();
 
 			Assert.AreEqual(1, list.Count);
-			Assert.AreEqual(
-				"Loaded migrations:\r\n    1 First test migration\r\n    2 Second test migration\r\n    4 Four test migration\r\n",
-				list[0].MessageObject.ToString());
+			Assert.AreEqual("Loaded migrations:\r\n    1 First test migration\r\n    2 Second test migration\r\n    4 Four test migration\r\n", list[0]);
 		}
 	}
 }

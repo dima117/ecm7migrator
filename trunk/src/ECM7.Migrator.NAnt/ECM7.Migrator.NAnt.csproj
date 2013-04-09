@@ -53,10 +53,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.9.0, Culture=neutral, PublicKeyToken=b32731d11ce58905">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="NAnt.Core">
       <HintPath>..\References\NAnt.Core.dll</HintPath>
     </Reference>
@@ -76,7 +72,6 @@
       <Link>AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="MigrateTask.cs" />
-    <Compile Include="NAntLogAppender.cs" />
     <Compile Include="NAntNLogTarget.cs" />
   </ItemGroup>
   <ItemGroup>

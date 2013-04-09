@@ -1,10 +1,7 @@
 namespace ECM7.Migrator.MSBuild
 {
 	using Configuration;
-
 	using ECM7.Migrator.Framework.Logging;
-	using log4net.Layout;
-
 	using Microsoft.Build.Framework;
 	using Microsoft.Build.Utilities;
 
@@ -107,26 +104,9 @@ namespace ECM7.Migrator.MSBuild
 
 		private void ConfigureLogging()
 		{
-			PatternLayout layout = new PatternLayout
-					{
-						ConversionPattern = "%message"
-					};
-			layout.ActivateOptions();
-
-			MSBuildLogAppender appender = new MSBuildLogAppender(Log)
-			{
-				Name = "ecm7migrator-msbuild-appender",
-				Layout = layout
-			};
-
-			appender.ActivateOptions();
-
-			MigratorLogManager.SetLevel("ALL");
-			MigratorLogManager.AddAppender(appender);
-
-			var simpleLayout = new NLog.Layouts.SimpleLayout("${longdate}:${message}");
-			var nlogTarget = new MsBuildNLogTarget(Log) { Layout = simpleLayout };
-			MigratorLogManager.SetNLogTarget(nlogTarget);
+			var layout = new NLog.Layouts.SimpleLayout("${longdate}:${message}");
+			var target = new MsBuildNLogTarget(Log) { Layout = layout, Name = MigratorLogManager.LOGGER_NAME };
+			MigratorLogManager.SetNLogTarget(target);
 		}
 	}
 }
