@@ -64,6 +64,9 @@
     </Reference>
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities" />
+    <Reference Include="NLog">
+      <HintPath>..\References\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -76,6 +79,7 @@
     </Compile>
     <Compile Include="MigrateTask.cs" />
     <Compile Include="MsBuildLogAppender.cs" />
+    <Compile Include="MsBuildNLogTarget.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\config\ECM7.Migrator.snk">

@@ -1,4 +1,7 @@
-﻿namespace ECM7.Migrator.Framework.Logging
+﻿using NLog.Config;
+using NLog.Targets;
+
+namespace ECM7.Migrator.Framework.Logging
 {
 	using log4net;
 	using log4net.Appender;
@@ -53,6 +56,14 @@
 			}
 
 			return null;
+		}
+
+		public static void SetNLogTarget(Target nlogTarget)
+		{
+			if (nlogTarget != null)
+			{
+				SimpleConfigurator.ConfigureForTargetLogging(nlogTarget);
+			}
 		}
 	}
 }
