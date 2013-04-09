@@ -78,7 +78,7 @@
 				<include name="ECM7.Migrator.Providers.PostgreSQL.dll"/>
 				<include name="ECM7.Migrator.Providers.SQLite.dll"/>
 				<include name="ECM7.Migrator.Providers.SqlServer.dll"/>
-				<include name="log4net.dll"/>
+				<include name="NLog.dll"/>
 				<include name="Migrator.Targets"/>
 				<include name="ECM7.Migrator.Console.exe"/>
 			</fileset>

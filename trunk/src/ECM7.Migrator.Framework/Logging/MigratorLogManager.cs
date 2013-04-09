@@ -18,11 +18,11 @@ namespace ECM7.Migrator.Framework.Logging
 			get { return log; }
 		}
 
-		public static void SetNLogTarget(Target target)
+		public static void SetNLogTarget(Target target, LogLevel minLevel = null)
 		{
 			if (target != null)
 			{
-				SimpleConfigurator.ConfigureForTargetLogging(target);
+				SimpleConfigurator.ConfigureForTargetLogging(target, minLevel ?? LogLevel.Info);
 			}
 		}
 	}

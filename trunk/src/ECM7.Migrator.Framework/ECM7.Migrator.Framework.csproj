@@ -72,7 +72,6 @@
     <Compile Include="..\config\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AdditionalAssemblyInfo.cs" />
     <Compile Include="Column.cs" />
     <Compile Include="ColumnProperty.cs" />
     <Compile Include="ColumnType.cs" />
