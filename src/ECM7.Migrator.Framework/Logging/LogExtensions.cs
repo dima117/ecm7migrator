@@ -1,9 +1,8 @@
-﻿namespace ECM7.Migrator.Framework.Logging
+﻿using System;
+using NLog;
+
+namespace ECM7.Migrator.Framework.Logging
 {
-	using System;
-
-	using log4net;
-
 	/// <summary>
 	/// Методы расширения для объектов, реализующих интерфейс ILogger
 	/// </summary>
@@ -15,9 +14,9 @@
 		/// <param name="log">Лог</param>
 		/// <param name="currentVersion">Текущая версия БД</param>
 		/// <param name="finalVersion">Новая версия БД</param>
-		public static void Started(this ILog log, long currentVersion, long finalVersion)
+		public static void Started(this Logger log, long currentVersion, long finalVersion)
 		{
-			log.InfoFormat("Latest version applied : {0}.  Target version : {1}", currentVersion, finalVersion);
+			log.Info("Latest version applied : {0}.  Target version : {1}", currentVersion, finalVersion);
 		}
 
 		/// <summary>
@@ -26,9 +25,9 @@
 		/// <param name="log">Лог</param>
 		/// <param name="version">Версия миграции</param>
 		/// <param name="migrationName">Название миграции</param>
-		public static void MigrateUp(this ILog log, long version, string migrationName)
+		public static void MigrateUp(this Logger log, long version, string migrationName)
 		{
-			log.InfoFormat("Applying {0}: {1}", version, migrationName);
+			log.Info("Applying {0}: {1}", version, migrationName);
 		}
 
 		/// <summary>
@@ -37,9 +36,9 @@
 		/// <param name="log">Лог</param>
 		/// <param name="version">Версия миграции</param>
 		/// <param name="migrationName">Название миграции</param>
-		public static void MigrateDown(this ILog log, long version, string migrationName)
+		public static void MigrateDown(this Logger log, long version, string migrationName)
 		{
-			log.InfoFormat("Removing {0}: {1}", version, migrationName);
+			log.Info("Removing {0}: {1}", version, migrationName);
 		}
 
 		/// <summary>
@@ -47,9 +46,9 @@
 		/// </summary>
 		/// <param name="log">Лог</param>
 		/// <param name="version">Версия миграции</param>
-		public static void Skipping(this ILog log, long version)
+		public static void Skipping(this Logger log, long version)
 		{
-			log.InfoFormat("{0} {1}", version, "<Migration not found>");
+			log.Info("{0} {1}", version, "<Migration not found>");
 		}
 
 		/// <summary>
@@ -57,9 +56,9 @@
 		/// </summary>
 		/// <param name="log">Лог</param>
 		/// <param name="originalVersion">Версия БД, к которой производится откат</param>
-		public static void RollingBack(this ILog log, long originalVersion)
+		public static void RollingBack(this Logger log, long originalVersion)
 		{
-			log.InfoFormat("Rolling back to migration {0}", originalVersion);
+			log.Info("Rolling back to migration {0}", originalVersion);
 		}
 
 		/// <summary>
@@ -67,7 +66,7 @@
 		/// </summary>
 		/// <param name="log">Лог</param>
 		/// <param name="sql">Текст SQL запроса</param>
-		public static void ExecuteSql(this ILog log, string sql)
+		public static void ExecuteSql(this Logger log, string sql)
 		{
 			log.Info(sql);
 		}
@@ -79,7 +78,7 @@
 		/// <param name="version">Версия миграции, в которой произощла ошибка</param>
 		/// <param name="migrationName">Название миграции</param>
 		/// <param name="ex">Исключение</param>
-		public static void Exception(this ILog log, long version, string migrationName, Exception ex)
+		public static void Exception(this Logger log, long version, string migrationName, Exception ex)
 		{
 			Exception(log, "Error in migration: " + version, ex);
 		}
@@ -90,7 +89,7 @@
 		/// <param name="log">Лог</param>
 		/// <param name="message">Сообщение об ошибке</param>
 		/// <param name="ex">Исключение</param>
-		public static void Exception(this ILog log, string message, Exception ex)
+		public static void Exception(this Logger log, string message, Exception ex)
 		{
 			string msg = message;
 			for (Exception current = ex; current != null; current = current.InnerException)
@@ -106,9 +105,9 @@
 		/// <param name="log">Лог</param>
 		/// <param name="originalVersion">Начальная версия БД</param>
 		/// <param name="currentVersion">Конечная версия БД</param>
-		public static void Finished(this ILog log, long originalVersion, long currentVersion)
+		public static void Finished(this Logger log, long originalVersion, long currentVersion)
 		{
-			log.InfoFormat("Migrated to version {0}", currentVersion);
+			log.Info("Migrated to version {0}", currentVersion);
 		}
 	}
 }

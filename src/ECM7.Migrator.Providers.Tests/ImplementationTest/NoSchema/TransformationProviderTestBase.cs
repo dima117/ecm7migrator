@@ -7,7 +7,6 @@ using System.Reflection;
 using ECM7.Migrator.Exceptions;
 using ECM7.Migrator.Framework;
 using ECM7.Migrator.Utils;
-using log4net.Config;
 using NUnit.Framework;
 using ForeignKeyConstraint = ECM7.Migrator.Framework.ForeignKeyConstraint;
 
@@ -69,7 +68,6 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 		{
 			if (!TransformationProviderTestBase<ITransformationProvider>.isInitialized)
 			{
-				BasicConfigurator.Configure();
 				TransformationProviderTestBase<ITransformationProvider>.isInitialized = true;
 			}
 

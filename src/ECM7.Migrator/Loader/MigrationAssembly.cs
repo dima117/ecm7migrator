@@ -93,7 +93,7 @@ namespace ECM7.Migrator.Loader
 				? string.Empty
 				: asmAttribute.Key ?? string.Empty;
 
-			MigratorLogManager.Log.DebugFormat("Migration key: {0}", assemblyKey);
+			MigratorLogManager.Log.Info("Migration key: {0}", assemblyKey);
 			return assemblyKey;
 		}
 
@@ -129,7 +129,7 @@ namespace ECM7.Migrator.Loader
 				logMessageBuilder.AppendLine(msg);
 			}
 
-			MigratorLogManager.Log.DebugFormat(logMessageBuilder.ToString());
+			MigratorLogManager.Log.Info(logMessageBuilder.ToString());
 
 
 			return migrations;
