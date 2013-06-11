@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
-    <version>2.7.0.0</version>
+    <version>2.8.0.0</version>
     <authors>dima117</authors>
     <owners>dima117</owners>
     <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
@@ -20,7 +20,6 @@
   </metadata>
   <files>
     <file src="..\nuget.package\lib\net40\ECM7.Migrator.Framework.dll" target="lib\net40\ECM7.Migrator.Framework.dll" />
-    <file src="..\nuget.package\tools\ECM7.Common.dll" target="tools\ECM7.Common.dll" />
     <file src="..\nuget.package\tools\ECM7.Migrator.Console.exe" target="tools\ECM7.Migrator.Console.exe" />
     <file src="..\nuget.package\tools\ECM7.Migrator.dll" target="tools\ECM7.Migrator.dll" />
     <file src="..\nuget.package\tools\ECM7.Migrator.Framework.dll" target="tools\ECM7.Migrator.Framework.dll" />
