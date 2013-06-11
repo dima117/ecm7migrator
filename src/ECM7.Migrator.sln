@@ -13,7 +13,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B6FFECE8-ADE2-4694-A363-651AAFD51F94}"
 	ProjectSection(SolutionItems) = preProject
 		ECM7.Migrator.build = ECM7.Migrator.build
-		ECM7Migrator.2.7.0.0.nuspec = ECM7Migrator.2.7.0.0.nuspec
+		ECM7Migrator.nuspec = ECM7Migrator.nuspec
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECM7.Migrator", "ECM7.Migrator\ECM7.Migrator.csproj", "{1FEE70A4-AAD7-4C60-BE60-3F7DC03A8C4D}"
