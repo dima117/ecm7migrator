@@ -54,7 +54,7 @@
 		<copy todir="${nuget.source.dir}" file="ECM7Migrator.${nuget.package.version}.nuspec" />
 
 		<xmlpoke
-			file="${path::combine(nuget.source.dir, 'ECM7Migrator.' + nuget.package.version + '.nuspec')}"
+			file="${path::combine(nuget.source.dir, 'ECM7Migrator.nuspec')}"
 			xpath="/package/metadata/version"
 			verbose="true"
 			value="${nuget.package.version}" />
