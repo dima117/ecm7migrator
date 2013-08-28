@@ -71,6 +71,7 @@
 				<include name="ECM7.Migrator.Framework.dll"/>
 				<include name="ECM7.Migrator.MSBuild.dll"/>
 				<include name="ECM7.Migrator.NAnt.dll"/>
+				<include name="ECM7.Migrator.Providers.Firebird.dll"/>
 				<include name="ECM7.Migrator.Providers.MySql.dll"/>
 				<include name="ECM7.Migrator.Providers.Oracle.dll"/>
 				<include name="ECM7.Migrator.Providers.PostgreSQL.dll"/>
