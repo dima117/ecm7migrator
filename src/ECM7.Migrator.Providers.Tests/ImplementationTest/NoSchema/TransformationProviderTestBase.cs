@@ -1030,6 +1030,39 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			provider.RemoveTable(tableName);
 		}
 
+		[Test]
+		public virtual void CanInsertDataFromObject()
+		{
+			SchemaQualifiedObjectName tableName = GetRandomTableName("InsertTest");
+
+			provider.AddTable(tableName,
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("Title", DbType.String.WithSize(30), ColumnProperty.Null),
+				new Column("Title2", DbType.String.WithSize(30)));
+
+			provider.Insert(tableName,
+				new
+				{
+					Id = 129,
+					Title = (object)null,
+					Title2 = "lewqkghwl"
+				});
+
+			string sql = provider.FormatSql("SELECT {0:NAME}, {1:NAME}, {2:NAME} FROM {3:NAME}",
+				"Id", "Title", "Title2", tableName);
+
+			using (IDataReader reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(129, reader[0]);
+				Assert.AreEqual(DBNull.Value, reader[1]);
+				Assert.AreEqual("lewqkghwl", reader.GetString(2));
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(tableName);
+		}
+
 		#endregion
 
 		#region update
@@ -1055,6 +1088,33 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 				Assert.AreEqual(42, reader["TestInteger"]);
 				Assert.IsTrue(reader.Read());
 				Assert.AreEqual(42, reader["TestInteger"]);
+				Assert.IsFalse(reader.Read());
+			}
+
+			provider.RemoveTable(tableName);
+		}
+
+		[Test]
+		public virtual void CanUpdateDataFromObject()
+		{
+			SchemaQualifiedObjectName tableName = GetRandomTableName("UpdateData");
+
+			provider.AddTable(tableName,
+				new Column("Id", DbType.Int32, ColumnProperty.PrimaryKey),
+				new Column("TestInteger", DbType.Int32));
+
+			provider.Insert(tableName, new[] { "Id", "TestInteger" }, new[] { "1", "1122" });
+			provider.Insert(tableName, new[] { "Id", "TestInteger" }, new[] { "2", "3344" });
+
+			provider.Update(tableName, new { TestInteger = 249 });
+
+			string sql = provider.FormatSql("SELECT {0:NAME} FROM {1:NAME}", "TestInteger", tableName);
+			using (IDataReader reader = provider.ExecuteReader(sql))
+			{
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(249, reader["TestInteger"]);
+				Assert.IsTrue(reader.Read());
+				Assert.AreEqual(249, reader["TestInteger"]);
 				Assert.IsFalse(reader.Read());
 			}
 

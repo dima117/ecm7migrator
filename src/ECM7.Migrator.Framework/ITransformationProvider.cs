@@ -161,6 +161,14 @@ namespace ECM7.Migrator.Framework
 		int Insert(SchemaQualifiedObjectName table, string[] columns, string[] values);
 
 		/// <summary>
+		/// Insert data into a table
+		/// </summary>
+		/// <param name="table">The table that will get the new data</param>
+		/// <param name="row">Data for insert</param>
+		/// <returns></returns>
+		int Insert(SchemaQualifiedObjectName table, object row);
+
+		/// <summary>
 		/// Delete data from a table
 		/// </summary>
 		/// <param name="table">The table that will have the data deleted</param>
@@ -238,6 +246,8 @@ namespace ECM7.Migrator.Framework
 		/// <param name="whereSql">A whereSql clause to limit the update</param>
 		/// <returns></returns>
 		int Update(SchemaQualifiedObjectName table, string[] columns, string[] values, string whereSql = null);
+
+		int Update(SchemaQualifiedObjectName table, object row, string whereSql = null);
 
 		IDbCommand GetCommand(string sql = null);
 
