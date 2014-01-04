@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -419,7 +420,7 @@ namespace ECM7.Migrator.Providers
 
 		#region DML
 
-		protected Tuple<string[], string[]> ConvertObjectToArrays(object row)
+		public static Tuple<string[], string[]> ConvertObjectToArrays(object row)
 		{
 			var columns = new List<string>();
 			var values = new List<string>();
