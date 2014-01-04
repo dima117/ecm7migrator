@@ -33,11 +33,11 @@
 		/// <summary>
 		/// Максимальное время выполнения команды
 		/// </summary>
-		int CommandTimeout { get; }
+		int? CommandTimeout { get; }
 
 		/// <summary>
 		/// Необходимо ли оборачивать имена в кавычки
 		/// </summary>
-		bool NeedQuotesForNames { get; }
+		bool? NeedQuotesForNames { get; }
 	}
 }
