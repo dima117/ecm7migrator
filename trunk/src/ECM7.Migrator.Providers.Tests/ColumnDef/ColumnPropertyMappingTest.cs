@@ -20,7 +20,7 @@ namespace ECM7.Migrator.Providers.Tests.ColumnDef
 		private TProvider CreateProvider()
 		{
 			string cstring = ConfigurationManager.AppSettings[CStringName];
-			return ProviderFactory.Create<TProvider>(cstring, null) as TProvider;
+			return ProviderFactory.Create<TProvider>(cstring) as TProvider;
 		}
 
 		#endregion

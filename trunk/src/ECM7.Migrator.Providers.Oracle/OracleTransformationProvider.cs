@@ -16,8 +16,8 @@ namespace ECM7.Migrator.Providers.Oracle
 	[ProviderValidation(typeof(OracleConnection), true)]
 	public class OracleTransformationProvider : TransformationProvider
 	{
-		public OracleTransformationProvider(OracleConnection connection, int commandTimeout)
-			: base(connection, commandTimeout)
+		public OracleTransformationProvider(OracleConnection connection)
+			: base(connection)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
 			typeMap.Put(DbType.AnsiStringFixedLength, 2000, "CHAR($l)");
@@ -97,14 +97,14 @@ namespace ECM7.Migrator.Providers.Oracle
 
 		public override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
 		{
-			var sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+			var sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap, GetQuotedName);
 
-			sqlBuilder.AddColumnName(NamesQuoteTemplate);
-			sqlBuilder.AddColumnType(IdentityNeedsType);
-			sqlBuilder.AddDefaultValueSql(GetSqlDefaultValue);
-			sqlBuilder.AddNotNullSql(NeedsNotNullForIdentity);
-			sqlBuilder.AddPrimaryKeySql(compoundPrimaryKey);
-			sqlBuilder.AddUniqueSql();
+			sqlBuilder.AppendColumnName();
+			sqlBuilder.AppendColumnType(IdentityNeedsType);
+			sqlBuilder.AppendDefaultValueSql(GetSqlDefaultValue);
+			sqlBuilder.AppendNotNullSql(NeedsNotNullForIdentity);
+			sqlBuilder.AppendPrimaryKeySql(compoundPrimaryKey);
+			sqlBuilder.AppendUniqueSql();
 
 			return sqlBuilder.ToString();
 		}

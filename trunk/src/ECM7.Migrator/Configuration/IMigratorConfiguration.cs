@@ -34,5 +34,10 @@
 		/// Максимальное время выполнения команды
 		/// </summary>
 		int CommandTimeout { get; }
+
+		/// <summary>
+		/// Необходимо ли оборачивать имена в кавычки
+		/// </summary>
+		bool NeedQuotesForNames { get; }
 	}
 }

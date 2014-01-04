@@ -1,10 +1,11 @@
-﻿using ECM7.Migrator.Utils;
+﻿using System.Configuration;
+using System.Reflection;
+
+using ECM7.Migrator.Providers;
+using ECM7.Migrator.Utils;
 
 namespace ECM7.Migrator.Configuration
 {
-	using System;
-	using System.Configuration;
-	using System.Reflection;
 
 	/// <summary>
 	/// Инициализация мигратора
@@ -40,7 +41,11 @@ namespace ECM7.Migrator.Configuration
 
 			string connectionString = GetConnectionString(config);
 
-			return new Migrator(config.Provider.Trim(), connectionString, assembly, config.CommandTimeout);
+			var provider = ProviderFactory.Create(config.Provider.Trim(), connectionString);
+			provider.CommandTimeout = config.CommandTimeout;
+			provider.NeedQuotesForNames = config.NeedQuotesForNames;
+
+			return new Migrator(provider, assembly);
 		}
 
 		/// <summary>

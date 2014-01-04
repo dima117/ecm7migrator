@@ -12,25 +12,19 @@ namespace ECM7.Migrator.Providers
 
 	public class SqlRunner : ContextBoundObject, IDisposable
 	{
-		protected SqlRunner(IDbConnection connection, int commandTimeout)
+		protected SqlRunner(IDbConnection connection)
 		{
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 			this.connection = connection;
-			this.commandTimeout = commandTimeout;
 		}
 
 		private bool connectionNeedClose; // = false
 
 		private readonly IDbConnection connection;
 
-		private readonly int commandTimeout;
-
 		private IDbTransaction transaction;
 
-		public int? CommandTimeout
-		{
-			get { return commandTimeout; }
-		}
+		public int CommandTimeout { get; set; }
 
 		public IDbConnection Connection
 		{
@@ -241,9 +235,9 @@ namespace ECM7.Migrator.Providers
 			cmd.CommandText = sql;
 			cmd.CommandType = CommandType.Text;
 
-			if (commandTimeout > 0)
+			if (CommandTimeout > 0)
 			{
-				cmd.CommandTimeout = commandTimeout;
+				cmd.CommandTimeout = CommandTimeout;
 			}
 
 			if (transaction != null)

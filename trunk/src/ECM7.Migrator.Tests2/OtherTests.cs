@@ -22,7 +22,7 @@ namespace ECM7.Migrator.Tests2
 		public void ProviderFinalizeTest()
 		{
 			string cstring = ConfigurationManager.AppSettings["SqlServerConnectionString"];
-			var provider = ProviderFactory.Create(typeof (SqlServerTransformationProvider), cstring, null);
+			var provider = ProviderFactory.Create(typeof (SqlServerTransformationProvider), cstring);
 			provider.ExecuteScalar("select 1");
 
 			provider = null;

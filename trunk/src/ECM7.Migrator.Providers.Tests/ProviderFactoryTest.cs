@@ -1,23 +1,20 @@
+using System;
+using System.Configuration;
+using System.Data.SqlClient;
+
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers.Firebird;
+using ECM7.Migrator.Providers.MySql;
+using ECM7.Migrator.Providers.Oracle;
+using ECM7.Migrator.Providers.PostgreSQL;
+using ECM7.Migrator.Providers.SQLite;
+using ECM7.Migrator.Providers.SqlServer;
+
+using Npgsql;
+using NUnit.Framework;
+
 namespace ECM7.Migrator.Providers.Tests
 {
-	using System;
-	using System.Configuration;
-	using System.Data.SqlClient;
-
-	using ECM7.Migrator.Providers;
-	using ECM7.Migrator.Providers.Firebird;
-	using ECM7.Migrator.Providers.MySql;
-	using ECM7.Migrator.Providers.Oracle;
-	using ECM7.Migrator.Providers.PostgreSQL;
-	using ECM7.Migrator.Providers.SQLite;
-	using ECM7.Migrator.Providers.SqlServer;
-
-	using Npgsql;
-
-	using NUnit.Framework;
-
-	using ECM7.Migrator.Framework;
-
 	[TestFixture]
 	public class ProviderFactoryTest
 	{
@@ -28,7 +25,7 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			string cstring = ConfigurationManager.AppSettings[cstringName];
 
-			using (ITransformationProvider provider = ProviderFactory.Create<TProvider>(cstring, null))
+			using (ITransformationProvider provider = ProviderFactory.Create<TProvider>(cstring))
 			{
 				Assert.IsNotNull(provider);
 				Assert.IsTrue(provider is TProvider);
@@ -173,7 +170,7 @@ namespace ECM7.Migrator.Providers.Tests
 		public void CanCreateProvider()
 		{
 			using (var provider = ProviderFactory
-				.Create(typeof(PostgreSQLTransformationProvider), new NpgsqlConnection(), null))
+				.Create(typeof(PostgreSQLTransformationProvider), new NpgsqlConnection()))
 			{
 				Assert.IsNotNull(provider);
 				Assert.AreEqual(typeof(PostgreSQLTransformationProvider), provider.GetType());
@@ -185,14 +182,14 @@ namespace ECM7.Migrator.Providers.Tests
 		{
 			Assert.Throws<MissingMethodException>(() =>
 			ProviderFactory.Create(
-				typeof(PostgreSQLTransformationProvider), new SqlConnection(), null));
+				typeof(PostgreSQLTransformationProvider), new SqlConnection()));
 		}
 
 		[Test]
 		public void CanCreateProviderUsingConnectionString()
 		{
 			string cstring = ConfigurationManager.AppSettings["NpgsqlConnectionString"];
-			using (var provider = ProviderFactory.Create(typeof(PostgreSQLTransformationProvider), cstring, null))
+			using (var provider = ProviderFactory.Create(typeof(PostgreSQLTransformationProvider), cstring))
 			{
 				// проверка типа провайдера
 				Assert.IsNotNull(provider);
@@ -203,8 +200,8 @@ namespace ECM7.Migrator.Providers.Tests
 				Assert.AreEqual(typeof(NpgsqlConnection), provider.Connection.GetType());
 
 				// проверка строки подключнеия у созданного провайдера
-				NpgsqlConnectionStringBuilder sb1 = new NpgsqlConnectionStringBuilder(cstring);
-				NpgsqlConnectionStringBuilder sb2 = new NpgsqlConnectionStringBuilder(provider.Connection.ConnectionString);
+				var sb1 = new NpgsqlConnectionStringBuilder(cstring);
+				var sb2 = new NpgsqlConnectionStringBuilder(provider.Connection.ConnectionString);
 
 				Assert.AreEqual(sb1.Host, sb2.Host);
 				Assert.AreEqual(sb1.Database, sb2.Database);

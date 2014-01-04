@@ -42,7 +42,7 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.WithSchema
 		{
 			string cstring = ConfigurationManager.AppSettings[cstringName];
 
-			using (ITransformationProvider provider = ProviderFactory.Create(providerType, cstring, null))
+			using (ITransformationProvider provider = ProviderFactory.Create(providerType, cstring))
 			{
 				MethodInfo[] methods = providerType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
 

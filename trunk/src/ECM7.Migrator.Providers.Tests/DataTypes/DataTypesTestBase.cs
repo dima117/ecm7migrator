@@ -25,7 +25,7 @@ namespace ECM7.Migrator.Providers.Tests.DataTypes
 		[SetUp]
 		public void Setup()
 		{
-			Provider = ProviderFactory.Create<TProvider>(ConnectionString, null);
+			Provider = ProviderFactory.Create<TProvider>(ConnectionString);
 		}
 
 		[TearDown]
