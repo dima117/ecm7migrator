@@ -60,7 +60,7 @@
 		{
 			get
 			{
-				var value = (base["commandTimeout"] ?? string.Empty) as string;
+				var value = (base["commandTimeout"] ?? string.Empty).ToString();
 				int result;
 
 				return int.TryParse(value, out result) ? result : default(int);

@@ -26,6 +26,8 @@
 			Assert.AreEqual("222", config.Provider);
 			Assert.AreEqual("333", config.ConnectionString);
 			Assert.AreEqual("444", config.ConnectionStringName);
+			Assert.AreEqual(123, config.CommandTimeout);
+			Assert.AreEqual(true, config.NeedQuotesForNames);
 		}
 
 		/// <summary>
