@@ -132,7 +132,7 @@ namespace ECM7.Migrator.Tests2
 		[Test]
 		public void MigrationsMustBeSortedByNumber()
 		{
-			MemoryTarget target = new MemoryTarget { Name = MigratorLogManager.LOGGER_NAME, Layout = new SimpleLayout("${message}") };
+			var target = new MemoryTarget { Name = MigratorLogManager.LOGGER_NAME, Layout = new SimpleLayout("${message}") };
 			MigratorLogManager.SetNLogTarget(target);
 
 			Assembly assembly = Assembly.Load("ECM7.Migrator.TestAssembly");

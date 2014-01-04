@@ -59,6 +59,7 @@
     <Compile Include="MigrationTypeComparerTest.cs" />
     <Compile Include="MigratorPlanTest.cs" />
     <Compile Include="OtherTests.cs" />
+    <Compile Include="Providers\QuotesTests.cs" />
     <Compile Include="SqlFormatterTest.cs" />
     <Compile Include="Providers\TypeNamesTest.cs" />
   </ItemGroup>

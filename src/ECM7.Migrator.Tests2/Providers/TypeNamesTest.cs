@@ -11,7 +11,7 @@ namespace ECM7.Migrator.Tests2.Providers
 		[Test]
 		public void PutAndGetTest()
 		{
-			TypeMap map = new TypeMap();
+			var map = new TypeMap();
 			map.Put(DbType.AnsiString, "TEXT");
 			map.Put(DbType.AnsiString, 255, "VARCHAR($l)");
 			map.Put(DbType.AnsiString, 65534, "LONGVARCHAR($l)");
@@ -26,7 +26,7 @@ namespace ECM7.Migrator.Tests2.Providers
 		[Test]
 		public void PutAndGetByColumnTypeTest()
 		{
-			TypeMap map = new TypeMap();
+			var map = new TypeMap();
 			map.Put(DbType.AnsiString, "TEXT");
 			map.Put(DbType.AnsiString, 255, "VARCHAR($l)");
 			map.Put(DbType.AnsiString, 65534, "LONGVARCHAR($l)");
@@ -41,7 +41,7 @@ namespace ECM7.Migrator.Tests2.Providers
 		[Test]
 		public void PutAndGetTest2()
 		{
-			TypeMap map = new TypeMap();
+			var map = new TypeMap();
 			map.Put(DbType.AnsiString, "VARCHAR($l)");
 
 			Assert.AreEqual("VARCHAR($l)", map.Get(DbType.AnsiString));			// will cause trouble
@@ -54,7 +54,7 @@ namespace ECM7.Migrator.Tests2.Providers
 		[Test]
 		public void PutAndGetByColumnTypeTest2()
 		{
-			TypeMap map = new TypeMap();
+			var map = new TypeMap();
 			map.Put(DbType.AnsiString, "VARCHAR($l)");
 
 			Assert.AreEqual("VARCHAR($l)", map.Get(new ColumnType(DbType.AnsiString)));			// will cause trouble
@@ -67,7 +67,7 @@ namespace ECM7.Migrator.Tests2.Providers
 		[Test]
 		public void PutAndGetDecimalTest()
 		{
-			TypeMap map = new TypeMap();
+			var map = new TypeMap();
 			map.Put(DbType.Decimal, "NUMBER");
 			map.Put(DbType.Decimal, 18, "NUMBER($l, $s)");
 
@@ -79,7 +79,7 @@ namespace ECM7.Migrator.Tests2.Providers
 		[Test]
 		public void PutAndGetDecimalByColumnTypeTest()
 		{
-			TypeMap map = new TypeMap();
+			var map = new TypeMap();
 			map.Put(DbType.Decimal, "NUMBER");
 			map.Put(DbType.Decimal, 18, "NUMBER($l, $s)");
 
@@ -90,7 +90,7 @@ namespace ECM7.Migrator.Tests2.Providers
 		[Test]
 		public void ReplacingWithDefaultScaleTest()
 		{
-			TypeMap map = new TypeMap();
+			var map = new TypeMap();
 			map.Put(DbType.Xml, 20, "foo($l, $s)", 5);
 			Assert.AreEqual("foo(12, 7)", map.Get(DbType.Xml, 12, 7));
 			Assert.AreEqual("foo(12, 5)", map.Get(DbType.Xml, 12));
@@ -99,7 +99,7 @@ namespace ECM7.Migrator.Tests2.Providers
 		[Test]
 		public void HasTypeTest()
 		{
-			TypeMap map = new TypeMap();
+			var map = new TypeMap();
 			Assert.IsFalse(map.HasType(DbType.Int32));
 			map.Put(DbType.Int32, string.Empty);
 			Assert.IsTrue(map.HasType(DbType.Int32));
@@ -108,7 +108,7 @@ namespace ECM7.Migrator.Tests2.Providers
 		[Test]
 		public void HasTypeWithLengthTest()
 		{
-			TypeMap map = new TypeMap();
+			var map = new TypeMap();
 			map.Put(DbType.Int32, 4, string.Empty);
 			Assert.IsTrue(map.HasType(DbType.Int32));
 		}

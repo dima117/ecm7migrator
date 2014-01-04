@@ -48,7 +48,9 @@ namespace ECM7.Migrator.Providers
 
 		public string FormatSql(string format, params object[] args)
 		{
-			return string.Format(sqlFormatProvider, format, args);
+			return NeedQuotesForNames
+				? string.Format(sqlFormatProvider, format, args)
+				: string.Format(format, args);
 		}
 
 		public IConditionByProvider ConditionalExecuteAction()
@@ -86,9 +88,7 @@ namespace ECM7.Migrator.Providers
 
 		protected string GetQuotedName(string name)
 		{
-			return NeedQuotesForNames
-				? FormatSql("{0:NAME}", name)
-				: name;
+			return FormatSql("{0:NAME}", name);
 		}
 
 		protected virtual string GetSqlAddTable(SchemaQualifiedObjectName table, string columnsSql)
