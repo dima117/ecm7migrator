@@ -15,8 +15,8 @@ namespace ECM7.Migrator.Providers.MySql
 	[ProviderValidation(typeof(MySqlConnection), true)]
 	public class MySqlTransformationProvider : TransformationProvider
 	{
-		public MySqlTransformationProvider(MySqlConnection connection, int commandTimeout)
-			: base(connection, commandTimeout)
+		public MySqlTransformationProvider(MySqlConnection connection)
+			: base(connection)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
 			typeMap.Put(DbType.AnsiStringFixedLength, 255, "CHAR($l)");

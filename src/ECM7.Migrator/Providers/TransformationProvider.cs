@@ -25,9 +25,10 @@ namespace ECM7.Migrator.Providers
 		protected readonly ForeignKeyActionMap fkActionMap = new ForeignKeyActionMap();
 
 
-		protected TransformationProvider(IDbConnection connection, int commandTimeout)
-			: base(connection, commandTimeout)
+		protected TransformationProvider(IDbConnection connection)
+			: base(connection)
 		{
+			NeedQuotesForNames = true;
 			sqlFormatProvider = new SqlFormatter(obj => string.Format(NamesQuoteTemplate, obj));
 
 			propertyMap.RegisterPropertySql(ColumnProperty.Null, "NULL");
@@ -42,6 +43,8 @@ namespace ECM7.Migrator.Providers
 		}
 
 		#region common
+
+		public bool NeedQuotesForNames { get; set; }
 
 		public string FormatSql(string format, params object[] args)
 		{
@@ -81,6 +84,13 @@ namespace ECM7.Migrator.Providers
 
 		#region generate sql
 
+		protected string GetQuotedName(string name)
+		{
+			return NeedQuotesForNames
+				? FormatSql("{0:NAME}", name)
+				: name;
+		}
+
 		protected virtual string GetSqlAddTable(SchemaQualifiedObjectName table, string columnsSql)
 		{
 			return FormatSql("CREATE TABLE {0:NAME} ({1})", table, columnsSql);
@@ -93,21 +103,21 @@ namespace ECM7.Migrator.Providers
 
 		public virtual string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
 		{
-			ColumnSqlBuilder sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+			var sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap, GetQuotedName);
 
-			sqlBuilder.AddColumnName(NamesQuoteTemplate);
-			sqlBuilder.AddColumnType(IdentityNeedsType);
+			sqlBuilder.AppendColumnName();
+			sqlBuilder.AppendColumnType(IdentityNeedsType);
 
 			// identity не нуждается в типе
-			sqlBuilder.AddSqlForIdentityWhichNotNeedsType(IdentityNeedsType);
-			sqlBuilder.AddUnsignedSql();
-			sqlBuilder.AddNotNullSql(NeedsNotNullForIdentity);
-			sqlBuilder.AddPrimaryKeySql(compoundPrimaryKey);
+			sqlBuilder.AppendSqlForIdentityWhichNotNeedsType(IdentityNeedsType);
+			sqlBuilder.AppendUnsignedSql();
+			sqlBuilder.AppendNotNullSql(NeedsNotNullForIdentity);
+			sqlBuilder.AppendPrimaryKeySql(compoundPrimaryKey);
 
 			// identity нуждается в типе
-			sqlBuilder.AddSqlForIdentityWhichNeedsType(IdentityNeedsType);
-			sqlBuilder.AddUniqueSql();
-			sqlBuilder.AddDefaultValueSql(GetSqlDefaultValue);
+			sqlBuilder.AppendSqlForIdentityWhichNeedsType(IdentityNeedsType);
+			sqlBuilder.AppendUniqueSql();
+			sqlBuilder.AppendDefaultValueSql(GetSqlDefaultValue);
 
 			return sqlBuilder.ToString();
 		}
@@ -115,7 +125,6 @@ namespace ECM7.Migrator.Providers
 		protected virtual string GetSqlPrimaryKey(string pkName, List<string> primaryKeyColumns)
 		{
 			return FormatSql("CONSTRAINT {0:NAME} PRIMARY KEY ({1:COLS})", pkName, primaryKeyColumns);
-
 		}
 
 		protected virtual string GetSqlDefaultValue(object defaultValue)
@@ -233,7 +242,7 @@ namespace ECM7.Migrator.Providers
 
 			bool compoundPrimaryKey = pks.Count > 1;
 
-			List<string> querySections = new List<string>();
+			var querySections = new List<string>();
 
 			// SQL для колонок таблицы
 			foreach (Column column in columns)

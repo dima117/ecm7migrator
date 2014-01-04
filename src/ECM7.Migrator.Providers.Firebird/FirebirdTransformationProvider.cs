@@ -1,14 +1,14 @@
-﻿using ECM7.Migrator.Providers.Validation;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers.Firebird.Internal;
+using ECM7.Migrator.Providers.Validation;
+using FirebirdSql.Data.FirebirdClient;
 
 namespace ECM7.Migrator.Providers.Firebird
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Data;
-
-	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Providers.Firebird.Internal;
-	using FirebirdSql.Data.FirebirdClient;
 
 	[ProviderValidation(typeof(FbConnection), false)]
 	public class FirebirdTransformationProvider : TransformationProvider
@@ -17,9 +17,8 @@ namespace ECM7.Migrator.Providers.Firebird
 		/// Инициализация
 		/// </summary>
 		/// <param name="connection">Подключение к БД</param>
-		/// <param name="commandTimeout">Максимальное время выполнения команды</param>
-		public FirebirdTransformationProvider(FbConnection connection, int commandTimeout)
-			: base(connection, commandTimeout)
+		public FirebirdTransformationProvider(FbConnection connection)
+			: base(connection)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "CHAR(255)");
 			typeMap.Put(DbType.AnsiStringFixedLength, short.MaxValue, "CHAR($l)");
@@ -99,14 +98,14 @@ namespace ECM7.Migrator.Providers.Firebird
 
 		public override string GetSqlColumnDef(Column column, bool compoundPrimaryKey)
 		{
-			var sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap);
+			var sqlBuilder = new ColumnSqlBuilder(column, typeMap, propertyMap, GetQuotedName);
 
-			sqlBuilder.AddColumnName(NamesQuoteTemplate);
-			sqlBuilder.AddColumnType(IdentityNeedsType);
-			sqlBuilder.AddDefaultValueSql(GetSqlDefaultValue);
-			sqlBuilder.AddNotNullSql(NeedsNotNullForIdentity);
-			sqlBuilder.AddPrimaryKeySql(compoundPrimaryKey);
-			sqlBuilder.AddUniqueSql();
+			sqlBuilder.AppendColumnName();
+			sqlBuilder.AppendColumnType(IdentityNeedsType);
+			sqlBuilder.AppendDefaultValueSql(GetSqlDefaultValue);
+			sqlBuilder.AppendNotNullSql(NeedsNotNullForIdentity);
+			sqlBuilder.AppendPrimaryKeySql(compoundPrimaryKey);
+			sqlBuilder.AppendUniqueSql();
 
 			return sqlBuilder.ToString();
 		}

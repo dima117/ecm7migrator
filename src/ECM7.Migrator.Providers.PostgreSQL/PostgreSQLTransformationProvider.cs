@@ -18,9 +18,8 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 		/// Инициализация
 		/// </summary>
 		/// <param name="connection"></param>
-		/// <param name="commandTimeout">Максимальное время выполнения команды</param>
-		public PostgreSQLTransformationProvider(NpgsqlConnection connection, int commandTimeout)
-			: base(connection, commandTimeout)
+		public PostgreSQLTransformationProvider(NpgsqlConnection connection)
+			: base(connection)
 		{
 			typeMap.Put(DbType.AnsiStringFixedLength, "char(255)");
 			typeMap.Put(DbType.AnsiStringFixedLength, 8000, "char($l)");

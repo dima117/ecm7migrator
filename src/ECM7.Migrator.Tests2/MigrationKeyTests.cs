@@ -1,17 +1,16 @@
-﻿using ECM7.Migrator.Utils;
+﻿using System;
+using System.Configuration;
+using System.Data;
+
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Providers;
+using ECM7.Migrator.Providers.SqlServer;
+using ECM7.Migrator.Utils;
+
+using NUnit.Framework;
 
 namespace ECM7.Migrator.Tests2
 {
-	using System;
-	using System.Configuration;
-	using System.Data;
-
-	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Providers;
-	using ECM7.Migrator.Providers.SqlServer;
-
-	using NUnit.Framework;
-
 	[TestFixture, Category("SqlServer")]
 	public class MigrationKeyTests
 	{
@@ -24,7 +23,7 @@ namespace ECM7.Migrator.Tests2
 
 
 			// провайдер
-			using (var provider = ProviderFactory.Create<SqlServerTransformationProvider>(constr, null))
+			using (var provider = ProviderFactory.Create<SqlServerTransformationProvider>(constr))
 			{
 				if (provider.TableExists("SchemaInfo"))
 				{

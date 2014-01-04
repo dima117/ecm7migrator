@@ -1,18 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+
 using ECM7.Migrator.Exceptions;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Framework.Logging;
 using ECM7.Migrator.Utils;
 
 namespace ECM7.Migrator.Loader
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.ObjectModel;
-	using System.Linq;
-	using System.Reflection;
-	using System.Text;
-
-	using ECM7.Migrator.Framework;
-	using ECM7.Migrator.Framework.Logging;
-
 	/// <summary>
 	/// Класс для работы с миграциями в сборке
 	/// </summary>
@@ -86,8 +85,7 @@ namespace ECM7.Migrator.Loader
 		/// </summary>
 		private static string GetAssemblyKey(Assembly assembly)
 		{
-			MigrationAssemblyAttribute asmAttribute =
-				assembly.GetCustomAttribute<MigrationAssemblyAttribute>();
+			var asmAttribute = assembly.GetCustomAttribute<MigrationAssemblyAttribute>();
 
 			string assemblyKey = asmAttribute == null
 				? string.Empty
@@ -103,17 +101,17 @@ namespace ECM7.Migrator.Loader
 		/// <param name="asm">The <c>Assembly</c> to browse.</param>
 		private static List<MigrationInfo> GetMigrationInfoList(Assembly asm)
 		{
-			List<MigrationInfo> migrations = new List<MigrationInfo>();
+			var migrations = new List<MigrationInfo>();
 
 			foreach (Type type in asm.GetExportedTypes())
 			{
-				MigrationAttribute attribute = type.GetCustomAttribute<MigrationAttribute>();
+				var attribute = type.GetCustomAttribute<MigrationAttribute>();
 
 				if (attribute != null
 					&& typeof(IMigration).IsAssignableFrom(type)
 					&& !attribute.Ignore)
 				{
-					MigrationInfo mi = new MigrationInfo(type);
+					var mi = new MigrationInfo(type);
 					migrations.Add(mi);
 				}
 			}
@@ -174,7 +172,7 @@ namespace ECM7.Migrator.Loader
 			Require.IsNotNull(provider, "Не задан провайдер СУБД");
 			Require.IsNotNull(migrationInfo.Type, "Не задан класс миграции");
 			
-			IMigration migration = (IMigration)Activator.CreateInstance(migrationInfo.Type);
+			var migration = (IMigration)Activator.CreateInstance(migrationInfo.Type);
 			migration.Database = provider;
 			return migration;
 		}

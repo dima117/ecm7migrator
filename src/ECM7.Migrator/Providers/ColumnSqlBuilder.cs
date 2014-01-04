@@ -1,11 +1,10 @@
-﻿using ECM7.Migrator.Utils;
+﻿using System;
+using System.Collections.Generic;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Utils;
 
 namespace ECM7.Migrator.Providers
 {
-	using System;
-	using System.Collections.Generic;
-
-	using ECM7.Migrator.Framework;
 
 	public class ColumnSqlBuilder
 	{
@@ -14,29 +13,32 @@ namespace ECM7.Migrator.Providers
 		protected readonly TypeMap typeMap;
 		protected readonly PropertyMap propertyMap;
 		protected readonly Column column;
+		protected readonly Func<string, string> nameConverter;
 
-		public ColumnSqlBuilder(Column column, TypeMap typeMap, PropertyMap propertyMap)
+		public ColumnSqlBuilder(Column column, TypeMap typeMap, PropertyMap propertyMap, Func<string, string> nameConverter)
 		{
 			Require.IsNotNull(column, "Не задан столбец таблицы для построения SQL-выражения");
 			Require.IsNotNull(typeMap, "Не задан мэппинг типов данных");
 			Require.IsNotNull(propertyMap, "Не задан мэппинг свойств столбца таблицы");
+			Require.IsNotNull(nameConverter, "Не задан конвертер имени столбца таблицы");
 
 			this.column = column;
 			this.typeMap = typeMap;
 			this.propertyMap = propertyMap;
+			this.nameConverter = nameConverter;
 		}
 
 		#region добавление элементов SQL-выражения для колонки
 
-		public ColumnSqlBuilder AddColumnName(string namesQuoteTemplate)
+		public ColumnSqlBuilder AppendColumnName()
 		{
-			var columnName = string.Format(namesQuoteTemplate, column.Name);
+			var columnName = nameConverter(column.Name);
 			vals.Add(columnName);
 
 			return this;
 		}
 
-		public ColumnSqlBuilder AddColumnType(bool identityNeedsType)
+		public ColumnSqlBuilder AppendColumnType(bool identityNeedsType)
 		{
 			string type = column.IsIdentity && !identityNeedsType
 				? string.Empty
@@ -50,7 +52,7 @@ namespace ECM7.Migrator.Providers
 			return this;
 		}
 
-		public ColumnSqlBuilder AddSqlForIdentityWhichNotNeedsType(bool identityNeedsType)
+		public ColumnSqlBuilder AppendSqlForIdentityWhichNotNeedsType(bool identityNeedsType)
 		{
 			if (!identityNeedsType)
 			{
@@ -60,14 +62,14 @@ namespace ECM7.Migrator.Providers
 			return this;
 		}
 
-		public ColumnSqlBuilder AddUnsignedSql()
+		public ColumnSqlBuilder AppendUnsignedSql()
 		{
 			propertyMap.AddValueIfSelected(column, ColumnProperty.Unsigned, vals);
 
 			return this;
 		}
 
-		public ColumnSqlBuilder AddNotNullSql(bool needsNotNullForIdentity)
+		public ColumnSqlBuilder AppendNotNullSql(bool needsNotNullForIdentity)
 		{
 			if (!column.ColumnProperty.HasProperty(ColumnProperty.PrimaryKey) || needsNotNullForIdentity)
 			{
@@ -77,7 +79,7 @@ namespace ECM7.Migrator.Providers
 			return this;
 		}
 
-		public ColumnSqlBuilder AddPrimaryKeySql(bool compoundPrimaryKey)
+		public ColumnSqlBuilder AppendPrimaryKeySql(bool compoundPrimaryKey)
 		{
 			if (!compoundPrimaryKey)
 			{
@@ -87,7 +89,7 @@ namespace ECM7.Migrator.Providers
 			return this;
 		}
 
-		public ColumnSqlBuilder AddSqlForIdentityWhichNeedsType(bool identityNeedsType)
+		public ColumnSqlBuilder AppendSqlForIdentityWhichNeedsType(bool identityNeedsType)
 		{
 			if (identityNeedsType)
 			{
@@ -97,18 +99,18 @@ namespace ECM7.Migrator.Providers
 			return this;
 		}
 
-		public ColumnSqlBuilder AddUniqueSql()
+		public ColumnSqlBuilder AppendUniqueSql()
 		{
 			propertyMap.AddValueIfSelected(column, ColumnProperty.Unique, vals);
 
 			return this;
 		}
 
-		public ColumnSqlBuilder AddDefaultValueSql(Func<object, string> defaultValueMapper)
+		public ColumnSqlBuilder AppendDefaultValueSql(Func<object, string> defaultValueMapper)
 		{
 			if (column.DefaultValue != null)
 			{
-				string defaultValueSql = defaultValueMapper(this.column.DefaultValue);
+				string defaultValueSql = defaultValueMapper(column.DefaultValue);
 
 				vals.Add(defaultValueSql);
 			}
@@ -116,7 +118,7 @@ namespace ECM7.Migrator.Providers
 			return this;
 		}
 
-		public ColumnSqlBuilder AddRawSql(string sql)
+		public ColumnSqlBuilder AppendRawSql(string sql)
 		{
 			vals.Add(sql);
 

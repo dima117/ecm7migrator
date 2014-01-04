@@ -77,6 +77,12 @@ namespace ECM7.Migrator.NAnt
 		public int CommandTimeout { get; set; }
 
 		/// <summary>
+		/// Необходимо ли оборачивать имена в кавычки
+		/// </summary>
+		[TaskAttribute("quotes-needed")]
+		public bool NeedQuotesForNames { get; set; }
+
+		/// <summary>
 		/// Версия, до которой нужно обновить БД
 		/// </summary>
 		[TaskAttribute("to")]

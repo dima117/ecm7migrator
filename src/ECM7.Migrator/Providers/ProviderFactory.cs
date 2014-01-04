@@ -11,46 +11,46 @@ namespace ECM7.Migrator.Providers
 
 	public class ProviderFactory
 	{
-		public static ITransformationProvider Create<TProvider>(string connectionString, int? commandTimeout)
+		public static ITransformationProvider Create<TProvider>(string connectionString)
 			where TProvider : ITransformationProvider
 		{
-			return Create(typeof(TProvider), connectionString, commandTimeout);
+			return Create(typeof(TProvider), connectionString);
 		}
 
-		public static ITransformationProvider Create<TProvider>(IDbConnection connection, int? commandTimeout)
+		public static ITransformationProvider Create<TProvider>(IDbConnection connection)
 			where TProvider : ITransformationProvider
 		{
-			return Create(typeof(TProvider), connection, commandTimeout);
+			return Create(typeof(TProvider), connection);
 		}
 
-		public static ITransformationProvider Create(string providerTypeName, string connectionString, int? commandTimeout)
+		public static ITransformationProvider Create(string providerTypeName, string connectionString)
 		{
 			Type providerType = GetProviderType(providerTypeName);
-			return Create(providerType, connectionString, commandTimeout);
+			return Create(providerType, connectionString);
 		}
 
-		public static ITransformationProvider Create(string providerTypeName, IDbConnection connection, int? commandTimeout)
+		public static ITransformationProvider Create(string providerTypeName, IDbConnection connection)
 		{
 			Type providerType = GetProviderType(providerTypeName);
-			return Create(providerType, connection, commandTimeout);
+			return Create(providerType, connection);
 		}
 
-		public static ITransformationProvider Create(Type providerType, string connectionString, int? commandTimeout)
+		public static ITransformationProvider Create(Type providerType, string connectionString)
 		{
 			Type connectionType = GetConnectionType(providerType);
 			IDbConnection connection = CreateConnection(connectionType, connectionString);
 
-			return Create(providerType, connection, commandTimeout);
+			return Create(providerType, connection);
 		}
 
-		public static ITransformationProvider Create(Type providerType, IDbConnection connection, int? commandTimeout)
+		public static ITransformationProvider Create(Type providerType, IDbConnection connection)
 		{
 			Require.IsNotNull(connection, "Не инициализировано подключение к БД");
 
 			Require.IsNotNull(providerType, "Не задан тип создаваемого провайдера");
 			Require.That(typeof(ITransformationProvider).IsAssignableFrom(providerType), "Тип провайдера ({0}) должен реализовывать интерфейс ITransformationProvider", providerType.FullName);
 
-			ITransformationProvider provider = Activator.CreateInstance(providerType, connection, commandTimeout) as ITransformationProvider;
+			var provider = Activator.CreateInstance(providerType, connection) as ITransformationProvider;
 			Require.IsNotNull(provider, "Не удалось создать экземпляр провайдера");
 
 			return provider;
@@ -85,7 +85,7 @@ namespace ECM7.Migrator.Providers
 		{
 			Require.IsNotNull(providerType, "Не задан класс провайдера");
 
-			ProviderValidationAttribute attr = providerType.GetCustomAttribute<ProviderValidationAttribute>(true);
+			var attr = providerType.GetCustomAttribute<ProviderValidationAttribute>(true);
 			Require.IsNotNull(attr, "Для создаваемого провайдера не определен атрибут ProviderValidationAttribute");
 
 			Type connectionType = attr.connectionType;

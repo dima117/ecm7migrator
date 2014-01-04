@@ -1,21 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+
 using ECM7.Migrator.Exceptions;
+using ECM7.Migrator.Framework;
+using ECM7.Migrator.Framework.Logging;
+using ECM7.Migrator.Loader;
+using ECM7.Migrator.Providers;
 using ECM7.Migrator.Utils;
 
 namespace ECM7.Migrator
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Collections.ObjectModel;
-	using System.Data;
-	using System.Linq;
-	using System.Reflection;
-
-	using ECM7.Migrator.Framework.Logging;
-	using ECM7.Migrator.Providers;
-
-	using Framework;
-	using Loader;
-
 	/// <summary>
 	/// Migrations mediator.
 	/// </summary>
@@ -49,16 +47,16 @@ namespace ECM7.Migrator
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string providerTypeName, IDbConnection connection, Assembly asm, int? commandTimeout = null)
-			: this(ProviderFactory.Create(providerTypeName, connection, commandTimeout), asm)
+		public Migrator(string providerTypeName, IDbConnection connection, Assembly asm)
+			: this(ProviderFactory.Create(providerTypeName, connection), asm)
 		{
 		}
 
 		/// <summary>
 		/// Инициализация
 		/// </summary>
-		public Migrator(string providerTypeName, string connectionString, Assembly asm, int? commandTimeout = null)
-			: this(ProviderFactory.Create(providerTypeName, connectionString, commandTimeout), asm)
+		public Migrator(string providerTypeName, string connectionString, Assembly asm)
+			: this(ProviderFactory.Create(providerTypeName, connectionString), asm)
 		{
 		}
 
@@ -185,7 +183,7 @@ namespace ECM7.Migrator
 		public static MigrationPlan BuildMigrationPlan(long target, IList<long> appliedMigrations, IList<long> availableMigrations)
 		{
 			long startVersion = appliedMigrations.IsEmpty() ? 0 : appliedMigrations.Max();
-			HashSet<long> set = new HashSet<long>(appliedMigrations);
+			var set = new HashSet<long>(appliedMigrations);
 
 			// проверки
 			var list = availableMigrations.Where(x => x < startVersion && !set.Contains(x)).ToList();

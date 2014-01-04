@@ -37,6 +37,11 @@
 		/// </summary>
 		public int CommandTimeout { get; set; }
 
+		/// <summary>
+		/// Необходимо ли оборачивать имена в кавычки
+		/// </summary>
+		public bool NeedQuotesForNames { get; set; }
+
 		#endregion
 	}
 }

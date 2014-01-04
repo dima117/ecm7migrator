@@ -14,8 +14,8 @@ namespace ECM7.Migrator.Providers.SqlServer
 	[ProviderValidation(typeof(SqlConnection), true)]
 	public class SqlServerTransformationProvider : BaseSqlServerTransformationProvider
 	{
-		public SqlServerTransformationProvider(SqlConnection connection, int commandTimeout)
-			: base(connection, commandTimeout)
+		public SqlServerTransformationProvider(SqlConnection connection)
+			: base(connection)
 		{
 		}
 

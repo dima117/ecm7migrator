@@ -66,5 +66,19 @@
 				return int.TryParse(value, out result) ? result : default(int);
 			}
 		}
+
+
+		/// <summary>
+		/// Необходимо ли оборачивать имена в кавычки
+		/// </summary>
+		[ConfigurationProperty("needQuotesForNames")]
+		public bool NeedQuotesForNames
+		{
+			get
+			{
+				var value = (base["needQuotesForNames"] ?? string.Empty).ToString().ToLower();
+				return value == "true" || value == "1";
+			}
+		}
 	}
 }

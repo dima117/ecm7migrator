@@ -11,6 +11,8 @@ namespace ECM7.Migrator.Framework
 	public interface ITransformationProvider : IDisposable
 	{
 		IDbConnection Connection { get; }
+		int CommandTimeout { get; set; }
+		bool NeedQuotesForNames { get; set; }
 
 		/// <summary>
 		/// The list of Migrations currently applied to the database.

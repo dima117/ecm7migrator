@@ -63,9 +63,9 @@ namespace ECM7.Migrator.MSBuild
 		public int CommandTimeout { get; set; }
 
 		/// <summary>
-		/// Ключ миграций
+		/// Необходимо ли оборачивать имена в кавычки
 		/// </summary>
-		public string Key { get; set; }
+		public bool NeedQuotesForNames { get; set; }
 
 		#endregion
 
