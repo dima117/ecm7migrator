@@ -42,8 +42,16 @@ namespace ECM7.Migrator.Configuration
 			string connectionString = GetConnectionString(config);
 
 			var provider = ProviderFactory.Create(config.Provider.Trim(), connectionString);
-			provider.CommandTimeout = config.CommandTimeout;
-			provider.NeedQuotesForNames = config.NeedQuotesForNames;
+
+			if (config.CommandTimeout.HasValue)
+			{
+				provider.CommandTimeout = config.CommandTimeout.Value;
+			}
+
+			if (config.NeedQuotesForNames.HasValue)
+			{
+				provider.NeedQuotesForNames = config.NeedQuotesForNames.Value;
+			}
 
 			return new Migrator(provider, assembly);
 		}

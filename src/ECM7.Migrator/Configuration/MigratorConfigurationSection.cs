@@ -56,14 +56,14 @@
 		/// Максимальное время выполнения команды
 		/// </summary>
 		[ConfigurationProperty("commandTimeout")]
-		public int CommandTimeout
+		public int? CommandTimeout
 		{
 			get
 			{
 				var value = (base["commandTimeout"] ?? string.Empty).ToString();
 				int result;
 
-				return int.TryParse(value, out result) ? result : default(int);
+				return int.TryParse(value, out result) ? result : (int?)null;
 			}
 		}
 
@@ -72,11 +72,17 @@
 		/// Необходимо ли оборачивать имена в кавычки
 		/// </summary>
 		[ConfigurationProperty("needQuotesForNames")]
-		public bool NeedQuotesForNames
+		public bool? NeedQuotesForNames
 		{
 			get
 			{
 				var value = (base["needQuotesForNames"] ?? string.Empty).ToString().ToLower();
+
+				if (string.IsNullOrWhiteSpace(value))
+				{
+					return null;
+				}
+
 				return value == "true" || value == "1";
 			}
 		}

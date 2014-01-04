@@ -35,12 +35,12 @@
 		/// <summary>
 		/// Максимальное время выполнения команды
 		/// </summary>
-		public int CommandTimeout { get; set; }
+		public int? CommandTimeout { get; set; }
 
 		/// <summary>
 		/// Необходимо ли оборачивать имена в кавычки
 		/// </summary>
-		public bool NeedQuotesForNames { get; set; }
+		public bool? NeedQuotesForNames { get; set; }
 
 		#endregion
 	}

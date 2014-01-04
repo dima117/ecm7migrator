@@ -74,13 +74,13 @@ namespace ECM7.Migrator.NAnt
 		/// Максимальное время выполнения команды
 		/// </summary>
 		[TaskAttribute("command-timeout")]
-		public int CommandTimeout { get; set; }
+		public int? CommandTimeout { get; set; }
 
 		/// <summary>
 		/// Необходимо ли оборачивать имена в кавычки
 		/// </summary>
 		[TaskAttribute("quotes-needed")]
-		public bool NeedQuotesForNames { get; set; }
+		public bool? NeedQuotesForNames { get; set; }
 
 		/// <summary>
 		/// Версия, до которой нужно обновить БД
