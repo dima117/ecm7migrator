@@ -26,7 +26,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			typeMap.Put(DbType.AnsiStringFixedLength, 8000, "char($l)");
 			typeMap.Put(DbType.AnsiString, "varchar(255)");
 			typeMap.Put(DbType.AnsiString, 8000, "varchar($l)");
-			typeMap.Put(DbType.AnsiString, 2147483647, "text");
+			typeMap.Put(DbType.AnsiString, int.MaxValue, "text");
 			typeMap.Put(DbType.Binary, "bytea");
 			typeMap.Put(DbType.Binary, 2147483647, "bytea");
 			typeMap.Put(DbType.Boolean, "boolean");
@@ -37,6 +37,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			typeMap.Put(DbType.Decimal, "decimal(18,5)");
 			typeMap.Put(DbType.Decimal, 18, "decimal($l, $s)");
 			typeMap.Put(DbType.Double, "float8");
+			typeMap.Put(DbType.Guid, "uuid");
 			typeMap.Put(DbType.Int16, "int2");
 			typeMap.Put(DbType.Int32, "int4");
 			typeMap.Put(DbType.Int64, "int8");
@@ -45,7 +46,7 @@ namespace ECM7.Migrator.Providers.PostgreSQL
 			typeMap.Put(DbType.StringFixedLength, 4000, "char($l)");
 			typeMap.Put(DbType.String, "varchar(255)");
 			typeMap.Put(DbType.String, 4000, "varchar($l)");
-			typeMap.Put(DbType.String, 1073741823, "text");
+			typeMap.Put(DbType.String, int.MaxValue, "text");
 			typeMap.Put(DbType.Time, "time");
 
 			propertyMap.RegisterPropertySql(ColumnProperty.Identity, "serial");
