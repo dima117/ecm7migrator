@@ -419,6 +419,39 @@ namespace ECM7.Migrator.Providers
 
 		#region DML
 
+		protected Tuple<string[], string[]> ConvertObjectToArrays(object row)
+		{
+			var columns = new List<string>();
+			var values = new List<string>();
+
+			if (row == null)
+			{
+				return null;
+			}
+
+			foreach (var propertyInfo in row.GetType().GetProperties())
+			{
+				if (propertyInfo.GetIndexParameters().Any())
+				{
+					continue;
+				}
+
+				var value = propertyInfo.GetValue(row, new object[0]);
+				var strValue = value == null ? null : value.ToString();
+
+				columns.Add(propertyInfo.Name);
+				values.Add(strValue);
+			}
+
+			return new Tuple<string[], string[]>(columns.ToArray(), values.ToArray());
+		}
+
+		public int Insert(SchemaQualifiedObjectName table, object row)
+		{
+			var arrays = ConvertObjectToArrays(row);
+			return arrays != null ? Insert(table, arrays.Item1, arrays.Item2) : 0;
+		}
+
 		public virtual int Insert(SchemaQualifiedObjectName table, string[] columns, string[] values)
 		{
 			var quotedValues = values.Select(val =>
@@ -426,11 +459,16 @@ namespace ECM7.Migrator.Providers
 					? "null"
 					: string.Format("'{0}'", val.Replace("'", "''")));
 
-			// todo: сделать, чтобы методы insert и update получали массив object
 			string sql = FormatSql("INSERT INTO {0:NAME} ({1:COLS}) VALUES ({2})",
 				table, columns, quotedValues.ToCommaSeparatedString());
 
 			return ExecuteNonQuery(sql);
+		}
+
+		public int Update(SchemaQualifiedObjectName table, object row, string whereSql = null)
+		{
+			var arrays = ConvertObjectToArrays(row);
+			return arrays != null ? Update(table, arrays.Item1, arrays.Item2, whereSql) : 0;
 		}
 
 		public virtual int Update(SchemaQualifiedObjectName table, string[] columns, string[] values, string whereSql = null)
