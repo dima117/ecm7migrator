@@ -100,7 +100,8 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			string sql = FormatSql(
-				"SELECT COUNT(*) FROM [sys].[indexes] WHERE [name] = '{0}' AND [object_id] = object_id(N'{1:NAME}')", indexName, tableName);
+				"SELECT COUNT(*) FROM {0:NAME} WHERE {1:NAME} = '{2}' AND {3:NAME} = object_id(N'{4:NAME}')", 
+				"indexes".WithSchema("sys"), "name", indexName, "object_id", tableName);
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
 		}
@@ -110,14 +111,17 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 			SchemaQualifiedObjectName fullConstraintName = name.WithSchema(table.Schema);
 
 			string sql = FormatSql(
-				"SELECT TOP 1 [name] FROM [sys].[objects] " +
-				"WHERE [parent_object_id] = object_id('{0:NAME}') " +
-				"AND [object_id] = object_id('{1:NAME}') " +
-				"AND [type] IN ('D', 'F', 'PK', 'UQ')" +
+				"SELECT TOP 1 {0:NAME} FROM {1:NAME} " +
+				"WHERE {2:NAME} = object_id('{3:NAME}') " +
+				"AND {4:NAME} = object_id('{5:NAME}') " +
+				"AND {6:NAME} IN ('D', 'F', 'PK', 'UQ')" +
 				"UNION ALL " +
-				"SELECT TOP 1 [name] FROM [sys].[check_constraints] " +
-				"WHERE [parent_object_id] = OBJECT_ID(N'{0:NAME}') AND " +
-				"[object_id] = OBJECT_ID(N'{1:NAME}')", table, fullConstraintName);
+				"SELECT TOP 1 {0:NAME} FROM {7:NAME} " +
+				"WHERE {2:NAME} = OBJECT_ID(N'{3:NAME}') AND " +
+				"{4:NAME} = OBJECT_ID(N'{5:NAME}')",
+
+				"name", "objects".WithSchema("sys"), "parent_object_id", table,
+				"object_id", fullConstraintName, "type", "check_constraints".WithSchema("sys"));
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -172,7 +176,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 
 		protected virtual string FindConstraints(SchemaQualifiedObjectName table, string column)
 		{
-			StringBuilder sqlBuilder = new StringBuilder();
+			var sqlBuilder = new StringBuilder();
 
 			sqlBuilder.Append("SELECT [CONSTRAINT_NAME] ");
 			sqlBuilder.Append("FROM [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE] ");

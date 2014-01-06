@@ -30,7 +30,7 @@ namespace ECM7.Migrator.Providers
 			: base(connection)
 		{
 			NeedQuotesForNames = true;
-			sqlFormatProvider = new SqlFormatter(obj => string.Format(NamesQuoteTemplate, obj));
+			sqlFormatProvider = new SqlFormatter(GetQuotedName);
 
 			propertyMap.RegisterPropertySql(ColumnProperty.Null, "NULL");
 			propertyMap.RegisterPropertySql(ColumnProperty.NotNull, "NOT NULL");
@@ -46,12 +46,16 @@ namespace ECM7.Migrator.Providers
 		#region common
 
 		public bool NeedQuotesForNames { get; set; }
+		
+		protected string GetQuotedName(object name)
+		{
+			var format = NeedQuotesForNames ? NamesQuoteTemplate : "{0}";
+			return string.Format(format, name);
+		}
 
 		public string FormatSql(string format, params object[] args)
 		{
-			return NeedQuotesForNames
-				? string.Format(sqlFormatProvider, format, args)
-				: string.Format(format, args);
+			return string.Format(sqlFormatProvider, format, args);
 		}
 
 		public IConditionByProvider ConditionalExecuteAction()
@@ -86,11 +90,6 @@ namespace ECM7.Migrator.Providers
 		#endregion
 
 		#region generate sql
-
-		protected string GetQuotedName(string name)
-		{
-			return FormatSql("{0:NAME}", name);
-		}
 
 		protected virtual string GetSqlAddTable(SchemaQualifiedObjectName table, string columnsSql)
 		{
@@ -519,7 +518,7 @@ namespace ECM7.Migrator.Providers
 			CreateSchemaInfoTable();
 
 			string sql = FormatSql("SELECT {0:NAME} FROM {1:NAME} WHERE {2:NAME} = '{3}'",
-				"Version", SCHEMA_INFO_TABLE, "Key", key.Replace("'", "''"));
+				"Version", SCHEMA_INFO_TABLE, "AssemblyKey", key.Replace("'", "''"));
 
 			// todo: написать тест, который выполняет миграцию, а потом проверяет, что она сохранилась в БД
 			using (IDataReader reader = ExecuteReader(sql))
@@ -543,7 +542,7 @@ namespace ECM7.Migrator.Providers
 		public void MigrationApplied(long version, string key)
 		{
 			CreateSchemaInfoTable();
-			Insert(SCHEMA_INFO_TABLE, new[] { "Version", "Key" }, new[] { version.ToString(), key });
+			Insert(SCHEMA_INFO_TABLE, new[] { "Version", "AssemblyKey" }, new[] { version.ToString(), key });
 		}
 
 		/// <summary>
@@ -556,7 +555,7 @@ namespace ECM7.Migrator.Providers
 			CreateSchemaInfoTable();
 
 			string whereSql = FormatSql("{0:NAME} = {1} AND {2:NAME} = '{3}'",
-				"Version", version, "Key", key);
+				"Version", version, "AssemblyKey", key);
 
 			Delete(SCHEMA_INFO_TABLE, whereSql);
 		}
@@ -570,14 +569,22 @@ namespace ECM7.Migrator.Providers
 				AddTable(
 					SCHEMA_INFO_TABLE,
 					new Column("Version", DbType.Int64, ColumnProperty.PrimaryKey),
-					new Column("Key", DbType.String.WithSize(200), ColumnProperty.PrimaryKey, "''"));
+					new Column("AssemblyKey", DbType.String.WithSize(200), ColumnProperty.PrimaryKey, "''"));
 			}
 			else
 			{
-				if (!ColumnExists(SCHEMA_INFO_TABLE, "Key"))
+				if (!ColumnExists(SCHEMA_INFO_TABLE, "AssemblyKey"))
 				{
 					// TODO: Удалить код совместимости для старой таблицы SchemaInfo в следующих версиях
-					UpdateSchemaInfo.Update(this);
+
+					if (ColumnExists(SCHEMA_INFO_TABLE, "Key"))
+					{
+						UpdateSchemaInfo.Update2To3(this);
+					}
+					else
+					{
+						UpdateSchemaInfo.Update1To3(this);
+					}
 				}
 			}
 		}

@@ -75,12 +75,18 @@ namespace ECM7.Migrator.Providers.Tests.ImplementationTest.NoSchema
 			Require.IsNotNullOrEmpty(constr, "Connection string \"{0}\" is not exist", ConnectionStrinSettingsName);
 
 			provider = ProviderFactory.Create<TProvider>(constr);
+			provider.NeedQuotesForNames = AddQuotes;
 		}
 
 		[TearDown]
 		public virtual void TearDown()
 		{
 			provider.Dispose();
+		}
+
+		protected virtual bool AddQuotes
+		{
+			get { return true; }
 		}
 
 		protected virtual string ResourceSql
