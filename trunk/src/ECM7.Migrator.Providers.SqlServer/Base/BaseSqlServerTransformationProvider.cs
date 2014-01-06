@@ -100,7 +100,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			string sql = FormatSql(
-				"SELECT COUNT(*) FROM {0:NAME} WHERE {1:NAME} = '{2}' AND {3:NAME} = object_id(N'{4:NAME}')", 
+				"SELECT COUNT(*) FROM {0:NAME} WHERE {1:NAME} = '{2}' AND {3:NAME} = object_id(N'{4:NAME}')",
 				"indexes".WithSchema("sys"), "name", indexName, "object_id", tableName);
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
@@ -132,13 +132,14 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 		public override bool ColumnExists(SchemaQualifiedObjectName table, string column)
 		{
 			string sql = FormatSql(
-				"SELECT * FROM [INFORMATION_SCHEMA].[COLUMNS] " +
-				"WHERE [TABLE_NAME]='{0}' AND [COLUMN_NAME]='{1}'",
-				table.Name, column);
+				"SELECT * FROM {0:NAME} " +
+				"WHERE {1:NAME}='{2}' AND {3:NAME}='{4}'",
+				"COLUMNS".WithSchema("INFORMATION_SCHEMA"), "TABLE_NAME", table.Name,
+				"COLUMN_NAME", column);
 
 			if (!table.SchemaIsEmpty)
 			{
-				sql += FormatSql(" AND [TABLE_SCHEMA] = '{0}'", table.Schema);
+				sql += FormatSql(" AND {0:NAME} = '{1}'", "TABLE_SCHEMA", table.Schema);
 			}
 
 			using (IDataReader reader = ExecuteReader(sql))
@@ -146,7 +147,6 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 				return reader.Read();
 			}
 		}
-		// todo: написать тесты на схемы 
 
 		public override void RemoveColumn(SchemaQualifiedObjectName table, string column)
 		{
@@ -159,7 +159,7 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 		private void DeleteColumnConstraints(SchemaQualifiedObjectName table, string column)
 		{
 			string sqlContraints = FindConstraints(table, column);
-			List<string> constraints = new List<string>();
+			var constraints = new List<string>();
 			using (IDataReader reader = ExecuteReader(sqlContraints))
 			{
 				while (reader.Read())
@@ -178,21 +178,25 @@ namespace ECM7.Migrator.Providers.SqlServer.Base
 		{
 			var sqlBuilder = new StringBuilder();
 
-			sqlBuilder.Append("SELECT [CONSTRAINT_NAME] ");
-			sqlBuilder.Append("FROM [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE] ");
-			sqlBuilder.AppendFormat("WHERE [TABLE_NAME] = '{0}' and [COLUMN_NAME] = '{1}' ", table.Name, column);
+			sqlBuilder.Append(FormatSql("SELECT {0:NAME} ", "CONSTRAINT_NAME"));
+			sqlBuilder.Append(FormatSql("FROM {0:NAME} ", "CONSTRAINT_COLUMN_USAGE".WithSchema("INFORMATION_SCHEMA")));
+			sqlBuilder.Append(FormatSql("WHERE {0:NAME} = '{1}' and {2:NAME} = '{3}' ",
+				"TABLE_NAME", table.Name, "COLUMN_NAME", column));
 
 			if (!table.SchemaIsEmpty)
 			{
-				sqlBuilder.AppendFormat("AND [TABLE_SCHEMA] = '{0}' ", table.Schema);
+				sqlBuilder.Append(FormatSql("AND {0:NAME} = '{1}' ", "TABLE_SCHEMA", table.Schema));
 			}
 
 			sqlBuilder.Append("UNION ALL ");
-			sqlBuilder.Append("SELECT [dobj].[name] as [CONSTRAINT_NAME] ");
-			sqlBuilder.Append("FROM [sys].[columns] [col] ");
-			sqlBuilder.Append("INNER JOIN [sys].[objects] [dobj] ");
-			sqlBuilder.Append("ON [dobj].[object_id] = [col].[default_object_id] AND [dobj].[type] = 'D' ");
-			sqlBuilder.Append(FormatSql("WHERE [col].[object_id] = object_id(N'{0:NAME}') AND [col].[name] = '{1}'", table, column));
+			sqlBuilder.Append(FormatSql("SELECT {0:NAME}.{1:NAME} as {2:NAME} ", "dobj", "name", "CONSTRAINT_NAME"));
+			sqlBuilder.Append(FormatSql("FROM {0:NAME} {1:NAME} ", "columns".WithSchema("sys"), "col"));
+			sqlBuilder.Append(FormatSql("INNER JOIN {0:NAME} {1:NAME} ", "objects".WithSchema("sys"), "dobj"));
+			sqlBuilder.Append(FormatSql("ON {0:NAME}.{1:NAME} = {2:NAME}.{3:NAME} AND {0:NAME}.{4:NAME} = 'D' ",
+				"dobj", "object_id", "col", "default_object_id", "type"));
+
+			sqlBuilder.Append(FormatSql("WHERE {0:NAME}.{1:NAME} = object_id(N'{2:NAME}') AND {0:NAME}.{3:NAME} = '{4:NAME}'",
+				"col", "object_id", table, "name", column));
 
 			return sqlBuilder.ToString();
 		}
