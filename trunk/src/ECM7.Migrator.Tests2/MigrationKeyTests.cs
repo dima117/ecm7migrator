@@ -36,7 +36,7 @@ namespace ECM7.Migrator.Tests2
 
 				Assert.AreEqual(1, provider.GetAppliedMigrations().Count);
 
-				string sql = provider.FormatSql("SELECT {0:NAME}, {1:NAME} FROM {2:NAME}", "Key", "Version", "SchemaInfo");
+				string sql = provider.FormatSql("SELECT {0:NAME}, {1:NAME} FROM {2:NAME}", "AssemblyKey", "Version", "SchemaInfo");
 				using (IDataReader reader = provider.ExecuteReader(sql))
 				{
 					Assert.IsTrue(reader.Read());

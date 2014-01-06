@@ -55,7 +55,7 @@ namespace ECM7.Migrator.Providers
 			{
 				if (arg is IEnumerable<object> && ufmt == "COLS")
 				{
-					IEnumerable<object> collection = arg as IEnumerable<object>;
+					var collection = arg as IEnumerable<object>;
 					return collection.Select(converter).ToCommaSeparatedString();
 				}
 
