@@ -32,11 +32,13 @@ namespace ECM7.Migrator.Providers.SqlServer
 		{
 			var sqlBuilder = new StringBuilder();
 
-			sqlBuilder.Append("SELECT [dobj].[name] AS [CONSTRAINT_NAME] ");
-			sqlBuilder.Append("FROM [sys].[columns] [col] ");
-			sqlBuilder.Append("INNER JOIN [sys].[objects] [dobj] ");
-			sqlBuilder.Append("ON [dobj].[object_id] = [col].[default_object_id] AND [dobj].[type] = 'D' ");
-			sqlBuilder.AppendFormat("WHERE [col].[object_id] = object_id(N'{0}') AND [col].[name] = '{1}'", table, column);
+            sqlBuilder.Append(FormatSql("SELECT {0:NAME}.{1:NAME} AS {2:NAME} ", "dobj", "name", "CONSTRAINT_NAME"));
+            sqlBuilder.Append(FormatSql("FROM {0:NAME} {1:NAME} ", "columns".WithSchema("sys"), "col"));
+            sqlBuilder.Append(FormatSql("INNER JOIN {0:NAME} {1:NAME} ", "objects".WithSchema("sys"), "dobj"));
+            sqlBuilder.Append(FormatSql("ON {0:NAME}.{1:NAME} = {2:NAME}.{3:NAME} AND {0:NAME}.{4:NAME} = 'D' ",
+                "dobj", "object_id", "col", "default_object_id", "type"));
+            sqlBuilder.Append(FormatSql("WHERE {0:NAME}.{1:NAME} = object_id(N'{2}') AND {0:NAME}.{3:NAME} = '{4}'",
+                "col", "object_id", table, "name", column));
 
 			using (var reader = ExecuteReader(sqlBuilder.ToString()))
 			{
@@ -94,8 +96,8 @@ namespace ECM7.Migrator.Providers.SqlServer
 			string nspname = table.SchemaIsEmpty ? "SCHEMA_NAME()" : string.Format("'{0}'", table.Schema);
 
 			string sql = FormatSql(
-				"SELECT * FROM [INFORMATION_SCHEMA].[TABLES] " +
-				"WHERE [TABLE_NAME]='{0}' AND [TABLE_SCHEMA] = {1}", table.Name, nspname);
+                "SELECT * FROM {0:NAME} WHERE {1:NAME}='{2}' AND {3:NAME} = {4}",
+                "TABLES".WithSchema("INFORMATION_SCHEMA"), "TABLE_NAME", table.Name, "TABLE_SCHEMA", nspname);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
