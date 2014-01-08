@@ -40,8 +40,10 @@ namespace ECM7.Migrator.Providers.SqlServer
 		public override bool ConstraintExists(SchemaQualifiedObjectName table, string name)
 		{
 			string sql = FormatSql(
-				"SELECT [CONSTRAINT_NAME] FROM [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS] " +
-				"WHERE [CONSTRAINT_NAME] = '{0}' AND [TABLE_NAME] = '{1}'", name, table.Name);
+				"SELECT {0:NAME} FROM {1:NAME} " +
+                "WHERE {0:NAME} = '{2}' AND {3:NAME} = '{4}'", 
+                "CONSTRAINT_NAME", "TABLE_CONSTRAINTS".WithSchema("INFORMATION_SCHEMA"),
+                name, "TABLE_NAME", table.Name);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -91,7 +93,8 @@ namespace ECM7.Migrator.Providers.SqlServer
 		public override bool TableExists(SchemaQualifiedObjectName table)
 		{
 			string sql = FormatSql(
-				"SELECT * FROM [INFORMATION_SCHEMA].[TABLES] WHERE [TABLE_NAME]='{0}'", table.Name);
+                "SELECT * FROM {0:NAME} WHERE {1:NAME}='{2}'", 
+                 "TABLES".WithSchema("INFORMATION_SCHEMA"), "TABLE_NAME", table.Name);
 
 			using (IDataReader reader = ExecuteReader(sql))
 			{
@@ -102,8 +105,11 @@ namespace ECM7.Migrator.Providers.SqlServer
 		public override bool IndexExists(string indexName, SchemaQualifiedObjectName tableName)
 		{
 			string sql = FormatSql(
-				"SELECT COUNT(*) FROM [INFORMATION_SCHEMA].[INDEXES] " +
-				"WHERE [TABLE_NAME] = '{0}' and [INDEX_NAME] = '{1}'", tableName.Name, indexName);
+                "SELECT COUNT(*) FROM {0:NAME} " +
+                "WHERE {1:NAME} = '{2}' and {3:NAME} = '{4}'", 
+                "INDEXES".WithSchema("INFORMATION_SCHEMA"), 
+                "TABLE_NAME", tableName.Name, 
+                "INDEX_NAME", indexName);
 
 			int count = Convert.ToInt32(ExecuteScalar(sql));
 			return count > 0;
@@ -117,8 +123,9 @@ namespace ECM7.Migrator.Providers.SqlServer
 		protected override string FindConstraints(SchemaQualifiedObjectName table, string column)
 		{
 			return
-				string.Format("SELECT [CONSTRAINT_NAME] FROM [INFORMATION_SCHEMA].[KEY_COLUMN_USAGE] "
-					+ "WHERE [TABLE_NAME]='{0}' AND [COLUMN_NAME] = '{1}'", table.Name, column);
+                FormatSql("SELECT {0:NAME} FROM {1:NAME} WHERE {2:NAME}='{3}' AND {4:NAME} = '{5}'",
+                    "CONSTRAINT_NAME", "KEY_COLUMN_USAGE".WithSchema("INFORMATION_SCHEMA"),
+                    "TABLE_NAME", table.Name, "COLUMN_NAME", column);
 		}
 
 		#endregion
