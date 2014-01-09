@@ -93,7 +93,11 @@ namespace ECM7.Migrator.Providers.MySql
 
 		protected override string GetSqlRemoveConstraint(SchemaQualifiedObjectName table, string name)
 		{
-			return FormatSql("ALTER TABLE {0:NAME} DROP KEY {1:NAME}", table, name);
+		    string constraintSql = (name ?? string.Empty).ToUpper() == "PRIMARY"
+		        ? "PRIMARY KEY"
+                : FormatSql("KEY {0:NAME}", name);
+
+            return FormatSql("ALTER TABLE {0:NAME} DROP {1}", table, constraintSql);
 		}
 
 		/// <summary>
