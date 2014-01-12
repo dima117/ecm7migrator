@@ -74,6 +74,7 @@
     <Compile Include="DataTypes\SQLiteDataTypesTest.cs" />
     <Compile Include="DataTypes\SqlServerDataTypesTest.cs" />
     <Compile Include="ImplementationTest\NoQuotesNoSchema\MySqlTransformationProviderTest.cs" />
+    <Compile Include="ImplementationTest\NoQuotesNoSchema\PostgreSQLTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\NoQuotesNoSchema\SqlServerCeTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\NoQuotesNoSchema\SqlServerTransformationProviderTest.cs" />
     <Compile Include="ImplementationTest\NoQuotesWithSchema\MySqlTransformationProviderSchemaTest.cs" />
