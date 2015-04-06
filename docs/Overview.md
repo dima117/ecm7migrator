@@ -28,4 +28,5 @@ Database.AddColumn("Table1", new Column("Num", DbType.Int32));
   * консольное приложение;
   * API.
 
-⇒ [Начало работы](GettingStarted.md) 
+## Далее ##
+[Начало работы](GettingStarted.md) 
