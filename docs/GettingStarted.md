@@ -1,0 +1,48 @@
+## Подключение ECM7 Migrator к проекту ##
+Самый простой способ подключить ECM7 Migrator к Вашему проекту - установить его через [nuget](http://nuget.org). Откройте Package manager console в Visual Studio (`Tools -> Library Package Manager -> Package Manager Console`). Наберите и выполните следующую команду:
+```
+PM> Install-Package ECM7Migrator
+```
+Все, можно писать миграции.
+
+## Пример класса "миграции" ##
+```
+    [Migration(7)]
+    public class AbstractTestMigration : Migration
+    {
+        public override void Apply()
+        {
+            Database.AddTable("CustomerAddress",
+                new Column("customerId", DbType.Int32, ColumnProperty.PrimaryKey),
+                new Column("addressId", DbType.Int32, ColumnProperty.PrimaryKey));
+        }
+
+        public override void Revert()
+        {
+            Database.RemoveTable("CustomerAddress");
+        }
+    }
+```
+
+Обратите внимание,
+  * для миграции указан номер версии (параметр атрибута `[Migration(7)]`), в которую перейдет БД после выполнения изменений, описанных в теле миграции;
+  * класс миграции унаследован от базового класса `Migration`;
+  * Ваш класс миграции должен реализовывать абстрактный метод `Apply` (применить изменения) и может реализовывать виртуальный метод `Revert` (откат изменений). Если Вам не требуется откат изменений, метод `Revert` можно не переопределять (в этом случае будет использоваться его пустая реализация из базового класса);
+  * для изменений БД используется свойство `Database` базового класса `Migration`. Это свойство содержит 'провайдер трансформации', предоставляющий методы для выполнения операций над БД: например, `AddTable` (добавление таблицы) или `ExecuteNonQuery` (выполнение произвольного SQL-запроса).
+
+Подробнее о написании миграций можно узнать [здесь](WritingMigrations.md).
+
+## Выполнение миграций ##
+  1. перейдите в папку `packages\ECM7Migrator.2.6.0.0\tools` (после подключения мигратора через nuget в этой папке будут находиться средства для выполнения миграций);
+  1. запустите консольное приложение `ECM7.Migrator.Console.exe` со следующими параметрами
+```
+ECM7.Migrator.Console SqlServer "Data Source=.;Initial Catalog=test;Integrated Security=SSPI;" "..\..\Migrations\bin\Debug\Migrations.dll"
+```
+где:
+    * `ECM7.Migrator.Console` - это название запускаемого приложения (консольное приложение для выполнения миграций),
+    * `SqlServer` - название [провайдера СУБД](Dialects.md),
+    * `Data Source=.;Initial Catalog=test;Integrated Security=SSPI;` - строка подключения,
+    * `..\..\Migrations\bin\Debug\Migrations.dll` - путь  к скомпилированной сборке с миграциями.
+
+## Далее ##
+Ознакомьтесь с более подробной информацией о [написании миграций](WritingMigrations.md).

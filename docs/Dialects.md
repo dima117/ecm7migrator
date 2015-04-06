@@ -1,0 +1,36 @@
+# Общие сведения #
+Каждая миграция может быть выполнена на любой СУБД, для которой реализован _провайдер СУБД_ - специальный класс, отвечающий за операции в конкретной СУБД. Мигратор уже содержит провайдеры для следующих СУБД:
+  * MySQL 5.0 и выше;
+  * Oracle 10g и выше;
+  * SQLite 3 и выше;
+  * MS SQL Server 2005 и выше;
+  * MS SQL Server Ce 4.
+  * SQL Azure;
+  * Firebird 2.5 и выше;
+
+Класс провайдера указывается при запуске миграций на выполнение.
+
+Пример запуска миграций в СУБД MS SQL Server через консольное приложение:
+
+> ECM7.Migrator.Console **"ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider, ECM7.Migrator.Providers.SqlServer"** "Data Source=.;Initial Catalog=test;Integrated Security=SSPI;" MigrationAssembly.dll
+
+Для стандартных провайдеров вместо полного имени класса можно использовать короткое название провайдера.
+
+> ECM7.Migrator.Console **SqlServer** "Data Source=.;Initial Catalog=test;Integrated Security=SSPI;" MigrationAssembly.dll
+
+
+# Как это работает #
+Класс провайдера СУБД реализует интерфейс ITransformationProvider и инкапсулирует в себе всю работу с конкретной СУБД. При запуске миграций на выполнение мигратор создает экземпляр провайдера и передает его каждой миграции во время ее выполнения. Экземпляр провайдера СУБД доступен в методах миграции через свойство _Database_. Методы Apply и Revert выполняемой миграции вызывают методы объекта Database, а созданный экземпляр провайдера выполняет нужные операции над базой данных.
+
+
+# Доступные провайдеры #
+
+| **СУБД** | **Провайдер** | **Короткое имя провайдера** | **Сборка** |
+|:-------------|:-----------------------|:-------------------------------------------------|:-----------------|
+|MS SQL Server 2005, 2008, 2008R2, Azure |ECM7.Migrator.Providers.SqlServer.SqlServerTransformationProvider | SqlServer |ECM7.Migrator.Providers.SqlServer |
+|MS SQL Server CE 4 |ECM7.Migrator.Providers.SqlServer.SqlServerCeTransformationProvider |SqlServerCe |ECM7.Migrator.Providers.SqlServer |
+|Oracle |ECM7.Migrator.Providers.Oracle.OracleTransformationProvider |Oracle |ECM7.Migrator.Providers.Oracle |
+|MySQL |ECM7.Migrator.Providers.MySql.MySqlTransformationProvider | MySql |ECM7.Migrator.Providers.MySql |
+|PostgreSQL |ECM7.Migrator.Providers.PostgreSQL.PostgreSQLTransformationProvider |PostgreSQL |ECM7.Migrator.Providers.PostgreSQL |
+|SQLite 3 |ECM7.Migrator.Providers.SQLite.SQLiteTransformationProvider |SQLite |ECM7.Migrator.Providers.SQLite |
+|Firebird |ECM7.Migrator.Providers.Firebird.FirebirdTransformationProvider |Firebird |ECM7.Migrator.Providers.Firebird |
