@@ -1,5 +1,5 @@
 ## Подключение ECM7 Migrator к проекту ##
-Самый простой способ подключить ECM7 Migrator к Вашему проекту - установить его через [nuget](http://nuget.org). Откройте Package manager console в Visual Studio (`Tools -> Library Package Manager -> Package Manager Console`). Наберите и выполните следующую команду:
+Самый простой способ подключить ECM7 Migrator к Вашему проекту - установить его через [nuget](https://www.nuget.org/packages/ECM7Migrator). Откройте Package manager console в Visual Studio (`Tools -> Library Package Manager -> Package Manager Console`). Наберите и выполните следующую команду:
 ```
 PM> Install-Package ECM7Migrator
 ```
@@ -33,7 +33,7 @@ PM> Install-Package ECM7Migrator
 Подробнее о написании миграций можно узнать [здесь](WritingMigrations.md).
 
 ## Выполнение миграций ##
-  1. перейдите в папку `packages\ECM7Migrator.2.6.0.0\tools` (после подключения мигратора через nuget в этой папке будут находиться средства для выполнения миграций);
+  1. перейдите в папку `packages\ECM7Migrator.2.8.0.0\tools` (после подключения мигратора через nuget в этой папке будут находиться средства для выполнения миграций);
   1. запустите консольное приложение `ECM7.Migrator.Console.exe` со следующими параметрами
 ```
 ECM7.Migrator.Console SqlServer "Data Source=.;Initial Catalog=test;Integrated Security=SSPI;" "..\..\Migrations\bin\Debug\Migrations.dll"
