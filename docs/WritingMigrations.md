@@ -9,16 +9,16 @@ using System.Data;
 [Migration(20080805151231)]
 public class AddCustomerTable : Migration
 {
-    public override void Up()
+    public override void Apply()
     {
         Database.AddTable("Customer",
-            new Column("name", DbType.String, 50),
-            new Column("address", DbType.String, 100),
-            new Column("age", DbType.Int32, 100)
+            new Column("name", DbType.String.WithSize(50), ColumnProperty.NotNull),
+            new Column("address", DbType.String.WithSize(100), ColumnProperty.NotNull),
+            new Column("age", DbType.Int32)
         );
     }
 
-    public override void Down()
+    public override void Revert()
     {
         Database.RemoveTable("Customer");
     }
@@ -27,7 +27,7 @@ public class AddCustomerTable : Migration
 
 ## Составные ключи ##
 
-Чтобы создать в БД таблицу с составным первичным ключем, создаем таблицу без указания перивичного ключа и добавляем его отдельно.
+Чтобы создать в БД таблицу с составным первичным ключом, создаем таблицу без указания перивичного ключа и добавляем его отдельно.
 
 ```
 using ECM7.Migrator.Framework;
@@ -36,7 +36,7 @@ using System.Data;
 [Migration(20080806151301)]
 public class AddCustomerTable : Migration
 {
-    public override void Up()
+    public override void Apply()
     {
         Database.AddTable("CustomerAddress",
             new Column("customer_id", DbType.Int32),
@@ -46,7 +46,7 @@ public class AddCustomerTable : Migration
         Database.AddPrimaryKey("CustomerAddress", "customer_id", "address_id");
     }
 
-    public override void Down()
+    public override void Revert()
     {
         Database.RemoveTable("CustomerAddress");
     }
@@ -62,7 +62,7 @@ using System.Data;
 [Migration(20080806161420)]
 public class AddCustomerTable : Migration
 {
-    public override void Up()
+    public override void Apply()
     {
         Database.AddTable("CustomerAddress",
             new Column("customer_id", DbType.Int32, ColumnProperty.PrimaryKey),
@@ -70,7 +70,7 @@ public class AddCustomerTable : Migration
         );
     }
 
-    public override void Down()
+    public override void Revert()
     {
         Database.RemoveTable("CustomerAddress");
     }
@@ -87,29 +87,48 @@ public class AddCustomerTable : Migration
 [Migration(20080806160101)]
 public class AddFooProcedure : Migration
 {
-    public override void Up()
+    public override void Apply()
     {
-        Database.For<SqlServerDialect>().ExecuteNonQuery(@"
-CREATE PROCEDURE Foo 
-        @var int = 0
-AS
-BEGIN
-        SELECT @var
-END");
-
-        Database.For<OracleDialect>().ExecteNonQuery(@"
-CREATE OR REPLACE 
-PROCEDURE Foo IS
-BEGIN
-    dbms_output.put_line('It is work');
-END;");
-
+        Database.ConditionalExecuteAction()
+            .For<SqlServerDialect>(db => {
+            
+                db.ExecuteNonQuery(@"
+                    CREATE PROCEDURE Foo 
+                            @var int = 0
+                    AS
+                    BEGIN
+                            SELECT @var
+                    END");
+            }).
+            .For<OracleDialect>(db => {
+            
+                db.ExecteNonQuery(@"
+                    CREATE OR REPLACE 
+                    PROCEDURE Foo IS
+                    BEGIN
+                        dbms_output.put_line('It is work');
+                    END;");
+            })
+            .Else(db => {
+                // do something
+            });
     }
 
-    public override void Down()
+    public override void Revert()
     {
-        Database.For<SqlServerDialect>().ExecuteNonQuery(@"DROP PROCEDURE Foo");
-        Database.For<PostgreSQLDialect>().ExecuteNonQuery(@"DROP PROCEDURE Foo");
+    
+        Database.ConditionalExecuteAction()
+            .For<SqlServerDialect>(db => {
+            
+                db.ExecuteNonQuery(@"DROP PROCEDURE Foo");
+            }).
+            .For<OracleDialect>(db => {
+            
+                db.ExecuteNonQuery(@"DROP PROCEDURE Foo");
+            })
+            .Else(db => {
+                // do something
+            });
     }
 }
 ```
@@ -123,19 +142,18 @@ using System.Data;
 [Migration(5)]
 public class AddForeignKeyToTheBookAuthor : Migration
 {
-        private const string FK_NAME = "FK_Book_Author";
-        public override void Up()
-        {
-                Database.AddForeignKey(FK_NAME, "Book", "authorId", "Author", "id");
-        }
-        public override void Down()
-        {
-                Database.RemoveForeignKey(FK_NAME);
-        }
+    private const string FK_NAME = "FK_Book_Author";
+    
+    public override void Apply()
+    {
+        Database.AddForeignKey(FK_NAME, "Book", "authorId", "Author", "id");
+    }
+    public override void Revert()
+    {
+        Database.RemoveForeignKey(FK_NAME);
+    }
 }
 ```
-
-SQLite не поддерживает внешние ключи, по-этому при добавлении в БД SQLite внешнего ключа никаких операций не выполняется.
 
 ## Добавление колонки в существующую таблицу ##
 
@@ -146,20 +164,20 @@ using System.Data;
 [Migration(6)]
 public class AddMiddleNameToCustomer : Migration
 {
-        public override void Up()
-        {
-                Database.AddColumn("Customer", "middle_name", DbType.String, 50);
-        }
-        public override void Down()
-        {
-                Database.RemoveColumn("Customer", "middle_name");
-        }
+    public override void Apply()
+    {
+        Database.AddColumn("Customer", "middle_name", DbType.String, 50);
+    }
+    public override void Revert()
+    {
+        Database.RemoveColumn("Customer", "middle_name");
+    }
 }
 ```
 
 ## Произвольный SQL ##
 
-Если вы хотите выполнить какое-то действие, которое в данный момент не поддерживается ECM7.Migrator, вы можете использовать метод ExecuteNonQuery() для выполнения произвольного SQL запроса. В комбинации с _Database.For`<`TDialect`>`().ExecuteNonQuery()_ вы можете обеспечить корректную работу "миграции" при запуске в различных СУБД.
+Если вы хотите выполнить какое-то действие, которое в данный момент не поддерживается ECM7.Migrator, вы можете использовать метод ExecuteNonQuery() для выполнения произвольного SQL запроса. В комбинации с _Database.ConditionalExecuteAction()_ вы можете обеспечить корректную работу "миграции" при запуске в различных СУБД.
 
 ```
 using ECM7.Migrator.Framework;
@@ -168,15 +186,16 @@ using System.Data;
 [Migration(6)]
 public class AddMiddleNameToCustomer : Migration
 {
-        public override void Up()
-        {
-                Database.ExecuteNonQuery("whatever SQL you want");
-        }
-        public override void Down()
-        {
-                Database.ExecuteNonQuery("whatever SQL you want");
-        }
+    public override void Apply()
+    {
+        Database.ExecuteNonQuery("whatever SQL you want");
+    }
+    public override void Revert()
+    {
+        Database.ExecuteNonQuery("whatever SQL you want");
+    }
 }
 ```
 
->>  HowToRun
+## Далее ##
+[Как выполнить миграции](HowToRun.md) 
