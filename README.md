@@ -24,12 +24,12 @@ ECM7 Migrator - система контроля версий базы данны
 ## Информация ##
 Документация не обновлена, мы работаем над этим.
 
-  1. [Обзор ECM7.Migrator](https://github.com/dima117/ecm7migrator/blob/master/docs/Overview.md);
-  1. [Начало работы](https://github.com/dima117/ecm7migrator/blob/master/docs/GettingStarted.md);
-  1. [Написание классов "миграций"](https://github.com/dima117/ecm7migrator/blob/master/docs/WritingMigrations.md);
-  1. [Выполнение "миграций"](https://github.com/dima117/ecm7migrator/blob/master/docs/HowToRun.md);
-  1. [Использование с различными СУБД](https://github.com/dima117/ecm7migrator/blob/master/docs/Dialects.md);
-  1. [Как собрать проект из исходного кода](https://github.com/dima117/ecm7migrator/blob/master/docs/HowToBuild.md);
+  1. [Обзор ECM7.Migrator](docs/Overview.md);
+  1. [Начало работы](docs/GettingStarted.md);
+  1. [Написание классов "миграций"](docs/WritingMigrations.md);
+  1. [Выполнение "миграций"](docs/HowToRun.md);
+  1. [Использование с различными СУБД](docs/Dialects.md);
+  1. [Как собрать проект из исходного кода](docs/HowToBuild.md);
   
 ## История изменений ##
 ### Изменения в версии 2.8 (11.06.2013 - текущая версия) ###
