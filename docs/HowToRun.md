@@ -5,7 +5,7 @@
   * использовать [MsBuild](http://msdn.microsoft.com/ru-ru/library/0k6kkbsd.aspx);
   * использовать API из библиотеки ECM7.Migrator.dll.
 
-При запуске можно опционально указать версию, до которой необходимо выполнить изменения. Если указанная версия меньше текущей версии БД, то произойдет откат БД с использованием метода _Down_ соответствующих "миграций". Если указанная версия больше текущей версии БД, то будут выполнены соответствующие изменения и использованием метода _Up()_.
+При запуске можно опционально указать версию, до которой необходимо выполнить изменения. Если указанная версия меньше текущей версии БД, то произойдет откат БД с использованием метода _Revert_ соответствующих "миграций". Если указанная версия больше текущей версии БД, то будут выполнены соответствующие изменения и использованием метода _Apply()_.
 
 Чтобы перевести БД на последнюю имеющуюся версию, необходимо указать в качестве номера версии -1. В случае, когда версия не указана, также произойдет перевод БД на последнюю версию.
 
@@ -17,11 +17,12 @@
 Самый простой способ выполнить миграции - это использовать консольное приложение _ECM7.Migrator.Console_. Используемый провайдер, строка подключения и название сборки с миграциями задаются через параметры командной строки и являются обязательными параметрами.
 
 ```
-ECM7.Migrator.Console <провайдер> <строка подключения> <сборка с миграциями> [-version:NUM] [-list] [-help]
+ECM7.Migrator.Console <провайдер> <строка подключения> <сборка с миграциями> [-version:NUM] [-timeout:NUM] [-list] [-help]
 ```
 
 Назначение дополнительных параметров:
   * -version: версия назначения (если не указывать этот параметр или указать значение **-1**, то будет выполнена миграция БД до последней доступной версии);
+  * -timeout: таймаут выполнения SQL запросов (в секундах);
   * -list: если указан данный параметр, то будут отображен список доступных миграций без их выполнения;
   * -help: если указан данный параметр, то будет выведена краткая справка по консольному приложению.
 
@@ -126,83 +127,6 @@ ECM7.Migrator.Console "ECM7.Migrator.Providers.SqlServer.SqlServerTransformation
 
 `MSBuild build.proj /t:Migrate`
 
-### Компиляция классов миграций во время выполнения ###
-
-Вместо использования скомпилированной dll при запуске изменений, вы можете также указать путь к папке с исходным кодом "миграций". "Миграции" будут скомпилированы "на лету" и запущены на выполнение.
-
-По умолчанию используется язык С#. Если вы используете другой язык, укажите его в параметре _Language_.
-
-```
-<Target name="Migrate" DependsOnTargets="Build">
-    <CreateProperty Value="-1"  Condition="'$(SchemaVersion)'==''">
-        <Output TaskParameter="Value" PropertyName="SchemaVersion"/>
-    </CreateProperty>
-    <Migrate
-            Dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
-            Connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
-            Directory="migrations"
-            To="$(SchemaVersion)"/>
-</Target>
-```
-
-### Сохранение исполняемого SQL в файл ###
-
-Для сохранения в файл сгенерированного SQL необходимо указать имя файла при помощи параметра _ScriptFile_.
-
-```
-<Target name="Migrate" DependsOnTargets="Build">
-    <CreateProperty Value="-1"  Condition="'$(SchemaVersion)'==''">
-        <Output TaskParameter="Value" PropertyName="SchemaVersion"/>
-    </CreateProperty>
-    <Migrate
-            Dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
-            Connectionstring="Database=MyDB;Data Source=localhost;User Id=;Password=;"
-            Directory="migrations"
-            To="$(SchemaVersion)"
-            Scriptfile="migrations.sql"/>
-</Target>
-```
-
-
-### Полный пример ###
-Это полный пример для MsBuild, в ходе которого "миграции" компилируются и запускаются на выполнение.
-
-```
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <ClassLibraryOutputDirectory>bin\$(Configuration)</ClassLibraryOutputDirectory>
-        <MigratorTasksPath>$(MSBuildProjectDirectory)\migrator</MigratorTasksPath>
-        <MigrationsProject>ProjectMigrations\ProjectMigrations.csproj</MigrationsProject>
-    </PropertyGroup>
-    
-    <Import Project="$(MigratorTasksPath)\Migrator.Targets" />
-    
-    <Target Name="Build-Migrations">
-        <MSBuild Projects="$(MigrationsProject)" Targets="Build">
-            <Output TaskParameter="TargetOutputs" ItemName="MigrationAssemblies" />
-        </MSBuild>
-        
-        <Message Text="Built: @(MigrationAssemblies)"/>
-    </Target>
-    
-    <Target Name="Migrate" DependsOnTargets="Build-Migrations">
-        <Message Text="Migrating: @(MigrationAssemblies)"/>
-        
-        <CreateProperty Value="-1"  Condition="'$(SchemaVersion)'==''">
-            <Output TaskParameter="Value" PropertyName="SchemaVersion"/>
-        </CreateProperty>
-        <Migrate
-            Dialect="ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer"
-            Connectionstring="Database=test2;Data Source=localhost;User Id=sa;Password=sql;"
-            Migrations="@(MigrationAssemblies)"
-            To="$(SchemaVersion)"/>
-    </Target>
-</Project>
-```
-
-
 ---
 
 ## API ##
@@ -210,8 +134,33 @@ ECM7.Migrator.Console "ECM7.Migrator.Providers.SqlServer.SqlServerTransformation
 Migrator и вызвать его метод
 
 ```
-Migrator migrator = new Migrator(
-    "ECM7.Migrator.Providers.SqlServer.SqlServerDialect, ECM7.Migrator.Providers.SqlServer",
-    UoW.Session.Connection.ConnectionString,
-    typeof(DatabaseMigrator).Assembly);
+var provider = ProviderFactory.Create(config.Provider.Trim(), connectionString);
+var assembly = typeof(MyType).Assembly;
+using (Migrator migrator = new Migrator(provider, assembly))
+{
+ migrator.Migrate(parameters.version);
+}
+```
+Пример с размещением параметров миграции в конфигурационном файле приложения:
+```
+using (Migrator migrator = MigratorFactory.InitByConfigFile())
+{
+ migrator.Migrate(parameters.version);
+}
+```
+Пример конфигурационного файла приложения:
+```
+<configuration>
+	<configSections>
+		<section name="migrator" type="ECM7.Migrator.Configuration.MigratorConfigurationSection, ECM7.Migrator"/>
+  ...
+	</configSections>
+ <migrator
+	 	assembly="ECM7.Migrator.TestAssembly"
+		 provider="SqlServer"
+		 connectionStringName="mySonnectionString" />	
+</configuration>
+<connectionStrings>
+		<add name="mySonnectionString" connectionString="Data Source=.;Initial Catalog=test;Integrated Security=SSPI;"/>
+	</connectionStrings>
 ```
